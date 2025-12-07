@@ -39,7 +39,7 @@
             </div>
             <div class="total-card">
                 <div class="card">
-                    <h3><i class="bi bi-currency-dollar"></i>Monthly Recurring Revenue (MRR)</h3>
+                    <h3>Monthly Recurring Revenue (MRR)</h3>
                     <p>$85,420</p>
                 </div>
                 <div class="card">
@@ -71,14 +71,10 @@
                     </div>
                 </div>
                 <div class="left-side">
-                    <div class="activities">
-                        <div class="recent-act">
-                            <h2><i class="bi bi-clock-history"></i>Recent Activities</h2>
-                            <span><i class="bi bi-file-code"></i>Aires Dumali enrolled Web System Development</span><br>
-                            <span><i class="bi bi-file-earmark-text"></i>Transcripts request for Regielyn Dariagan</span><br>
-                            <span><i class="bi bi-pencil-square"></i>Programming 1 updated syllabus</span>
-                            <span><i class="bi bi-pencil-square"></i>Programming 1 updated syllabus</span>
-                            <span><i class="bi bi-pencil-square"></i>Programming 1 updated syllabus</span>
+                    <div class="customers">
+                        <div class="customer-origin">
+                            <h2>New Customer Origin (Last 30 days)</h2>
+                            <canvas id="new-customer-origin"></canvas>
                         </div>
                     </div>
                     <div class="schedule">
@@ -86,9 +82,19 @@
                             <h2><i class="bi bi-calendar-event"></i>Upcoming Schedules</h2>
                             <span><i class="bi bi-alarm"></i>Faculty Meeting - July 10, 2026</span><br>
                             <span><i class="bi bi-alarm"></i>Enrollment Deadline - August 1, 2026</span><br>
+                            <span><i class="bi bi-alarm"></i>System Maintenance - July 15, 2026</span><br>
                             <span><i class="bi bi-alarm"></i>System Maintenance - July 15, 2026</span>
                             <span><i class="bi bi-alarm"></i>System Maintenance - July 15, 2026</span>
-                            <span><i class="bi bi-alarm"></i>System Maintenance - July 15, 2026</span>
+                        </div>
+                    </div>
+                    <div class="notifications">
+                        <div class="notif-and-alerts">
+                            <h2>Notifications &amp; Alerts</h2>
+                            <span><i class="bi bi-file-code"></i>Aires Dumali enrolled Web System Development</span><br>
+                            <span><i class="bi bi-file-earmark-text"></i>Transcripts request for Regielyn Dariagan</span><br>
+                            <span><i class="bi bi-pencil-square"></i>Programming 1 updated syllabus</span><br>
+                            <span><i class="bi bi-pencil-square"></i>Programming 1 updated syllabus</span><br>
+                            <span><i class="bi bi-pencil-square"></i>Programming 1 updated syllabus</span>
                         </div>
                     </div>
                 </div>
@@ -155,38 +161,147 @@
 
     // });
 
-    //Enrollment Trends
-    const ctx = document.getElementById('revenue');
+    //Revenue Trends
 
-    const labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+    function generateLastDays(numDays){
+        const dates = [];
+        const today = new Date();
+        for(let i = numDays - 1; i >= 0; i--){
+            const date = new Date();
+            date.setDate(today.getDate()-i);
+            dates.push(date.toLocaleDateString('en-US', {month: 'short', day: 'numeric'}));
+        }
+        return dates;
+    }
+    function generateRandomData(numDays){
+        return Array.from({length: numDays}, () => Math.floor(Math.random()*150)+20);
+    }
+
+    const labels = generateLastDays(90);
 
     const data = {
         labels: labels,
         datasets: [
             {
                 label: 'Actual Revenue',
-                data: [65, 59, 80, 81, 56, 55, 40, 69, 53, 33, 90, 123],
+                data: generateRandomData(90),
                 fill: false,
                 borderColor: 'rgb(75, 192, 192)',
                 tension: 0.3
             },
             {
                 label: 'Last 90 Days',
-                data: [70, 50, 100, 120, 30, 150, 60, 80, 40, 60, 110, 130],
+                data: generateRandomData(90),
                 fill: false,
                 borderColor: 'rgb(255, 99, 132)',
                 tension: 0.3
             }
         ]
     };
+    const ctx = document.getElementById('revenue').getContext('2d');
 
     new Chart(ctx, {
         type: 'line',
         data: data,
         options: {
             responsive: true,
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+            plugins:{
+                legend:{
+                    labels:{
+                        font: {
+                            size: 18,
+                            family: 'Arial, sans-serif',
+                            weight: '500'
+                        },
+                        color: '#000'
+                    }
+                }
+            },
+            scales: {
+                r: {
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    pointLabels: {
+                        font:{
+                            size: 16,
+                            family: 'Arial, sans-serif',
+                            weight: '500'
+                        },
+                        color: '#000'
+                    }
+                }
+            }
         }
     });
+
+    //New Customer Origin
+    const customerData = {
+        labels: [
+            'Organic Search',
+            'Paid Ads',
+            'Referrals',
+            'Direct Traffic',
+        ],
+        datasets: [{
+            label: 'New Customer Origins',
+            data: [65, 59, 90, 81],
+            fill: true,
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgb(255, 99, 132)',
+            pointBackgroundColor: 'rgb(255, 99, 132)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(255, 99, 132)'
+        }, {
+            label: 'Old Customer Origins',
+            data: [28, 48, 40, 19],
+            fill: true,
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderColor: 'rgb(54, 162, 235)',
+            pointBackgroundColor: 'rgb(54, 162, 235)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(54, 162, 235)'
+        }]
+    };
+
+    const ctxNewCustomer = document.getElementById('new-customer-origin').getContext('2d');
+
+    new Chart(ctxNewCustomer, {
+        type: 'radar',
+        data: customerData,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins:{
+                legend:{
+                    labels:{
+                        font: {
+                            size: 16,
+                            family: 'Arial, sans-serif',
+                            weight: '500'
+                        },
+                        color: '#000'
+                    }
+                }
+            },
+            scales: {
+                r: {
+                    suggestedMin: 0,
+                    suggestedMax: 10,
+                    pointLabels: {
+                        font:{
+                            size: 13,
+                            family: 'Arial, sans-serif',
+                            weight: '500'
+                        },
+                        color: '#000'
+                    }
+                }
+            }
+        }
+    });
+
 </script>
 </html>
