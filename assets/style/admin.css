@@ -256,7 +256,7 @@ body{
     align-items: center;
     gap: 10px;
 }
-.schedule {
+.conversion{
     width: 96%;
     background: white;
     border-radius: 8px;
@@ -265,43 +265,24 @@ body{
     height: auto;
     transition: width 0.3s ease;
     flex-direction: column;
-    height: 250px;
+    height: 260px;
     margin-top: 10px;
 }
-.schedule .sched{
+.conversion .flow{
     display: flex;
     flex-direction: column;
     gap: 10px;
-    max-height: 230px;
-    overflow-y: auto;
+    max-height: 250px;
     margin: 10px;
 }
-.schedule h2 {
+.conversion h2 {
     margin: 0;
     padding: 0;
     font-size: 22px;
+    font-weight: 600;
     display: flex;
     align-items: center;
     gap: 10px;
-}
-.schedule h2 i {
-    font-size: 28px;
-}
-.schedule span {
-    padding: 8px;
-    border-bottom: 1px solid #eee;
-    font-size: 18px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.schedule span:hover {
-    background-color: #f5f5f5;
-    cursor: pointer;
-}
-.schedule span i{
-    margin-right: 10px;
-    font-size: 20px;
 }
 .notifications{
     width: 96%;

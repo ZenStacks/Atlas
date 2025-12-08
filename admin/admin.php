@@ -6,6 +6,7 @@
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="../assets/style/admin.css?v=2.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
@@ -77,14 +78,9 @@
                             <canvas id="new-customer-origin"></canvas>
                         </div>
                     </div>
-                    <div class="schedule">
-                        <div class="sched">
-                            <h2><i class="bi bi-calendar-event"></i>Upcoming Schedules</h2>
-                            <span><i class="bi bi-alarm"></i>Faculty Meeting - July 10, 2026</span><br>
-                            <span><i class="bi bi-alarm"></i>Enrollment Deadline - August 1, 2026</span><br>
-                            <span><i class="bi bi-alarm"></i>System Maintenance - July 15, 2026</span><br>
-                            <span><i class="bi bi-alarm"></i>System Maintenance - July 15, 2026</span>
-                            <span><i class="bi bi-alarm"></i>System Maintenance - July 15, 2026</span>
+                    <div class="conversion">
+                        <div class="flow">
+                            <div id="conversion-flow" style="height: 300px; width: 100%;"></div>   
                         </div>
                     </div>
                     <div class="notifications">
@@ -128,38 +124,6 @@
         sidebar.classList.toggle('active');
         mainContainer.classList.toggle('shift');
     });
-    //chart.js
-    // const ctx = document.getElementById('mychart').getContext('2d');
-
-    // fetch('data.php')
-    //     .then(res=>res.json())
-    //     .then(data => {
-    //         const chart = document.getElementById('mychart');
-
-    //         new Chart(ctx, {
-    //         type: "bar",
-    //         data: {
-    //             labels: ["Students", "Faculty", "Administrators", "Registrar", "Security"],
-    //             datasets: [{
-    //                 label: "Total Users",
-    //                 data: [
-    //                     data.students,
-    //                     data.faculty,
-    //                     data.administrators,
-    //                     data.registrar,
-    //                     data.security
-    //                 ],
-    //                 borderWidth: 1
-    //             }]
-    //         },
-    //         options: {
-    //             scales: {
-    //                 y: { beginAtZero: true }
-    //             }
-    //         }
-    //     });
-
-    // });
 
     //Revenue Trends
 
@@ -302,6 +266,73 @@
             }
         }
     });
+
+    //conversion flow
+    CanvasJS.addColorSet("flatColors", [
+    "#4FC3F7",
+    "#29B6F6",
+    "#26A69A",
+    "#66BB6A",
+    "#43A047",
+    "#2E7D32"
+]);
+
+var chart = new CanvasJS.Chart("conversion-flow", {
+    animationEnabled: true,
+    bevelEnabled: false,
+    backgroundColor: "transparent",
+    colorSet: "flatColors",
+    dataPointMaxWidth: 999,
+    title: {
+        text: "Conversion Flow",
+         fontFamily: "Arial",
+        fontSize: 25,
+        fontWeight: 500,
+        fontColor: "#000"
+    },
+     toolTip: {
+        fontFamily: "Arial",
+        fontSize: 14,
+        fontColor: "#333",
+        fontWeight: "500"
+    },
+    data: [{
+        type: "funnel",
+        indexLabel: "{label} - {y}",
+        indexLabelFontFamily: "Arial",
+        indexLabelFontSize: 16,
+        indexLabelFontColor: "#000",
+        indexLabelFontWeight: "500",
+        toolTipContent: "<b>{label}</b>: {y} <b>({percentage}%)</b>",
+        neckWidth: 20,
+        neckHeight: 0,
+        valueRepresents: "area",
+        dataPoints: [
+            { y: 3871, label: "Applications" },
+            { y: 2496, label: "Screened" },
+            { y: 1398, label: "Qualified" },
+            { y: 1118, label: "Interviewed" },
+            { y: 201, label: "Offers Extended" },
+            { y: 151, label: "Filled" }
+        ]
+    }]
+});
+
+calculatePercentage();
+chart.render();
+
+function calculatePercentage() {
+    var dp = chart.options.data[0].dataPoints;
+    var total = dp[0].y;
+
+    for (var i = 0; i < dp.length; i++) {
+        dp[i].percentage = i === 0 
+            ? 100 
+            : ((dp[i].y / total) * 100).toFixed(2);
+    }
+}
+
+
 
 </script>
 </html>
