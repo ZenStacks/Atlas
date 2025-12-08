@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../assets/style/admin.css?v=2.0">
+    <link rel="stylesheet" href="../assets/style/admin.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -30,10 +30,6 @@
             <div class="sidebar hidden" id="sidebar">
                 <ul>
                     <li><i class="bi bi-grid"></i>Dashboard</li>
-                    <li><i class="bi bi-person-gear"></i>Students</li>
-                    <li><i class="bi bi-people"></i>Faculty</li>
-                    <li><i class="bi bi-collection"></i>Enrollment</li>
-                    <li><i class="bi bi-card-text"></i>Transcripts</li>
                     <li><i class="bi bi-bar-chart"></i>Reports</li>
                     <li><i class="bi bi-bell"></i>Notifications</li>
                 </ul>
@@ -174,7 +170,7 @@
                 legend:{
                     labels:{
                         font: {
-                            size: 18,
+                            size: 14,
                             family: 'Arial, sans-serif',
                             weight: '500'
                         },
@@ -188,7 +184,7 @@
                     suggestedMax: 10,
                     pointLabels: {
                         font:{
-                            size: 16,
+                            size: 14,
                             family: 'Arial, sans-serif',
                             weight: '500'
                         },
@@ -242,7 +238,7 @@
                 legend:{
                     labels:{
                         font: {
-                            size: 16,
+                            size: 14,
                             family: 'Arial, sans-serif',
                             weight: '500'
                         },
