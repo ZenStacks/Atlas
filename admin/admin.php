@@ -54,13 +54,13 @@
             </div>
             <div class="content-row">
                 <div class="chart-data">
-                    <div class="data">
+                    <div class="revenue-data">
                         <h2>Revenue Performance: Last 90 days</h2>
                         <div class="revenue">
                             <canvas id="revenue"></canvas>
                         </div>
                     </div>
-                    <div class="data">
+                    <div class="report-data">
                         <h2>Pending Reports</h2>
                         <div class="reports">
                             <canvas id="pending-reports"></canvas>
@@ -238,7 +238,7 @@
                 legend:{
                     labels:{
                         font: {
-                            size: 14,
+                            size: 13,
                             family: 'Arial, sans-serif',
                             weight: '500'
                         },
@@ -282,7 +282,7 @@ var chart = new CanvasJS.Chart("conversion-flow", {
     title: {
         text: "Conversion Flow",
          fontFamily: "Arial",
-        fontSize: 25,
+        fontSize: 20,
         fontWeight: 500,
         fontColor: "#000"
     },
@@ -292,24 +292,25 @@ var chart = new CanvasJS.Chart("conversion-flow", {
         fontColor: "#333",
         fontWeight: "500"
     },
-    data: [{
+        data: [{
         type: "funnel",
         indexLabel: "{label} - {y}",
         indexLabelFontFamily: "Arial",
-        indexLabelFontSize: 16,
+        indexLabelFontSize: 10,
         indexLabelFontColor: "#000",
         indexLabelFontWeight: "500",
+        indexLabelPlacement: "inside",
+        indexLabelBackgroundColor: "transparent",
         toolTipContent: "<b>{label}</b>: {y} <b>({percentage}%)</b>",
         neckWidth: 20,
         neckHeight: 0,
         valueRepresents: "area",
         dataPoints: [
-            { y: 3871, label: "Applications" },
-            { y: 2496, label: "Screened" },
-            { y: 1398, label: "Qualified" },
-            { y: 1118, label: "Interviewed" },
-            { y: 201, label: "Offers Extended" },
-            { y: 151, label: "Filled" }
+            { y: 3871, label: "Website Visitors" },
+            { y: 2496, label: "Free Sign Ups" },
+            { y: 1398, label: "Activated Users" },
+            { y: 1118, label: "Sales Qualified" },
+            { y: 201, label: "Paid Subscribes" }
         ]
     }]
 });
