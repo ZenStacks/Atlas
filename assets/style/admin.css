@@ -223,7 +223,7 @@ body{
     gap: 5px;
     flex-direction: column;
     justify-content: space-between;
-    height: 550px;
+    height: 270px;
     width: 100%;
     background: white;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -361,6 +361,8 @@ body{
     .content-row,
     .total-card {
         flex-direction: column;
+        width: 400px;
+
     }
 
     .chart-data,

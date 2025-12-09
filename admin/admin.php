@@ -50,6 +50,7 @@
                 <div class="card">
                     <h3>Active Users (Daily)</h3>
                     <p>12,450</p>
+                    
                 </div>
             </div>
             <div class="content-row">
