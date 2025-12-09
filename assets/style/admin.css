@@ -195,6 +195,8 @@ body{
     flex-direction: column;
     gap: 10px;
     justify-content: space-between;
+    flex: 1;
+    min-width: 0;
 }
 .chart-data .revenue-data{
     display: flex;
@@ -242,6 +244,7 @@ body{
     gap: 5px;
     margin: 0;
     transition: width 0.3s ease;
+    flex: 0 0 420px;
 }
 .customers{
     width: 96%;
