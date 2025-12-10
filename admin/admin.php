@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../assets/style/admin.css">
+    <link rel="stylesheet" href="../assets/style/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -68,7 +68,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="left-side">
+                <div class="right-side">
                     <div class="customers">
                         <div class="customer-origin">
                             <h2>New Customer Origin (Last 30 days)</h2>
@@ -265,6 +265,7 @@
     });
 
     //conversion flow
+    
     CanvasJS.addColorSet("flatColors", [
     "#4FC3F7",
     "#29B6F6",
@@ -276,13 +277,13 @@
 
 var chart = new CanvasJS.Chart("conversion-flow", {
     animationEnabled: true,
-    bevelEnabled: false,
+    bevelEnabled: false, 
     backgroundColor: "transparent",
     colorSet: "flatColors",
     dataPointMaxWidth: 999,
     title: {
         text: "Conversion Flow",
-         fontFamily: "Arial",
+        fontFamily: "Arial",
         fontSize: 20,
         fontWeight: 500,
         fontColor: "#000"
