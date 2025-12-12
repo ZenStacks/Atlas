@@ -3,25 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration</title>
+    <title>Login Page</title>
     <link rel="stylesheet" href="assets/style/login.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-   <div class="main-login-container">
+    <div class="main-container">
         <div class="login-container" id="form-container">
-            <div class="container">  
+            <div class="container">
                 <div class="login-content">
-                    <h2 class="form-title">Login</h2>
                     <form action="" method="POST" class="login-form">
+                        <h2 class="form-title">Login</h2>
                         <div class="input-group">
-                            <input type="email" placeholder="Email" required>
-                            <i class="bi bi-envelope right-icon"></i>
+                            <label for="email-field">
+                                <i class="bi bi-envelope"></i> Email
+                            </label>
+                            <input type="email" id="email-field" required>
                         </div>
                         <div class="pass-wrap"> 
-                            <input type="password" id="login-pass" placeholder="Password" required>
-                            <i class="bi bi-lock right-icon"></i> 
+                            <label for="login-pass">
+                                <i class="bi bi-lock"></i> Password
+                            </label>
+                            <input type="password" id="login-pass" required>
                             <i class="bi bi-eye password-toggle" id="eye"></i> 
                         </div>
                         
@@ -38,26 +42,34 @@
                         </div>
                     </form>
                 </div>
-                
                 <div class="registration-content">
                     <h2 class="form-title">Registration</h2>
                     <form action="" method="POST" class="registration-form">
                         <div class="input-group">
-                            <input type="text" placeholder="Username" required>
-                            <i class="bi bi-person right-icon"></i> 
+                            <label for="name-field">
+                                <i class="bi bi-person"></i> Name
+                            </label>
+                            <input type="text" id="name-field" required>
+                            <label for="phone-field">
+                                <i class="bi bi-telephone"></i> Phone No.
+                            </label>
+                            <input type="phone" id="phone-field" required>
+                            <label for="email-field">
+                                <i class="bi bi-envelope"></i> Email Address
+                            </label>
+                            <input type="pass" id="pass-field" required>
+                            <label for="pass-field">
+                                <i class="bi bi-lock"></i> Password
+                            </label>
+                            <input type="password" id="pass-field" required>
+                            <label for="confirmpass-field">
+                                <i class="bi bi-lock"></i> Confirm Password
+                            </label>
+                            <input type="password" id="confirmpass-field" required>
                         </div>
-                        
-                        <div class="input-group">
-                            <input type="email" placeholder="Email" required>
-                            <i class="bi bi-envelope right-icon"></i>
-                        <div class="pass-wrap"> 
-                            <input type="password" id="reg-pass" placeholder="Password" required>
-                            <i class="bi bi-lock right-icon"></i> 
-                        </div>
-                        
-                        <button type="submit" class="register-btn">Register</button>
-                        
-                        <p class="social-text">or register with social platforms</p>
+                        <button type="submit" class="login-submit-btn">Sign Up</button>
+
+                        <p class="social-text">or login with social platforms</p>
                         <div class="social-icons">
                             <i class="fab fa-google"></i>
                             <i class="fab fa-facebook-f"></i>
@@ -66,7 +78,6 @@
                         </div>
                     </form>
                 </div>
-                
                 <div class="blue-cover-panel" id="blue-cover-panel">
                     <div class="welcome-section welcome-register-prompt">
                         <h2 class="welcome-title">Welcome Back!</h2>
@@ -76,15 +87,26 @@
                     
                     <div class="welcome-section welcome-login-prompt">
                         <h2 class="welcome-title">Hello, Friend!</h2>
-                        <p class="welcome-text">Enter your personal details and start your journey with us.</p>
+                        <p class="welcome-text">Enter your personal details and<br>start your journey with us.</p>
                         <button class="login-prompt-btn" id="to-register-btn">Register</button>
                     </div>
-                </div>  
+                </div>
             </div>
         </div>
     </div>
-
     <script>
+        const password = document.getElementById('login-pass');
+        const eye = document.getElementById('eye');
+
+        if (password && eye) {
+            eye.addEventListener("click", () => {
+                const isPass = password.type === "password";
+                password.type = isPass ? "text" : "password";
+                eye.classList.toggle("bi-eye");
+                eye.classList.toggle("bi-eye-slash");
+            });
+        }
+
         const container = document.getElementById('form-container');
         const toLoginBtn = document.getElementById('to-login-btn');
         const toRegisterBtn = document.getElementById('to-register-btn');
@@ -96,18 +118,6 @@
         toRegisterBtn.addEventListener('click', () => {
             container.classList.remove('login-mode');
         });
-
-        const loginPass = document.getElementById('login-pass');
-        const eye = document.getElementById('eye');
-
-        if(loginPass && eye){
-            eye.addEventListener("click", () => {
-                const isPass = loginPass.type === "password";
-                loginPass.type = isPass ? "text" : "password";
-                eye.classList.toggle("bi-eye");
-                eye.classList.toggle("bi-eye-slash");
-            });
-        }
     </script>
 </body>
 </html>
