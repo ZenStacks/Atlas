@@ -332,13 +332,13 @@ body{
     display: flex;
     flex-direction: column;
     gap: 10px;
-    max-height: 230px;
+    max-height: 200px;
     overflow-y: auto;
     margin: 10px;
 }
 .notifications h2 {
     margin: 0;
-    padding: 0;
+    padding: 5px;
     font-size: 20px;
     font-weight: 600;
     display: flex;
@@ -352,6 +352,10 @@ body{
     display: flex;
     align-items: center;
     gap: 10px;
+}
+.notifications span:hover{
+    background: rgb(186, 183, 183);
+    cursor: pointer;
 }
 .revenue{
     padding: 0 20px 20px 20px;
@@ -550,5 +554,3 @@ body{
         height: 450px !important;
     }
 }
-
-/* Login Page Styles */

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../assets/style/style.css">
+    <link rel="stylesheet" href="../assets/style/style.css?v=2.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -81,8 +81,8 @@
                         </div>
                     </div>
                     <div class="notifications">
+                        <h2>Notifications &amp; Alerts</h2>
                         <div class="notif-and-alerts">
-                            <h2>Notifications &amp; Alerts</h2>
                             <span><i class="bi bi-file-code"></i>Aires Dumali enrolled Web System Development</span><br>
                             <span><i class="bi bi-file-earmark-text"></i>Transcripts request for Regielyn Dariagan</span><br>
                             <span><i class="bi bi-pencil-square"></i>Programming 1 updated syllabus</span><br>
