@@ -73,21 +73,20 @@
                         <div class="social-icons">
                             <i class="fab fa-google"></i>
                             <i class="fab fa-facebook-f"></i>
-                            <i class="fab fa-github"></i>
-                            <i class="fab fa-linkedin-in"></i>
                         </div>
                     </form>
                 </div>
                 <div class="blue-cover-panel" id="blue-cover-panel">
                     <div class="welcome-section welcome-register-prompt">
-                        <h2 class="welcome-title">Welcome Back!</h2>
+                        <h2 class="welcome-title">Hello Teh!</h2>
                         <p class="welcome-text">Already have an account?</p>
                         <button class="login-prompt-btn" id="to-login-btn">Login</button>
                     </div>
                     
                     <div class="welcome-section welcome-login-prompt">
-                        <h2 class="welcome-title">Hello, Friend!</h2>
-                        <p class="welcome-text">Enter your personal details and<br>start your journey with us.</p>
+                        <h2 class="welcome-title">Hello, Mah!</h2>
+                        <!-- <p class="welcome-text">Enter your personal details and<br>start your journey with us.</p> -->
+                         <p class="welcome-text">Enter your personal details and<br>order na d para sa future mo.</p>
                         <button class="login-prompt-btn" id="to-register-btn">Register</button>
                     </div>
                 </div>
