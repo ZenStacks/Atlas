@@ -236,7 +236,6 @@ body {
         height: auto;
         flex-direction: column;
     }
-
     .login-content,
     .registration-content {
         width: 100%;
@@ -252,7 +251,13 @@ body {
         order: -1;
     }
 
-    .blue-cover-panel::before { content: none; }
-    .welcome-login-prompt { display: none !important; }
-    .welcome-register-prompt { display: block !important; }
+    .blue-cover-panel::before {
+        content: none; 
+    }
+    .welcome-login-prompt{
+        display: none !important;
+    }
+    .welcome-register-prompt{
+        display: block !important;
+    }
 }
