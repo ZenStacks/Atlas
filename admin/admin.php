@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../assets/style/style.css">
+    <link rel="stylesheet" href="../assets/style/style.css?v=2.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -16,6 +16,9 @@
             <span id="hamburger">&#9776;</span>
             <div class="profile">
                 <img src="../assets/img/profile.png" alt="Admin Profile">
+            </div>
+            <div class="name">
+                <h2>Default Name</h2>
             </div>
         </div>
         <div class="container">
@@ -73,7 +76,8 @@
                         </div>
                         <div class="conversion">
                             <div class="flow">
-                                <div id="conversion-flow" style="height: 300px; width: 100%;"></div>   
+                                <h2>Conversion Flow</h2>
+                                <canvas id="conversion-flow"></canvas>
                             </div>
                         </div>
                         <div class="notifications">
@@ -305,7 +309,7 @@
                 legend:{
                     labels:{
                         font: {
-                            size: 14,
+                            size: 12,
                             family: 'Arial, sans-serif',
                             weight: '500'
                         },
@@ -319,7 +323,7 @@
                     suggestedMax: 10,
                     pointLabels: {
                         font:{
-                            size: 14,
+                            size: 12,
                             family: 'Arial, sans-serif',
                             weight: '500'
                         },
@@ -399,72 +403,38 @@
     });
 
     //conversion flow
-    
-    CanvasJS.addColorSet("flatColors", [
-    "#4FC3F7",
-    "#29B6F6",
-    "#26A69A",
-    "#66BB6A",
-    "#43A047",
-    "#2E7D32"
-]);
+    const dataConversion = {
+        labels: ['Red', 'Green', 'Yellow', 'Grey', 'Blue'],
+        datasets: [{
+            label: 'My First Dataset',
+            data: [11, 16, 7, 3, 14],
+            backgroundColor: [
+                'rgb(255, 99, 132)',
+                'rgb(75, 192, 192)',
+                'rgb(255, 205, 86)',
+                'rgb(201, 203, 207)',
+                'rgb(54, 162, 235)'
+            ]
+        }]
+    };
 
-var chart = new CanvasJS.Chart("conversion-flow", {
-    animationEnabled: true,
-    bevelEnabled: false, 
-    backgroundColor: "transparent",
-    colorSet: "flatColors",
-    dataPointMaxWidth: 999,
-    title: {
-        text: "Conversion Flow",
-        fontFamily: "Arial",
-        fontSize: 20,
-        fontWeight: 500,
-        fontColor: "#000"
-    },
-     toolTip: {
-        fontFamily: "Arial",
-        fontSize: 14,
-        fontColor: "#333",
-        fontWeight: "500"
-    },
-        data: [{
-        type: "funnel",
-        indexLabel: "{label} - {y}",
-        indexLabelFontFamily: "Arial",
-        indexLabelFontSize: 10,
-        indexLabelFontColor: "#000",
-        indexLabelFontWeight: "500",
-        indexLabelPlacement: "inside",
-        indexLabelBackgroundColor: "transparent",
-        toolTipContent: "<b>{label}</b>: {y} <b>({percentage}%)</b>",
-        neckWidth: 20,
-        neckHeight: 0,
-        valueRepresents: "area",
-        dataPoints: [
-            { y: 3871, label: "Website Visitors" },
-            { y: 2496, label: "Free Sign Ups" },
-            { y: 1398, label: "Activated Users" },
-            { y: 1118, label: "Sales Qualified" },
-            { y: 201, label: "Paid Subscribes" }
-        ]
-    }]
-});
+    const ctxNewConversion = document
+        .getElementById('conversion-flow')
+        .getContext('2d');
 
-calculatePercentage();
-chart.render();
-
-function calculatePercentage() {
-    var dp = chart.options.data[0].dataPoints;
-    var total = dp[0].y;
-
-    for (var i = 0; i < dp.length; i++) {
-        dp[i].percentage = i === 0 
-            ? 100 
-            : ((dp[i].y / total) * 100).toFixed(2);
-    }
-}
-
+    new Chart(ctxNewConversion, {
+        type: 'polarArea',
+        data: dataConversion,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true
+                }
+            }
+        }
+    });
 
 
 </script>

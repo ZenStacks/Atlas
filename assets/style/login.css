@@ -19,7 +19,7 @@ body {
     align-items: center;
     padding: 20px;
 }
-.login-container {
+.form-container {
     width: 100%;
     max-width: 100%;
     background: #fff;
@@ -35,18 +35,10 @@ body {
     position: relative;
     justify-content: space-between;
 }
-.login-content{
-    width: 500px;
-    height: 550px;
-    border-radius: 12px;
-    padding: 30px;
-    margin: 20px;
-}
-.registration-content{
-    width: 500px;
-    border-radius: 12px;
-    padding: 20px;
-    margin: 30px;
+.login-content, .registration-content {
+    width: 50%;
+    padding: 50px;
+    transition: all 0.6s ease-in-out;
 }
 .form-title {
     font-size: 32px;
@@ -101,8 +93,11 @@ body {
     color: #4a69ff;
     cursor: pointer;
     margin-bottom: 20px;
+    text-decoration: none;
+    display: flex;
+    justify-content: flex-end;
 }
-.login-submit-btn {
+.login-submit-btn, .register-submit-btn {
     width: 100%;
     padding: 12px;
     border: none;
@@ -112,13 +107,12 @@ body {
     font-size: 18px;
     font-weight: 500;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 0;
     transition: background-color 0.3s;
 }
-.login-submit-btn:hover {
-    background-color: #3a57e3;
+.login-submit-btn:hover, .register-submit-btn:hover {
+    background-color: #2e46bc;
 }
-
 .social-text {
     text-align: center;
     margin: 25px 0 15px 0;
@@ -149,51 +143,64 @@ body {
 .blue-cover-panel {
     position: absolute;
     top: 0;
-    left: 0;
+    left: 0;          
+    width: 50%;       
     height: 100%;
-    width: 50%;
-    max-width: 750px;
     background-color: #2c3e50;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     color: white;
     text-align: center;
     z-index: 10;
     overflow: hidden;
-    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
-}
-
-.blue-cover-panel::before {
-    content: '';
-    position: absolute;
-    top: -10%;
-    right: -150px;
-    width: 250px;
-    height: 120%;
-    background: white;
-    border-radius: 50%;
-    z-index: -1;
     transition: all 0.6s ease-in-out;
 }
-.welcome-login-prompt { 
-  display: none; }
-.welcome-register-prompt { 
-  display: block; 
+.welcome-register-prompt,
+.welcome-login-prompt {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    text-align: center;
+    font-size: 22px;
+    margin: 25px;
+    font-weight: 500;
+    transition: transform 0.6s ease, opacity 0.9s ease;
 }
-.welcome-section {
-   position: relative; 
-   z-index: 1; 
-  }
-.welcome-title {
-   font-size: 40px; font-weight: 700; 
-  margin-bottom: 10px; 
+
+.welcome-register-prompt {
+    opacity: 1;
+    transform: translateX(0);
 }
-.welcome-text { font-size: 18px; 
-  margin-bottom: 30px; 
+
+.welcome-login-prompt {
+    opacity: 0;
+    transform: translateX(100%);
+    
 }
+
+.login-mode .welcome-register-prompt {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+.login-mode .welcome-login-prompt {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+
+.login-mode .blue-cover-panel {
+    left: 50%;
+    width: 50%;
+}
+
 .login-prompt-btn {
+    width: 200px;
     padding: 10px 30px;
     border: 2px solid white;
     border-radius: 30px;
@@ -202,62 +209,335 @@ body {
     font-size: 18px;
     font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s, color 0.3s;
+    transition: background-color 0.4s, color 0.4s;
+    justify-content: center;
+    align-items: center;
 }
 .login-prompt-btn:hover {
     background-color: white;
     color: #2c3e50;
 }
-.login-mode .blue-cover-panel {
-    transform: translateX(100%);
+.toggle-form-btn{
+    display: none;
 }
-.login-mode .blue-cover-panel::before {
-    content: '';
+/* forgot password modal */
+.forgot-password-modal {
     position: absolute;
-    top: -20px;
-    right: auto;
-    left: -150px;
-    bottom: -20px;
-    width: 250px;
-    background: white;
-    border-radius: 50% / 50%;
-    z-index: 1;
-    transition: transform 0.6s ease-in-out;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: white;
+    z-index: 10;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
 }
-.login-mode .welcome-register-prompt { 
-  display: none; 
+.modal-content {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 100px auto;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
 }
-.login-mode .welcome-login-prompt { 
-  display: block; 
+.close-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 24px;
+    color: #2c3e50;
+    cursor: pointer;
 }
-@media (max-width: 900px) {
-    .login-container {
-        width: 90%;
-        height: auto;
+.modal-content h2 {
+    margin-bottom: 20px;
+    color: #2c3e50;
+}
+.modal-content p {
+    margin-bottom: 20px;
+    color: #555;
+}
+.modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.reset-pass-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background-color: #4a69ff; 
+    color: white;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+.reset-pass-btn:hover {
+    background-color: #2e46bc;
+}
+.forgot-password-modal.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+@media (max-width: 768px) {
+    .form-container {
         flex-direction: column;
-    }
-    .login-content,
-    .registration-content {
+        height: auto;
+        margin: 20px;
         width: 100%;
-        padding: 40px 30px;
     }
-
+    .form-title {
+        font-size: 22px;
+        margin-bottom: 30px;
+    }
+    .input-group input,
+    .pass-wrap input {
+        font-size: 14px;
+    }
+    .input-group label,
+    .pass-wrap label {
+        font-size: 12px;
+    }
+    .input-group label i,
+    .pass-wrap label i {    
+        font-size: 14px;
+    }
+    .password-toggle {
+        font-size: 14px;
+    }
+    .login-submit-btn, .register-submit-btn {
+        font-size: 16px;
+        padding: 10px;
+    }
+    .forgot-password-link {
+        font-size: 12px;
+    }
+    .social-text {
+        font-size: 12px;
+    }
+    .social-icons i {
+        font-size: 16px;
+        padding: 8px;
+    }
     .blue-cover-panel {
-        position: relative;
-        width: 100%;
-        min-height: 250px;
-        transform: none !important;
-        border-radius: 20px 20px 0 0;
-        order: -1;
+        width: 50%;
+        height: 800px;
+        top: auto;
+        bottom: 0;
+        left: 0;
     }
-
-    .blue-cover-panel::before {
-        content: none; 
+    .welcome-register-prompt,
+    .welcome-login-prompt {
+        font-size: 14px;
     }
-    .welcome-login-prompt{
-        display: none !important;
+    .login-mode .blue-cover-panel {
+        left: 0;
     }
-    .welcome-register-prompt{
-        display: block !important;
+    .login-prompt-btn {
+        width: 150px;
+        padding: 8px 20px;
+        font-size: 16px;
     }
 }
+@media (max-width: 576px) {
+    .form-container {
+        flex-direction: column;
+        height: auto;
+        margin: 20px;
+        width: 100%;
+    }
+    
+    .form-title {
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+    .input-group input,
+    .pass-wrap input {
+        font-size: 12px;
+    }
+    .input-group label,
+    .pass-wrap label {  
+        font-size: 12px;
+    }
+    .input-group label i,
+    .pass-wrap label i {    
+        font-size: 14px;
+    }.password-toggle {
+        font-size: 14px;
+    }
+    .login-submit-btn, .register-submit-btn {
+        font-size: 14px;
+        padding: 8px;
+    }
+    .forgot-password-link {
+        font-size: 12px;
+    }
+    .social-text {
+        font-size: 12px;
+    }
+    .social-icons i {
+        font-size: 14px;
+        padding: 7px;
+    }
+    .blue-cover-panel {
+        width: 50%;
+        height: 750px;
+        top: auto;
+        bottom: 0;
+        left: 0;
+    }
+    .login-prompt-btn {
+        width: 150px;
+        padding: 8px 20px;
+        font-size: 14px;
+    }
+    .welcome-login-prompt, .welcome-register-prompt {
+        font-size: 14px;
+        margin: 15px;
+    }
+}
+@media (max-width: 800px) {
+    .form-container {
+        flex-direction: column;
+        height: auto;
+        margin: 20px;
+        width: 100%;
+    }
+    .form-title {
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+    .input-group input,
+    .pass-wrap input {
+        font-size: 12px;
+    }
+    .input-group label,
+    .pass-wrap label {  
+        font-size: 12px;
+    }
+    .input-group label i,
+    .pass-wrap label i {    
+        font-size: 14px;
+    }
+    .password-toggle {
+        font-size: 14px;
+    }
+    .login-submit-btn, .register-submit-btn {
+        font-size: 14px;
+        padding: 8px;
+    }
+    .forgot-password-link {
+        font-size: 12px;
+    }
+    .social-text {
+        font-size: 12px;
+    }
+    .social-icons i {
+        font-size: 14px;
+        padding: 7px;
+    }
+    .blue-cover-panel {
+        width: 50%;
+        height: 750px;
+        top: auto;
+        bottom: 0;
+        left: 0;
+    }
+    .login-prompt-btn {
+        width: 150px;
+        padding: 8px 20px;
+        font-size: 14px;
+    }
+    .welcome-login-prompt, .welcome-register-prompt {
+        font-size: 14px;
+        margin: 15px;
+    }
+}
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .form-container {
+        margin: 70px;
+        width: 100%;
+    }
+}
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .form-container {
+        margin: 80px;
+    }
+}
+@media(max-width:1200px) and (min-width:801px){
+    .form-container {
+        margin: 50px;
+    }
+}
+@media (max-width: 412px) {
+    .form-container {
+        margin: 0;
+        width: 100%;
+    }
+    .login-content .input-group input,
+    .registration-content .input-group input{
+        font-size: 10px;
+    }
+    .login-form, .registration-form {
+        width: 110px;
+    }
+    .form-title {
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+    .input-group label,
+    .pass-wrap label {  
+        font-size: 9px;
+    }
+    .input-group label i,
+    .pass-wrap label i {    
+        font-size: 12px;
+    }
+    .password-toggle {
+        font-size: 12px;
+    }
+    .login-submit-btn, .register-submit-btn {
+        font-size: 12px;
+        padding: 6px;
+    }
+    .social-text {
+        font-size: 10px;
+    }
+    .social-icons i {
+        font-size: 12px;
+        padding: 5px;
+    }
+    .forgot-password-link {
+        font-size: 9px;
+    }
+    .blue-cover-panel {
+        height: 100%;
+        top: auto;
+        bottom: 0;
+        left: 0;
+    }
+    .welcome-login-prompt, .welcome-register-prompt {
+        font-size: 9px;
+        margin: 10px;
+    }
+    .login-prompt-btn {
+        width: 70px;
+        padding: 0 5px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+    }
+
+}
+
+
+
