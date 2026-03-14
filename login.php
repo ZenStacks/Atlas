@@ -78,15 +78,14 @@
                     </form>
                 </div>
                 <div class="blue-cover-panel" id="blue-cover-panel">
+                    <!-- <video autoplay loop muted playsinline id="bg-video">
+                        <source src="assets/videos/video.mp4" type="video/mp4">
+                    </video> -->
                     <div class="welcome-section welcome-register-prompt">
-                        <h2 class="welcome-title">Hello there!</h2>
-                        <p class="welcome-text">Already have an account?</p>
                         <button class="login-prompt-btn" id="to-login-btn">Login</button>
                     </div>
                     
                     <div class="welcome-section welcome-login-prompt">
-                        <h2 class="welcome-title">Welcome back!</h2>
-                        <p class="welcome-text">Enter your personal details and start your journey with us.</p>
                         <button class="login-prompt-btn" id="to-register-btn">Register</button>
                     </div>
                     <div class="tear-drop" id="tearDrop"></div>
