@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../assets/style/admin.css">
+    <link rel="stylesheet" href="../assets/style/admin.css?v=1.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -37,7 +37,6 @@
                         </li>
                         <li class="category-item"><i class="bi bi-graph-up-arrow"></i> Revenue</li>
                         <li class="category-item"><i class="bi bi-bar-chart"></i> Reports</li>
-                        <li class="category-item"><i class="bi bi-collection"></i> Arrangement</li>
                         <!-- settings -->
                         <li class="category-title">
                             Settings &amp; privacy
@@ -64,6 +63,7 @@
                             <i class="bi bi-caret-right-fill caret-icon"></i>
                         </li>
                         <li class="category-item"><i class="bi bi-star-half"></i> Preferences</li>
+                        <li class="category-item"><i class="bi bi-collection"></i> Arrangement</li>
                         <li class="category-item"><i class="bi bi-calendar"></i> Schedule</li>
                         <li class="category-item"><i class="bi bi-clipboard2-plus"></i> Inventory &amp; items</li>
                         <li class="category-item"><i class="bi bi-people"></i> Staff Management</li>
@@ -183,9 +183,6 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>
-                <div class="arrangement-container" id="arrangement-container">
-
                 </div>
                 <div class="settings-container " id="settings-container">
                     <h2>Settings</h2>
@@ -437,23 +434,20 @@
                     <div class="chat-title"><h2>Chat</h2></div>
                     <div class="chat-container">
                         <div class="customer-chat">
-                            <div class="navigation-chat"></div>
-                            <div class="messages" style="flex:1; overflow-y:auto; margin-bottom:10px;">
-                                <!-- messages -->
-                            </div>
+                            <div class="chat-navigation" id="chatNavigation"></div>
+                            <div class="messages" id="messagesContainer"></div>
                             <div class="chat-input">
-                                <input type="text" id="chat" placeholder="Type your message...">
-                                <button type="submit"><i class="bi bi-send-fill"></i></button>
+                                <input type="text" id="adminChatInput" placeholder="Type your message...">
+                                <button type="button" id="adminChatSend"><i class="bi bi-send-fill"></i></button>
                             </div>
                         </div>
-                            <div class="chat-right">
+                        <div class="chat-right">
                             <h2>Messages</h2>
-                            <div class="chat-notifications">
-                                <span></span>
-                            </div>
+                            <div id="chatNotifications"></div>
                         </div>
                     </div>
                 </div>
+                <!-- Contacts Info -->
                 <div class="contacts-container" id="contacts-container">
                     <h2>Contacts Info</h2>
 
@@ -498,11 +492,16 @@
                 </div>
                 <div class="notif-container" id="notif-container">
                     <h2>Notifications</h2>
-                    <ul>
-                        <li>ANdahwd</li>
-                    </ul>
+                     <div class="notification-item">
+                        <p><strong>Service Update:</strong> Your funeral service booking has been confirmed.</p>
+                        <span class="time">Today, 10:45 AM</span>
+                    </div>
+                    <div class="notification-item">
+                        <p><strong>Reminder:</strong> Payment for the selected services is due tomorrow.</p>
+                        <span class="time">Yesterday, 5:00 PM</span>
+                    </div>
                 </div>
-                <!-- wish list of a customer -->
+                <!-- Preferences of a customer -->
                 <div class="wish-container" id="wish-container">
                     <h2>Preferences</h2>
                     <div class="wish-divided-container">
@@ -601,7 +600,43 @@
                         </div>
                     </div>
                 </div>
+                <!-- arrangement -->
+                <div class="arrangement-container hidden" id="arrangement-container">
+                    <h2>Funeral Arrangements</h2>
+                    <div class="container">
+                        <form action="save_arrangement.php" method="POST" class="form-box">
+                            
+                            <label>Deceased Name:</label>
+                            <input type="text" name="deceased_name" required>
 
+                            <label>Service Type:</label>
+                            <select name="service_type" required>
+                                <option value="">Select Service</option>
+                                <option value="Wake">Wake</option>
+                                <option value="Burial">Burial</option>
+                                <option value="Cremation">Cremation</option>
+                            </select>
+
+                            <label>Date:</label>
+                            <input type="date" name="service_date" required>
+
+                            <label>Time:</label>
+                            <input type="time" name="service_time" required>
+
+                            <label>Location:</label>
+                            <input type="text" name="location" required>
+
+                            <label>Officiant:</label>
+                            <input type="text" name="officiant">
+
+                            <button type="submit">Save Arrangement</button>
+                        </form>
+                        <div class="text-area">
+                            <label>Notes:</label>
+                            <textarea name="notes" rows="3"></textarea>
+                        </div>
+                    </div>
+                </div>
                 <!-- schedule calendar -->
                 <div class="schedule-container" id="schedule-container">
                     <h2>Schedule</h2>
@@ -819,38 +854,40 @@
                                     <div class="form-info-staff">
                                         <div class="first-input">
                                             <label for="name">Full Name: </label>
-                                            <input type="text" id="name" name="name" placeholder="Enter Full Name">
+                                            <input type="text" id="name" name="name" placeholder="Enter Full Name" required>
                                             <label for="age">Age: </label>
-                                            <input type="number" id="age" name="age" placeholder="Enter age">
+                                            <input type="number" id="age" name="age" placeholder="Enter age" min="18" max="100" required>
                                             <label for="gender">Gender: </label>
-                                            <select id="gender" name="gender">
+                                            <select id="gender" name="gender" required>
                                                 <option value="" disabled selected>Select Employee Gender</option>
                                                 <option value="male">Male</option>
                                                 <option value="female">Female</option>
                                                 <option value="other">Other</option>
                                             </select>
                                             <label for="contact">Contact No.: </label>
-                                            <input type="tel" id="contact" name="contact" placeholder="Enter Contact No.">
+                                            <input type="tel" id="contact" name="contact" placeholder="Enter Contact No." pattern="[0-9]{11}" maxlength="11" inputmode="numeric"required>
                                             <label for="username">Username: </label>
-                                            <input type="text" id="username" name="username" placeholder="Enter Username">
+                                            <input type="text" id="username" name="username" placeholder="Enter Username" required>
+                                            <label for="email">Email: </label>
+                                            <input type="email" id="email" name="email" placeholder="Enter Email" required>
                                         </div>
                                         <div class="second-input">
-                                            <div class="id-container">
-                                                <label for="id">Staff Id: </label>
-                                                <div class="id-button">
-                                                    <input type="text" id="id" name="id" style="outline: none; cursor: not-allowed; caret-color: transparent;" placeholder="Enter Staff Id" readonly>
-                                                    <button id="generate">Generate</button>
-                                                </div>
-                                            </div>
                                             <label for="department">Department: </label>
                                             <select id="department" name="department">
                                                 <option value="" disabled selected>Select Employee Department</option>
                                                 <option value="admin">Admin</option>
                                                 <option value="ground-crew">Ground Crew</option>
                                                 <option value="embalmer">Embalmer</option>
-                                                <option value="transportation">Transpotation</option>
+                                                <option value="transportation">Transportation</option>
                                                 <option value="maintenance">Maintenance</option>
                                             </select>
+                                            <div class="id-container">
+                                                <label for="id">Staff Id: </label>
+                                                <div class="id-button">
+                                                    <input type="text" id="id" name="staff_id" style="outline: none; cursor: not-allowed; caret-color: transparent;" placeholder="Enter Staff Id" readonly>
+                                                    <button id="generate">Generate</button>
+                                                </div>
+                                            </div>
                                             <label for="type">Type: </label>
                                             <select id="type" name="type">
                                                 <option value="" disabled selected>Select Employee Type</option>
@@ -891,12 +928,13 @@
                                             </div>
                                             <div class="second-row">
                                                 <p data-label="Username:" id="staff-username"><span></span></p>
+                                                <p data-label="Email:" id="staff-email"><span></span></p>
                                                 <p data-label="Date Hired:" id="staff-hired"><span></span></p>
                                             </div>
                                         </div>
                                         <div class="command-button">
                                             <button id="cancel">Cancel</button>
-                                            <button id="save">Update</button>
+                                            <button id="addStaffupdate">Save</button>
                                         </div>
                                     </div>
                                 </div>
@@ -1270,7 +1308,7 @@
                                     <tbody>
                                         <tr>
                                             <td class="user-cell">
-                                                <img src="avatar1.png">
+                                                <img src="../assets/img/profile.png">
                                                 Regielyn
                                             </td>
                                             <td><span class="badge blue">Logged In</span></td>
@@ -1517,20 +1555,20 @@
     const dashboardTitle = allSidebarItems[0];//dashboard title
     const revenueItem = allSidebarItems[1];//revenue
     const reportsItem = allSidebarItems[2];//reports
-    const arrangementItem = allSidebarItems[3];//arrangement
-    const settingsTitle = allSidebarItems[4];//settings title
-    const settingsItem = allSidebarItems[5];//settings click
-    const accountItem = allSidebarItems[6]; //account and security
-    const userStaffItem = allSidebarItems[7];//user and staff privacy
-    const dataManagementItem = allSidebarItems[8];//data management
-    const auditItem = allSidebarItems[9];//audit and logs
-    const communicationTitle = allSidebarItems[10];//title 
-    const chatItem = allSidebarItems[11];//chat
-    const contactsItem = allSidebarItems[12]; //contacts
-    const noticesItem = allSidebarItems[13];//notices
-    const notificationsItem = allSidebarItems[14];//notifications
-    const manageTitle = allSidebarItems[15];//management title
-    const wishItem = allSidebarItems[16];//wish
+    const settingsTitle = allSidebarItems[3];//settings and privacy title
+    const settingsItem = allSidebarItems[4]; //settings
+    const accountItem = allSidebarItems[5];//account security
+    const userStaffItem = allSidebarItems[6];//user and staff privacy
+    const dataManagementItem = allSidebarItems[7];//data management
+    const auditItem = allSidebarItems[8];//audit and logs
+    const communicationTitle = allSidebarItems[9];//title 
+    const chatItem = allSidebarItems[10];//chat
+    const contactsItem = allSidebarItems[11]; //contacts
+    const noticesItem = allSidebarItems[12];//notices
+    const notificationsItem = allSidebarItems[13];//notifications
+    const manageTitle = allSidebarItems[14];//management title
+    const wishItem = allSidebarItems[15];//wish
+    const arrangementItem = allSidebarItems[16];//arrangement
     const scheduleItem = allSidebarItems[17];//schedule
     const inventoryItem = allSidebarItems[18];//inventory and supplies
     const staffManagementItem = allSidebarItems[19];//staff management
@@ -1688,6 +1726,7 @@
     const inputGender = document.getElementById('gender');
     const inputContact = document.getElementById('contact');
     const inputUsername = document.getElementById('username');
+    const inputEmail = document.getElementById('email');
     const inputId = document.getElementById('id');
     const inputDepartment = document.getElementById('department');
     const inputType = document.getElementById('type');
@@ -1700,6 +1739,7 @@
     const staffGender = document.getElementById('staff-gender');
     const staffContact = document.getElementById('staff-contact');
     const staffUsername =document.getElementById('staff-username');
+    const staffEmail = document.getElementById('staff-email');
     const staffId = document.getElementById('staff-id');
     const staffDepartment = document.getElementById('staff-department');
     const staffType = document.getElementById('staff-type');
@@ -1720,6 +1760,9 @@
     });
     inputUsername.addEventListener('input', ()=>{
         staffUsername.textContent = `${inputUsername.value}`;
+    });
+    inputEmail.addEventListener('input', ()=>{
+        staffEmail.textContent = `${inputEmail.value}`;
     });
     inputId.addEventListener('input', ()=>{
         staffId.textContent = `${inputId.value}`;
@@ -1816,7 +1859,7 @@
             showConfirmButton: false
         });
     });
-    //staff management button+
+    //staff management button
     const addStaffBtn = document.getElementById('add-staff');
     const addStaffContainer = document.getElementById('add-staff-container');
     const assignedRoles = document.getElementById('assign-roles-container');
@@ -1996,12 +2039,6 @@
     });
     document.getElementById("scheduleDateText").textContent = formatdate;
 
-    //wish
-    // const customerGrid = document.getElementById('customer-wish');
-    // const customerList = [
-    //     {}
-    // ]
-    //privacy user
     const restrictDeceased = document.getElementById("restrictDeceased");
     const deceasedPermission = document.getElementById("deceasedPermission");
 
@@ -2024,5 +2061,269 @@
             staffPermission.style.display = "none";
         }
     });
+    // chat function (done)
+    const adminInput = document.getElementById('adminChatInput');
+    const adminButton = document.getElementById('adminChatSend');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const notificationContainer = document.getElementById('chatNotifications');
+    const chatNavigation = document.getElementById('chatNavigation');
+
+    let selectedCustomerId = 0;
+    let unreadCounts = {};
+    let processedMessages = new Set();
+    let chatDisplayedMessages = new Set();
+    let globalLastId = 0;
+
+    function loadUnreadCounts() {
+        fetch('../backend/message/unread_counts.php')
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(row => {
+                    unreadCounts[row.customer_id] = row.unread;
+                });
+                updateAllNotifications();
+            });
+    }
+    function addMessage(content, sender) {
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('message-wrapper', sender);
+        const div = document.createElement('div');
+        div.classList.add('message', sender);
+        div.textContent = content;
+        wrapper.appendChild(div);
+        messagesContainer.appendChild(wrapper);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    function updateNotificationUI(id) {
+        let notif = document.querySelector(`.notif-item[data-id="${id}"]`);
+        if (!notif) return;
+        let count = unreadCounts[id] || 0;
+        let badge = notif.querySelector('.notif-count');
+        let name = notif.querySelector('.notif-name');
+        if (count > 0) {
+            badge.style.display = "inline-block";
+            badge.textContent = count;
+            name.style.fontWeight = "bold";
+        } else {
+            badge.style.display = "none";
+            name.style.fontWeight = "normal";
+        }
+    }
+    function updateAllNotifications() {
+        document.querySelectorAll('.notif-item').forEach(el => {
+            let id = el.getAttribute('data-id');
+            updateNotificationUI(id);
+        });
+    }
+    function addNotification(name, customerId, profile) {
+        let notif = document.querySelector(`.notif-item[data-id="${customerId}"]`);
+        if (!notif) {
+            notif = document.createElement('div');
+            notif.classList.add('notif-item');
+            notif.setAttribute('data-id', customerId);
+            notif.innerHTML = `
+                <img src="${profile ? '../assets/img/uploads/' + profile : '../assets/img/profile.png'}" class="notif-profile">
+                <span class="notif-name">${name}</span>
+                <span class="notif-count" style="display:none;"></span>
+            `;
+            notif.onclick = () => {
+                selectedCustomerId = customerId;
+                chatNavigation.innerHTML = `
+                    <div class="chat-header">
+                        <img src="${profile ? '../assets/img/uploads/' + profile : '../assets/img/profile.png'}" class="chat-profile">
+                        <span class="nav-name">${name}</span>
+                    </div>
+                `;
+                fetch('../backend/message/mark_read.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: `customer_id=${customerId}`
+                });
+                unreadCounts[customerId] = 0;
+                document.querySelectorAll('.notif-item').forEach(i => i.classList.remove('active'));
+                notif.classList.add('active');
+                messagesContainer.innerHTML = '';
+                chatDisplayedMessages.clear();
+                updateNotificationUI(customerId);
+                fetchMessagesForCustomer(customerId);
+            };
+            notificationContainer.prepend(notif);
+        }
+        updateNotificationUI(customerId);
+    }
+    function fetchMessagesForCustomer(customerId) {
+        fetch(`../backend/message/get_message.php?last_id=0&customer_id=${customerId}`)
+            .then(res => res.json())
+            .then(data => {
+                let latestId = 0;
+                data.forEach(msg => {
+                    if (!chatDisplayedMessages.has(msg.id)) {
+                        addMessage(msg.message, msg.sender);
+                        chatDisplayedMessages.add(msg.id);
+                    }
+
+                    if (msg.id > latestId) {
+                        latestId = msg.id;
+                    }
+                });
+
+            });
+    }
+    function sendMessage() {
+        const message = adminInput.value.trim();
+        if (!message) return;
+        if (selectedCustomerId === 0) {
+            alert("Select a customer first!");
+            return;
+        }
+        adminInput.value = '';
+        fetch('../backend/message/send_message.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `sender=admin&message=${encodeURIComponent(message)}&customer_id=${selectedCustomerId}`
+        });
+    }
+    setInterval(() => {
+        fetch(`../backend/message/get_message.php?last_id=${globalLastId}`)
+            .then(res => res.json())
+            .then(data => {
+                data.forEach(msg => {
+                    if (msg.id > globalLastId) {
+                        globalLastId = msg.id;
+                    }
+                    if (processedMessages.has(msg.id)) return;
+                    processedMessages.add(msg.id);
+                    if (msg.sender === 'customer') {
+                        let id = msg.customer_id;
+                        addNotification(msg.customer_name, id, msg.profile_img);
+                        updateNotificationUI(id);
+                    }
+                    if (selectedCustomerId === msg.customer_id) {
+                        if (!chatDisplayedMessages.has(msg.id)) {
+                            addMessage(msg.message, msg.sender);
+                            chatDisplayedMessages.add(msg.id);
+                        }
+                    }
+                });
+            });
+    }, 1000);
+    loadUnreadCounts();
+    adminButton.addEventListener('click', sendMessage);
+    adminInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    // staff management functions
+    document.getElementById("addStaffupdate").addEventListener("click", (e) => {
+    e.preventDefault();
+
+    if (!inputId.value) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Missing Staff ID',
+            text: 'Please generate Staff ID first!'
+        });
+        return;
+    }
+
+    if (!inputName.value || !inputAge.value || !inputGender.value || 
+        !inputContact.value || !inputUsername.value) {
+
+        Swal.fire({
+            icon: 'warning',
+            title: 'Incomplete Fields',
+            text: 'Please fill all required fields!'
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You are about to add this staff.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, save it!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+
+        if (result.isConfirmed) {
+
+            const data = new URLSearchParams();
+            data.append("name", inputName.value);
+            data.append("age", inputAge.value);
+            data.append("gender", inputGender.value);
+            data.append("contact", inputContact.value);
+            data.append("username", inputUsername.value);
+            data.append("email", inputEmail.value);
+            data.append("staff_id", inputId.value);
+            data.append("department", inputDepartment.value);
+            data.append("type", inputType.value);
+            data.append("status", inputStatus.value);
+            data.append("hired", inputHired.value);
+
+            fetch('../backend/staff/add_staff.php', {
+                method: 'POST',
+                body: data
+            })
+            .then(res => res.text())
+            .then(res => {
+                console.log("RAW SERVER RESPONSE:", res);
+
+                try {
+                    const json = JSON.parse(res);
+
+                    if (json.status === "success") {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Saved!',
+                            text: json.message
+                        });
+
+                        inputName.value = "";
+                        inputAge.value = "";
+                        inputGender.value = "";
+                        inputContact.value = "";
+                        inputUsername.value = "";
+                        inputEmail.value = "";
+                        inputId.value = "";
+                        inputDepartment.value = "";
+                        inputType.value = "";
+                        inputStatus.value = "";
+                        inputHired.value = "";
+
+                        const card = document.querySelector(".staff-card");
+
+                        if (card) {
+                            card.querySelector(".name").textContent = "Name";
+                            card.querySelector(".age").textContent = "Age";
+                            card.querySelector(".gender").textContent = "Gender";
+                            card.querySelector(".contact").textContent = "Contact";
+                            card.querySelector(".username").textContent = "Username";
+                            card.querySelector(".email").textContent = "Email";
+                            card.querySelector(".staff_id").textContent = "Staff ID";
+                            card.querySelector(".department").textContent = "Department";
+                            card.querySelector(".type").textContent = "Type";
+                            card.querySelector(".status").textContent = "Status";
+                            card.querySelector(".hired").textContent = "Date Hired";
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: json.message
+                        });
+                    }
+
+                } catch (e) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Response',
+                        text: 'Check console for PHP error'
+                    });
+                }
+            });
+        }
+    });
+});
 </script>
 </html>

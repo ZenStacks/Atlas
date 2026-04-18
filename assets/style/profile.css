@@ -52,23 +52,39 @@ body{
     overflow-y: auto;
     display: flex;
 }
-.sidebar ul{
-    list-style-type: none;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+.sidebar ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    font-family: Arial, sans-serif;
 }
-.sidebar ul li{
-    margin-bottom: 15px;
-    color: white;
-    font-size: 16px;
-    border-bottom: 1px solid #ffffff;
-    gap: 10px;
-    align-items: center;
+.sidebar ul li {
+    padding: 10px 15px;
+    cursor: pointer;
     display: flex;
-    text-decoration: none;
-    padding: 10px;
+    align-items: center;
+    gap: 10px;
+}
+.sidebar ul li.category-title {
+    font-size: 1rem;
+    color: #ffffff;
+    padding: 15px 15px 5px 15px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid #ddd;
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    font-weight: 500;
+}
+#sidebar ul li.category-item {
+    color: white;
+    font-size: 15px;
+}
+.sidebar ul li:hover:not(.category-title) {
+    background-color: #1a232c;
 }
 .sidebar ul li:hover{
     background-color: #1a232c;
@@ -76,6 +92,29 @@ body{
     border-radius: 8px;
     margin-right: 20px;
 }
+.sidebar ul li a{
+    text-decoration: none;
+    color: white;
+    font-size: 25px;
+}
+.sidebar ul li.active{
+    background-color: #1a232c;
+    border-radius: 8px;
+    color: white;
+}
+.sidebar.active {
+    display: block;
+}
+.category-title .caret-icon {
+    transition: transform 0.3s ease;
+    display: inline-block;
+}
+
+.category-title.active .caret-icon {
+    transform: rotate(90deg);
+    transition: transform 0.3s ease;
+}
+
 #logout{
     color: rgb(199, 33, 33);
 }
@@ -112,7 +151,7 @@ body{
     margin-right: 20px;
 }
 /* profile information section */
-.profile-information-section {
+#profile-information-section {
     margin-left: 240px;
     margin-top: 0;
     padding: 0 30px 30px 30px;
@@ -137,7 +176,7 @@ body{
     align-items: center;
 }
 .info-profile {
-    margin-bottom: 30px;
+    margin-bottom: 0;
 }
 
 .info-profile img {
@@ -158,6 +197,7 @@ body{
     display: flex;
     flex-direction: column;
     gap: 15px;
+    margin-top: 30px;
 }
 .detail {
     display: flex;
@@ -184,9 +224,13 @@ body{
     border: 1px solid #ccc;
     font-size: 16px;
     background-color: #dfdfdf;
+    color: #646464;
 }
 .detail input[readonly] {
     cursor: not-allowed;
+    outline: none;
+    background: transparent;
+    caret-color: transparent;
 }
 .detail input:focus {
     outline: none;
@@ -222,8 +266,521 @@ body{
     text-decoration: none;
     cursor: pointer;
 }
-
 .input-with-icon .map-icon:hover {
     color: #39536d;
     transform: translateY(-50%) scale(1.4);
+}
+.hidden{
+    display:none;
+}
+/* profile  */
+.help-and-support{
+    margin-top: 0;
+    padding-right: 30px;
+    box-sizing: border-box;
+}
+.help-and-support h2{
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 3px solid #111;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    margin-top: 0;
+}
+.support-container{
+    display:flex;
+    gap:40px;
+    margin-top:20px;
+}
+.faq-section{
+    width:50%;
+}
+.faq-section h3{
+    color: #2c3e50;
+}
+.faq-item{
+    background:#f4f6f8;
+    padding:15px;
+    border-radius:8px;
+    margin-bottom:15px;
+}
+
+.question{
+    font-weight:bold;
+}
+
+.answer{
+    margin-top:5px;
+    color:#555;
+}
+
+.contact-support{
+    width:50%;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+    margin-bottom:15px;
+}
+
+.form-group input,
+.form-group textarea{
+    padding:10px;
+    border-radius:6px;
+    border:1px solid #ccc;
+}
+
+button{
+    padding:10px 20px;
+    background:#4a6cf7;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+button:hover{
+    background:#3955d0;
+}
+.tab-content{
+    margin-left: 270px;
+}
+/* services preferences */
+.user-preferences{
+    margin-top: 0;
+    padding-right: 30px;
+    box-sizing: border-box;
+}
+.user-preferences h2{
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 3px solid #111;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    margin-top: 0;
+}
+.receipt-container{
+    margin-top:20px;
+}
+
+.receipt-table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.receipt-table th,
+.receipt-table td{
+    border-bottom:1px solid #ddd;
+    padding:12px;
+    text-align:left;
+}
+
+.receipt-table th{
+    background:#f5f5f5;
+}
+
+.receipt-total{
+    margin-top:20px;
+    text-align:right;
+}
+
+#confirm-services{
+    margin-top:20px;
+    padding:10px 20px;
+    background:#343a40;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+/* chat section */
+#chats{
+    width: calc(100% - 290px);
+    transition: width 0.3s ease;
+}
+.chat-title h2{
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 3px solid #111;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+.chat-container{
+    display: flex;
+    width: 100%;
+    gap: 10px;
+}
+
+.customer-chat{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background: white;
+    border-radius: 10px;
+    flex: 1;
+    height: 550px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    margin-top: 20px;
+}
+.customer-chat .navigation-chat{
+    display: flex;
+    background-color: #3c556d;
+    height: 50px;
+    width: 100%;
+    border-radius: 10px 10px 0 0;
+}
+.customer-chat .chat-input{
+    display: flex;
+}
+.messages {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.message {
+    max-width: 100%;
+    padding: 8px 12px;
+    border-radius: 12px;
+    word-wrap: break-word;
+}
+
+.message.customer {
+    align-self: flex-end;
+    background-color: #2c3e50;
+    color: white;
+    margin-right: 20px;
+    margin-top: 20px;
+}
+
+.message.admin {
+    align-self: flex-start;
+    background-color: #f1f1f1;
+    color: black;
+    margin-left: 20px;
+}
+
+.message img {
+    max-width: 300px;
+    max-height: 400px;
+    border-radius: 12px;
+    display: block;
+}
+
+.chat-input {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.chat-input input[type="text"] {
+    flex: 1;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    height: 30px;
+}
+
+.chat-input button {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 20px;
+    margin-right: 10px;
+    margin-left: 10px;
+    font-size: 23px;
+    background-color: #2c3e50;
+}
+.message.customer { 
+    background: #2c3e50; 
+    text-align: right; 
+}
+.message.admin { 
+    background: #F1F0F0; 
+    text-align: left; 
+}
+#attachImage {
+    color: white;
+    font-weight: bold;
+}
+.message-wrapper {
+    display: flex;
+    flex-direction: column;
+    max-width: 60%;
+}
+.message-wrapper.customer {
+    align-self: flex-end;
+}
+.message-wrapper.admin {
+    align-self: flex-start;
+}
+/* notif */
+#notifications-container {
+    width: calc(100% - 290px);
+    transition: width 0.3s ease;
+}
+.notifications-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.notifications-header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.notifications-content h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 3px solid #111;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.notification-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.notification-item {
+    background: #f4f6f8;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+}
+
+.notification-item p {
+    margin: 0 0 5px 0;
+    color: #555;
+}
+
+.notification-item .time {
+    font-size: 12px;
+    color: #999;
+}
+.notification-buttons button {
+    margin-left: 10px;
+}
+#markAllAsRead, #deleteAllNotifications {
+    padding: 8px 16px;
+    background: #4a6cf7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 10px;
+    margin-top: 10px;
+    bottom: 0;
+    left: 0;
+}
+#deleteAllNotifications {
+    background: #e74c3c;
+}
+#markAllAsRead:hover {
+    background: #3955d0;
+}
+#deleteAllNotifications:hover {
+    background: #c0392b;
+}
+
+/* update profile */
+#update-profile {
+    width: 80%;
+    transition: width 0.3s ease;
+}
+
+#update-profile h2 {
+    margin: 0 0 20px 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 3px solid #111;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+    box-sizing: border-box;
+}
+
+#update-profile form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 600px;
+    margin-top: 0;
+}
+
+#update-profile .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+#update-profile .form-group label {
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+}
+
+#update-profile .form-group input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+#update-profile .form-group input:focus {
+    border-color: #2c3e50;
+}
+
+#update-profile button {
+    padding: 10px 20px;
+    background: #4a6cf7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 150px;
+    align-self: flex-start;
+    margin-bottom: 20px;
+}
+
+#update-profile button:hover {
+    background: #3955d0;
+}
+/* change pass */
+.change-password {
+    width: 98%;
+    box-sizing: border-box;
+}
+
+.change-password h2 {
+    margin: 0 0 20px 0;
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 3px solid #111;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding-bottom: 10px;
+    box-sizing: border-box;
+}
+
+.change-password form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 500px;
+}
+
+.change-password .form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.change-password .form-group label {
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #555;
+}
+
+.change-password .form-group input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.change-password .form-group input:focus {
+    border-color: #2c3e50;
+}
+
+.change-password button {
+    padding: 10px 20px;
+    background: #4a6cf7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 180px;
+    align-self: flex-start;
+}
+
+.change-password button:hover {
+    background: #3955d0;
+}
+/* manage notif pref */
+#manage-notification{
+    width: 80%;
+    box-sizing: border-box;
+}
+.notification-preferences{
+    margin:0;
+}
+.notification-preferences h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 3px solid #111;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    margin-top: 0;
+}
+
+.notification-preferences .form-group {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: flex-start;
+}
+.notification-preferences label {
+    font-weight: 500;
+    font-size: 16px;
+    color: #555;
+    cursor: pointer;
+}
+
+.notification-preferences input[type="checkbox"] {
+    margin-right: 10px;
+    width: 18px;
+    height: 18px;
+}
+
+.notification-preferences button {
+    padding: 10px 20px;
+    background: #4a6cf7;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.notification-preferences button:hover {
+    background: #3955d0;
+}
+.notification-badge {
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 50%;
+    padding: 2px 6px;
+    margin-left: 8px;
+    vertical-align: middle;
+    display: none;
 }

@@ -6,6 +6,12 @@
     <title>Staff Page</title>
 </head>
 <body>
-    
+    <div class="whole-page-container">
+        <div class="main-container">
+            <div class="navigation">
+                <span>Overview</span>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
