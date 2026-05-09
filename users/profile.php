@@ -261,7 +261,7 @@
                             display: flex;
                             justify-content: center;
                             align-items: center;
-                            margin-left: 10px;">Your chatting with Admin</span>
+                            margin-left: 10px;">You're chatting with Admin</span>
                         </div>
                         <div class="messages" style="flex:1; overflow-y:auto; margin-bottom:10px;">
                             <!-- messages will appear here -->
@@ -445,6 +445,9 @@ document.querySelector(".logout").addEventListener("click", function(){
 
 // ----- Fetch Customer Data -----
 fetchCustomerData();
+window.addEventListener("focus", () => {
+    fetchCustomerData();
+});
 
 // ----- Notification Badge -----
 function updateNotificationBadge() {
@@ -518,7 +521,7 @@ function loadMessages() {
 }
 // poll new messages for customer
 function pollMessages() {
-    fetch(`../backend/message/get_message.php?last_id=${lastId}&customer_id=${userId}`)
+    fetch(`../backend/message/get_messages.php?last_id=${lastId}&customer_id=${userId}`)
         .then(res => res.json())
         .then(data => {
             data.forEach(msg => addMessage(msg.message, msg.sender, msg.id));

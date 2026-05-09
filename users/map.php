@@ -239,7 +239,7 @@
         saveContainer.style.display = "block";
 
         fetch("../backend/address/get_address.php", {
-            credentials: "include" // 
+            credentials: "include" 
         })
         .then(res => res.json())
         .then(response => {

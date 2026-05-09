@@ -4,11 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../assets/style/admin.css?v=1.0">
+    <link rel="stylesheet" href="../assets/style/admin.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0/dist/js/select2.min.js"></script>
 </head>
 <body>
     <div class="whole-page-container">
@@ -217,6 +220,11 @@
                         <!-- ddmin profile -->
                         <div class="admin-profile">
                             <h3>Admin Account</h3>
+                            <div class="info-profile">
+                                <img src="../assets/img/profile.png" id="profileImage" alt="Profile Picture">
+
+                                <input type="file" id="profileInput" accept="image/*" style="display:none">
+                            </div>
                             <label>Username</label>
                             <input type="text" value="admin123" disabled>
                             <label>Email</label>
@@ -709,23 +717,21 @@
                         </div>
                     </div>
                 </div>
-
-
                 <!-- unfinished skip -->
                 <div class="inventory-container" id="inventory-container">
                     <h2>Inventory &amp; Items</h2>
                     <div class="inventory-items">
                         <div class="new-coffin">
                             <img src="../assets/img/flower1.jpg" alt="">
-                            <button>+ New Coffin</button>
+                            <button id="addProducts">+ Item</button>
                         </div>
                         <div class="new-services">
                             <img src="../assets/img/flower1.jpg" alt="">
-                            <button>+ New Services</button>
+                            <button id="addServices">+ Services</button>
                         </div>
                         <div class="materials">
                             <img src="../assets/img/flower1.jpg" alt="">
-                            <button>+ Materials</button>
+                            <button id="addMaterials">+ Materials</button>
                         </div>
                     </div>
                     <div class="materials-table">
@@ -734,104 +740,1110 @@
                             <p>Services (variants)</p>
                             <p>Budget</p>
                         </div>
-                        <table class="inventory-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Item</th>
-                                    <th>Action</th>
-                                    <th>Old Value</th>
-                                    <th>New Value</th>
-                                    <th>Performed By</th>
-                                    <th>Date & Time</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>ADM-0326-033000</td>
-                                    <td>Wood</td>
-                                    <td>Add</td>
-                                    <td>100</td>
-                                    <td>90</td>
-                                    <td>Admin</td>
-                                    <td>03-03-2026 3:45PM</td>
-                                    <td class="inventory-btn">
-                                        <button class="inventory-delete"><i class="bi bi-trash3"></i></button>
-                                        <button class="inventory-edit"><i class="bi bi-pencil-square"></i></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div class="inventory-table-container">
+                            <table class="inventory-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Item</th>
+                                        <th>Action</th>
+                                        <th>Old Value</th>
+                                        <th>New Value</th>
+                                        <th>Performed By</th>
+                                        <th>Date & Time</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>ADM-0326-033000</td>
+                                        <td>Wood</td>
+                                        <td>Add</td>
+                                        <td>100</td>
+                                        <td>90</td>
+                                        <td>Admin</td>
+                                        <td>03-03-2026 3:45PM</td>
+                                        <td class="inventory-btn">
+                                            <button class="inventory-delete"><i class="bi bi-trash3"></i></button>
+                                            <button class="inventory-edit"><i class="bi bi-pencil-square"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <div class="overall-categories-container hidden">
-                        <div class="new-coffin-container" id="new-coffin-container">
-                            <h2>Add New Coffin</h2>
-                            <div class="divided-row">
-                                <div class="input-row">
-                                    <label for="item-id">Item code:</label>
-                                    <input type="text" id="item-id" placeholder="Enter item code">
+                        <div class="new-item-container" id="new-item-container">
+                            <h2>Add Item</h2>
+                            <div class="choice-btn">
+                                <button id="btn-add-new-coffin" class="active-choice">Add New Coffin</button>
+                                <button id="btn-increase-coffin">Increase Coffin</button>
+                                <button id="btn-add-new-flowers">Add New Flowers</button>
+                                <button id="btn-increase-flowers">Increase Flowers</button>
+                            </div>
+                            <div class="new-coffin-container" id="form-new-coffin-details">
+                                <div class="new-coffin-details">
+                                    <div class="divided-first-row">
+                                        <div class="input-row">
+                                            <label for="item-name">Item name:</label>
+                                            <input type="text" id="item-id" placeholder="Enter item name...">
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="coffin-color">Color/Finish:</label>
+                                            <input type="text" id="coffin-color" placeholder="Enter item color...">
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="stock">Stock Quantity:</label>
+                                            <input type="number" id="stock" placeholder="Enter stock quantity">
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="weight-limit">Weight Limit (kg):</label>
+                                            <input type="number" id="weight-limit" placeholder="e.g. 150">
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="supplier">Supplier:</label>
+                                            <input type="text" id="supplier" placeholder="Enter supplier name">
+                                        </div>
+                                    </div>
+                                    <div class="divided-second-row">
+                                        <div class="input-row">
+                                            <label for="type">Type:</label>
+                                            <select name="type" id="coffin-type">
+                                                <option value="" disabled selected>Select coffin type</option>
+                                                <option value="premium">Premium</option>
+                                                <option value="standard">Standard</option>
+                                                <option value="deluxe">Deluxe</option>
+                                                <option value="budget">Budget</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="size">Size:</label>
+                                            <select name="size" id="size">
+                                                <option value="" disabled selected>Select sizes</option>
+                                                <option value="standard">Standard</option>
+                                                <option value="oversize">Oversized</option>
+                                                <option value="child">Child</option>
+                                                <option value="infant">Infant</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="tax">Tax Type:</label>
+                                            <select name="tax" id="tax">
+                                                <option value="" disabled selected>Select</option>
+                                                <option value="none">none</option>
+                                                <option value="inclusive">VAT Included (12%)</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="image">Image:</label>
+                                            <input type="file" id="image">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="input-row">
-                                    <label for="material-name">Material:</label>
-                                    <input type="text" id="material-name" placeholder="Enter material">
+                                <div class="new-coffin-materials">
+                                    <h4>Material Used:</h4>
+                                    <div id="coffin-materials-container" class="coffin-materials-container">
+                                        <div class="first-material-row">
+                                            <div class="input-row">
+                                                <label>Main Structure:</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="main-structureBtn">
+                                                        Select materials
+                                                    </div>
+                                                    <div class="dropdown-content" id="main-structure-content">
+                                                        <div class="item">
+                                                            <span>Pine</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('pine', -1)">-</button>
+                                                                <input type="text" id="pine" value="0">
+                                                                <button type="button" onclick="changeQty('pine', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Gmelina</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('gmelina', -1)">-</button>
+                                                                <input type="text" id="gmelina" value="0">
+                                                                <button type="button" onclick="changeQty('gmelina', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Mahogany</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('mahogany', -1)">-</button>
+                                                                <input type="text" id="mahogany" value="0">
+                                                                <button type="button" onclick="changeQty('mahogany', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Narra</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('narra', -1)">-</button>
+                                                                <input type="text" id="narra" value="0">
+                                                                <button type="button" onclick="changeQty('narra', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Hardwood</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('hardwood', -1)">-</button>
+                                                                <input type="text" id="hardwood" value="0">
+                                                                <button type="button" onclick="changeQty('hardwood', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="input-row">
+                                                <label>Assembly materials</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="assemblyBtn">
+                                                        Select materials
+                                                    </div>
+                                                    <div class="dropdown-content" id="assembly-materials-content">
+
+                                                        <div class="item">
+                                                            <span>Nails</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('nails', -1)">-</button>
+                                                                <input type="text" id="nails" value="0">
+                                                                <button type="button" onclick="changeQty('nails', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Screws</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('screws', -1)">-</button>
+                                                                <input type="text" id="screws" value="0">
+                                                                <button type="button" onclick="changeQty('screws', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Wood glue</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('wood-glue', -1)">-</button>
+                                                                <input type="text" id="wood-glue" value="0">
+                                                                <button type="button" onclick="changeQty('wood-glue', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="input-row">
+                                                <label>Accesories:</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="accesoriesBtn">
+                                                        Select materials
+                                                    </div>
+
+                                                    <div class="dropdown-content" id="accesoriesContent">
+
+                                                        <div class="item">
+                                                            <span>Metal</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('metal', -1)">-</button>
+                                                                <input type="text" id="metal" value="0">
+                                                                <button type="button" onclick="changeQty('metal', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Heavy duty</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('heavy-duty', -1)">-</button>
+                                                                <input type="text" id="heavy-duty" value="0">
+                                                                <button type="button" onclick="changeQty('heavy-duty', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Hinges</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('hinges', -1)">-</button>
+                                                                <input type="text" id="hinges" value="0">
+                                                                <button type="button" onclick="changeQty('hinges', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Name plate</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('name-plate', -1)">-</button>
+                                                                <input type="text" id="name-plate" value="0">
+                                                                <button type="button" onclick="changeQty('name-plate', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="second-material-row">
+                                            <div class="input-row">
+                                                <label>Finishing:</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="finishingBtn">
+                                                        Select materials
+                                                    </div>
+
+                                                    <div class="dropdown-content" id="finishingContent">
+
+                                                        <div class="item">
+                                                            <span>Wood stain</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('wood-stain', -1)">-</button>
+                                                                <input type="text" id="wood-stain" value="0">
+                                                                <button type="button" onclick="changeQty('wood-stain', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Varnish</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('varnish', -1)">-</button>
+                                                                <input type="text" id="varnish" value="0">
+                                                                <button type="button" onclick="changeQty('varnish', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Lacquer</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('lacquer', -1)">-</button>
+                                                                <input type="text" id="lacquer" value="0">
+                                                                <button type="button" onclick="changeQty('lacquer', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Sandpaper</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('sandpaper', -1)">-</button>
+                                                                <input type="text" id="sandpaper" value="0">
+                                                                <button type="button" onclick="changeQty('sandpaper', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="input-row">
+                                                <label>Interior (Lining):</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="interiorBtn">
+                                                        Select materials
+                                                    </div>
+                                                    <div class="dropdown-content" id="interiorContent">
+                                                        <div class="item">
+                                                            <span>Satin fabric</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('satin_fabric', -1)">-</button>
+                                                                <input type="text" id="satin_fabric" value="0">
+                                                                <button type="button" onclick="changeQty('satin_fabric', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Foam</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('foam', -1)">-</button>
+                                                                <input type="text" id="foam" value="0">
+                                                                <button type="button" onclick="changeQty('foam', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Pillow</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('pillow', -1)">-</button>
+                                                                <input type="text" id="pillow" value="0">
+                                                                <button type="button" onclick="changeQty('pillow', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="input-row">
-                                    <label for="material-name">Discount:</label>
-                                    <select name="discount" id="discount">
-                                        <option value="" disabled selected>Select discount</option>
-                                        <option value="none">None</option>
-                                        <option value="10">10%</option>
-                                        <option value="20">20%</option>
-                                        <option value="30">30%</option>
-                                        <option value="40">40%</option>
-                                        <option value="50">50%</option>
-                                    </select>
+                                <div class="divided-last-row">
+                                    <div class="input-row">
+                                        <label for="notes">Details:</label>
+                                        <textarea id="new-coffin-notes" placeholder="Enter details..."></textarea>
+                                    </div>
+                                    <div class="add-material-btn">
+                                        <button class="btn-save-new-coffin">Save</button>
+                                        <button class="btn-cancel-new-coffin">Cancel</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="divided-row">
-                                <div class="input-row">
-                                    <label for="item-name">Item name:</label>
-                                    <input type="text" id="item-id" placeholder="Enter item code">
+                            <!-- increase coffin -->
+                            <div class="coffin-details hidden" id="form-increase-coffin-details">
+                                <div class="add-coffin-details">
+                                    <div class="divided-first-row">
+                                        <div class="input-row">
+                                            <label for="coffin-name">Item Name:</label>
+                                            <select name="coffin-type" id="coffin-name">
+                                                <option value="" disabled selected>Select coffin</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="coffin-type">Coffin Type:</label>
+                                            <select name="coffin-type" id="coffin-type">
+                                                <option value="" disabled selected>Select coffin type</option>
+                                                <option value="premium">Premium</option>
+                                                <option value="standard">Standard</option>
+                                                <option value="deluxe">Deluxe</option>
+                                                <option value="budget">Budget</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="coffin-size">Coffin Size:</label>
+                                            <select name="coffin-size" id="coffin-size">
+                                                <option value="" disabled selected>Select size</option>
+                                                <option value="standard">Standard</option>
+                                                <option value="oversize">Oversized</option>
+                                                <option value="child">Child</option>
+                                                <option value="infant">Infant</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="divided-second-row">
+                                        <div class="input-row">
+                                            <label for="coffin-stock">Stock:</label>
+                                            <input type="text" id="coffin-stock" readonly>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="coffin-add-stock">Quantity to add:</label>
+                                            <input type="number" id="coffin-add-stock" placeholder="Enter quantity to add...">
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="increase-restockDate">Date of Restock:</label>
+                                            <input type="date" id="increase-restockDate">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="input-row">
-                                    <label for="size">Size:</label>
-                                    <select name="size" id="size">
-                                        <option value="" disabled selected>Select sizes</option>
-                                        <option value="standard">Standard</option>
-                                        <option value="oversize">Oversized</option>
-                                        <option value="child">Child</option>
-                                        <option value="infant">Infant</option>
-                                    </select>
+                                <div class="divided-last-row">
+                                    <div class="input-row">
+                                        <label for="notes">Details:</label>
+                                        <textarea id="details" placeholder="Enter Remarks..."></textarea>
+                                    </div>
+                                    <div class="add-coffin-btn">
+                                        <button id="btn-save-coffin">Save</button>
+                                        <button>Cancel</button>
+                                    </div>
+                                </div>   
+                            </div>
+                            <!-- New flowers -->
+                            <div class="add-new-flowers hidden" id="form-add-new-flowers">
+                                <div class="new-flower-details">
+                                    <div class="divided-first-row">
+                                        <div class="input-row">
+                                            <label for="flower-name">Flower:</label>
+                                            <input type="text" id="flower-name" placeholder="Enter flower name...">
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="new-flower-color">Color:</label>
+                                            <input type="text" id="new-flower-color" placeholder="Enter flower color...">
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="initial-stock">Initial Stock:</label>
+                                            <input type="number" id="initial-stock" placeholder="Enter initial stock quantity">
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="supplier">Supplier:</label>
+                                            <input type="text" id="supplier" placeholder="Enter supplier name">
+                                        </div>
+                                    </div>
+                                    <div class="divided-second-row">
+                                        <div class="input-row">
+                                            <label for="flower-type">Type:</label>
+                                            <select name="flower-type" id="flower-type">
+                                                <option value="" disabled selected>Select flower type</option>
+                                                <option value="flower-standard">Standard</option>
+                                                <option value="flower-budget">Budget</option>
+                                                <option value="flower-premium">Premium</option>
+                                                <option value="flower-deluxe">Deluxe</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="arrangement">Arrangement:</label>
+                                            <select name="arrangement" id="arrangement">
+                                                <option value="" disabled selected>Select arrangement</option>
+                                                <option value="wreath">Wreath</option>
+                                                <option value="coffin-decoration">Coffin Decoration</option>
+                                                <option value="standing-flowers">Standing Flowers</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="discount">Discount:</label>
+                                            <select name="discount" id="discount">
+                                                <option value="" disabled selected>Select discount</option>
+                                                <option value="none">None</option>
+                                                <option value="10">10%</option>
+                                                <option value="20">20%</option>
+                                                <option value="30">30%</option>
+                                                <option value="40">40%</option>
+                                                <option value="50">50%</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="image">Image:</label>
+                                            <input type="file" id="flower-image">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="input-row">
-                                    <label for="tax">Tax included?</label>
-                                    <select name="tax" id="tax">
-                                        <option value=""disabled selected>Select yes/no</option>
-                                        <option value="yes">Yes</option>
-                                        <option value="no">No</option>
-                                    </select>
+                                <div class="new-coffin-materials">
+                                    <h4>Material Used:</h4>
+                                    <div id="new-flower-materials-container" class="new-flower-materials-container">
+                                        <div class="first-material-row">
+                                            <div class="input-row">
+                                                <label>Main Flower:</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="main-flowerBtn">
+                                                        Select materials
+                                                    </div>
+                                                    <div class="dropdown-content" id="main-flower-content">
+                                                        <div class="item">
+                                                            <span>Roses</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('roses', -1)">-</button>
+                                                                <input type="text" id="roses" value="0">
+                                                                <button type="button" onclick="changeQty('roses', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Chrysanthemums</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('chrysanthemums', -1)">-</button>
+                                                                <input type="text" id="chrysanthemums" value="0">
+                                                                <button type="button" onclick="changeQty('chrysanthemums', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Lilies</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('lilies', -1)">-</button>
+                                                                <input type="text" id="lilies" value="0">
+                                                                <button type="button" onclick="changeQty('lilies', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="input-row">
+                                                <label>Fillers</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="fillersBtn">
+                                                        Select materials
+                                                    </div>
+                                                    <div class="dropdown-content" id="fillersContent">
+
+                                                        <div class="item">
+                                                            <span>Baby's breath</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('baby-breath', -1)">-</button>
+                                                                <input type="text" id="baby-breath" value="0">
+                                                                <button type="button" onclick="changeQty('baby-breath', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Statice</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('statice', -1)">-</button>
+                                                                <input type="text" id="statice" value="0">
+                                                                <button type="button" onclick="changeQty('statice', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Solidago</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('solidago', -1)">-</button>
+                                                                <input type="text" id="solidago" value="0">
+                                                                <button type="button" onclick="changeQty('solidago', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="input-row">
+                                                <label>Foliage:</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="foliageBtn">
+                                                        Select materials
+                                                    </div>
+                                                    <div class="dropdown-content" id="foliageContent">
+                                                        <div class="item">
+                                                            <span>Fern leaves</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('fern-leaves', -1)">-</button>
+                                                                <input type="text" id="fern-leaves" value="0">
+                                                                <button type="button" onclick="changeQty('fern-leaves', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Ruscus</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('ruscus', -1)">-</button>
+                                                                <input type="text" id="ruscus" value="0">
+                                                                <button type="button" onclick="changeQty('ruscus', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Eucalypus</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('eucalypus', -1)">-</button>
+                                                                <input type="text" id="eucalypus" value="0">
+                                                                <button type="button" onclick="changeQty('eucalypus', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Palm leaves</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('palm-leaves', -1)">-</button>
+                                                                <input type="text" id="palm-leaves" value="0">
+                                                                <button type="button" onclick="changeQty('palm-leaves', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="second-material-row">
+                                            <div class="input-row">
+                                                <label>Base:</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="baseBtn">
+                                                        Select materials
+                                                    </div>
+                                                    <div class="dropdown-content" id="baseContent">
+                                                        <div class="item">
+                                                            <span>Oasis</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('oasis', -1)">-</button>
+                                                                <input type="text" id="oasis" value="0">
+                                                                <button type="button" onclick="changeQty('oasis', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Wood stand</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('wood-stand', -1)">-</button>
+                                                                <input type="text" id="wood-stand" value="0">
+                                                                <button type="button" onclick="changeQty('wood-stand', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Metal stand</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('metal-stand', -1)">-</button>
+                                                                <input type="text" id="metal-stand" value="0">
+                                                                <button type="button" onclick="changeQty('metal-stand', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Wreath frame</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('wreath-frame', -1)">-</button>
+                                                                <input type="text" id="wreath-frame" value="0">
+                                                                <button type="button" onclick="changeQty('wreath-frame', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Basket</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('basket', -1)">-</button>
+                                                                <input type="text" id="basket" value="0">
+                                                                <button type="button" onclick="changeQty('basket', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="input-row">
+                                                <label>Decoration:</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="decorationBtn">
+                                                        Select materials
+                                                    </div>
+                                                    <div class="dropdown-content" id="decorationContent">
+                                                        <div class="item">
+                                                            <span>Ribbons</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('ribbons', -1)">-</button>
+                                                                <input type="text" id="ribbons" value="0">
+                                                                <button type="button" onclick="changeQty('ribbons', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Tulle</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('tulle', -1)">-</button>
+                                                                <input type="text" id="tulle" value="0">
+                                                                <button type="button" onclick="changeQty('tulle', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Wrapping Paper</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('wrapping_paper', -1)">-</button>
+                                                                <input type="text" id="wrapping_paper" value="0">
+                                                                <button type="button" onclick="changeQty('wrapping_paper', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="input-row">
+                                                <label>Preservation:</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="preservationBtn">
+                                                        Select materials
+                                                    </div>
+                                                    <div class="dropdown-content" id="preservationContent">
+                                                        <div class="item">
+                                                            <span>Flower food</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('flower_food', -1)">-</button>
+                                                                <input type="text" id="flower_food" value="0">
+                                                                <button type="button" onclick="changeQty('flower_food', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="item">
+                                                            <span>Water tubes</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('water_tubes', -1)">-</button>
+                                                                <input type="text" id="water_tubes" value="0">
+                                                                <button type="button" onclick="changeQty('water_tubes', 1)">+</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="divided-last-row">
+                                    <div class="input-row">
+                                        <label for="notes">Details:</label>
+                                        <textarea id="details" placeholder="Enter details..."></textarea>
+                                    </div>
+                                    <div class="add-new-flower-btn">
+                                        <button id="btn-save-new-flower">Save</button>
+                                        <button>Cancel</button>
+                                    </div>
                                 </div>
                             </div>
-                            <!-- <div class="divided-row">
-                                <div class="input-row">
-                                    <label for="type">Type:</label>
-                                    <select name="type" id="type">
-                                        <option value="" disabled selected>Select coffin type</option>
-                                        <option value="metal">Metal</option>
-                                        <option value="wooden">Wooden</option>
-                                        <option value="fiber">Fiber Glass</option>
-                                    </select>
+                            <!-- flowers -->
+                            <div class="add-flower-details hidden" id="form-flowers-details">
+                                <div class="flowers-container">
+                                    <div class="divided-first-row">
+                                        <div class="input-row">
+                                            <label for="increase-flower-name">Flower Type:</label>
+                                            <select name="flower-type" id="increase-flower-name">
+                                                <option value="" disabled selected>Select flower</option>
+                                                <option value="roses">Roses</option>
+                                                <option value="tulips">Tulips</option>
+                                                <option value="lilies">Lilies</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="increase-type">Type:</label>
+                                            <select name="increase-type" id="increase-type">
+                                                <option value="" disabled selected>Select flower type</option>
+                                                <option value="budget">Budget</option>
+                                                <option value="standars">Standard</option>
+                                                <option value="premium">premium</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="increase-arrangement">Arrangement:</label>
+                                            <select name="arrangement" id="increase-arrangement">
+                                                <option value="" disabled selected>Select arrangement</option>
+                                                <option value="wreath">Wreath</option>
+                                                <option value="coffin-decoration">Coffin Decoration</option>
+                                                <option value="standing-flowers">Standing Flowers</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="restockDate">Date of Restock:</label>
+                                            <input type="date" id="restockDate">
+                                        </div>
+                                    </div>
+                                    <div class="divided-second-row">
+                                        <div class="input-row">
+                                            <label for="flower-color">Color:</label>
+                                            <input type="text" id="flower-color" placeholder="Enter flower color...">
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="current-stock">Stock:</label>
+                                            <input type="text" id="flower-stock" readonly>
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="flower-stock">Stock Quantity:</label>
+                                            <input type="number" id="add-stock" placeholder="Enter stock quantity...">
+                                        </div>
+                                        <div class="input-row">
+                                            <label for="flower-supplier">Supplier:</label>
+                                            <input type="text" id="flower-supplier" placeholder="Enter supplier name...">
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="input-row">
-                                    <label for="color">Color/Finish:</label>
-                                    <input type="text" id="color" placeholder="Enter item code">
+                                <div class="divided-last-row">
+                                    <div class="input-row">
+                                        <label for="notes">Details:</label>
+                                        <textarea id="increase-details" placeholder="Enter details..."></textarea>
+                                    </div>
+                                    <div class="add-flower-btn">
+                                        <button id="btn-increase-flower">Save</button>
+                                        <button>Cancel</button>
+                                    </div>
                                 </div>
-                                <div class="input-row">
-                                    <label for="material-name">Material:</label>
-                                    <input type="text" id="material-name" placeholder="Enter material">
+                            </div>
+                        </div>
+                        <!-- add services -->
+                        <div class="new-services-container" id="form-services-container">
+                            <h2>Add Services</h2>
+                            <div class="choice-btn">
+                                <button id="btn-increase-services" class="active-choice">Increase</button>
+                                <button id="btn-add-new-services">Add new services</button>
+                            </div>
+                            <div class="add-services-details">
+                                <div class="add-new-services-details hidden">
+                                    <div class="new-services-details">
+                                        <div class="divided-first-row">
+                                            <div class="input-row">
+                                                <label for="services-coffin-type">Coffin Type:</label>
+                                                <select name="services-coffin-type" id="services-coffin-type">
+                                                    <option value="" disabled selected>Select coffin type</option>
+                                                    <option value="standard">Standard</option>
+                                                    <option value="premium">Premium</option>
+                                                    <option value="budget">Budget</option>
+                                                    <option value="deluxe">Deluxe</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="services-flower-type">Flower Type:</label>
+                                                <select name="services-flower-type" id="services-flower-type">
+                                                    <option value="" disabled selected>Select flower type</option>
+                                                    <option value="standard">Standard</option>
+                                                    <option value="premium">Premium</option>
+                                                    <option value="budget">Budget</option>
+                                                    <option value="deluxe">Deluxe</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-row">
+                                                <label>Equipments/Furniture:</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="dropdownBtn">
+                                                        Select equipments/furniture
+                                                    </div>
+
+                                                    <div class="dropdown-content" id="dropdownContent">
+
+                                                        <div class="item">
+                                                            <span>Chairs</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('chairs', -1)">-</button>
+                                                                <input type="text" id="chairs" value="0">
+                                                                <button type="button" onclick="changeQty('chairs', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Tables</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('tables', -1)">-</button>
+                                                                <input type="text" id="tables" value="0">
+                                                                <button type="button" onclick="changeQty('tables', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Tarpaulin</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('tarpaulin', -1)">-</button>
+                                                                <input type="text" id="tarpaulin" value="0">
+                                                                <button type="button" onclick="changeQty('tarpaulin', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Cauldron</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('cauldron', -1)">-</button>
+                                                                <input type="text" id="cauldron" value="0">
+                                                                <button type="button" onclick="changeQty('cauldron', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="divided-second-row">
+                                            <div class="input-row">
+                                                <label for="services-name">Service package:</label>
+                                                <input type="text" id="service-name" placeholder="Enter service package" required>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="price">Total by system:</label>
+                                                <input type="number" id="total-services-price" placeholder="Price" readonly>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="price">Price:</label>
+                                                <input type="number" id="service-price" placeholder="Price" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="divided-last-row">
+                                        <div class="input-row">
+                                            <label for="notes">Details:</label>
+                                            <textarea id="services-details" placeholder="Enter details..."></textarea>
+                                        </div>
+                                        <div class="add-new-services-btn">
+                                            <button id="new-services-btn">save</button>
+                                            <button id="new-services-cancel-btn">cancel</button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div> -->
+                                <!-- increase services -->
+                                <div class="increase-services-details">
+                                    <div class="increase-services-container">
+                                        <div class="divided-first-row">
+                                            <div class="input-row">
+                                                <label for="service-type">Service Type:</label>
+                                                <select name="service-type" id="service-type">
+                                                    <option value="" disabled selected>Select service type</option>
+                                                    <option value="standard">Standard</option>
+                                                    <option value="premium">Premium</option>
+                                                    <option value="budget">Budget</option>
+                                                    <option value="deluxe">Deluxe</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="service-package">Service Package:</label>
+                                                <select name="service-package" id="service-package">
+                                                    <option value="" disabled selected>Select service package</option>
+                                                    <option value="package-a">Package A</option>
+                                                    <option value="package-b">Package B</option>
+                                                    <option value="package-c">Package C</option>
+                                                    <option value="package-d">Package D</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="divided-second-row">
+                                            <div class="input-row">
+                                                <label for="service-cost">Cost:</label>
+                                                <input type="text" id="service-cost" placeholder="Cost package" readonly>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="restockDate">Date of Restock:</label>
+                                                <input type="date" id="increase-service-restockDate">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="divided-last-row">
+                                        <div class="input-row">
+                                            <label for="notes">Details:</label>
+                                            <textarea id="increase-service-details" placeholder="Enter details..."></textarea>
+                                        </div>
+                                        <div class="add-services-btn">
+                                            <button id="btn-save-increase-service">Save</button>
+                                            <button id="btn-cancel-increase-service">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Add Materials -->
+                        <div class="new-materials-container" id="new-materials-container">
+                            <h2>Add Materials</h2>
+                            <div class="choice-btn">
+                                <button id="btn-increase-stock" class="active-choice">Increase</button>
+                                <button id="btn-add-new-material">Add new materials</button>
+                            </div>
+                            <div class="new-materials-details" id="materials-form-wrapper">
+                                <!-- Increase Materials-->
+                                <div class="add-materials-container" id="form-increase-stock">
+                                    <div class="add-material-details">
+                                        <div class="divided-first-row">
+                                            <div class="input-row">
+                                                <label for="increase-categories">Categories:</label>
+                                                <select name="increase-categories" id="increase-categories">
+                                                    <option value="" disabled selected>Select category</option>
+                                                    <option value="increase-coffin-materials">Coffin materials</option>
+                                                    <option value="increase-interior">Interior (Lining)</option>
+                                                    <option value="increase-flower-materials">Flower materials</option>
+                                                    <option value="increase-equipment-furniture">Equipment/Furniture</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="increase-material-name">Materials:</label>
+                                                <select name="increase-material-name" id="increase-material-name">
+                                                    <option value="" disabled selected>Select material</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="increase-material-item">Item:</label>
+                                                <select name="increase-material-item" id="increase-material-item">
+                                                    <option value="" disabled selected>Select item</option>
+                                                </select>
+                                            </div>
+                                            <div class="interior-only" style="display:none;">
+                                                <label for="increase-material-color">Color:</label>
+                                                <select name="increase-material-color" id="increase-material-color">
+                                                    <option value="" disabled selected>Select item</option>
+                                                </select>
+                                            </div>
+                                            <div class="interior-only" style="display:none;">
+                                                <label for="increase-material-pattern">Pattern:</label>
+                                                <select name="increase-material-pattern" id="increase-material-pattern">
+                                                    <option value="" disabled selected>Select item</option>
+                                                </select>
+                                            </div>
+                                            <div class="interior-only" style="display:none;">
+                                                <label for="increase-material-thickness">Thickness:</label>
+                                                <select name="increase-material-thickness" id="increase-material-thickness">
+                                                    <option value="" disabled selected>Select item</option>
+                                                </select>
+                                            </div>
+                                            <div class="interior-only" style="display:none;">
+                                                <label for="increase-material-softness">Softness Level:</label>
+                                                <select name="increase-material-softness" id="increase-material-softness">
+                                                    <option value="" disabled selected>Select item</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="increase-unit-measurement">Unit of measurement:</label>
+                                                <select name="increase-unit-measurement" id="increase-unit-measurement">
+                                                    <option value="" disabled selected>Select measurement</option>
+                                                </select>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="increase-supplier">Supplier:</label>
+                                                <select name="increase-supplier" id="increase-supplier">
+                                                    <option value="" disabled selected>Select supplier</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="divided-second-row">
+                                            <div class="input-row">
+                                                <label for="increase-material-current-qnty">Quantity:</label>
+                                                <input type="text" id="increase-material-current-qnty" readonly>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="increase-material-add-qnty">Quantity to add:</label>
+                                                <input type="number" id="increase-material-add-qnty" placeholder="Enter quantity" required>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="increase-material-cost-per-unit">Cost:</label>
+                                                <input type="number" id="increase-material-cost-per-unit" placeholder="Enter cost per unit" required>
+                                            </div>
+                                            <div class="input-row">
+                                                <label for="increase-material-restockDate">Date of Restock:</label>
+                                                <input type="date" id="increase-material-restockDate">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="divided-last-row">
+                                        <div class="input-row">
+                                            <label for="notes">Remarks/Notes:</label>
+                                            <textarea id="increase-material-details" placeholder="Enter Remarks..."></textarea>
+                                        </div>
+                                        <div class="add-material-btn">
+                                            <button id="increase-materials-save">Save</button>
+                                            <button id="increase-materials-cancel">Cancel</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Add new materials -->
+                                <div class="add-new-materials-container hidden" id="form-add-new-material">
+                                    <div class="add-new-material-container">
+                                        <div class="add-new-material-details">
+                                            <div class="divided-first-row">
+                                                <div class="input-row">
+                                                    <label for="new-material-category">Category:</label>
+                                                    <select name="new-material-category" id="new-material-category">
+                                                        <option value="" disabled selected>Select category</option>
+                                                        <option value="new-coffin-materials">Coffin materials</option>
+                                                        <option value="new-flower-materials">Flower materials</option>
+                                                        <option value="new-interior-materials">Interior (Lining)</option>
+                                                        <option value="new-equipment-materials">Equipment/Furniture</option>
+                                                    </select>
+                                                </div>
+                                                <div class="input-row">
+                                                    <label for="category">Material:</label>
+                                                    <select name="all-materials" id="all-materials">
+                                                        <option value="" disabled selected>Select materials</option>
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                                <div class="input-row">
+                                                    <label for="new-material-measurement">Unit of measurement:</label>
+                                                    <select name="new-material-measurement" id="new-material-measurement">
+                                                        <option value="" disabled selected>Select measurement</option>
+                                                        <option value=""></option>
+                                                    </select>
+                                                </div>
+                                                <div class="interior-only" style="display:none;">
+                                                    <label for="new-material-pattern">Pattern:</label>
+                                                    <select id="new-material-pattern"></select>
+                                                </div>
+                                                <div class="interior-only" style="display:none;">
+                                                    <label for="new-material-thickness">Thickness:</label>
+                                                    <select id="new-material-thickness"></select>
+                                                </div>
+                                                <div class="interior-only" style="display:none;">
+                                                    <label for="new-material-softness">Softness:</label>
+                                                    <select id="new-material-softness"></select>
+                                                </div>
+                                            </div>
+                                            <div class="divided-second-row">
+                                                <div class="input-row">
+                                                    <label for="new-item-name">Item name:</label>
+                                                    <input type="text" id="new-item-name" placeholder="Enter item name" required>
+                                                </div>
+                                                <div class="interior-only" style="display:none;">
+                                                    <label for="new-material-color">Color:</label>
+                                                    <input type="text" id="new-material-color" placeholder="Enter color" required>
+                                                </div>
+                                                <div class="input-row">
+                                                    <label for="new-material-initial-stock">Initial stock:</label>
+                                                    <input type="number" id="new-material-initial-stock" placeholder="Enter material name" required>
+                                                </div>
+                                                <div class="input-row">
+                                                    <label for="new-material-cost-per-unit">Cost per unit:</label>
+                                                    <input type="number" id="new-material-cost-per-unit" placeholder="Enter cost per unit" required>
+                                                </div>
+                                                <div class="input-row">
+                                                    <label for="new-material-supplier">Supplier:</label>
+                                                    <input type="text" id="new-material-supplier" placeholder="Enter supplier name" required>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="divided-last-row">
+                                            <div class="input-row">
+                                                <label for="notes">Remarks/Notes:</label>
+                                                <textarea id="new-material-details" placeholder="Enter Remarks..."></textarea>
+                                            </div>
+                                            <div class="materials-btn">
+                                                <button id="new-materials-save">Save</button>
+                                                <button id="new-materials-cancel">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="confirmModal" class="modal hidden">
+                    <div class="modal-content">
+                        <h3>Confirm Details</h3>
+                        <div class="summaryContent" id="summaryContent"></div>
+                        <div class="modal-actions">
+                            <button id="confirmSave">Looks good</button>
+                            <button id="cancelSave">Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -909,6 +1921,7 @@
                                     <div class="details-container">
                                         <div class="profile-staff">
                                             <div class="picture" id="picture" data-name="">
+                                                <img id="profile-preview" src="../assets/img/profile.png">
                                                 <span>Select Profile</span>
                                                 <input type="file" id="profile-input" accept="image/*" style="display:none">
                                             </div>
@@ -940,7 +1953,8 @@
                                 </div>
                             </div>
                             <div class="assign-roles-container hidden" id="assign-roles-container">
-                                <div class="staff-grid" id="staff-grid">
+                                <div class="staff-grid-container">
+                                    <div class="staff-grid" id="staff-grid"></div>   
                                 </div>
                             </div>
                             <div class="access-control-container hidden" id="access-control-container">
@@ -1277,190 +2291,78 @@
                                     </table>
                                 </div>
                             </div>
+                            <!-- audit logs container -->
                             <div class="audit-container hidden" id="audit-container">
                                 <div class="logs-filter">
-                                    <select>
-                                        <option>All Users</option>
-                                        <option>Admin</option>
-                                        <option>Ground Crew</option>
-                                        <option>Embalmer</option>
-                                        <option>Transportation</option>
-                                        <option>Maintenance</option>
+                                    <select id="auditRoleFilter">
+                                        <option value="all users">All Users</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="groundcrew">Ground Crew</option>
+                                        <option value="embalmer">Embalmer</option>
+                                        <option value="transportation">Transportation</option>
+                                        <option value="maintenance">Maintenance</option>
                                     </select>
-                                    <select>
-                                        <option>All Actions</option>
+
+                                    <select id="auditActionFilter">
+                                        <option value="all actions">All Actions</option>
+                                        <option value="add">Add</option>
+                                        <option value="update">Update</option>
+                                        <option value="delete">Delete</option>
+                                        <option value="login">Login</option>
                                     </select>
-                                    <select>
-                                        <option>Last 30 Days</option>
+                                    <select id="auditDateFilter">
+                                        <option value="all">All Time</option>
+                                        <option value="30">Last 30 Days</option>
+                                        <option value="7">Last 7 Days</option>
                                     </select>
                                     <input type="text" id="searchInput" style="width: 200px;" placeholder="Search logs...">
                                 </div>
-                                <table class="logs-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Username</th>
-                                            <th>Action</th>
-                                            <th>Date</th>
-                                            <th>Ip Address</th>
-                                            <th>Details</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="../assets/img/profile.png">
-                                                Regielyn
-                                            </td>
-                                            <td><span class="badge blue">Logged In</span></td>
-                                            <td>Today, 6:30 PM</td>
-                                            <td>192.0.2.1</td>
-                                            <td>Changes Aires's role to Embalmer</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="avatar1.png">
-                                                aires
-                                            </td>
-                                            <td><span class="badge blue">Logged In</span></td>
-                                            <td>Today, 6:30 PM</td>
-                                            <td>192.0.2.1</td>
-                                            <td>Changes Aires's role to Embalmer</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="avatar1.png">
-                                                em
-                                            </td>
-                                            <td><span class="badge blue">Logged In</span></td>
-                                            <td>Today, 6:30 PM</td>
-                                            <td>192.0.2.1</td>
-                                            <td>Changes Aires's role to Embalmer</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="avatar1.png">
-                                                jules
-                                            </td>
-                                            <td><span class="badge blue">Logged In</span></td>
-                                            <td>Today, 6:30 PM</td>
-                                            <td>192.0.2.1</td>
-                                            <td>Changes Aires's role to Embalmer</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="avatar1.png">
-                                                sheryl
-                                            </td>
-                                            <td><span class="badge blue">Logged In</span></td>
-                                            <td>Today, 6:30 PM</td>
-                                            <td>192.0.2.1</td>
-                                            <td>Changes Aires's role to Embalmer</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="avatar1.png">
-                                                sheryl
-                                            </td>
-                                            <td><span class="badge blue">Logged In</span></td>
-                                            <td>Today, 6:30 PM</td>
-                                            <td>192.0.2.1</td>
-                                            <td>Changes Aires's role to Embalmer</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="logs-table-container">
+                                    <table class="logs-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Username</th>
+                                                <th>Roles</th>
+                                                <th>Action</th>
+                                                <th>Date</th>
+                                                <th>Ip Address</th>
+                                                <th>Details</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
                             </div>
+                            <!-- view staff -->
                             <div class="view-staff hidden" id="view-staff">
                                 <div class="view-logs">
-                                    <select>
-                                        <option>All Users</option>
-                                        <option>Admin</option>
-                                        <option>Ground Crew</option>
-                                        <option>Embalmer</option>
-                                        <option>Transportation</option>
-                                        <option>Maintenance</option>
+                                    <select id="filterRole">
+                                        <option value="all">All Users</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="ground-crew">Ground Crew</option>
+                                        <option value="embalmer">Embalmer</option>
+                                        <option value="transportation">Transportation</option>
+                                        <option value="maintenance">Maintenance</option>
                                     </select>
                                     <input type="text" id="searchviewInput" style="width: 200px;" placeholder="Search logs...">
                                 </div>
-                                <table class="view-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Username</th>
-                                            <th>Age</th>
-                                            <th>Gender</th>
-                                            <th>ID</th>
-                                            <th>Type</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="avatar1.png">
-                                                Regielyn
-                                            </td>
-                                            <td>20</td>
-                                            <td>female</td>
-                                            <td>01836315</td>
-                                            <td>part-time</td>
-                                            <td>Active</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="avatar1.png">
-                                                aires
-                                            </td>
-                                            <td>20</td>
-                                            <td>female</td>
-                                            <td>01836315</td>
-                                            <td>part-time</td>
-                                            <td>Active</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="avatar1.png">
-                                                em
-                                            </td>
-                                            <td>20</td>
-                                            <td>female</td>
-                                            <td>01836315</td>
-                                            <td>part-time</td>
-                                            <td>Active</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="avatar1.png">
-                                                jules
-                                            </td>
-                                            <td>20</td>
-                                            <td>female</td>
-                                            <td>01836315</td>
-                                            <td>part-time</td>
-                                            <td>Active</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="avatar1.png">
-                                                sheryl
-                                            </td>
-                                            <td>20</td>
-                                            <td>female</td>
-                                            <td>01836315</td>
-                                            <td>part-time</td>
-                                            <td>Active</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="user-cell">
-                                                <img src="avatar1.png">
-                                                sheryl
-                                            </td>
-                                            <td>20</td>
-                                            <td>female</td>
-                                            <td>01836315</td>
-                                            <td>part-time</td>
-                                            <td>Active</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="view-table-container">
+                                    <table class="view-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Username</th>
+                                                <th>Age</th>
+                                                <th>Gender</th>
+                                                <th>ID</th>
+                                                <th>Role</th>
+                                                <th>Type</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1746,6 +2648,9 @@
     const staffStatus = document.getElementById('staff-status');
     const staffHired = document.getElementById('staff-hired');
 
+    let isEditing = false;
+    let originalDepartment = "";
+
     inputName.addEventListener('input', ()=>{
         staffName.textContent = `${inputName.value}`;
     });
@@ -1789,6 +2694,7 @@
             staffHired.textContent = 'Date Hired: ';
         }
     });
+    
     //generate staff id
     const generateId = document.getElementById('generate');
     const departmentSelected = document.getElementById('department');
@@ -1799,6 +2705,15 @@
 
         const departmentCode = departmentSelected.value;
 
+        if (isEditing && departmentCode === originalDepartment) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Not Allowed',
+                text: 'Change department before generating a new Staff ID',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
         if (!departmentCode) {
             Swal.fire({
                 icon: 'warning',
@@ -1811,6 +2726,7 @@
 
         const prefixMap = {
             admin: 'ADM',
+            'embalmer': 'EMB',
             'ground-crew': 'GCW',
             transportation: 'DVR',
             maintenance: 'MTC'
@@ -1838,7 +2754,7 @@
             Swal.fire({
                 icon: 'error',
                 title: 'ID Generation Failed',
-                text: 'Unable to generate a unique Staff ID. Please try again.',
+                text: 'Unable to generate a Staff ID. Please try again.',
                 confirmButtonText: 'Retry'
             });
             return;
@@ -1859,6 +2775,13 @@
             showConfirmButton: false
         });
     });
+
+    const allButtons = document.querySelectorAll('.category-options button');
+    function setActive(clickedBtn) {
+        allButtons.forEach(btn => btn.classList.remove('active'));
+        clickedBtn.classList.add('active');
+    }
+        
     //staff management button
     const addStaffBtn = document.getElementById('add-staff');
     const addStaffContainer = document.getElementById('add-staff-container');
@@ -1871,7 +2794,8 @@
     const viewbtn = document.getElementById('viewStaff');
     const viewContainer = document.getElementById('view-staff');
 
-    addStaffBtn.addEventListener('click', ()=>{
+    addStaffBtn.addEventListener('click', function () {
+        setActive(this);
         addStaffContainer.classList.remove('hidden');
         assignedRoles.classList.add('hidden');
         accessContainer.classList.add('hidden');
@@ -1879,77 +2803,38 @@
         viewContainer.classList.add('hidden');
     });
     //assignroles button
-    assignRolesBtn.addEventListener('click', ()=>{
+    assignRolesBtn.addEventListener('click', function () {
+        setActive(this);
         assignedRoles.classList.remove('hidden');
         addStaffContainer.classList.add('hidden');
         accessContainer.classList.add('hidden');
         auditContainer.classList.add('hidden');
         viewContainer.classList.add('hidden');
     });
-    accessbtn.addEventListener('click', ()=>{
+    accessbtn.addEventListener('click', function () {
+        setActive(this);
         assignedRoles.classList.add('hidden');
         addStaffContainer.classList.add('hidden');
         accessContainer.classList.remove('hidden');
         auditContainer.classList.add('hidden');
         viewContainer.classList.add('hidden');
     });
-    auditActivity.addEventListener('click', ()=>{
+    auditActivity.addEventListener('click', function () {
+        setActive(this);
         assignedRoles.classList.add('hidden');
         addStaffContainer.classList.add('hidden');
         accessContainer.classList.add('hidden');
         auditContainer.classList.remove('hidden');
         viewContainer.classList.add('hidden');
     });
-    viewbtn.addEventListener('click', ()=>{
+    viewbtn.addEventListener('click', function () {
+        setActive(this);
         assignedRoles.classList.add('hidden');
         addStaffContainer.classList.add('hidden');
         accessContainer.classList.add('hidden');
         auditContainer.classList.add('hidden');
         viewContainer.classList.remove('hidden');
-    });
-
-    //assign roles
-    const staffGrid = document.getElementById('staff-grid');
-    const staffList = [
-        {name: "Aries Lyn Dumali", active: true, age: "20", gender: "Female", role: "admin", status: "Active"},
-        {name: "Regielyn Daraigan"},
-        {name: "Em patrick Gesulgon"},
-        {name: "Jules Martin Tamorite"},
-        {name: "Sheryl Grace Lopez"}
-    ];
-    staffList.innerHTML = '';
-    staffList.forEach(staff=>{
-        const card = document.createElement('div');
-        card.className = 'profile-container staff-card'
-
-        card.innerHTML = `
-        <div class="edit-left-container">
-            <div class="employee-pic"></div>
-            <div class="employee-details">
-                <p data-label="Name:"><span>${staff.name}</span></p>
-                <p data-label="Age:"><span>${staff.age}</span></p>
-                <p data-label="Sex:"><span>${staff.gender}</span></p>
-                <p data-label="Role:"><span>${staff.role}</span></p>
-                <p data-label="Status:"><span>${staff.status}</span></p>
-            </div>
-            <div class="employee-button">
-                <button class="employee-drop">Delete</button>
-                <button class="employee-edit">Edit</button>
-            </div>
-        </div>
-        <div class="edit-right-container"></div>`;
-        staffGrid.appendChild(card);
-
-        //edit button
-        const editButton = card.querySelector('.employee-edit');
-        editButton.addEventListener('click', ()=>{
-            addStaffContainer.scrollIntoView({behavior: 'smooth'});
-            addStaffContainer.classList.remove('hidden');
-            assignedRoles.classList.add('hidden');
-            accessContainer.classList.add('hidden');
-            auditContainer.classList.add('hidden');
-            viewContainer.classList.add('hidden');
-        });
+        fetchViewStaff();
     });
     //control choices
     const controlChoices = document.querySelectorAll('.control-choices ul li');
@@ -2006,30 +2891,6 @@
         transportationControlContainer.classList.add('hidden');
         maintenanceControlContainer.classList.remove('hidden');
     });
-
-    const searchInput = document.getElementById("searchInput");
-    searchInput.addEventListener("keyup", function () {
-
-        const filter = searchInput.value.toLowerCase();
-        const rows = document.querySelectorAll("#audit-container .logs-table tbody tr");
-
-        rows.forEach(row => {
-            const username = row.cells[0].textContent.toLowerCase();
-            row.style.display = username.includes(filter) ? "" : "none";
-        });
-    });
-
-    const searchviewInput = document.getElementById("searchviewInput");
-    searchviewInput.addEventListener("keyup", function () {
-
-        const viewfilter = searchviewInput.value.toLowerCase();
-        const viewrows = document.querySelectorAll("#view-staff .logs-table tbody tr");
-
-        viewrows.forEach(viewrow => {
-            const viewusername = viewrow.cells[0].textContent.toLowerCase();
-            viewrow.style.display = viewusername.includes(viewfilter) ? "" : "none";
-        });
-    });
     //schedule fuhnction
     const dateToday = new Date();
     const formatdate = dateToday.toLocaleDateString("en-US", {
@@ -2050,7 +2911,6 @@
         }
     });
 
-
     const restrictStaff = document.getElementById("restrictStaff");
     const staffPermission = document.getElementById("staffPermission");
 
@@ -2061,6 +2921,7 @@
             staffPermission.style.display = "none";
         }
     });
+
     // chat function (done)
     const adminInput = document.getElementById('adminChatInput');
     const adminButton = document.getElementById('adminChatSend');
@@ -2078,6 +2939,7 @@
         fetch('../backend/message/unread_counts.php')
             .then(res => res.json())
             .then(data => {
+                unreadCounts = {};
                 data.forEach(row => {
                     unreadCounts[row.customer_id] = row.unread;
                 });
@@ -2187,6 +3049,7 @@
         fetch(`../backend/message/get_message.php?last_id=${globalLastId}`)
             .then(res => res.json())
             .then(data => {
+                let hasNewCustomerMessage = false;
                 data.forEach(msg => {
                     if (msg.id > globalLastId) {
                         globalLastId = msg.id;
@@ -2195,6 +3058,9 @@
                     processedMessages.add(msg.id);
                     if (msg.sender === 'customer') {
                         let id = msg.customer_id;
+                        if (selectedCustomerId !== msg.customer_id) {
+                            hasNewCustomerMessage = true; 
+                        }
                         addNotification(msg.customer_name, id, msg.profile_img);
                         updateNotificationUI(id);
                     }
@@ -2205,80 +3071,86 @@
                         }
                     }
                 });
-            });
+                if (hasNewCustomerMessage) {
+                    loadUnreadCounts();
+                }
+            }) ;
     }, 1000);
     loadUnreadCounts();
     adminButton.addEventListener('click', sendMessage);
     adminInput.addEventListener('keydown', e => {
         if (e.key === 'Enter') sendMessage();
     });
-
-    // staff management functions
+    // STAFF MANAGEMENT
+    // add staff functions (done)
     document.getElementById("addStaffupdate").addEventListener("click", (e) => {
-    e.preventDefault();
+        e.preventDefault();
 
-    if (!inputId.value) {
+        if (!inputId.value) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Missing Staff ID',
+                text: 'Please generate Staff ID first!'
+            });
+            return;
+        }
+
+        if (!inputName.value || !inputAge.value || !inputGender.value ||
+            !inputContact.value || !inputUsername.value) {
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Incomplete Fields',
+                text: 'Please fill all required fields!'
+            });
+            return;
+        }
+
         Swal.fire({
-            icon: 'warning',
-            title: 'Missing Staff ID',
-            text: 'Please generate Staff ID first!'
-        });
-        return;
-    }
+            title: isEditing ? 'Update Staff?' : 'Add Staff?',
+            text: isEditing ? "You are updating this staff." : "You are about to add this staff.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
 
-    if (!inputName.value || !inputAge.value || !inputGender.value || 
-        !inputContact.value || !inputUsername.value) {
+            if (result.isConfirmed) {
 
-        Swal.fire({
-            icon: 'warning',
-            title: 'Incomplete Fields',
-            text: 'Please fill all required fields!'
-        });
-        return;
-    }
+                const data = new URLSearchParams();
 
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You are about to add this staff.",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, save it!',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
+                data.append("mode", isEditing ? "edit" : "add");
 
-        if (result.isConfirmed) {
+                data.append("name", inputName.value);
+                data.append("age", inputAge.value);
+                data.append("gender", inputGender.value);
+                data.append("contact", inputContact.value);
+                data.append("username", inputUsername.value);
+                data.append("email", inputEmail.value);
+                data.append("staff_id", inputId.value);
+                data.append("department", inputDepartment.value);
+                data.append("type", inputType.value);
+                data.append("status", inputStatus.value);
+                data.append("hired", inputHired.value);
 
-            const data = new URLSearchParams();
-            data.append("name", inputName.value);
-            data.append("age", inputAge.value);
-            data.append("gender", inputGender.value);
-            data.append("contact", inputContact.value);
-            data.append("username", inputUsername.value);
-            data.append("email", inputEmail.value);
-            data.append("staff_id", inputId.value);
-            data.append("department", inputDepartment.value);
-            data.append("type", inputType.value);
-            data.append("status", inputStatus.value);
-            data.append("hired", inputHired.value);
+                fetch('../backend/staff/add_staff.php', {
+                    method: 'POST',
+                    body: data
+                })
+                .then(res => res.json())
+                .then(json => {
 
-            fetch('../backend/staff/add_staff.php', {
-                method: 'POST',
-                body: data
-            })
-            .then(res => res.text())
-            .then(res => {
-                console.log("RAW SERVER RESPONSE:", res);
-
-                try {
-                    const json = JSON.parse(res);
+                    console.log("RAW SERVER RESPONSE:", json);
 
                     if (json.status === "success") {
+
                         Swal.fire({
                             icon: 'success',
-                            title: 'Saved!',
+                            title: 'Success',
                             text: json.message
                         });
 
+                        // reset
                         inputName.value = "";
                         inputAge.value = "";
                         inputGender.value = "";
@@ -2291,21 +3163,10 @@
                         inputStatus.value = "";
                         inputHired.value = "";
 
-                        const card = document.querySelector(".staff-card");
+                        resetCard();
+                        fetchStaff();
 
-                        if (card) {
-                            card.querySelector(".name").textContent = "Name";
-                            card.querySelector(".age").textContent = "Age";
-                            card.querySelector(".gender").textContent = "Gender";
-                            card.querySelector(".contact").textContent = "Contact";
-                            card.querySelector(".username").textContent = "Username";
-                            card.querySelector(".email").textContent = "Email";
-                            card.querySelector(".staff_id").textContent = "Staff ID";
-                            card.querySelector(".department").textContent = "Department";
-                            card.querySelector(".type").textContent = "Type";
-                            card.querySelector(".status").textContent = "Status";
-                            card.querySelector(".hired").textContent = "Date Hired";
-                        }
+                        isEditing = false;
                     } else {
                         Swal.fire({
                             icon: 'error',
@@ -2313,17 +3174,1482 @@
                             text: json.message
                         });
                     }
-
-                } catch (e) {
+                })
+                .catch(err => {
+                    console.error(err);
                     Swal.fire({
                         icon: 'error',
-                        title: 'Invalid Response',
-                        text: 'Check console for PHP error'
+                        title: 'Server Error',
+                        text: 'Something went wrong.'
                     });
+                });
+
+            } else {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Cancelled',
+                    text: 'No changes were saved.'
+                });
+            }
+        });
+    });
+    const resetCard = () => {
+
+        staffName.textContent = "";
+        staffAge.textContent = "";
+        staffGender.textContent = "";
+        staffContact.textContent = "";
+
+        staffUsername.textContent = "";
+        staffEmail.textContent = "";
+        staffId.textContent = "";
+        staffDepartment.textContent = "";
+        staffType.textContent = "";
+        staffStatus.textContent = "";
+        staffHired.textContent = "";
+
+        document.getElementById("profile-preview").src = "../assets/img/profile.png";
+    };
+    document.getElementById("cancel").addEventListener("click", (e) => {
+        e.preventDefault();
+
+        Swal.fire({
+            icon: 'info',
+            title: 'Cancelled',
+            text: 'Form cleared.'
+        });
+
+        inputName.value = "";
+        inputAge.value = "";
+        inputGender.value = "";
+        inputContact.value = "";
+        inputUsername.value = "";
+        inputEmail.value = "";
+        inputId.value = "";
+        inputDepartment.value = "";
+        inputType.value = "";
+        inputStatus.value = "";
+        inputHired.value = "";
+
+        resetCard();
+        isEditing = false;
+    });
+    //assign roles (done)
+    const staffGrid = document.getElementById("staff-grid");
+    function fetchStaff() {
+
+        fetch("../backend/staff/get_staff.php", {
+            method: "GET",
+            credentials: "include"
+        })
+        .then(res => res.json())    
+        .then(data => {
+            console.log(data);
+            if (data.status !== "success") return;
+            staffGrid.innerHTML = "";
+
+            data.data.forEach(staff => {
+                const card = document.createElement("div");
+                card.classList.add("profile-container", "staff-card");
+                const left = document.createElement("div");
+                left.classList.add("edit-left-container");
+                const pic = document.createElement("div");
+                pic.classList.add("employee-pic");
+                const details = document.createElement("div");
+                details.classList.add("employee-details");
+                const addRow = (label, value) => {
+                    const p = document.createElement("p");
+                    p.setAttribute("data-label", label);
+
+                    const span = document.createElement("span");
+                    span.textContent = value || "";
+
+                    p.appendChild(span);
+                    return p;
+                };
+
+                details.appendChild(addRow("Name:", staff.name));
+                details.appendChild(addRow("Age:", staff.age));
+                details.appendChild(addRow("Sex:", staff.gender));
+                details.appendChild(addRow("Role:", staff.department));
+                details.appendChild(addRow("Status:", staff.status));
+
+                const btnBox = document.createElement("div");
+                btnBox.classList.add("employee-button");
+
+                const editBtn = document.createElement("button");
+                editBtn.classList.add("employee-edit");
+                editBtn.textContent = "Edit";
+
+                const deleteBtn = document.createElement("button");
+                deleteBtn.classList.add("employee-drop");
+                deleteBtn.textContent = "Delete";
+                // assign roles edit button
+                editBtn.addEventListener("click", () => {
+                    isEditing = true;
+                    originalDepartment = staff.department;
+
+                    addStaffContainer.classList.remove("hidden");
+                    assignedRoles.classList.add("hidden");
+                    accessContainer.classList.add("hidden");
+                    auditContainer.classList.add("hidden");
+                    viewContainer.classList.add("hidden");
+
+                    inputName.value = staff.name;
+                    inputAge.value = staff.age;
+                    inputGender.value = staff.gender;
+                    inputContact.value = staff.contact_no;
+                    inputUsername.value = staff.username;
+                    inputEmail.value = staff.email;
+                    inputDepartment.value = staff.department;
+                    inputId.value = staff.staff_id;
+                    inputType.value = staff.type;
+                    inputStatus.value = staff.status;
+
+                    const profilePreview = document.getElementById("profile-preview");
+
+                    if (profilePreview) {
+                        if (staff.profile && staff.profile !== "") {
+                            profilePreview.src = "../assets/img/uploads/" + staff.profile;
+                        } else {
+                            profilePreview.src = "../assets/img/profile.png";
+                        }
+                    }
+
+                    staffName.textContent = staff.name;
+                    staffAge.textContent = staff.age;
+                    staffGender.textContent = staff.gender;
+                    staffContact.textContent = staff.contact_no;
+                    staffUsername.textContent = staff.username;
+                    staffEmail.textContent = staff.email;
+                    staffDepartment.textContent = staff.department;
+                    staffId.textContent = staff.staff_id;
+                    staffType.textContent = staff.type;
+                    staffStatus.textContent = staff.status;
+                    console.log("EDIT CLICKED", staff);
+                });
+                // assign roles delete button
+                deleteBtn.addEventListener("click", () => {
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This will permanently delete this staff.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            fetch("../backend/staff/delete_staff.php", {
+                                method: "POST",
+                                credentials: "include",
+                                headers: {
+                                    "Content-Type": "application/x-www-form-urlencoded"
+                                },
+                                body: `staff_id=${encodeURIComponent(staff.staff_id)}`
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.status === "success") {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Deleted!',
+                                        text: data.message
+                                    });
+                                    fetchStaff();
+                                } else {
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: data.message
+                                    });
+                                }
+
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Server Error',
+                                    text: 'Something went wrong'
+                                });
+                            });
+                        }
+                    });
+                });
+                btnBox.appendChild(deleteBtn);
+                btnBox.appendChild(editBtn);
+
+                left.appendChild(pic);
+                left.appendChild(details);
+                left.appendChild(btnBox);
+
+                const right = document.createElement("div");
+                right.classList.add("edit-right-container");
+
+                card.appendChild(left);
+                card.appendChild(right);
+
+                staffGrid.appendChild(card);
+            });
+
+        })
+        .catch(err => console.error(err));
+    }
+    fetchStaff();
+    // view staff (done)
+    let allStaffData = [];
+    const viewTableBody = document.querySelector(".view-table tbody");
+    function fetchViewStaff() {
+        fetch("../backend/staff/get_staff.php")
+            .then(res => res.json())
+            .then(data => {
+                if (data.status !== "success") return;
+                allStaffData = data.data;
+                renderTable(allStaffData);
+                viewTableBody.innerHTML = "";
+                data.data.forEach(staff => {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td class="user-cell">
+                            <img src="../assets/img/profile.png">
+                            ${staff.name}
+                        </td>
+                        <td>${staff.age}</td>
+                        <td>${staff.gender}</td>
+                        <td>${staff.staff_id}</td>
+                        <td>${staff.department}</td>
+                        <td>${staff.type}</td>
+                        <td>
+                            <span class="status ${staff.status.toLowerCase()}">
+                                ${staff.status}
+                            </span>
+                        </td>
+                    `;
+                    viewTableBody.appendChild(row);
+                });
+            })
+            .catch(err => console.error("FETCH ERROR:", err));
+    }
+    function renderTable(data) {
+        viewTableBody.innerHTML = "";
+        data.forEach(staff => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td class="user-cell">
+                    <img src="../assets/img/profile.png">
+                    ${staff.name}
+                </td>
+                <td>${staff.age}</td>
+                <td>${staff.gender}</td>
+                <td>${staff.staff_id}</td>
+                <td>${staff.department}</td>
+                <td>${staff.type}</td>
+                <td>
+                    <span class="status ${staff.status.toLowerCase()}">
+                        ${staff.status}
+                    </span>
+                </td>
+            `;
+            viewTableBody.appendChild(row);
+        });
+    }
+    const filterRole = document.getElementById("filterRole");
+    filterRole.addEventListener("change", function () {
+        const selected = this.value.toLowerCase();
+        if (selected === "all") {
+            renderTable(allStaffData);
+            return;
+        }
+        const filtered = allStaffData.filter(staff =>
+            (staff.department || "").toLowerCase() === selected ||
+            (staff.type || "").toLowerCase() === selected
+        );
+        renderTable(filtered);
+    });
+    // view staff search (done)
+    const searchviewInput = document.getElementById("searchviewInput");
+    searchviewInput.addEventListener("keyup", function () {
+        const viewfilter = this.value.toLowerCase();
+        const viewrows = document.querySelectorAll("#view-staff .view-table tbody tr");
+        viewrows.forEach(viewrow => {
+            const name = viewrow.cells[0].textContent.toLowerCase();
+            const id = viewrow.cells[3].textContent.toLowerCase();
+            if (name.includes(viewfilter) || id.includes(viewfilter)) {
+                viewrow.style.display = "";
+            } else {
+                viewrow.style.display = "none";
+            }
+        });
+    });
+    // audit and activity logs (done)
+    const auditTableBody = document.querySelector(".logs-table tbody");
+    const auditRoleFilter = document.getElementById("auditRoleFilter");
+    const auditActionFilter = document.getElementById("auditActionFilter");
+    const searchInput = document.getElementById("searchInput");
+    const auditDateFilter = document.getElementById("auditDateFilter");
+    let allAuditData = [];
+    function fetchAuditLogs() {
+        fetch("../backend/staff/get_logs.php")
+            .then(res => res.json())
+            .then(data => {
+                console.log("DATA:", data);
+                if (data.status !== "success") return;
+
+                allAuditData = data.data;
+                applyFilters();
+                // fetchAuditLogs();
+            })
+            .catch(err => console.error(err));
+    }
+    function renderAuditTable(data) {
+        auditTableBody.innerHTML = "";
+        data.forEach(log => {
+            const row = document.createElement("tr");
+            const badgeClass = getBadgeClass(log.action);
+            row.innerHTML = `
+                <td class="user-cell">
+                    <img src="../assets/img/profile.png">
+                    ${log.username}
+                </td>
+                <td>${log.roles || log.role || "N/A"}</td>
+                <td>
+                    <span class="viewbadge ${badgeClass}">
+                        ${log.action}
+                    </span>
+                </td>
+                <td>${log.created_at}</td>
+                <td>${log.ip_address}</td>
+                <td>${log.details}</td>
+            `;
+            auditTableBody.appendChild(row);
+        });
+    }
+    fetchAuditLogs();
+
+    function applyFilters() {
+        const search = searchInput.value.toLowerCase().trim();
+        const clean = (str) => (str || "").toLowerCase().replace(/[\s-]/g, '');
+        const selectedRole = clean(auditRoleFilter.value);
+        const selectedAction = clean(auditActionFilter.value);
+        const selectedDays = auditDateFilter.value;
+        const filtered = allAuditData.filter(log => {
+            const logRole = clean(log.roles || log.role);
+            const logAction = clean(log.action);
+            const matchesRole = selectedRole === "all" || selectedRole === "allusers" || logRole === selectedRole;
+            const matchesAction = selectedAction === "all" || selectedAction === "allactions" || logAction === selectedAction;
+
+            let matchesDate = true;
+            if (selectedDays !== "all") {
+                const logDate = new Date(log.created_at);
+                const now = new Date();
+                const diffInTime = now.getTime() - logDate.getTime();
+                const diffInDays = diffInTime / (1000 * 3600 * 24);
+                matchesDate = diffInDays <= parseInt(selectedDays);
+            }
+            const matchesSearch = !search || [
+                log.username,
+                log.roles || log.role,
+                log.action,
+                log.details
+            ].some(field => (field || "").toLowerCase().includes(search));
+            return matchesRole && matchesAction && matchesSearch && matchesDate;
+        });
+        renderAuditTable(filtered);
+    }
+    auditDateFilter.addEventListener("change", applyFilters);
+    // badge color
+    function getBadgeClass(action) {
+        const act = action.toLowerCase();
+
+        if (act.includes("login")) return "blue";
+        if (act.includes("add")) return "green";
+        if (act.includes("update")) return "orange";
+        if (act.includes("delete") || act.includes("terminate")) return "red";
+
+        return "gray";
+    }
+    searchInput.addEventListener("input", applyFilters);
+    auditRoleFilter.addEventListener("change", applyFilters);
+    auditActionFilter.addEventListener("change", applyFilters);
+    fetchAuditLogs();
+    // INVENTORY
+    function changeQty(id, change) {
+    const input = document.getElementById(id);
+        if (!input) return;
+        let current = parseInt(input.value) || 0;
+        let newValue = current + change;
+        if (newValue < 0) {
+            newValue = 0;
+        }
+
+        input.value = newValue;
+    }
+    $(document).ready(function() {
+        // open inventory forms
+        const overallContainer = document.querySelector(".overall-categories-container");
+        const coffinForm = document.getElementById("new-item-container");
+        const servicesForm = document.getElementById("form-services-container");
+        const materialsForm = document.getElementById("new-materials-container");
+
+        const btnNewCoffin = document.getElementById("btn-add-new-coffin");
+        const btnCoffin = document.getElementById("btn-increase-coffin");
+        const btnNewFlower = document.getElementById("btn-add-new-flowers");
+        const btnFlowers = document.getElementById("btn-increase-flowers");
+        const btnIncreaseServices = document.getElementById("btn-increase-services");
+        const btnAddNewServices = document.getElementById("btn-add-new-services");
+        const btnIncreaseMaterial = document.getElementById("btn-increase-stock");
+        const btnAddNewMaterial = document.getElementById("btn-add-new-material");
+
+        const formNewCoffin = document.getElementById("form-new-coffin-details");
+        const formIncreaseCoffin = document.getElementById("form-increase-coffin-details");
+        const formAddNewFlowers = document.getElementById("form-add-new-flowers");
+        const formFlowers = document.getElementById("form-flowers-details");
+        const formAddNewServices = document.querySelector(".add-new-services-details");
+        const formIncreaseServices = document.querySelector(".increase-services-details");
+        const formIncreaseMaterial = document.getElementById("form-increase-stock");
+        const formAddNewMaterial = document.getElementById("form-add-new-material");
+
+        const dateInput = document.getElementById("restockDate");
+
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        if(dateInput) dateInput.value = formattedDate;
+
+        function hideAllMainForms() {
+            coffinForm.classList.add("hidden");
+            servicesForm.classList.add("hidden");
+            materialsForm.classList.add("hidden");
+        }
+
+        function toggleItemView(type) {
+            const allSubForms = [
+                formNewCoffin, formIncreaseCoffin, 
+                formAddNewFlowers, formFlowers,
+                formAddNewServices, formIncreaseServices
+            ];
+            allSubForms.forEach(form => { if(form) form.classList.add("hidden"); });
+
+            const allButtons = [
+                btnNewCoffin, btnCoffin, btnNewFlower, 
+                btnFlowers, btnIncreaseServices, btnAddNewServices
+            ];
+            allButtons.forEach(btn => { if(btn) btn.classList.remove("active-choice"); });
+            if (type === 'new-coffin') {
+                formNewCoffin.classList.remove("hidden");
+                btnNewCoffin.classList.add("active-choice");
+            } else if (type === 'increase-coffin') {
+                formIncreaseCoffin.classList.remove("hidden");
+                btnCoffin.classList.add("active-choice");
+            } else if (type === 'new-flower') {
+                formAddNewFlowers.classList.remove("hidden");
+                btnNewFlower.classList.add("active-choice");
+            } else if (type === 'increase-flower') {
+                formFlowers.classList.remove("hidden");
+                btnFlowers.classList.add("active-choice");
+            } else if (type === 'new-services') {
+                formAddNewServices.classList.remove("hidden");
+                btnAddNewServices.classList.add("active-choice");
+            } else if (type === 'increase-services') {
+                formIncreaseServices.classList.remove("hidden");
+                btnIncreaseServices.classList.add("active-choice");
+            }
+        }
+        function toggleMaterialView(type) {
+            if (type === 'increase') {
+                formIncreaseMaterial.classList.remove("hidden");
+                formAddNewMaterial.classList.add("hidden");
+                btnIncreaseMaterial.classList.add("active-choice");
+                btnAddNewMaterial.classList.remove("active-choice");
+            } else {
+                formAddNewMaterial.classList.remove("hidden");
+                formIncreaseMaterial.classList.add("hidden");
+                btnAddNewMaterial.classList.add("active-choice");
+                btnIncreaseMaterial.classList.remove("active-choice");
+            }
+        }
+        document.getElementById("addProducts").addEventListener("click", () => {
+            hideAllMainForms();
+            coffinForm.classList.remove("hidden");
+            overallContainer.classList.remove("hidden");
+            toggleItemView('new-coffin');
+        });
+
+        document.getElementById("addServices").addEventListener("click", () => {
+            hideAllMainForms();
+            servicesForm.classList.remove("hidden");
+            overallContainer.classList.remove("hidden");
+            toggleItemView('increase-services');
+        });
+
+        document.getElementById("addMaterials").addEventListener("click", () => {
+            hideAllMainForms();
+            materialsForm.classList.remove("hidden");
+            overallContainer.classList.remove("hidden");
+            toggleMaterialView('increase');
+        });
+        overallContainer.addEventListener("click", (event) => {
+            if (event.target === overallContainer) {
+                overallContainer.classList.add("hidden");
+            }
+        });
+
+        if(btnNewCoffin) btnNewCoffin.addEventListener("click", () => toggleItemView('new-coffin'));
+        if(btnCoffin) btnCoffin.addEventListener("click", () => toggleItemView('increase-coffin'));
+        if(btnNewFlower) btnNewFlower.addEventListener("click", () => toggleItemView('new-flower'));
+        if(btnFlowers) btnFlowers.addEventListener("click", () => toggleItemView('increase-flower'));
+        if(btnAddNewServices) btnAddNewServices.addEventListener("click", () => toggleItemView('new-services'));
+        if(btnIncreaseServices) btnIncreaseServices.addEventListener("click", () => toggleItemView('increase-services'));
+        
+        if(btnIncreaseMaterial) btnIncreaseMaterial.addEventListener("click", () => toggleMaterialView('increase'));
+        if(btnAddNewMaterial) btnAddNewMaterial.addEventListener("click", () => toggleMaterialView('add'));
+        // loop for dropdown materials
+        const allButtons = document.querySelectorAll('.dropdown-btn');
+        const allContents = document.querySelectorAll('.dropdown-content');
+
+        allButtons.forEach((btn) => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                const currentContent = btn.nextElementSibling;
+                const isAlreadyOpen = currentContent.style.display === 'block';
+
+                closeAndResetAll();
+                if (!isAlreadyOpen) {
+                    currentContent.style.display = 'block';
+                }
+            });
+        });
+        window.addEventListener('click', () => {
+            closeAndResetAll();
+        });
+        function closeAndResetAll() {
+            allContents.forEach(content => {
+                if (content.style.display === 'block') {
+                    content.style.display = 'none';
                 }
             });
         }
+        allContents.forEach(content => {
+            content.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        });
+
+        // open modals new-coffin
+        const saveNewCoffinBtn = document.querySelector(".btn-save-new-coffin");
+        const saveCoffinBtn = document.getElementById("btn-save-coffin");
+        const saveNewFlowerBtn = document.getElementById("btn-save-new-flower");
+        const confirmModal = document.getElementById("confirmModal");
+        const summaryContent = document.getElementById("summaryContent");
+        const confirmSaveBtn = document.getElementById("confirmSave");
+        const cancelSaveBtn = document.getElementById("cancelSave");
+        saveNewCoffinBtn.addEventListener("click", function(event) {
+            event.preventDefault();
+            confirmModal.addEventListener("click", function(event) {
+                if (event.target === confirmModal) {
+                    confirmModal.classList.add("hidden");
+                }
+            });
+            const modalContent = document.querySelector(".modal-content");
+            modalContent.addEventListener("click", function(event) {
+                event.stopPropagation();
+            });
+            // new coffin details
+            const itemName = document.getElementById("item-id").value;
+            const color = document.getElementById("coffin-color")?.value || "";
+            const stock = document.getElementById("stock").value;
+            const supplier = document.getElementById("supplier").value;
+            const type = document.getElementById("type").options[document.getElementById("type").selectedIndex]?.text || "";
+            const size = document.getElementById("size").options[document.getElementById("size").selectedIndex]?.text || "";
+            const tax = document.getElementById("tax").options[document.getElementById("tax").selectedIndex]?.text || "";
+            const details = document.getElementById("details").value;
+            if (!itemName.trim()) {
+                alert("Please enter an Item Name before saving.");
+                return;
+            }
+            const imageInput = document.getElementById("image");
+            const imageFile = imageInput.files[0];
+            let imagePreviewHTML = `<li><span class="item-label">Image:</span> None selected</li>`;
+
+            if (imageFile) {
+                const tempImageUrl = URL.createObjectURL(imageFile);
+                imagePreviewHTML = `
+                    <li><span class="item-label">Image:</span>
+                        <span><img src="${tempImageUrl}" alt="Preview" style="max-width: 100%; max-height: 150px; margin-top: 10px; border-radius: 8px;"></span>
+                    </li>
+                `;
+            }
+
+            let materialsHTML = "";
+            const materialItems = document.querySelectorAll('.dropdown-content .item');
+            
+            materialItems.forEach(item => {
+                const name = item.querySelector('span').innerText;
+                const qty = parseInt(item.querySelector('input').value) || 0;
+                if (qty > 0) {
+                    materialsHTML += `<li><span class="item-label">${name}:</span><span>${qty}</span></li>`;
+                }
+            });
+
+            if (!materialsHTML) {
+                materialsHTML = "<li><span class='item-label'>Materials:</span><span>None selected</span></li>";
+            }
+            // new coffin summary
+            const finalSummary = `
+                <ul class="item-details">
+                    <li><span class="item-label">Item Name:</span><span>${itemName}</span></li>
+                    <li><span class="item-label">Color/Finish:</span><span>${color || "N/A"}</span></li>
+                    <li><span class="item-label">Stock Qnty:</span><span>${stock || "0"}</span></li>
+                    <li><span class="item-label">Supplier:</span><span>${supplier || "N/A"}</span></li>
+                    <li><span class="item-label">Type:</span><span>${type || "N/A"}</span></li>
+                    <li><span class="item-label">Size:</span><span>${size || "N/A"}</span></li>
+                    <li><span class="item-label">Tax Type:</span><span>${tax || "N/A"}</span></li>
+                    <li><span class="item-label">Details:</span><span>${details || "None"}</span></li>
+                    
+                    <hr>
+                    <li style="font-weight: bold; margin-top: 10px;">Selected Materials:</li>
+                    ${materialsHTML}
+                    
+                    <hr>
+                    ${imagePreviewHTML}
+                </ul>
+            `;
+            summaryContent.innerHTML = finalSummary;
+            confirmModal.classList.remove("hidden");
+        });
+        saveCoffinBtn.addEventListener("click", function(event) {
+            event.preventDefault();
+            confirmModal.addEventListener("click", function(event) {
+                if (event.target === confirmModal) {
+                    confirmModal.classList.add("hidden");
+                }
+            });
+            const modalContent = document.querySelector(".modal-content");
+            modalContent.addEventListener("click", function(event) {
+                event.stopPropagation();
+            });
+            // increase coffin details
+            const coffinName = document.getElementById("coffin-name").options[document.getElementById("coffin-name").selectedIndex]?.text || "N/A";
+            const coffinType = document.getElementById("coffin-type").options[document.getElementById("coffin-type").selectedIndex]?.text || "N/A";
+            const coffinSize = document.getElementById("coffin-size").options[document.getElementById("coffin-size").selectedIndex]?.text || "N/A";
+            const currentStock = document.getElementById("coffin-stock").value || "0";
+            const addedQty = document.getElementById("coffin-add-stock").value || "0";
+            const restockDate = document.getElementById("increase-restockDate").value || "Not set";
+            const notes = document.getElementById("details").value;
+
+            if (!coffinName.trim()) {
+                alert("Please enter a Coffin Name before saving.");
+                return;
+            }
+            let materialsHTML = "";
+            const materialItems = document.querySelectorAll('.dropdown-content .item');
+            
+            materialItems.forEach(item => {
+                const name = item.querySelector('span').innerText;
+                const qty = parseInt(item.querySelector('input').value) || 0;
+                if (qty > 0) {
+                    materialsHTML += `<li><span class="item-label">${name}:</span><span>${qty}</span></li>`;
+                }
+            });
+            if (!materialsHTML) {
+                materialsHTML = "<li><span class='item-label'>Materials:</span><span>None selected</span></li>";
+            }
+            // increase coffin summary
+            const increaseStockSummary = `
+                <ul class="item-details">
+                    <li style="color: #2c3e50; font-weight: bold; margin-bottom: 10px;">Stock Increase Summary</li>
+                    <li><span class="item-label">Item Name:</span><span>${coffinName}</span></li>
+                    <li><span class="item-label">Type:</span><span>${coffinType}</span></li>
+                    <li><span class="item-label">Size:</span><span>${coffinSize}</span></li>
+                    <hr>
+                    <li><span class="item-label">Current Stock:</span><span>${currentStock}</span></li>
+                    <li><span class="item-label">Added Qty:</span><span style="color: green; font-weight: bold;">+ ${addedQty}</span></li>
+                    <li><span class="item-label">Total Result:</span><span>${parseInt(currentStock) + parseInt(addedQty)}</span></li>
+                    <li><span class="item-label">Restock Date:</span><span>${restockDate}</span></li>
+                    <li><span class="item-label">Remarks:</span><span>${notes || "None"}</span></li>
+                </ul>
+            `;
+            summaryContent.innerHTML = increaseStockSummary;
+            confirmModal.classList.remove("hidden");
+        });
+        cancelSaveBtn.addEventListener("click", function() {
+            confirmModal.classList.add("hidden");
+        });
+        confirmSaveBtn.addEventListener("click", function () {
+            const formData = new FormData();
+
+            const measurementSelect = document.getElementById("new-material-measurement");
+            let convertedStock = parseInt(document.getElementById("new-material-initial-stock").value) || 0;
+            let selectedUnit = measurementSelect.value;
+            let unitMultiplier = 1;
+            if (selectedUnit === "bundle") {
+                unitMultiplier = 10;
+            } else if (selectedUnit === "dozen") {
+                unitMultiplier = 12;
+            }
+
+            formData.append("category", categorySelect.value);
+            formData.append("material_type", materialSelect.value);
+            formData.append("item_name", document.getElementById("new-item-name").value);
+            formData.append("unit", document.getElementById("new-material-measurement").value);
+            formData.append("stock", convertedStock);
+            formData.append("unit_multiplier", unitMultiplier);
+            formData.append("cost", document.getElementById("new-material-cost-per-unit").value);
+            formData.append("supplier", document.getElementById("new-material-supplier").value);
+            formData.append("notes", document.getElementById("new-material-details").value);
+
+            // interior only
+            if (categorySelect.value === "new-interior-materials") {
+                formData.append("pattern", document.getElementById("new-material-pattern").value);
+                formData.append("thickness", document.getElementById("new-material-thickness").value);
+                formData.append("softness", document.getElementById("new-material-softness").value);
+                formData.append("color", document.getElementById("new-material-color").value);
+            }
+
+            fetch("../backend/materials/save_material.php", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: 'Material saved successfully',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#3085d6'
+                    }).then(() => {
+
+                        document.getElementById("confirmModal").classList.add("hidden");
+
+                        document.getElementById("new-item-name").value = "";
+                        document.getElementById("new-material-initial-stock").value = "";
+                        document.getElementById("new-material-cost-per-unit").value = "";
+                        document.getElementById("new-material-details").value = "";
+                        document.getElementById("new-material-supplier").value = "";
+
+                        document.getElementById("all-materials").selectedIndex = 0;
+                        document.getElementById("new-material-measurement").selectedIndex = 0;
+                        categorySelect.selectedIndex = 0;
+
+                        const interiorFields = [
+                            "new-material-pattern",
+                            "new-material-thickness",
+                            "new-material-softness"
+                        ];
+                        interiorFields.forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.selectedIndex = 0;
+                        });
+                        const colorInput = document.getElementById("new-material-color");
+                        if (colorInput) colorInput.value = "";
+                    });
+
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: data.message
+                    });
+                }
+            })
+            .catch(err => {
+                console.error("Fetch error:", err);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong!'
+                });
+            });
+        });
+        // new flower details
+        saveNewFlowerBtn.addEventListener("click", function (event) {
+            event.preventDefault();
+            // new flower details
+            const flowerName = document.getElementById("flower-name").value;
+            const color = document.getElementById("new-flower-color").value;
+            const stock = document.getElementById("initial-stock").value;
+            const supplier = document.getElementById("supplier").value;
+            const flowerType = document.getElementById("flower-type").options[
+                document.getElementById("flower-type").selectedIndex
+            ]?.text || "";
+            const arrangement = document.getElementById("arrangement").options[
+                document.getElementById("arrangement").selectedIndex
+            ]?.text || "";
+            const discount = document.getElementById("discount").options[
+                document.getElementById("discount").selectedIndex
+            ]?.text || "";
+            const details = document.getElementById("details").value;
+            if (!flowerName.trim()) {
+                alert("Please enter a Flower Name before saving.");
+                return;
+            }
+            const imageInput = document.getElementById("flower-image");
+            const imageFile = imageInput.files[0];
+            let imagePreviewHTML = `<li><span class="item-label">Image:</span> None selected</li>`;
+            if (imageFile) {
+                const tempImageUrl = URL.createObjectURL(imageFile);
+                imagePreviewHTML = `
+                    <li><span class="item-label">Image:</span>
+                        <span>
+                            <img src="${tempImageUrl}" style="max-width:100%; max-height:150px; margin-top:10px; border-radius:8px;">
+                        </span>
+                    </li>
+                `;
+            }
+            // flower materials
+            let materialsHTML = "";
+            const materialItems = document.querySelectorAll('#new-flower-materials-container .item');
+            materialItems.forEach(item => {
+                const name = item.querySelector('span').innerText;
+                const qty = parseInt(item.querySelector('input').value) || 0;
+                if (qty > 0) {
+                    materialsHTML += `
+                        <li>
+                            <span class="item-label">${name}:</span>
+                            <span>${qty}</span>
+                        </li>
+                    `;
+                }
+            });
+            if (!materialsHTML) {
+                materialsHTML = "<li><span class='item-label'>Materials:</span><span>None selected</span></li>";
+            }
+            const finalSummary = `
+                <ul class="item-details">
+                    <li><span class="item-label">Flower:</span><span>${flowerName}</span></li>
+                    <li><span class="item-label">Color:</span><span>${color || "N/A"}</span></li>
+                    <li><span class="item-label">Stock:</span><span>${stock || "0"}</span></li>
+                    <li><span class="item-label">Supplier:</span><span>${supplier || "N/A"}</span></li>
+                    <li><span class="item-label">Type:</span><span>${flowerType || "N/A"}</span></li>
+                    <li><span class="item-label">Arrangement:</span><span>${arrangement || "N/A"}</span></li>
+                    <li><span class="item-label">Discount:</span><span>${discount || "None"}</span></li>
+                    <li><span class="item-label">Details:</span><span>${details || "None"}</span></li>
+
+                    <hr>
+                    <li style="font-weight: bold;">Materials Used:</li>
+                    ${materialsHTML}
+
+                    <hr>
+                    ${imagePreviewHTML}
+                </ul>
+            `;
+            summaryContent.innerHTML = finalSummary;
+            confirmModal.classList.remove("hidden");
+        });
+        // inccrease flower
+        const increaseFlowerBtn = document.getElementById("btn-increase-flower");
+        increaseFlowerBtn.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const flowerType = document.getElementById("increase-flower-name").options[
+                document.getElementById("increase-flower-name").selectedIndex]?.text || "";
+            const increaseType = document.getElementById("increase-type").options[
+                document.getElementById("increase-type").selectedIndex]?.text || "";
+            const arrangement = document.getElementById("increase-arrangement").options[
+                document.getElementById("increase-arrangement").selectedIndex]?.text || "";
+
+            const restockDate = document.getElementById("restockDate").value;
+            const color = document.getElementById("flower-color").value;
+            const currentStock = document.getElementById("flower-stock").value;
+            const addStock = document.getElementById("add-stock").value;
+            const supplier = document.getElementById("flower-supplier").value;
+            const details = document.getElementById("increase-details").value;
+
+            if (!flowerType) {
+                alert("Please select a flower type.");
+                return;
+            }
+
+            if (!addStock || addStock <= 0) {
+                alert("Please enter a valid stock quantity.");
+                return;
+            }
+            const newStock = (parseInt(currentStock) || 0) + (parseInt(addStock) || 0);
+
+            const finalSummary = `
+                <ul class="item-details">
+                    <li><span class="item-label">Flower:</span><span>${flowerType}</span></li>
+                    <li><span class="item-label">Type:</span><span>${increaseType || "N/A"}</span></li>
+                    <li><span class="item-label">Arrangement:</span><span>${arrangement || "N/A"}</span></li>
+                    <li><span class="item-label">Color:</span><span>${color || "N/A"}</span></li>
+                    <li><span class="item-label">Supplier:</span><span>${supplier || "N/A"}</span></li>
+                    <li><span class="item-label">Restock Date:</span><span>${restockDate || "N/A"}</span></li>
+                    <hr>
+                    <li><span class="item-label">Current Stock:</span><span>${currentStock || "0"}</span></li>
+                    <li><span class="item-label">Added Stock:</span><span>${addStock}</span></li>
+                    <li><span class="item-label">New Total Stock:</span><span>${newStock}</span></li>
+                    <hr>
+
+                    <li><span class="item-label">Details:</span><span>${details || "None"}</span></li>
+                </ul>
+            `;
+
+            summaryContent.innerHTML = finalSummary;
+            confirmModal.classList.remove("hidden");
+        });
+        // new services
+        const newServicesBtn = document.getElementById('new-services-btn');
+
+        newServicesBtn.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            // select values
+            const serviceCoffinType = document.getElementById('services-coffin-type').options[
+                document.getElementById('services-coffin-type').selectedIndex
+            ]?.text || "";
+
+            const servicesFlowerType = document.getElementById('services-flower-type').options[
+                document.getElementById('services-flower-type').selectedIndex
+            ]?.text || "";
+
+            const serviceName = document.getElementById('service-name').value;
+            const servicesprice = document.getElementById('total-services-price').value;
+            const price = document.getElementById('service-price').value;
+            const details = document.getElementById('services-details').value;
+
+            // validation
+            if (!serviceName.trim()) {
+                alert("Please enter service package name.");
+                return;
+            }
+
+            // equipment list
+            let equipmentHTML = "";
+            const equipmentItems = document.querySelectorAll('#dropdownContent .item');
+
+            equipmentItems.forEach(item => {
+                const name = item.querySelector('span').innerText;
+                const qty = parseInt(item.querySelector('input').value) || 0;
+
+                if (qty > 0) {
+                    equipmentHTML += `
+                        <li>
+                            <span class="item-label">${name}:</span>
+                            <span>${qty}</span>
+                        </li>
+                    `;
+                }
+            });
+
+            if (!equipmentHTML) {
+                equipmentHTML = "<li><span class='item-label'>Equipments:</span><span>None selected</span></li>";
+            }
+
+            const finalSummary = `
+                <ul class="item-details">
+                    <li><span class="item-label">Service Package:</span><span>${serviceName}</span></li>
+                    <li><span class="item-label">Coffin Type:</span><span>${serviceCoffinType || "N/A"}</span></li>
+                    <li><span class="item-label">Flower Type:</span><span>${servicesFlowerType || "N/A"}</span></li>
+                    <li><span class="item-label">Price:</span><span>₱${servicesprice || "0"}</span></li>
+                    <li><span class="item-label">Price:</span><span>₱${price || "0"}</span></li>
+
+                    <hr>
+
+                    <li style="font-weight:bold;">Equipments Included:</li>
+                    ${equipmentHTML}
+
+                    <hr>
+
+                    <li><span class="item-label">Details:</span><span>${details || "None"}</span></li>
+                </ul>
+            `;
+
+            summaryContent.innerHTML = finalSummary;
+            confirmModal.classList.remove("hidden");
+        });
+        // increase service
+        const saveIncreaseServiceBtn = document.getElementById("btn-save-increase-service");
+
+        saveIncreaseServiceBtn.addEventListener("click", function (event) {
+            event.preventDefault();
+
+            const serviceType = document.getElementById("service-type").options[
+                document.getElementById("service-type").selectedIndex
+            ]?.text || "";
+
+            const servicePackage = document.getElementById("service-package").options[
+                document.getElementById("service-package").selectedIndex
+            ]?.text || "";
+
+            const serviceCost = document.getElementById("service-cost").value;
+            const restockDate = document.getElementById("increase-service-restockDate").value;
+            const details = document.getElementById("increase-service-details").value;
+
+            if (!serviceType || !servicePackage) {
+                alert("Please select service type and package.");
+                return;
+            }
+
+            const finalSummary = `
+                <ul class="item-details">
+                    <li><span class="item-label">Service Type:</span><span>${serviceType}</span></li>
+                    <li><span class="item-label">Service Package:</span><span>${servicePackage}</span></li>
+
+                    <hr>
+
+                    <li><span class="item-label">Cost:</span><span>${serviceCost || "0"}</span></li>
+                    <li><span class="item-label">Restock Date:</span><span>${restockDate || "N/A"}</span></li>
+
+                    <hr>
+
+                    <li><span class="item-label">Details:</span><span>${details || "None"}</span></li>
+                </ul>
+            `;
+
+            summaryContent.innerHTML = finalSummary;
+            confirmModal.classList.remove("hidden");
+        });
+        // new materials(done)
+        const categorySelect = document.getElementById("new-material-category");
+        const materialSelect = document.getElementById("all-materials");
+        const interiorFields = document.querySelectorAll(".interior-only");
+        const newMaterialsSaveBtn = document.getElementById("new-materials-save");
+
+        function populateDropdown(id, dataArray) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.innerHTML = `<option disabled selected value="">Select option</option>`;
+            if (!Array.isArray(dataArray)) return;
+            dataArray.forEach(val => {
+                const opt = document.createElement("option");
+                if (typeof val === "object" && val !== null) {
+                    opt.value = val.id || val.value || "";
+                    const text =
+                        val.material_name ||
+                        val.item_name ||
+                        val.name ||
+                        val.value ||
+                        "Unknown";
+                    opt.textContent = String(text)
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, l => l.toUpperCase());
+                }
+                else {
+                    opt.value = val;
+                    opt.textContent = String(val)
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, l => l.toUpperCase());
+                }
+                el.appendChild(opt);
+            });
+        }
+        if (categorySelect) {
+            categorySelect.addEventListener("change", function () {
+                const selectedValue = this.value;
+                const isInterior = selectedValue === "new-interior-materials";
+                const urlMap = {
+                    "new-coffin-materials": "../backend/materials/get_coffin_materials.php",
+                    "new-flower-materials": "../backend/materials/get_flower_materials.php",
+                    "new-interior-materials": "../backend/materials/get_interior_lining.php",
+                    "new-equipment-materials": "../backend/materials/get_equipment.php"
+                };
+
+                const fetchUrl = urlMap[selectedValue];
+                interiorFields.forEach(el => el.style.display = isInterior ? "flex" : "none");
+
+                if (fetchUrl) {
+                    materialSelect.innerHTML = '<option disabled selected>Loading...</option>';
+                    fetch(fetchUrl)
+                        .then(res => res.json())
+                        .then(data => {
+                            materialSelect.innerHTML = '<option disabled selected>Select materials</option>';
+                            if (isInterior) {
+                                populateDropdown("all-materials", data.interior_type);
+                                populateDropdown("new-material-measurement", data.unit_of_measurement)
+                                populateDropdown("new-material-pattern", data.pattern);
+                                populateDropdown("new-material-thickness", data.thickness);
+                                populateDropdown("new-material-softness", data.softness_level);
+                            } else if (data.equipment_type) {
+                                populateDropdown("all-materials", data.equipment_type);
+                                populateDropdown("new-material-measurement", data.unit_of_measurement);
+                            }else if (data.material_type){
+                                populateDropdown("all-materials", data.material_type);
+                                populateDropdown("new-material-measurement", data.unit);
+                            }else if (data.flower_type){
+                                populateDropdown("all-materials", data.flower_type);
+                                populateDropdown("new-material-measurement", data.unit_of_measurement);
+                            } else {
+                                let list = Array.isArray(data) ? data : Object.values(data)[0];
+                                populateDropdown("all-materials", list);
+                            }
+                        })
+                        .catch(err => console.error("Fetch Error:", err));
+                }
+            });
+        }
+        if (newMaterialsSaveBtn) {
+            newMaterialsSaveBtn.addEventListener("click", function (event) {
+                event.preventDefault();
+                const categoryVal = categorySelect?.value;
+                const categoryTxt = categorySelect?.options[categorySelect.selectedIndex]?.text || "N/A";
+                const materialTxt = materialSelect?.options[materialSelect.selectedIndex]?.text || "N/A";
+                const measurementSelect = document.getElementById("new-material-measurement");
+                if (!measurementSelect) return console.error("Missing unit select");
+                const itemNameEl = document.getElementById("new-item-name");
+                const stockEl = document.getElementById("new-material-initial-stock");
+                const costEl = document.getElementById("new-material-cost-per-unit");
+                const supplierEl = document.getElementById("new-material-supplier");
+                const detailsEl = document.getElementById("new-material-details");
+                const itemName = itemNameEl?.value?.trim() || "";
+                const initialStock = parseInt(stockEl?.value || 0);
+                const costPerUnit = costEl?.value || 0;
+                const newMaterialSupplier = supplierEl?.value || "";
+                const details = detailsEl?.value || "";
+                const measurementTxt = measurementSelect.options[measurementSelect.selectedIndex]?.text || "N/A";
+                const selectedUnit = measurementSelect.value;
+                const isInterior = categoryVal === "new-interior-materials";
+                if (!categoryVal || !materialSelect.value || !itemName || !selectedUnit || !initialStock || !costPerUnit || !newMaterialSupplier) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Missing Fields",
+                        text: "Please fill in all required fields."
+                    });
+                    return;
+                }
+
+                // unit multiplier
+                let multiplier = 1;
+                const normalizedUnit = selectedUnit.toLowerCase().trim();
+                if (normalizedUnit === "bundle" || normalizedUnit === "bundles") multiplier = 10;
+                else if (normalizedUnit === "dozen") multiplier = 12;
+                const convertedStock = initialStock * multiplier;
+                const tableMapping = {
+                    "new-coffin-materials": "coffin_materials",
+                    "new-flower-materials": "flower_materials",
+                    "new-equipment-materials": "equipment_materials",
+                    "new-interior-materials": "interior_lining_materials"
+                };
+                fetch("../backend/materials/check_materials.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        table: tableMapping[categoryVal],
+                        item_name: itemName.toLowerCase(),
+                        material_type: materialSelect.value.toLowerCase()
+                    })
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.exists) {
+                        Swal.fire({
+                            icon: "warning",
+                            title: "Already Exists",
+                            text: "This item already exists. Please increase stock instead."
+                        });
+                        return;
+                    }
+                    const finalSummary = `
+                        <ul class="item-details">
+                            <li><span class="item-label">Category:</span><span>${categoryTxt}</span></li>
+                            <li><span class="item-label">Material Type:</span><span>${materialTxt}</span></li>
+                            <li><span class="item-label">Item Name:</span><span>${itemName}</span></li>
+                            <hr>
+                            <li><span class="item-label">Unit:</span><span>${measurementTxt}</span></li>
+                            <li><span class="item-label">Initial Stock:</span><span>${convertedStock} pcs</span></li>
+                            <li><span class="item-label">Cost per Unit:</span><span>${costPerUnit}</span></li>
+                            <li><span class="item-label">Supplier:</span><span>${newMaterialSupplier}</span></li>
+                            <hr>
+                            <li><span class="item-label">Notes:</span><span>${details}</span></li>
+                        </ul>
+                    `;
+                    const summaryContent = document.getElementById("summaryContent");
+                    const confirmModal = document.getElementById("confirmModal");
+                    if (summaryContent && confirmModal) {
+                        summaryContent.innerHTML = finalSummary;
+                        confirmModal.classList.remove("hidden");
+                    }
+                })
+                .catch(err => {
+                    console.error("Check Material Error:", err);
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Server Error",
+                        text: "Unable to validate material."
+                    });
+                });
+            });
+        }
+        // increase materials(done)
+        const increaseCategory = document.getElementById("increase-categories");
+        const increaseMaterial = document.getElementById("increase-material-name");
+        const increaseItem = document.getElementById("increase-material-item");
+        const increaseUnit = document.getElementById("increase-unit-measurement");
+        const increaseSupplier = document.getElementById("increase-supplier");
+        const increaseSaveBtn = document.getElementById("increase-materials-save");
+        const currentStockInput = document.getElementById("increase-material-current-qnty");
+        
+        function loadCurrentStock() {
+            const category = increaseCategory.value;
+            const material = increaseMaterial.value;
+            const item = increaseItem.value;
+            if (!category || !material || !item) {
+                currentStockInput.value = "";
+                return;
+            }
+            fetch(`../backend/materials/get_current_stock.php?category=${encodeURIComponent(category)}&material=${encodeURIComponent(material)}&item=${encodeURIComponent(item)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentStockInput.value = data.current_stock;
+                    } else {
+                        currentStockInput.value = "0";
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                    currentStockInput.value = "0";
+                });
+        }
+        increaseCategory.addEventListener("change", loadCurrentStock);
+        increaseMaterial.addEventListener("change", loadCurrentStock);
+        increaseItem.addEventListener("change", loadCurrentStock);
+        function populateDropdown(id, dataArray) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.innerHTML = `<option disabled selected value="">Select option</option>`;
+            if (!Array.isArray(dataArray)) return;
+            dataArray.forEach(val => {
+                const opt = document.createElement("option");
+                if (typeof val === "object" && val !== null) {
+                    opt.value = val.id || val.value || "";
+                    const text =
+                        val.material_name ||
+                        val.item_name ||
+                        val.name ||
+                        val.value ||
+                        "Unknown";
+                    opt.textContent = String(text)
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, l => l.toUpperCase());
+                }
+                else {
+                    opt.value = val;
+
+                    opt.textContent = String(val)
+                        .replace(/_/g, " ")
+                        .replace(/\b\w/g, l => l.toUpperCase());
+                }
+                el.appendChild(opt);
+            });
+        }
+        increaseCategory.addEventListener("change", function () {
+            const val = this.value;
+            const isInterior = val === "increase-interior";
+            const urlMap = {
+                "increase-coffin-materials": "../backend/materials/get_coffin_materials.php",
+                "increase-flower-materials": "../backend/materials/get_flower_materials.php",
+                "increase-interior": "../backend/materials/get_interior_lining.php",
+                "increase-equipment-furniture": "../backend/materials/get_equipment.php"
+            };
+            const url = urlMap[val];
+            interiorFields.forEach(el => {
+                el.style.display = isInterior ? "flex" : "none";
+            });
+            if (!url) return;
+            increaseMaterial.innerHTML = `<option>Loading...</option>`;
+            increaseItem.innerHTML = `<option disabled selected>Select item</option>`;
+            increaseUnit.innerHTML = `<option disabled selected>Select unit</option>`;
+            fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                increaseMaterial.innerHTML = `<option disabled selected>Select material</option>`;
+                if (data.material_type) {
+                    populateDropdown("increase-material-name", data.material_type);
+                    populateDropdown("increase-material-item", data.material_name);
+                    populateDropdown("increase-unit-measurement", data.unit);
+                    populateDropdown("increase-supplier", data.supplier);
+                }
+                else if (data.flower_type) {
+                    populateDropdown("increase-material-name", data.flower_type);
+                    populateDropdown("increase-material-item", data.item_name);
+                    populateDropdown("increase-unit-measurement", data.unit_of_measurement);
+                    populateDropdown("increase-supplier", data.supplier);
+                }
+                else if (data.equipment_type) {
+                    populateDropdown("increase-material-name", data.equipment_type);
+                    populateDropdown("increase-material-item", data.item_name);
+                    populateDropdown("increase-unit-measurement", data.unit_of_measurement);
+                    populateDropdown("increase-supplier", data.supplier);
+                }
+                else if (data.interior_type) {
+                    populateDropdown("increase-material-name", data.interior_type);
+                    populateDropdown("increase-material-item", data.item_name);
+                    populateDropdown("increase-material-color", data.color);
+                    populateDropdown("increase-unit-measurement", data.unit_of_measurement);
+                    populateDropdown("increase-material-pattern", data.pattern);
+                    populateDropdown("increase-material-thickness", data.thickness);
+                    populateDropdown("increase-material-softness", data.softness_level);
+                    populateDropdown("increase-supplier", data.supplier);
+                }
+            })
+            .catch(err => console.error("Fetch error:", err));
+        });
+        increaseSaveBtn.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const itemId = increaseItem.value;
+            const addQty = parseFloat(document.getElementById("increase-material-add-qnty").value || 0);
+            const currentQty = parseFloat(document.getElementById("increase-material-current-qnty").value || 0);
+            const unit = increaseUnit.value;
+
+            const supplier = increaseSupplier.value;
+            const cost = document.getElementById("increase-material-cost-per-unit").value;
+            const restockDate = document.getElementById("increase-material-restockDate").value;
+            const notes = document.getElementById("increase-material-details").value;
+            const tableMapping = {
+                "increase-coffin-materials": "coffin_materials",
+                "increase-flower-materials": "flower_materials",
+                "increase-equipment-furniture": "equipment_materials",
+                "increase-interior": "interior_lining_materials"
+            };
+            fetch("../backend/materials/check_materials.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    table: tableMapping[categoryVal],
+                    item_name: itemName,
+                    material_type: materialSelect.value
+                })
+            })
+            .then(res => res.json())
+            .then(checkData => {
+                if (checkData.exists) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Item Already Exists",
+                        text: "This item is already in inventory. Please use Increase Materials instead."
+                    });
+                    return;
+                }
+                const finalSummary = `
+                    <ul class="item-details">
+                        <li><span class="item-label">Category:</span><span>${categoryTxt}</span></li>
+                        <li><span class="item-label">Material Type:</span><span>${materialTxt}</span></li>
+                        <li><span class="item-label">Item Name:</span><span>${itemName}</span></li>
+
+                        <hr>
+
+                        ${isInterior ? interiorDetailsHtml + '<hr>' : ''}
+
+                        <li><span class="item-label">Unit:</span><span>${measurementTxt}</span></li>
+                        <li><span class="item-label">Initial Stock:</span><span>${convertedStock} pcs</span></li>
+                        <li><span class="item-label">Cost per Unit:</span><span>${costPerUnit}</span></li>
+                        <li><span class="item-label">Supplier:</span><span>${newMaterialSupplier}</span></li>
+
+                        <hr>
+
+                        <li><span class="item-label">Notes:</span><span>${details}</span></li>
+                    </ul>
+                `;
+                const summaryContent = document.getElementById("summaryContent");
+                const confirmModal = document.getElementById("confirmModal");
+
+                if (summaryContent && confirmModal) {
+                    summaryContent.innerHTML = finalSummary;
+                    confirmModal.classList.remove("hidden");
+                }
+
+            })
+            .catch(err => {
+
+                console.error(err);
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Unable to validate inventory item."
+                });
+
+            });
+
+            if (!itemId || addQty <= 0) {
+                Swal.fire("Error", "Invalid item or quantity", "warning");
+                return;
+            }
+            let multiplier = 1;
+            const normalizedUnit = unit.toLowerCase().trim();
+            if (normalizedUnit === "bundle" || normalizedUnit === "bundles") {
+                multiplier = 10;
+            }
+            else if (normalizedUnit === "dozen") {
+                multiplier = 12;
+            }
+            const convertedQty = addQty * multiplier;
+            const newTotal = currentQty + convertedQty;
+
+            Swal.fire({
+                title: "Confirm Stock Increase",
+                html: `
+                    <p>Current: ${currentQty}</p>
+                    <p>Adding: ${convertedQty}</p>
+                    <p><b>New Total: ${newTotal}</b></p>
+                `,
+                showCancelButton: true,
+                confirmButtonText: "Confirm"
+            }).then(result => {
+
+                if (!result.isConfirmed) return;
+
+                fetch("../backend/materials/increase_stock.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        table: tableMapping[increaseCategory.value],
+                        item_id: itemId,
+                        quantity: addQty,
+                        unit_multiplier: multiplier,
+                        supplier: supplier,
+                        cost: cost,
+                        restock_date: restockDate,
+                        notes: notes,
+                        category: increaseCategory.value
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        Swal.fire("Success", "Stock updated!", "success");
+                        document.getElementById("increase-material-current-qnty").value = newTotal;
+                        increaseCategory.selectedIndex = 0;
+
+                        increaseMaterial.innerHTML = `<option disabled selected>Select material</option>`;
+                        increaseItem.innerHTML = `<option disabled selected>Select item</option>`;
+                        increaseUnit.innerHTML = `<option disabled selected>Select unit</option>`;
+                        increaseSupplier.innerHTML = `<option disabled selected>Select supplier</option>`;
+
+                        document.getElementById("increase-material-add-qnty").value = "";
+                        document.getElementById("increase-material-current-qnty").value = "";
+                        document.getElementById("increase-material-cost-per-unit").value = "";
+                        document.getElementById("increase-material-restockDate").value = "";
+                        document.getElementById("increase-material-details").value = "";
+
+                        const colorField = document.getElementById("increase-material-color");
+                        const patternField = document.getElementById("increase-material-pattern");
+                        const thicknessField = document.getElementById("increase-material-thickness");
+                        const softnessField = document.getElementById("increase-material-softness");
+
+                        if (colorField) colorField.selectedIndex = 0;
+                        if (patternField) patternField.selectedIndex = 0;
+                        if (thicknessField) thicknessField.selectedIndex = 0;
+                        if (softnessField) softnessField.selectedIndex = 0;
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    Swal.fire("Error", "Server error", "error");
+                });
+            });
+        });
+        // new coffin 
+        
     });
-});
 </script>
 </html>
