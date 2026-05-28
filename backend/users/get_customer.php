@@ -2,7 +2,7 @@
 session_start();
 header("Content-Type: application/json");
 
-include "../conn.php";
+require_once __DIR__ . '/../conn.php';
 
 if(!isset($_SESSION['customer_id'])){
     echo json_encode([

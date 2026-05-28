@@ -1,5 +1,5 @@
 <?php
-include '../conn.php';
+require_once '../conn.php'; 
 header('Content-Type: application/json');
 
 function getEnumValues($conn, $column) {
@@ -13,6 +13,7 @@ function getEnumValues($conn, $column) {
     preg_match_all("/'([^']+)'/", $type, $matches);
     return $matches[1];
 }
+
 function getmeasurementValues($conn, $column) {
     $query = "SHOW COLUMNS FROM unit_measurements LIKE '$column'";
     $result = $conn->query($query);
@@ -25,15 +26,21 @@ function getmeasurementValues($conn, $column) {
 }
 function getDistinctMaterialNames($conn) {
     $materials = [];
-    $query = " SELECT DISTINCT id, item_name FROM flower_materials WHERE item_name IS NOT NULL AND item_name != '' ORDER BY item_name ASC";
+    $query = "SELECT DISTINCT id, item_name, material_type, unit FROM flower_materials WHERE item_name IS NOT NULL AND item_name != '' ORDER BY item_name ASC";
     $result = $conn->query($query);
     if ($result) {
         while ($row = $result->fetch_assoc()) {
-            $materials[] = ["id" => $row['id'], "item_name" => $row['item_name']];
+            $materials[] = [
+                "id" => $row['id'], 
+                "item_name" => $row['item_name'],
+                "material_type" => $row['material_type'],
+                "unit" => $row['unit']
+            ];
         }
     }
     return $materials;
 }
+
 function getDistinctSuppliers($conn) {
     $suppliers = [];
     $query = "SELECT DISTINCT supplier FROM stock_transactions WHERE supplier IS NOT NULL AND supplier != '' ORDER BY supplier ASC";
@@ -45,10 +52,11 @@ function getDistinctSuppliers($conn) {
     }
     return $suppliers;
 }
+
 $response = [
     "flower_type" => getEnumValues($conn, "material_type"),
     "item_name" => getDistinctMaterialNames($conn),
-    "unit_of_measurement" => getMeasurementValues($conn, "unit_flower"),
+    "unit_of_measurement" => getmeasurementValues($conn, "unit_flower"),
     "supplier" => getDistinctSuppliers($conn)
 ];
 echo json_encode($response);

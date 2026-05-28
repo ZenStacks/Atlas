@@ -1,7 +1,7 @@
 <?php
 header("Content-Type: application/json");
 
-include "../conn.php";
+require_once __DIR__ . '/../conn.php';
 
 $name = htmlspecialchars(trim($_POST['name']));
 $phone = htmlspecialchars(trim($_POST['phone_no']));

@@ -1,7 +1,7 @@
 <?php
 
 header('Content-Type: application/json');
-include '../conn.php';
+require_once __DIR__ . '/../conn.php';
 
 $last_id = isset($_GET['last_id']) ? intval($_GET['last_id']) : 0;
 $customer_id = isset($_GET['customer_id']) ? intval($_GET['customer_id']) : 0;

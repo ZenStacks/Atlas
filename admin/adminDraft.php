@@ -144,6 +144,54 @@
                         <li><i class="bi bi-exclamation-triangle"></i> Server CPU usage is high</li>
                         <li><i class="bi bi-check-circle"></i> Backup completed successfully</li>
                     </ul>
+                    <div class="input-row">
+                                                <label>Equipments/Furniture:</label>
+                                                <div class="dropdown">
+                                                    <div class="dropdown-btn" id="dropdownBtn">
+                                                        Select equipments/furniture
+                                                    </div>
+
+                                                    <div class="dropdown-content" id="dropdownContent">
+
+                                                        <div class="item">
+                                                            <span>Chairs</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('chairs', -1)">-</button>
+                                                                <input type="text" id="chairs" value="0">
+                                                                <button type="button" onclick="changeQty('chairs', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Tables</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('tables', -1)">-</button>
+                                                                <input type="text" id="tables" value="0">
+                                                                <button type="button" onclick="changeQty('tables', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Tarpaulin</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('tarpaulin', -1)">-</button>
+                                                                <input type="text" id="tarpaulin" value="0">
+                                                                <button type="button" onclick="changeQty('tarpaulin', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="item">
+                                                            <span>Cauldron</span>
+                                                            <div class="qty-control">
+                                                                <button type="button" onclick="changeQty('cauldron', -1)">-</button>
+                                                                <input type="text" id="cauldron" value="0">
+                                                                <button type="button" onclick="changeQty('cauldron', 1)">+</button>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
                 </div>
                 <div class="manage-profile hidden" id="manage-profile">
                     <h2>Manage Profile</h2>

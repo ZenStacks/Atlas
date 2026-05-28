@@ -4,7 +4,7 @@ ini_set('session.cookie_httponly', 1);
 session_start();
 header('Content-Type: application/json');
 
-include '../conn.php';
+require_once __DIR__ . '/../conn.php';
 include '../audit_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

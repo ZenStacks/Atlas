@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "../conn.php";
+require_once __DIR__ . '/../conn.php';
 
 header("Content-Type: application/json");
 
@@ -17,18 +17,14 @@ if(!$address){
     echo json_encode(["status"=>"error","message"=>"Address is required"]);
     exit;
 }
-
-// Check if this address already exists for this user
 $stmt = $conn->prepare("SELECT id, instruction FROM customer_addresses WHERE customer_id=? AND address=?");
 $stmt->bind_param("is", $customer_id, $address);
 $stmt->execute();
 $result = $stmt->get_result();
 
 if($result->num_rows > 0){
-    // Address exists
     $row = $result->fetch_assoc();
     if($row['instruction'] !== $instruction){
-        // Update instruction
         $update = $conn->prepare("UPDATE customer_addresses SET instruction=? WHERE id=?");
         $update->bind_param("si", $instruction, $row['id']);
         if($update->execute()){

@@ -1,14 +1,7 @@
 <?php
-include '../conn.php';
+require_once __DIR__ . '/../conn.php';
 
-$sql = "
-SELECT customer_id, COUNT(*) AS unread
-FROM messages
-WHERE sender = 'customer'
-AND is_read = 0
-GROUP BY customer_id
-";
-
+$sql = "SELECT customer_id, COUNT(*) AS unread FROM messages WHERE sender = 'customer' AND is_read = 0 GROUP BY customer_id";
 $result = $conn->query($sql);
 
 $data = [];

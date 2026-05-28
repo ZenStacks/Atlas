@@ -1,83 +1,121 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 ini_set('session.cookie_path', '/');
 ini_set('session.cookie_httponly', 1);
 session_start();
 header('Content-Type: application/json');
 
-include '../conn.php';
-include '../audit_helper.php';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $email = htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8');
-    $password = $_POST['password'] ?? '';
-
-    if (empty($email) || empty($password)) {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Email and password are required."
-        ]);
-        exit;
-    }
-
-    $stmt = $conn->prepare("SELECT * FROM employer WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-
-    $result = $stmt->get_result();
-
-    if ($result->num_rows === 1) {
-
-        $user = $result->fetch_assoc();
-
-        if (password_verify($password, $user['password'])) {
-
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['department'] = $user['department'];
-            $_SESSION['user_id'] = $user['id'];
-
-            $ip_address = $_SERVER['REMOTE_ADDR'];
-
-            $update = $conn->prepare("UPDATE employer SET ip_address = ? WHERE email = ?");
-            $update->bind_param("ss", $ip_address, $email);
-            $update->execute();
-
-            addAuditLog(
-                $conn,
-                $user['username'],
-                $user['department'] ?? 'N/A',
-                "Login",
-                "Employer {$user['username']} logged in successfully",
-                $ip_address
-            );
-
+try {
+    require_once __DIR__ . '/../conn.php';
+    include '../audit_helper.php';
+    require '../../vendor/phpmailer/phpmailer/src/Exception.php';
+    require '../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+    require '../../vendor/phpmailer/phpmailer/src/SMTP.php';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $email = htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8');
+        $password = $_POST['password'] ?? '';
+        if (empty($email) || empty($password)) {
             echo json_encode([
-                "status" => "success",
-                "message" => "Login successful.",
-                "user" => [
-                    "id" => $user['id'],
-                    "name" => $user['name'],
-                    "email" => $user['email'],
-                    "username" => $user['username'],
-                    "type" => $user['type']
-                ]
+                "status" => "error",
+                "message" => "Email and password are required."
             ]);
+            exit;
+        }
+        if (!isset($conn) || $conn->connect_error) {
+            throw new Exception("Database connection failed or variable \$conn is missing.");
+        }
+        $stmt = $conn->prepare("SELECT * FROM employer WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows === 1) {
+            $user = $result->fetch_assoc();
+            if (password_verify($password, $user['password'])) {
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['department'] = $user['department'];
+                $_SESSION['user_id'] = $user['id'];
+                $ip_address = $_SERVER['REMOTE_ADDR'];
+                $update = $conn->prepare("UPDATE employer SET ip_address = ? WHERE email = ?");
+                $update->bind_param("ss", $ip_address, $email);
+                $update->execute();
+                if (function_exists('addAuditLog')) {
+                    addAuditLog(
+                        $conn,
+                        $user['username'],
+                        $user['department'] ?? 'N/A',
+                        "Login",
+                        "Employer {$user['username']} logged in successfully",
+                        $ip_address
+                    );
+                }
+                if (isset($user['login_alerts']) && (int)$user['login_alerts'] === 1) {
+                    try {
+                        $mail = new PHPMailer(true);
+                        $mail->isSMTP();
+                        $mail->Host = 'smtp.gmail.com';
+                        $mail->SMTPAuth = true;
+                        $mail->Username = 'lopezsherylgracefernandez@gmail.com';
+                        $mail->Password  = 'bssh mndg suqw nnan'; 
+                        $mail->SMTPSecure = 'tls';
+                        $mail->Port = 587;
+                        $mail->setFrom('lopezsherylgracefernandez@gmail.com', 'Atlas Security');
+                        $mail->addAddress($user['email']);
+                        $mail->isHTML(true);
+                        $mail->Subject = 'New Login Alert';
+                        $mail->Body    = "
+                            <h2>Login Alert</h2>
+                            <p>Your account was logged in successfully.</p>
+                            <p><strong>Username:</strong> " . ($user['username'] ?? 'User') . "</p>
+                            <p><strong>IP Address:</strong> {$ip_address}</p>
+                            <p><strong>Time:</strong> " . date("F d, Y h:i A") . "</p>
+                            <br>
+                            <p>If this was not you, secure your account immediately.</p>
+                        ";
+
+                        $mail->send();
+                    } catch (\Throwable $mailException) {
+                    }
+                }
+
+                echo json_encode([
+                    "status" => "success",
+                    "message" => "Login successful.",
+                    "user" => [
+                        "id" => $user['id'] ?? null,
+                        "name" => $user['name'] ?? null,
+                        "email" => $user['email'] ?? null,
+                        "username" => $user['username'] ?? null,
+                        "type" => $user['type'] ?? null
+                    ]
+                ]);
+
+            } else {
+                echo json_encode([
+                    "status" => "error",
+                    "message" => "Invalid password."
+                ]);
+            }
 
         } else {
             echo json_encode([
                 "status" => "error",
-                "message" => "Invalid password."
+                "message" => "Email not found."
             ]);
         }
 
-    } else {
-        echo json_encode([
-            "status" => "error",
-            "message" => "Email not found."
-        ]);
+        if (isset($stmt)) $stmt->close();
+        if (isset($conn)) $conn->close();
     }
 
-    $stmt->close();
-    $conn->close();
+} catch (\Throwable $fatalError) {
+    echo json_encode([
+        "status" => "error",
+        "message" => "PHP Fatal Error: " . $fatalError->getMessage() . " inside " . $fatalError->getFile() . " on line " . $fatalError->getLine()
+    ]);
+    exit;
 }
 ?>

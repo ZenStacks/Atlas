@@ -1,6 +1,6 @@
 <?php
 session_start();
-include "../conn.php";
+require_once __DIR__ . '/../conn.php';
 
 header("Content-Type: application/json");
 
@@ -11,7 +11,6 @@ if(!isset($_SESSION['customer_id'])){
 
 $customer_id = $_SESSION['customer_id'];
 
-// GET SELECTED ADDRESS ID
 $user = $conn->prepare("SELECT selected_address_id FROM customers WHERE id=?");
 $user->bind_param("i", $customer_id);
 $user->execute();
@@ -19,7 +18,6 @@ $userResult = $user->get_result()->fetch_assoc();
 
 $selected_id = $userResult['selected_address_id'] ?? null;
 
-// GET ALL ADDRESSES
 $stmt = $conn->prepare("SELECT id, address, instruction FROM customer_addresses WHERE customer_id=? ORDER BY id DESC");
 $stmt->bind_param("i", $customer_id);
 $stmt->execute();

@@ -11,7 +11,7 @@
     crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-
+    <script src="https://unpkg.com/@dotlottie/player-component@2.7.1/dist/dotlottie-player.mjs" type="module"></script>
 </head>
 <body>
     <div class="main-container">
@@ -59,6 +59,9 @@
             </div>
         </div>
     </div>
+    <div id="loading-overlay" class="loader-overlay">
+        <dotlottie-player src="../assets/loader/9e806b4e-1180-11ee-89a7-4f2a24dd42e5.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
+    </div>
 <script>
     //password eye toggle
     const password = document.getElementById('login-pass');
@@ -94,8 +97,11 @@
         formContainer.style.display = 'block';
     });
     //login
+    const loadingOverlay = document.getElementById('loading-overlay');
+
     loginForm.addEventListener("submit", function(e){
         e.preventDefault();
+        loadingOverlay.classList.add('show');
 
         const formData = new FormData(loginForm);
 
@@ -107,18 +113,21 @@
         .then(data => {
             console.log(data);
             if(data.status === "success"){
+                loadingOverlay.classList.remove('show');
                 Swal.fire({
                     icon: "success",
                     title: "Login Successful",
                     text: data.message,
                     showConfirmButton: false,
-                    timer: 2000
+                    timer: 1500
                 });
                 setTimeout(()=>{
+                    loadingOverlay.classList.add('show');
                     window.location.href = "admin.php";
-                }, 2000);
+                }, 1500);
 
             } else {
+                loadingOverlay.classList.remove('show');
                 Swal.fire({
                     icon: "error",
                     title: "Login Failed",
@@ -129,6 +138,7 @@
             }
         })
         .catch(err => {
+            loadingOverlay.classList.remove('show');
             Swal.fire({
                 icon: "error",
                 title: "Server Error",

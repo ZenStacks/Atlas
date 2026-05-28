@@ -1,0 +1,5 @@
+.env
+/vendor
+node_modules
+composer.phar
+composer.phar.sha256s
