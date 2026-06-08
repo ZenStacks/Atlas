@@ -17,9 +17,8 @@ $email = htmlspecialchars(trim($_POST['email']));
 $phone = htmlspecialchars(trim($_POST['phone']));
 $tel = htmlspecialchars(trim($_POST['tel']));
 
-$tel = trim($_POST['tel']);
-
-if (!preg_match('/^[0-9]+$/', $tel)) {
+$$tel = trim($_POST['tel'] ?? '');
+if ($tel !== '' && !preg_match('/^[0-9]+$/', $tel)) {
     echo json_encode([
         "status" => "error",
         "message" => "Tel number must be numbers only"
@@ -31,7 +30,7 @@ $profile_img = null;
 
 if(isset($_FILES['profile_img']) && $_FILES['profile_img']['error'] === 0){
 
-    $uploadDir = "../../assets/img/uploads/";
+    $uploadDir = "../../assets/img/uploads/profile/";
 
     if(!is_dir($uploadDir)){
         mkdir($uploadDir,0777,true);

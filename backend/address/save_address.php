@@ -36,7 +36,6 @@ if($result->num_rows > 0){
         echo json_encode(["status"=>"error","message"=>"This address already exists"]);
     }
 } else {
-    // Insert new address
     $insert = $conn->prepare("INSERT INTO customer_addresses (customer_id, address, instruction) VALUES (?, ?, ?)");
     $insert->bind_param("iss", $customer_id, $address, $instruction);
     if($insert->execute()){

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile Page</title>
+    <title>Profile</title>
     <link rel="stylesheet" href="../assets/style/profile.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -12,739 +12,863 @@
     <div class="whole-page-container">
         <div class="outside-container">
             <div class="navigation-container">
-                <div class="navigation">
-                    <i class="bi bi-arrow-left"></i>
+                <div class="home-navigation">
+                    <i class="bi bi-house-door-fill"></i><a href="../index.php">Home</a>
                 </div>
-            </div>
-            <div class="main-container">
-                <div class="container">
-                    <div class="sidebar" id="sidebar">
-                        <ul>
-                            <li class="category-title" data-target="profile-information-section">
-                                Profile Information
-                            </li>
-
-                            <li class="category-title">
-                                Account Settings
-                                <i class="bi bi-caret-right-fill caret-icon"></i>
-                            </li>
-
-                            <li class="category-item" data-target="update-profile">
-                                Update Personal Details
-                            </li>
-
-                            <li class="category-item" data-target="change-password">
-                                Change Password
-                            </li>
-
-                            <li class="category-item" data-target="manage-notification">
-                                Manage notifications preferences
-                            </li>
-
-                            <li class="category-title" data-target="notifications-container">
-                                Notifications
-                                <span class="notification-badge" id="notificationBadge">0</span>
-                            </li>
-
-                            <li class="category-title" data-target="chats">
-                                Chat
-                            </li>
-
-                            <li class="category-title" data-target="service-preferences-container">
-                                Service preferences
-                            </li>
-
-                            <li class="category-title" data-target="help-and-support-container">
-                                Help & Support
-                            </li>
-
-                            <li class="logout" style="color:red;">
-                                <i class="bi bi-box-arrow-right"></i> Logout
-                            </li>
-                        </ul>
-                    </div>
+                <div class="navigation">
+                    <ul>
+                        <a href="#" class="nav-item" data-tab="profile-information-section">Profile Info</a>
+                        <a href="#" class="nav-item" data-tab="account-settings">Account Settings</a>
+                        <a href="#" class="nav-item" data-tab="notifications">Notifications</a>
+                        <a href="#" class="nav-item" data-tab="service-preferences">Service Preferences</a>
+                        <li class="logout"><i class="bi bi-box-arrow-left"></i><a href="#logout" id="logout-btn">Logout</a></li>
+                    </ul>
                 </div>
             </div>
             <div id="profile-information-section" class="tab-content">
-                <div class="profile-info">  
-                <h2>Profile Information</h2>
+                <div class="profile-info">
                     <div class="info-group">
                         <div class="info-profile">
-                            <img src="../assets/img/profile.png" alt="Default Profile Picture">
+                            <input type="file" id="profile-upload" accept="image/*" hidden>
+                            <img id="profile-image"
+                                src="../assets/img/profile.png"
+                                alt="Profile Picture">
+                            <h2 id="profile-name">Guest</h2>
+                            <span class="profile-role">Customer</span>
                         </div>
-
                         <div class="info-details">
-                            <div class="detail">
-                                <p>Full Name:</p>
-                                <input type="text" id="fullNameDisplay" value="" readonly>
+                            <div class="detail-item">
+                                <strong>Email</strong>
+                                <p id="profile-email"></p>
                             </div>
-
-                            <div class="detail">
-                                <p>Email Address:</p>
-                                <input type="email" id="emailDisplay" value="" readonly>
+                            <div class="detail-item">
+                                <strong>Phone</strong>
+                                <p id="profile-phone"></p>
                             </div>
-
-                            <div class="detail">
-                                <p>Phone Number:</p>
-                                <input type="text" id="phoneDisplay" value="" readonly>
+                            <div class="detail-item">
+                                <strong>Tel</strong>
+                                <p id="profile-tel"></p>
                             </div>
-
-                            <div class="detail">
-                                <p>Tel no.:</p>
-                                <input type="text" id="telDisplay" value="" readonly>
-                            </div>
-
-                            <div class="detail">
-                                <p>Address:</p>
-                                <div class="input-with-icon">
-                                    <input type="text" id="addressDisplay" value="" readonly>
-                                    <a href="map.php" class="map-icon">
-                                        <i class="bi bi-geo-alt-fill"></i>
-                                    </a>
-                                </div>
+                            <div class="detail-item">
+                                <strong>Address</strong>
+                                <p id="profile-address"></p>
                             </div>
                         </div>
+                    </div>
+                    <div class="profile-input">
+                        <h2>Edit Profile</h2>
+                        <label>Name</label>
+                        <input type="text" id="edit-name" placeholder="Enter your name">
+                        <label>Email</label>
+                        <input type="email" id="edit-email" placeholder="Enter email address">
+                        <label>Phone Number</label>
+                        <input type="tel" id="edit-phone" placeholder="Enter phone number">
+                        <label>Telephone</label>
+                        <input type="tel" id="edit-tel" placeholder="Enter telephone number">
+                        <div class="address-wrapper">
+                            <label>Address</label>
+                            <input type="text" id="address" placeholder="Enter Address">
+                            <a href="map.php">
+                                <i class="bi bi-geo-alt-fill location-icon"></i>
+                            </a>
+                        </div>
+                        <button class="save-btn">
+                            Save Changes
+                        </button>
                     </div>
                 </div>
             </div>
             <!-- Account Settings -->
-            <div id="account-settings-categories" class="tab-content hidden">
-                <div class="account-settings-container">
+            <div id="account-settings" class="tab-content">
+                <div class="account-settings-choices">
+                    <div class="setting-choice">
+                        <h2>Account Settings</h2>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="bi bi-key-fill"></i>
+                                <div>
+                                    <h3>Change Password</h3>
+                                    <p>Update your account password for better security.</p>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right"></i>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="bi bi-bell-fill"></i>
+                                <div>
+                                    <h3>Manage Notifications</h3>
+                                    <p>Control email and system notifications.</p>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right"></i>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <i class="bi bi-shield-lock-fill"></i>
+                                <div>
+                                    <h3>Privacy & Security</h3>
+                                    <p>Manage account protection and privacy settings.</p>
+                                </div>
+                            </div>
+                            <i class="bi bi-chevron-right"></i>
+                        </div>
+                    </div>
+                    <div class="settings-container hidden">
+                        <div class="settings-details hidden">
+                            <h2>Change Password</h2>
+
+                            <form class="change-password-form">
+                                <div class="input-group">
+                                    <label>Current Password</label>
+                                    <div class="password-wrapper">
+                                        <input type="password" id="current-password" placeholder="Enter current password">
+                                        <i class="bi bi-eye-slash-fill toggle-password"></i>
+                                    </div>
+                                </div>
+
+                                <div class="input-group">
+                                    <label>New Password</label>
+                                    <div class="password-wrapper">
+                                        <input type="password" id="new-password" placeholder="Enter new password">
+                                        <i class="bi bi-eye-slash-fill toggle-password"></i>
+                                    </div>
+                                </div>
+
+                                <div class="input-group">
+                                    <label>Confirm New Password</label>
+                                    <div class="password-wrapper">
+                                        <input type="password" id="confirm-password" placeholder="Confirm new password">
+                                        <i class="bi bi-eye-slash-fill toggle-password"></i>
+                                    </div>
+                                </div>
+
+                                <div class="password-requirements">
+                                    <p>Password must contain:</p>
+                                    <ul>
+                                        <li>At least 8 characters</li>
+                                        <li>One uppercase letter</li>
+                                        <li>One lowercase letter</li>
+                                        <li>One number</li>
+                                    </ul>
+                                </div>
+
+                                <button type="submit" class="save-password-btn">
+                                    <i class="bi bi-shield-lock-fill"></i>
+                                    Update Password
+                                </button>
+                            </form>
+                        </div>
+                        <div class="settings-details hidden">
+                            <h2>Manage Notifications</h2>
+
+                            <div class="notification-setting">
+                                <div class="notification-info">
+                                    <h3>Email Notifications</h3>
+                                    <p>Receive updates and important account information via email.</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="email-notifications">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="notification-setting">
+                                <div class="notification-info">
+                                    <h3>SMS Notifications</h3>
+                                    <p>Receive text message alerts regarding your arrangements.</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="sms-notifications">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="notification-setting">
+                                <div class="notification-info">
+                                    <h3>Service Updates</h3>
+                                    <p>Receive updates regarding ongoing funeral arrangements.</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="service-updates">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <button class="save-notification-btn">
+                                <i class="bi bi-bell-fill"></i>
+                                Save Preferences
+                            </button>
+                        </div>
+                        <div class="settings-details hidden" id="privacy-security">
+                            <h2>Privacy & Security</h2>
+                            <div class="privacy-setting">
+                                <div class="privacy-info">
+                                    <h3>Two-Factor Authentication</h3>
+                                    <p>Add an extra layer of security to your account.</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="two-factor-auth">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="privacy-setting">
+                                <div class="privacy-info">
+                                    <h3>Login Alerts</h3>
+                                    <p>Get notified when someone logs into your account.</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="login-alerts">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="privacy-setting">
+                                <div class="privacy-info">
+                                    <h3>Auto Logout</h3>
+                                    <p>Automatically log out after inactivity.</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="auto-logout">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <button class="save-privacy-btn">
+                                <i class="bi bi-shield-lock-fill"></i>
+                                Save Security Settings
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <!-- update profile -->
-            <div id="update-profile" class="tab-content hidden">
-                <h2>Update Profile Details</h2>
-                
-                <form id="updateProfileForm">
-                    <div class="info-profile">
-                        <img src="../assets/img/profile.png" id="profileImage" alt="Profile Picture">
-
-                        <input type="file" id="profileInput" accept="image/*" style="display:none">
+            <!-- Notifications -->
+            <div id="notifications" class="tab-content">
+                <div class="notifications-container">
+                    <div class="notifications-header">
+                        <div class="notifications-title">
+                            <h2>Notifications</h2>
+                        </div>
+                        <button class="mark-all-read">
+                            Mark all as read
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
+                    <div class="notification-scroll" id="notification-list">
                     </div>
-
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" placeholder="Enter your email address" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="text" id="phone" name="phone" placeholder="Enter your phone number" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="tel">Tel No.</label>
-                        <input type="text" id="tel" name="tel" placeholder="Enter your tel number" required pattern="[0-9]+">
-                    </div>
-                    <button type="submit">Save Changes</button>
-
-                </form>
-            </div>
-            <!-- change profile -->
-            <div id="change-password" class="tab-content hidden">
-                <div class="change-password">
-                    <h2>Change Password</h2>
-                    <form id="changePasswordForm">
-                        
-                        <div class="form-group">
-                            <label for="currentPassword">Current Password</label>
-                            <input type="password" id="currentPassword" placeholder="Enter current password" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="newPassword">New Password</label>
-                            <input type="password" id="newPassword" placeholder="Enter new password" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirm New Password</label>
-                            <input type="password" id="confirmPassword" placeholder="Confirm new password" required>
-                        </div>
-
-                        <button type="submit">Update Password</button>
-
-                    </form>
-                </div>
-            </div>
-            <div id="manage-notification" class="tab-content hidden">
-                <div class="notification-preferences">
-                    <h2>Manage Notification Preferences</h2>
-                    <form id="notificationPreferencesForm">
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" name="emailNotifications" checked>
-                                Receive Email Notifications
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" name="smsNotifications">
-                                Receive SMS Notifications
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label>
-                                <input type="checkbox" name="appNotifications" checked>
-                                Receive App Push Notifications
-                            </label>
-                        </div>
-                        <button type="submit">Save Preferences</button>
-                    </form>
                 </div>
             </div>
             <!-- Service Preferences -->
-            <div id="service-preferences-container" class="tab-content hidden">
+            <div id="service-preferences" class="tab-content">
                 <div class="user-preferences">
-                    <h2>Funeral Service Summary</h2>
-                    <p>Here are the services you selected.</p>
+                    <div class="service-header">
+                        <h2>Funeral Service Summary</h2>
+                        <p>Review and confirm selected services before proceeding.</p>
+                    </div>
                     <div class="receipt-container">
-                        <table class="receipt-table">
-                            <thead>
-                                <tr>
-                                    <th>Service</th>
-                                    <th>Details</th>
-                                    <th>Price</th>
-                                </tr>
-                            </thead>
+                        <div class="table-wrapper">
+                            <table class="receipt-table">
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Details</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
 
-                            <tbody id="receipt-body">
-
-                            </tbody>
-                        </table>
-                        <div class="receipt-total">
-                            <h3>Total: ₱<span id="total-price">0</span></h3>
+                                <tbody id="receipt-body">
+                                    <!-- dynamic rows -->
+                                </tbody>
+                            </table>
                         </div>
-                        <button id="confirm-services">Confirm Arrangement</button>
-                    </div>
-                </div>
-            </div>
-            <div id="notifications-container" class="tab-content hidden">
-                <div class="notifications-content">
-                    <h2>Notifications</h2>
-
-                    <div class="notifications-header">
-                        <div class="notification-buttons">
-                            <button id="markAllAsRead">Mark All as Read</button>
-                            <button id="deleteAllNotifications">Delete All</button>
-                        </div>
-                    </div>
-
-                    <div class="notification-list">
-                        <!-- Individual notifications -->
-                        <div class="notification-item">
-                            <p><strong>Service Update:</strong> Your funeral service booking has been confirmed.</p>
-                            <span class="time">Today, 10:45 AM</span>
-                        </div>
-                        <div class="notification-item">
-                            <p><strong>Reminder:</strong> Payment for the selected services is due tomorrow.</p>
-                            <span class="time">Yesterday, 5:00 PM</span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            <!-- Chats-->
-            <div id="chats" class="tab-content hidden">
-                <div class="chat-title"><h2>Chat</h2></div>
-                <div class="chat-container">
-                    <div class="customer-chat">
-                        <div class="navigation-chat">
-                            <span style="
-                            color: white; 
-                            font-weight: 600; 
-                            font-size: 18px; 
-                            display: flex;
-                            justify-content: center;
-                            align-items: center;
-                            margin-left: 10px;">You're chatting with Admin</span>
-                        </div>
-                        <div class="messages" style="flex:1; overflow-y:auto; margin-bottom:10px;">
-                            <!-- messages will appear here -->
-                        </div>
-                        <div class="chat-input">
-                            <button type="button" id="attachImage">+</button>
-                            <input type="text" id="customerChatInput" placeholder="Type your message...">
-                            <button type="button" id="customerChatSend"><i class="bi bi-send-fill"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Help and support -->
-            <div id="help-and-support-container" class="tab-content hidden">
-                <div class="help-and-support">
-
-                    <h2>Help & Support</h2>
-
-                    <div class="support-container">
-
-                        <!-- FAQ -->
-                        <div class="faq-section">
-                            <h3>Frequently Asked Questions</h3>
-
-                            <div class="faq-item">
-                                <p class="question">How do I change my password?</p>
-                                <p class="answer">Go to Account Settings → Change Password to update your password.</p>
-                            </div>
-
-                            <div class="faq-item">
-                                <p class="question">How can I update my profile information?</p>
-                                <p class="answer">Open Account Settings → Update Personal Details.</p>
-                            </div>
-
-                            <div class="faq-item">
-                                <p class="question">How do I contact customer support?</p>
-                                <p class="answer">Use the contact form below or use chat to send us a message.</p>
-                            </div>
-
-                        </div>
-
-                        <!-- Contact Form -->
-                        <div class="contact-support">
-                            <h3>Contact Support</h3>
-
-                            <form id="supportForm">
-
-                                <div class="form-group">
-                                    <label>Subject</label>
-                                    <input type="text" placeholder="Enter subject" required>
+                        <div class="receipt-footer">
+                            <div class="receipt-total">
+                                <div class="total-row">
+                                    <span>Sub-Total</span>
+                                    <h4>₱<span id="sub-total">0</span></h4>
                                 </div>
-
-                                <div class="form-group">
-                                    <label>Message</label>
-                                    <textarea rows="5" placeholder="Describe your issue..." required></textarea>
+                                <div class="total-row discount">
+                                    <span>Discount</span>
+                                    <h4>- ₱<span id="discount">0</span></h4>
                                 </div>
-
-                                <button type="submit">Send Message</button>
-
-                            </form>
+                                <div class="total-row grand-total">
+                                    <span>Total Amount</span>
+                                    <h3>₱<span id="total-amount">0</span></h3>
+                                </div>
+                            </div>
+                            <button id="confirm-services">
+                                Confirm Arrangement
+                            </button>
                         </div>
-
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 </body>
 <script>
-const categoryTitles = document.querySelectorAll('#sidebar .category-title');
+// navigation
+document.addEventListener("DOMContentLoaded", function () {
 
-categoryTitles.forEach(title => {
-    let next = title.nextElementSibling;
-    while (next && !next.classList.contains('category-title') && !next.classList.contains('logout')) {
-        next.style.display = 'none';
-        next = next.nextElementSibling;
+    const navItems = document.querySelectorAll(".nav-item");
+
+    navItems.forEach(item => {
+        item.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const tabId = this.getAttribute("data-tab");
+
+            showTab(tabId, this);
+        });
+    });
+    const defaultItem = document.querySelector('.nav-item[data-tab="profile-information-section"]');
+    showTab("profile-information-section", defaultItem);
+});
+function showTab(tabId, activeItem) {
+    document.querySelectorAll(".tab-content").forEach(tab => {
+        tab.style.display = "none";
+    });
+    const target = document.getElementById(tabId);
+    if (target) {
+        target.style.display = "block";
     }
-    title.addEventListener('click', (e) => {
-        e.stopPropagation();
-
-        const isActive = title.classList.contains('active');
-        categoryTitles.forEach(otherTitle => {
-            let sibling = otherTitle.nextElementSibling;
-            while (sibling && !sibling.classList.contains('category-title') && !sibling.classList.contains('logout')) {
-                sibling.style.display = 'none';
-                sibling = sibling.nextElementSibling;
-            }
-            otherTitle.classList.remove('active');
-            const caret = otherTitle.querySelector('.caret-icon');
-            if (caret) caret.style.transform = 'rotate(0deg)';
-        });
-        if (!isActive) {
-            let current = title.nextElementSibling;
-            while (current && !current.classList.contains('category-title') && !current.classList.contains('logout')) {
-                current.style.display = 'block';
-                current = current.nextElementSibling;
-            }
-            title.classList.add('active');
-            const caret = title.querySelector('.caret-icon');
-            if (caret) caret.style.transform = 'rotate(90deg)';
-        }
+    document.querySelectorAll(".nav-item").forEach(item => {
+        item.classList.remove("active");
     });
-});
-// ----- Back Button -----
-const backIcon = document.querySelector('.bi-arrow-left');
-backIcon.addEventListener('click', function(){
-    window.history.back();
-});
-
-// ----- Sidebar Tabs -----
-const sidebarItems = document.querySelectorAll("#sidebar li[data-target]");
-sidebarItems.forEach(function(item){
-    item.addEventListener("click", function(){
-        const target = this.dataset.target;
-        document.querySelectorAll(".tab-content").forEach(function(section){
-            section.classList.add("hidden");
-        });
-        const targetSection = document.getElementById(target);
-        if(targetSection){
-            targetSection.classList.remove("hidden");
-        }
-
-        // If the notifications tab is opened, mark notifications as read
-        if(target === "notifications-container"){
-            const notifications = document.querySelectorAll('#notifications-container .notification-item.unread');
-            notifications.forEach(item => item.classList.remove('unread'));
-            updateNotificationBadge();
-        }
-    });
-});
-
-// ----- Logout -----
-document.querySelector(".logout").addEventListener("click", function(){
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You will be logged out",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Yes, logout'
-    }).then((result) => {
-        if(result.isConfirmed){
-            fetch("../backend/logout.php", {
-                method: "POST",
-                credentials: "include"
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.status === "success"){
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Logged out!',
-                        text: 'You have been logged out successfully',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
-                    setTimeout(() => {
-                        window.location.href = "../login.php";
-                    }, 1500);
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: data.message
-                    });
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: 'Logout failed'
-                });
-            });
-        }
-    });
-});
-
-// ----- Fetch Customer Data -----
-fetchCustomerData();
-window.addEventListener("focus", () => {
-    fetchCustomerData();
-});
-
-// ----- Notification Badge -----
-function updateNotificationBadge() {
-    const notifications = document.querySelectorAll('#notifications-container .notification-item');
-    let unreadCount = 0;
-    notifications.forEach(item => {
-        if(item.classList.contains('unread')) unreadCount++;
-    });
-    const badge = document.getElementById('notificationBadge');
-    if(unreadCount > 0){
-        badge.textContent = unreadCount;
-        badge.style.display = 'inline-block';
-    } else {
-        badge.style.display = 'none';
+    if (activeItem) {
+        activeItem.classList.add("active");
     }
 }
+// password
+document.querySelectorAll(".toggle-password").forEach(icon => {
+    icon.addEventListener("click", () => {
+        const input = icon.previousElementSibling;
 
-    updateNotificationBadge();
-// notification pref
-document.getElementById('notificationPreferencesForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    const formData = new FormData(this);
-    const preferences = {
-        email: formData.get('emailNotifications') ? true : false,
-        sms: formData.get('smsNotifications') ? true : false,
-        app: formData.get('appNotifications') ? true : false
-    };
-    console.log('Saved preferences:', preferences);
-    alert('Notification preferences saved successfully!');
-});
-//chat function
-const chatInput = document.getElementById('customerChatInput');
-const chatButton = document.getElementById('customerChatSend');
-const messagesContainer = document.querySelector('#chats .messages');
-const userId = document.body.dataset.userid; // current customer ID
-let lastId = 0;
-let displayedMessages = new Set();
-
-function addMessage(content, sender, id) {
-    if (!id) id = 'temp_' + Date.now();
-    if (displayedMessages.has(id)) return;
-    displayedMessages.add(id);
-
-    const wrapper = document.createElement('div');
-    wrapper.classList.add('message-wrapper');
-
-    const messageClass = sender === 'customer' ? 'customer' : 'admin';
-    wrapper.classList.add(messageClass);
-
-    const div = document.createElement('div');
-    div.classList.add('message', messageClass);
-    div.textContent = content;
-
-    wrapper.appendChild(div);
-    messagesContainer.appendChild(wrapper);
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
-
-function loadMessages() {
-    fetch(`../backend/message/get_messages.php?last_id=0&customer_id=${userId}`)
-        .then(res => res.json())
-        .then(data => {
-            messagesContainer.innerHTML = '';
-            displayedMessages.clear();
-            data.forEach(msg => {
-                const sender = msg.sender === 'admin' ? 'admin' : 'customer';
-                addMessage(msg.message, sender, msg.id);
-            });
-            if (data.length) lastId = data[data.length - 1].id;
-        });
-}
-// poll new messages for customer
-function pollMessages() {
-    fetch(`../backend/message/get_messages.php?last_id=${lastId}&customer_id=${userId}`)
-        .then(res => res.json())
-        .then(data => {
-            data.forEach(msg => addMessage(msg.message, msg.sender, msg.id));
-            if (data.length) lastId = data[data.length - 1].id;
-        });
-}
-
-//send message from customer
-function sendMessage() {
-    const message = chatInput.value.trim();
-    if (!message) return;
-
-    chatInput.value = '';
-    addMessage(message, 'customer', 'temp_' + Date.now());
-
-    fetch('../backend/message/send_message.php', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `sender=customer&message=${encodeURIComponent(message)}&user_id=${userId}`
-    }).then(res => res.json())
-      .then(data => {
-          if (data.id) displayedMessages.add(data.id);
-      });
-}
-chatButton.addEventListener('click', sendMessage);
-chatInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendMessage(); });
-loadMessages();
-setInterval(pollMessages, 1000);
-
-//profile
-const profileImage = document.getElementById("profileImage");
-const profileInput = document.getElementById("profileInput");
-profileImage.addEventListener("click", function(){
-    profileInput.click();
-});
-profileInput.addEventListener("change", function(){
-    const file = this.files[0];
-    if(file){
-        const reader = new FileReader();
-        reader.onload = function(e){
-            profileImage.src = e.target.result;
-        }
-        reader.readAsDataURL(file);
-    }
-});
-
-//fetch data
-function fetchCustomerData() {
-    fetch("../backend/users/get_customer.php", {
-        method: "GET",
-        credentials: "include"
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("Fetched data:", data);
-        if (data.status === "success") {
-            const user = data.data;
-
-            document.getElementById('fullNameDisplay').value = user.name || "";
-            document.getElementById('emailDisplay').value = user.email || "";
-            document.getElementById('phoneDisplay').value = user.phone_no || "";
-            document.getElementById('telDisplay').value = user.tel || "";
-            document.getElementById('addressDisplay').value = user.selected_address || "";
-
-           let imagePath = "";
-
-            if(user.profile_img){
-                imagePath = "../assets/img/uploads/" + user.profile_img;
-            }else{
-                imagePath = "../assets/img/profile.png";
-            }
-            const profileDisplayImg = document.querySelector('#profile-information-section .info-profile img');
-            const profileEditImg = document.getElementById("profileImage");
-
-            if(profileDisplayImg) profileDisplayImg.src = imagePath;
-            if(profileEditImg) profileEditImg.src = imagePath;
-
-            document.getElementById('fullName').value = user.name || "";
-            document.getElementById('email').value = user.email || "";
-            document.getElementById('phone').value = user.phone_no || "";
-            document.getElementById('tel').value = user.tel || "";
-
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("bi-eye-slash-fill");
+            icon.classList.add("bi-eye-fill");
         } else {
-            console.error("Fetch error:", data.message);
-            alert(data.message);
+            input.type = "password";
+            icon.classList.remove("bi-eye-fill");
+            icon.classList.add("bi-eye-slash-fill");
         }
-    })
-    .catch(err => {
-        console.error("Network or server error:", err);
-    });
-}
-
-//update profile
-document.getElementById("updateProfileForm").addEventListener("submit", function(e){
-
-    e.preventDefault();
-
-    const tel = document.getElementById("tel").value;
-
-    if (!/^[0-9]+$/.test(tel)) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Invalid Input',
-            text: 'Tel number must contain numbers only!'
-        });
-        return;
-    }
-
-    const formData = new FormData();
-
-    formData.append("name", document.getElementById("fullName").value);
-    formData.append("email", document.getElementById("email").value);
-    formData.append("phone", document.getElementById("phone").value);
-    formData.append("tel", tel);
-
-    const file = document.getElementById("profileInput").files[0];
-
-    if(file){
-        formData.append("profile_img", file);
-    }
-
-    fetch("../backend/users/update_profile.php",{
-        method:"POST",
-        credentials:"include",
-        body:formData
-    })
-    .then(res => res.json())
-    .then(data => {
-
-        if(data.status === "success"){
-           Swal.fire({
-                icon: 'success',
-                title: 'Update',
-                text: 'Profile update successfully!',
-                timer: 1200,
-                showConfirmButton: false
-            });
-            fetchCustomerData();
-        }else{
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message || 'Error updating profile!'
-            });
-        }
-    })
-    .catch(err=>{
-        console.error(err);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Update Failed!'
-        });
     });
 });
-//change pass
-document.getElementById("changePasswordForm").addEventListener("submit", function(e){
+// account settings
+const settingItems = document.querySelectorAll(".setting-item");
+const container = document.querySelector(".settings-container");
+const sections = {
+    "Change Password": document.querySelector(".settings-details"),
+    "Manage Notifications": document.querySelectorAll(".settings-details")[1],
+    "Privacy & Security": document.getElementById("privacy-security")
+};
+settingItems.forEach(item => {
+    item.addEventListener("click", () => {
 
+        const title = item.querySelector("h3").innerText;
+        container.classList.remove("hidden");
+        settingItems.forEach(i => i.classList.remove("active"));
+        item.classList.add("active");
+        Object.values(sections).forEach(sec => {
+            if (sec) sec.classList.add("hidden");
+        });
+        if (sections[title]) {
+            sections[title].classList.remove("hidden");
+        }
+    });
+});
+// Notificaations
+document.querySelector(".mark-all-read").addEventListener("click", () => {
+    document.querySelectorAll(".notification-card").forEach(card => {
+        card.classList.remove("unread");
+
+        const dot = card.querySelector(".notification-status");
+        if (dot) dot.remove();
+    });
+});
+// profile connection
+let originalProfile = {};
+document.addEventListener("DOMContentLoaded", () => {
+    loadProfile();
+    setupProfileUpload();
+    setupSaveProfile();
+});
+function setupProfileUpload() {
+    const profileImage = document.getElementById("profile-image");
+    const profileUpload = document.getElementById("profile-upload");
+    profileImage.addEventListener("click", () => {
+        profileUpload.click();
+    });
+    profileUpload.addEventListener("change", function () {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            profileImage.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+async function loadProfile() {
+    try {
+        const response = await fetch("../backend/users/get_customer.php");
+        const result = await response.json();
+        if (result.status !== "success") {
+            return;
+        }
+        const user = result.data;
+        // profile card
+        document.getElementById("profile-name").textContent = user.name || "Guest";
+        document.getElementById("profile-email").textContent = user.email || "";
+        document.getElementById("profile-phone").textContent = user.phone_no || "";
+        document.getElementById("profile-tel").textContent = user.tel || "";
+        document.getElementById("profile-address").textContent = user.selected_address || "";
+        // form inputs
+        document.getElementById("edit-name").value = user.name || "";
+        document.getElementById("edit-email").value = user.email || "";
+        document.getElementById("edit-phone").value = user.phone_no || "";
+        document.getElementById("edit-tel").value = user.tel || "";
+        document.getElementById("address").value = user.selected_address || "";
+        // security privacy
+        document.getElementById("two-factor-auth").checked = user.two_factor_auth == 1;
+        document.getElementById("login-alerts").checked = user.login_alerts == 1;
+        document.getElementById("auto-logout").checked = user.auto_logout == 1;
+        // manage notifications
+        document.getElementById("email-notifications").checked = user.email_notifications == 1;
+        document.getElementById("sms-notifications").checked = user.sms_notifications == 1;
+        document.getElementById("service-updates").checked = user.service_updates == 1;
+        originalProfile = {
+            name: user.name || "",
+            email: user.email || "",
+            phone: user.phone_no || "",
+            tel: user.tel || "",
+            address: user.selected_address || ""
+        };
+        if (user.profile_img) {
+            document.getElementById("profile-image").src =
+                "../assets/img/uploads/profile/" + user.profile_img;
+        }
+    } catch (error) {
+        console.error(error);
+
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to load profile."
+        });
+    }
+}
+function setupSaveProfile() {
+    document.querySelector(".save-btn").addEventListener("click", async (e) => {
+        e.preventDefault();
+        const currentData = {
+            name: document.getElementById("edit-name").value.trim(),
+            email: document.getElementById("edit-email").value.trim(),
+            phone: document.getElementById("edit-phone").value.trim(),
+            tel: document.getElementById("edit-tel").value.trim(),
+            address: document.getElementById("address").value.trim()
+        };
+        const imageFile =
+            document.getElementById("profile-upload").files[0];
+        const hasChanges =
+            currentData.name !== originalProfile.name ||
+            currentData.email !== originalProfile.email ||
+            currentData.phone !== originalProfile.phone ||
+            currentData.tel !== originalProfile.tel ||
+            currentData.address !== originalProfile.address ||
+            imageFile;
+        if (!hasChanges) {
+            Swal.fire({
+                icon: "info",
+                title: "No Changes Detected",
+                text: "Please modify your profile before saving."
+            });
+            return;
+        }
+        const confirm = await Swal.fire({
+            icon: "question",
+            title: "Save Changes?",
+            text: "Do you want to update your profile?",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Save",
+            cancelButtonText: "Cancel"
+        });
+        if (!confirm.isConfirmed) {
+            return;
+        }
+        const formData = new FormData();
+        formData.append("name", currentData.name);
+        formData.append("email", currentData.email);
+        formData.append("phone", currentData.phone);
+        formData.append("tel", currentData.tel);
+        formData.append("address", currentData.address);
+        if (imageFile) {
+            formData.append("profile_img", imageFile);
+        }
+        try {
+            Swal.fire({
+                title: "Updating Profile...",
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            const response = await fetch(
+                "../backend/users/update_profile.php",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+            const result = await response.json();
+            Swal.close();
+            if (result.status === "success") {
+                originalProfile = { ...currentData };
+                document.getElementById("profile-upload").value = "";
+                await Swal.fire({
+                    icon: "success",
+                    title: "Success",
+                    text: result.message
+                });
+                loadProfile();
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Update Failed",
+                    text: result.message
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Something went wrong while updating your profile."
+            });
+        }
+    });
+}
+// change pass
+document.querySelector(".change-password-form")
+.addEventListener("submit", async function(e){
     e.preventDefault();
-
-    const currentPassword = document.getElementById("currentPassword").value;
-    const newPassword = document.getElementById("newPassword").value;
-    const confirmPassword = document.getElementById("confirmPassword").value;
-
-    if(newPassword.length < 8){
+    const currentPassword = document.getElementById("current-password").value.trim();
+    const newPassword = document.getElementById("new-password").value.trim();
+    const confirmPassword = document.getElementById("confirm-password").value.trim();
+    if(!currentPassword || !newPassword || !confirmPassword){
         Swal.fire({
-            icon: 'warning',
-            title: 'Weak Password',
-            text: 'Password must be at least 8 characters'
+            icon: "warning",
+            title: "Missing Fields",
+            text: "Please complete all password fields."
         });
         return;
     }
-
-    if(newPassword !== confirmPassword){
+    if (currentPassword === newPassword) {
         Swal.fire({
-            icon: 'error',
-            title: 'Mismatch',
-            text: 'Passwords do not match'
+            icon: "warning",
+            title: "Invalid Password",
+            text: "New password cannot be the same as your current password."
         });
         return;
     }
-
+    const result = await Swal.fire({
+        icon: "question",
+        title: "Update Password?",
+        text: "Your account password will be changed.",
+        showCancelButton: true,
+        confirmButtonText: "Update Password",
+        cancelButtonText: "Cancel"
+    });
+    if(!result.isConfirmed){
+        return;
+    }
     const formData = new FormData();
     formData.append("currentPassword", currentPassword);
     formData.append("newPassword", newPassword);
     formData.append("confirmPassword", confirmPassword);
-
-    fetch("../backend/users/update_pass.php", {
-        method: "POST",
-        credentials: "include",
-        body: formData
-    })
-    .then(res => res.json())
-    .then(data => {
-
+    try{
+        Swal.fire({
+            title: "Updating Password...",
+            allowOutsideClick: false,
+            didOpen: () => Swal.showLoading()
+        });
+        const response = await fetch(
+            "../backend/users/update_pass.php",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+        const data = await response.json();
+        Swal.close();
         if(data.status === "success"){
-
+            document.getElementById("current-password").value = "";
+            document.getElementById("new-password").value = "";
+            document.getElementById("confirm-password").value = "";
             Swal.fire({
-                icon: 'success',
-                title: 'Success!',
-                text: 'Password updated successfully'
+                icon: "success",
+                title: "Password Updated",
+                text: data.message
             });
-            document.getElementById("currentPassword").value = "";
-            document.getElementById("newPassword").value = "";
-            document.getElementById("confirmPassword").value = "";
-
         }else{
             Swal.fire({
-                icon: 'error',
-                title: 'Error',
+                icon: "error",
+                title: "Update Failed",
                 text: data.message
             });
         }
-    })
-    .catch(err => {
-        console.error(err);
-
+    }catch(error){
+        console.error(error);
         Swal.fire({
-            icon: 'error',
-            title: 'Oops...',
-            text: 'Something went wrong!'
+            icon: "error",
+            title: "Error",
+            text: "Something went wrong while updating your password."
         });
+    }
+});
+// manage notifications
+document.querySelector(".save-notification-btn")
+.addEventListener("click", async () => {
+    const emailNotifications = document.getElementById("email-notifications").checked ? 1 : 0;
+    const smsNotifications = document.getElementById("sms-notifications").checked ? 1 : 0;
+    const serviceUpdates = document.getElementById("service-updates").checked ? 1 : 0;
+    const formData = new FormData();
+    formData.append("email_notifications", emailNotifications);
+    formData.append("sms_notifications", smsNotifications);
+    formData.append("service_updates", serviceUpdates);
+    try {
+        const response = await fetch(
+            "../backend/users/update_notification.php",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+        const result = await response.json();
+        if(result.status === "success"){
+            Swal.fire({
+                icon: "success",
+                title: "Preferences Saved",
+                text: result.message
+            });
+        }else{
+
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: result.message
+            });
+        }
+    } catch(error){
+        console.error(error);
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to save notification settings."
+        });
+    }
+});
+// privacy and security
+document.querySelector(".save-privacy-btn")
+.addEventListener("click", async () => {
+    const twoFactorAuth = document.getElementById("two-factor-auth").checked ? 1 : 0;
+    const loginAlerts = document.getElementById("login-alerts").checked ? 1 : 0;
+    const autoLogout = document.getElementById("auto-logout").checked ? 1 : 0;
+    const formData = new FormData();
+    formData.append("two_factor_auth", twoFactorAuth);
+    formData.append("login_alerts", loginAlerts);
+    formData.append("auto_logout", autoLogout);
+    try {
+        const response = await fetch(
+            "../backend/users/update_security.php",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+        const result = await response.json();
+        if(result.status === "success"){
+            Swal.fire({
+                icon: "success",
+                title: "Settings Saved",
+                text: result.message
+            });
+        }else{
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: result.message
+            });
+        }
+    } catch(error){
+        console.error(error);
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to save security settings."
+        });
+    }
+});
+// notifications
+async function loadNotifications() {
+
+    try {
+
+        const response = await fetch(
+            "../backend/users/get_notifications.php"
+        );
+
+        const result = await response.json();
+
+        if (result.status !== "success") {
+            return;
+        }
+
+        const container = document.getElementById("notification-list");
+
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        result.data.forEach(notification => {
+
+            const unreadClass =
+                notification.is_read == 0 ? "unread" : "";
+
+            let icon = "bi-bell-fill";
+            let iconClass = "";
+
+            if (notification.type === "success") {
+                icon = "bi-check-circle-fill";
+                iconClass = "success";
+            }
+
+            if (notification.type === "warning") {
+                icon = "bi-exclamation-triangle-fill";
+                iconClass = "warning";
+            }
+
+            container.innerHTML += `
+                <div class="notification-card ${unreadClass}">
+                    <div class="notification-icon ${iconClass}">
+                        <i class="bi ${icon}"></i>
+                    </div>
+
+                    <div class="notification-content">
+                        <h3>${notification.title}</h3>
+                        <p>${notification.message}</p>
+                        <span class="time">
+                            ${notification.created_at}
+                        </span>
+                    </div>
+
+                    ${
+                        notification.is_read == 0
+                        ? '<div class="notification-status"></div>'
+                        : ''
+                    }
+                </div>
+            `;
+        });
+
+    } catch(error) {
+        console.error("Notification Error:", error);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    loadNotifications();
+
+    const markAllBtn =
+        document.querySelector(".mark-all-read");
+
+    if(markAllBtn){
+
+        markAllBtn.addEventListener("click", async () => {
+
+            try {
+
+                const response = await fetch(
+                    "../backend/users/mark_notifications_read.php",
+                    {
+                        method: "POST"
+                    }
+                );
+
+                const result = await response.json();
+
+                if(result.status === "success"){
+
+                    await loadNotifications();
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Success",
+                        text: "All notifications marked as read."
+                    });
+
+                }else{
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error",
+                        text: result.message || "Failed to update notifications."
+                    });
+
+                }
+
+            } catch(error){
+
+                console.error(error);
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Something went wrong."
+                });
+            }
+
+        });
+
+    }
+
+});
+// logout
+document.getElementById("logout-btn").addEventListener("click", function(e){
+
+    e.preventDefault();
+
+    Swal.fire({
+        title: "Logout?",
+        text: "You will be signed out of your account.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Logout",
+        cancelButtonText: "Cancel",
+        confirmButtonColor: "#d33"
+    }).then((result) => {
+
+        if(result.isConfirmed){
+
+            window.location.href =
+                "../backend/users/logout.php";
+
+        }
+
     });
+
+});
+document.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get("tab");
+
+    if (tab) {
+        const navItem = document.querySelector(`[data-tab="${tab}"]`);
+        if (navItem) {
+            navItem.click();
+        }
+    }
 });
 </script>
 </html>

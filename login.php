@@ -42,7 +42,7 @@
                         <div class="social-icons">
                             <div id="g_id_onload"
                                 data-client_id="415782306788-lgodseosmgiuop798cocnnd5al7g247n.apps.googleusercontent.com"
-                                data-login_uri="https://localhost/error503/frontend/users/registration.php"
+                                data-callback="handleCredentialResponse"
                                 data-auto_prompt="false">
                             </div>
 
@@ -64,7 +64,7 @@
                             <label for="name-field">
                                 <i class="bi bi-person"></i> Name
                             </label>
-                            <input type="text" name="name" id="name-field" pattern="[A-Za-z '-]+"required>
+                            <input type="text" name="name" id="name-field" pattern="[A-Za-z \-']+" required>
                             <label for="phone-field">
                                 <i class="bi bi-telephone"></i> Phone No.
                             </label>
@@ -88,7 +88,7 @@
                         <div class="social-icons">
                             <div id="g_id_onload"
                                 data-client_id="415782306788-lgodseosmgiuop798cocnnd5al7g247n.apps.googleusercontent.com"
-                                data-login_uri="https://localhost/error503/frontend/users/registration.php"
+                                data-login_uri="http://localhost/atlas/login.php"
                                 data-auto_prompt="false">
                             </div>
 
@@ -281,33 +281,78 @@
             method: "POST",
             body: formData
         })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-            if(data.status === "success"){
-                Swal.fire({
-                    icon: "success",
-                    title: "Login Successful",
-                    text: data.message,
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-                setTimeout(()=>{
-                    window.location.href = "home.php";
-                }, 2000);
+        .then(res => res.text())
+        .then(text => {
+            console.log("Raw Server Response:", text);
 
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Login Failed",
-                    text: data.message,
-                    showConfirmButton: false,
-                    timer: 2000
-                });
+            try {
+                const data = JSON.parse(text);
+
+                if (data.status === "success") {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Login Successful",
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+
+                    setTimeout(() => {
+                        window.location.href = "index.php";
+                    }, 2000);
+
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Login Failed",
+                        text: data.message,
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
+
+            } catch (err) {
+                console.error("Invalid JSON returned:", text);
             }
         })
         .catch(err => console.error(err));
     });
+    function handleCredentialResponse(response) {
+        fetch("backend/users/google_login.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                credential: response.credential
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+            if (data.status === "success") {
+                Swal.fire({
+                    icon: "success",
+                    title: "Login Successful",
+                    text: data.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                setTimeout(() => {
+                    window.location.href = "index.php";
+                }, 2000);
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Login Failed",
+                    text: data.message
+                });
+            }
+        })
+        .catch(err => {
+            console.error(err);
+        });
+    }
 </script>
 </body>
 </html>

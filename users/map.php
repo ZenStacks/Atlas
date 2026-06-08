@@ -6,45 +6,47 @@
     <title>Alfonso Somo</title>
     <link rel="stylesheet" href="../assets/style/map.css">
     <link rel="icon" type="image/png" href="../assets/img/somo_logo.png">
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAXNuAR8ROi1mc-612MaSDzOuUvfZs5Q4M&callback=initMap&libraries=places" async defer></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="whole-page-container">
-        <div class="container">
-            <div class="navigation-container">
-                <div class="navigation">
-                    <i class="bi bi-arrow-left"></i>
+        <div class="navigation-container">
+            <div class="navigation">
+                <div class="navigation-logo">
+                    <img src="../assets/img/somo_logo.png" alt="">
+                    <h2>Alfonso Somo</h2>
+                </div>
+                <div class="back-icon">
+                    <a href="../index.php"><i class="bi bi-house-door-fill"></i></a>
                 </div>
             </div>
-
+        </div>
+        <div class="container">
             <div class="whole-main-container">
                 <div class="main-container">
                     <div class="map-container">
-                        <div id="map" style="width:100%; height:500px;"></div>
+                        <div id="map"></div>
                     </div>
                     <div class="input-container">
                         <h2>Edit your address</h2>
                         <div class="address">
                             <i class="bi bi-geo-alt"></i>
-                            <h2 id="currentLocationText">No location detected</h2>
+                            <h3 id="currentLocationText">No location detected</h3>
                             <i id="editAddressBtn" class="bi bi-pen" style="cursor:pointer;"></i>
                         </div>
-
                         <div class="input-group">
                             <label for="address">Address</label>
                             <input type="text" id="addressInput" placeholder="Enter your Address" autocomplete="off">
                             <div id="suggestions" class="suggestions-box"></div>
                         </div>
-
                         <div class="instruction">
                             <label for="instruction">Instruction</label>
                             <input type="text" id="instructionInput" placeholder="Landmark">
                         </div>
-                    </div>
-                    <div class="button">
-                        <button type="button" id="saveAddressBtn">Save and continue</button>
+                        <div class="button">
+                            <button type="button" id="saveAddressBtn">Save and continue</button>
+                        </div>
                     </div>
                     <div id="saveContainer" class="save-container" style="display:none;">
                         <h3>Check and confirm your location</h3>
@@ -55,73 +57,80 @@
                 </div>
             </div>
         </div>
+        <div class="ending-container">
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="../assets/img/somo_logo.png" alt="Alfonso Somo Logo">
+                    <h1>Alfonso Somo</h1>
+                </div>
+                <div class="availability">
+                    <span>Funeral Services</span>
+                    <div class="vertical-line"></div>
+                    <span>24/7 Availability</span>
+                </div>
+            </div>
+            <div class="ending-details">
+                <p>Alfonso Somo Funeral Homes is a family-owned funeral service provider dedicated to serving families with compassion, 
+                    dignity, and care. With years of experience in helping families during difficult times, we are committed to providing 
+                    respectful and affordable funeral services tailored to your needs.
+                </p>
+                <p>Your can read our <strong>Privacy Policy</strong> and <strong>Terms of Service</strong> for more information on how we handle your data and the terms of our services. If you have any questions or need assistance, please don't hesitate to contact us.</p>
+            </div>
+            <div class="ending-button">
+                <button onclick="window.location.href='tel:+639192734055'">
+                    <i class="bi bi-telephone-fill"></i>
+                    CALL +63 919 273 4055
+                </button>
+                <a href="contact_us.php"><button><i class="bi bi-envelope-fill"></i> MESSAGE US</button></a>
+            </div>
+        </div> 
         <div class="footer">
-            <p>&copy; 2024 Alfonso Somo Funeral Services. All rights reserved.</p>
+            <div class="footer-content">
+                <div class="services">
+                    <h3>Our Services</h3>
+                    <p>Funeral Planning</p>
+                    <p>Coffin Selection</p>
+                    <p>Funeral Arrangements</p>
+                    <p>Chapel Hire</p>
+                </div>
+                <div class="about-us">
+                    <h3>About Us</h3>
+                    <p>Process</p>
+                    <p>Why Us?</p>
+                    <p>FAQ</p>
+                    <p>Payments</p>
+                    <p>Terms of Use</p>
+                    <p>Privacy Policy</p>
+                </div>
+                <div class="locations">
+                    <h3>Our Location</h3>
+                    <a href="../admin/map.php"><p>Brgy. Naslo, Maasin, Iloilo Philippines, 5030</p></a>
+                </div>
+            </div>
         </div>
     </div>
-
 <script>
-    const backIcon = document.querySelector('.bi-arrow-left');
-    backIcon.addEventListener('click', () => window.history.back());
-
     let map;
     let marker;
-    let hasSavedAddress = false;
     const defaultLocation = { lat: 10.7202, lng: 122.5621 };
     const locationText = document.getElementById("currentLocationText");
-
-    // Get address from lat/lng
-    function getAddress(lat, lng) {
-        fetch(`../backend/address/reverse.php?lat=${lat}&lng=${lng}`)
-            .then(res => res.json())
-            .then(data => {
-                const addressInput = document.getElementById("addressInput");
-
-                if (data.status === "OK" && data.results.length > 0) {
-                    const address = data.results[0].formatted_address;
-                    locationText.innerText = address;
-                    addressInput.value = address;
-                } else if (data.status) {
-                    locationText.innerText = "Error: " + data.status;
-                    addressInput.value = "";
-                } else {
-                    locationText.innerText = "Address not found";
-                    addressInput.value = "";
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                locationText.innerText = "Server error";
-            });
+    async function loadGoogleMaps() {
+        try {
+            const response = await fetch("../backend/config.php");
+            const data = await response.json();
+            
+            const script = document.createElement("script");
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${data.apiKey}&libraries=places&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        } catch (error) {
+            console.error("Failed to load Maps API key:", error);
+        }
     }
-
-    // Load saved address first
-    function loadSelectedAddressFirst() {
-        return fetch("../backend/address/get_selected_address.php", { credentials: "include" })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success" && data.address) {
-                    hasSavedAddress = true;
-                    locationText.innerText = data.address;
-                    document.getElementById("addressInput").value = data.address;
-
-                    // Move marker if lat/lng stored
-                    if (data.lat && data.lng) {
-                        marker.setPosition({ lat: parseFloat(data.lat), lng: parseFloat(data.lng) });
-                        map.setCenter({ lat: parseFloat(data.lat), lng: parseFloat(data.lng) });
-                    }
-
-                    return true;
-                }
-                return false;
-            })
-            .catch(() => false);
-    }
-
-    // Initialize map
-    function initMap() {
-        locationText.innerText = "Detecting your location...";
-
+    loadGoogleMaps();
+    window.initMap = async function() {
+        console.log("Map initializing...");
         map = new google.maps.Map(document.getElementById("map"), {
             center: defaultLocation,
             zoom: 14,
@@ -132,57 +141,73 @@
             map: map,
             draggable: true
         });
-
-        // Load saved address first
-        loadSelectedAddressFirst().then(hasAddress => {
-            if (hasAddress) return; // stop if saved address exists
-
-            // Geolocation
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    pos => {
-                        const userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                        map.setCenter(userLocation);
-                        marker.setPosition(userLocation);
-                        getAddress(userLocation.lat, userLocation.lng);
-                    },
-                    () => {
-                        console.warn("Location denied");
-                        getAddress(defaultLocation.lat, defaultLocation.lng);
-                    }
-                );
-            } else {
-                console.warn("Geolocation not supported");
-                getAddress(defaultLocation.lat, defaultLocation.lng);
-            }
-        });
-
-        // Map click
-        map.addListener("click", e => {
+        const hasSaved = await loadSelectedAddressFirst();
+        if (!hasSaved && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                    map.setCenter(userLoc);
+                    marker.setPosition(userLoc);
+                    getAddress(userLoc.lat, userLoc.lng);
+                },
+                () => getAddress(defaultLocation.lat, defaultLocation.lng)
+            );
+        }
+        map.addListener("click", (e) => {
             marker.setPosition(e.latLng);
             getAddress(e.latLng.lat(), e.latLng.lng());
         });
 
-        // Marker drag
-        marker.addListener("dragend", e => {
+        marker.addListener("dragend", (e) => {
             getAddress(e.latLng.lat(), e.latLng.lng());
         });
-
-        // Autocomplete
-        const input = document.getElementById("addressInput");
-        const autocomplete = new google.maps.places.Autocomplete(input);
+        const autocomplete = new google.maps.places.Autocomplete(document.getElementById("addressInput"));
         autocomplete.addListener("place_changed", () => {
             const place = autocomplete.getPlace();
-            if (!place.geometry) return;
-
-            const location = place.geometry.location;
-            map.setCenter(location);
-            marker.setPosition(location);
-            getAddress(location.lat(), location.lng());
+            if (place.geometry) {
+                map.setCenter(place.geometry.location);
+                marker.setPosition(place.geometry.location);
+                getAddress(place.geometry.location.lat(), place.geometry.location.lng());
+            }
         });
+    };
+
+    function getAddress(lat, lng) {
+        console.log("Fetching address for:", lat, lng);
+        fetch(`../backend/address/reverse.php?lat=${lat}&lng=${lng}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log("Response from reverse.php:", data);
+                if (data.status === "OK" && data.results.length > 0) {
+                    const addr = data.results[0].formatted_address;
+                    locationText.innerText = addr;
+                    document.getElementById("addressInput").value = addr;
+                } else {
+                    locationText.innerText = "Location not found";
+                }
+            })
+            .catch(err => console.error("Fetch error:", err));
     }
-    
-    // Save address button
+    async function loadSelectedAddressFirst() {
+    try {
+        const res = await fetch(
+            "../backend/address/get_selected_address.php",
+            { credentials: "include" }
+        );
+
+        const text = await res.text();
+
+        console.log("RAW RESPONSE:");
+        console.log(text);
+
+        return false;
+
+    } catch (e) {
+        console.error("Error loading address:", e);
+    }
+
+    return false;
+}
     document.getElementById("saveAddressBtn").addEventListener("click", () => {
         const address = document.getElementById("addressInput").value;
         const instruction = document.getElementById("instructionInput").value;
@@ -230,8 +255,6 @@
             });
         });
     });
-
-    // Edit address button
     document.getElementById("editAddressBtn").addEventListener("click", () => {
         const saveContainer = document.getElementById("saveContainer");
         const savedList = document.getElementById("savedAddressesList");
@@ -282,11 +305,9 @@
             savedList.innerHTML = "<p>Error loading addresses</p>";
         });
     });
-    // Close save container
     document.getElementById("closeSaveContainer").addEventListener("click", () => {
         document.getElementById("saveContainer").style.display = "none";
     });
-    // Confirm address button
     document.getElementById("confirmAddressBtn").addEventListener("click", () => {
         const selected = document.querySelector('input[name="savedAddress"]:checked');
 
@@ -311,9 +332,7 @@
             showConfirmButton: false
         });
     });
-// actions for saved address
     function addActions() {
-        // EDIT
         document.querySelectorAll(".edit-btn").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const parent = e.target.closest(".saved-item");
@@ -327,8 +346,6 @@
                 document.getElementById("saveContainer").style.display = "none";
             });
         });
-
-        // DELETE
         document.querySelectorAll(".delete-btn").forEach(btn => {
             btn.addEventListener("click", (e) => {
                 const id = e.currentTarget.dataset.id;
@@ -367,7 +384,6 @@
                 });
             });
         });
-        // select address
         document.querySelectorAll('input[name="savedAddress"]').forEach(radio => {
             radio.addEventListener("change", (e) => {
                 const id = e.target.value;

@@ -14,7 +14,8 @@ if(!isset($_SESSION['customer_id'])){
 
 $id = $_SESSION['customer_id'];
 
-$stmt = $conn->prepare("SELECT name,email,phone_no,tel,selected_address,profile_img FROM customers WHERE id=?");
+$stmt = $conn->prepare("SELECT name, email, phone_no, tel, selected_address, profile_img, two_factor_auth, login_alerts, auto_logout, 
+email_notifications, sms_notifications, service_updates FROM customers WHERE id = ?");
 $stmt->bind_param("i",$id);
 $stmt->execute();
 

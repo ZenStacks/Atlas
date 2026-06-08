@@ -30,6 +30,26 @@ if($result->num_rows === 1){
         $_SESSION['customer_id'] = $user['id'];
         $_SESSION['customer_name'] = $user['name'];
 
+        $title = "Login Successful";
+        $message = "You logged into your account successfully.";
+        $type = "success";
+
+        $notif = $conn->prepare("
+            INSERT INTO notifications
+            (customer_id, title, message, type)
+            VALUES (?, ?, ?, ?)
+        ");
+
+        $notif->bind_param(
+            "isss",
+            $user['id'],
+            $title,
+            $message,
+            $type
+        );
+
+        $notif->execute();
+
         echo json_encode([
             "status"=>"success",
             "message"=>"Welcome back ".$user['name']
@@ -46,5 +66,4 @@ if($result->num_rows === 1){
         "message"=>"Email not registered."
     ]);
 }
-
 ?>

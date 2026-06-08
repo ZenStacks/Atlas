@@ -24,19 +24,16 @@ $sql = "";
 switch ($category) {
     case "increase-coffin-materials":
         $table = "coffin_materials";
-        // Assuming details or similar text field exists, otherwise pass empty fallback string
         $sql = "SELECT current_stock, cost_per_unit, details FROM $table WHERE material_type = ? AND id = ? LIMIT 1";
         break;
 
     case "increase-flower-materials":
         $table = "flower_materials";
-        // UPDATED: Fetches cost_per_unit and details explicitly
         $sql = "SELECT current_stock, cost_per_unit, details FROM $table WHERE material_type = ? AND id = ? LIMIT 1";
         break;
 
     case "increase-equipment-furniture":
         $table = "equipment_materials";
-        // Using aliases if your column is named slightly differently, or keeping it standard
         $sql = "SELECT current_stock, cost_per_unit, details FROM $table WHERE equipment_type = ? AND id = ? LIMIT 1";
         break;
 

@@ -42,14 +42,12 @@ try {
     if (empty($item_name) || empty($coffin_type) || empty($size) || empty($color)) {
         throw new Exception("Required production profile fields are missing.");
     }
-
-    // Map table references cleanly
     $inventory_tables = [
-        'coffin_materials'          => ['name_col' => 'material_name', 'type' => 'coffin_materials'],
+        'coffin_materials' => ['name_col' => 'material_name', 'type' => 'coffin_materials'],
         'interior_lining_materials' => ['name_col' => 'item_name', 'type' => 'interior_lining_materials'],
-        'equipment_materials'       => ['name_col' => 'item_name', 'type' => 'equipment_materials'],
-        'flower_materials'          => ['name_col' => 'item_name', 'type' => 'flower_materials'],
-        'imported_coffins'          => ['name_col' => 'item_name', 'type' => 'imported_coffins']
+        'equipment_materials'=> ['name_col' => 'item_name', 'type' => 'equipment_materials'],
+        'flower_materials' => ['name_col' => 'item_name', 'type' => 'flower_materials'],
+        'imported_coffins'=> ['name_col' => 'item_name', 'type' => 'imported_coffins']
     ];
 
     $materials = $_POST["materials"] ?? [];
@@ -63,7 +61,6 @@ try {
     }
     ksort($submitted_materials);
 
-    // Duplication Check
     $checkStmt = $conn->prepare("SELECT id FROM coffins WHERE LOWER(coffin_type) = LOWER(?) AND weight_limit = ? AND LOWER(color) = LOWER(?)");
     if (!$checkStmt) {
         throw new Exception("Duplicate Verification Prepare Fail: " . $conn->error);
@@ -118,7 +115,6 @@ try {
     }
     $imagePath = "uploads/coffins/" . $fileName;
     
-    // START TRANSACTION
     $conn->begin_transaction();
     
     $stmt = $conn->prepare("INSERT INTO coffins (item_name, coffin_type, size, color, weight_limit, stock, reserved_stock, available_stock, tax_type, image, details, cost_price, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW(), NOW())");
@@ -134,7 +130,6 @@ try {
     $new_coffin_id = $conn->insert_id;
     $stmt->close();
 
-    // Deduct raw materials 
     if (!empty($submitted_materials)) {
         $matStmt = $conn->prepare("INSERT INTO coffin_material_usage (coffin_id, material_id, material_type, material_name, quantity) VALUES (?, ?, ?, ?, ?)");
         if (!$matStmt) {
@@ -144,8 +139,6 @@ try {
         foreach ($submitted_materials as $m_id => $qty) {
             $total_needed_qty = $qty * $stock;
             $found_data = null;
-            
-            // Loop through all inventory tables to locate this ID cleanly
             foreach ($inventory_tables as $table_name => $config) {
                 $name_col = $config["name_col"];
                 $query = "SELECT $name_col AS name, unit, current_stock FROM $table_name WHERE id = ? LIMIT 1";
@@ -191,7 +184,6 @@ try {
                 exit;
             }
             
-            // Deduct from stock
             $new_stock = $current_stock - $total_needed_qty;
             $updateStock = $conn->prepare("UPDATE $material_table SET current_stock = ? WHERE id = ?");
             if (!$updateStock) {
@@ -203,13 +195,11 @@ try {
             }
             $updateStock->close();
             
-            // Insert formula usage log
             $matStmt->bind_param("iissi", $new_coffin_id, $m_id, $m_type, $m_name, $total_needed_qty);
             if (!$matStmt->execute()) {
                 throw new Exception("Composition Mapping Execute Fail: " . $matStmt->error);
             }
             
-            // Insert stock transaction record (OUT)
             $materialTransaction = $conn->prepare("
                 INSERT INTO stock_transactions (
                     performed_by, material_id, material_category, transaction_type, action, 
@@ -241,7 +231,6 @@ try {
         $matStmt->close();
     }
 
-    // Log the finished manufactured product entry (IN)
     $coffinTransaction = $conn->prepare("
         INSERT INTO stock_transactions (
             performed_by, material_id, material_category, transaction_type, action, 

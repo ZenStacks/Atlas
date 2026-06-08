@@ -13,6 +13,7 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="whole-page-container">
@@ -73,7 +74,6 @@
                         <li class="logout" style="color: red;"><i class="bi bi-box-arrow-right"></i> Logout</li>
                     </ul>
                 </div>
-
                 <div class="total-card">
                     <div class="card">
                         <h3>Revenue</h3>
@@ -92,20 +92,16 @@
                         <div class="label"><p>vs previous 30 days</p></div>
                     </div>
                     <div class="card">
-                        <h3>Service Drop-off</h3>
-                        <div class="inside">
-                            <p class="value">4.2%</p>
-                            <p style="color: red;"><i class="bi bi-arrow-down-short" style="color: red;"></i> 2.1%</p>
-                        </div>
-                        <div class="label"><p>vs previous30 days</p></div>
-                    </div>
-                    <div class="card">
                         <h3>Total Users</h3>
                         <div class="inside">
-                            <p class="value">20,450</p>
-                            <p><i class="bi bi-arrow-up-short" ></i> 1.5%</p>
+                            <p class="value" id="total-customers">0</p>
+                            <p id="customer-growth">
+                                <i class="bi bi-arrow-up-short"></i> 0%
+                            </p>
                         </div>
-                        <div class="label"><p>vs previous 30 days</p></div>
+                        <div class="label">
+                            <p>vs previous 30 days</p>
+                        </div>
                     </div>
                     <div class="card">
                         <h3>Request</h3>
@@ -117,6 +113,15 @@
                             <p>vs previous 30 days</p>
                         </div>
                     </div>
+                    <div class="staff-card">
+                        <h3>Total Staff</h3>
+                        <div class="staff-inside">
+                            <p class="value" id="total-staff">0</p>
+                        </div>
+                        <div class="label">
+                            <p>Total Personnel</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="content-row">
                     <div class="chart-data">
@@ -126,9 +131,8 @@
                                 <canvas id="revenue"></canvas>
                             </div>
                         </div>
-                        <div class="ambot">
-                            <div class="wala">
-                                <!-- <h2>New Customer Origin (Last 30 days)</h2> -->
+                        <div class="user-origin-data">
+                            <div class="user-origin">
                                 <canvas id="new-customer-origin"></canvas>
                             </div>
                         </div>
@@ -141,8 +145,11 @@
                             <canvas id="pending-reports"></canvas>
                         </div>
                     </div>
-                    <div class="unknown1">
-                        
+                    <div class="staff-count">
+                        <!-- <h2>Staff Count</h2> -->
+                        <div class="staff-count-chart">
+                            <canvas id="staff-count"></canvas>
+                        </div>
                     </div>
                 </div>
                 <div class="last-container">
@@ -457,20 +464,65 @@
                 </div>
                 <!-- Chat -->
                 <div class="chat-section" id="chat-section">
-                    <div class="chat-title"><h2>Chat</h2></div>
+                    <div class="chat-title">
+                        <h2>Chat</h2>
+                    </div>
                     <div class="chat-container">
                         <div class="customer-chat">
-                            <div class="chat-navigation" id="chatNavigation"></div>
-                            <div class="messages" id="messagesContainer"></div>
+                            <div class="chat-navigation" id="chatNavigation">
+                                <div class="chat-placeholder">
+                                    <i class="bi bi-chat-left-text"></i>
+
+                                    <div class="placeholder-info">
+                                        <h3>Select a Conversation</h3>
+                                        <span>Choose a customer from the Messages panel</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="empty-chat" id="emptyChat">
+                                <div class="empty-chat-icon">
+                                    <i class="bi bi-chat-square-text"></i>
+                                </div>
+                                <h3>No Conversation Selected</h3>
+                                <p>
+                                    Choose a customer from the Messages panel to view and manage conversations.
+                                </p>
+                                <div class="empty-chat-tip">
+                                    <i class="bi bi-lightbulb-fill"></i>
+                                    <span>
+                                        New customer messages will automatically appear in the sidebar.
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="messages" id="messagesContainer" style="display:none;"></div>
                             <div class="chat-input">
-                                <input type="text" id="adminChatInput" placeholder="Type your message...">
-                                <button type="button" id="adminChatSend"><i class="bi bi-send-fill"></i></button>
+
+                                <label for="chatFile" class="upload-file">
+                                    <i class="bi bi-plus-lg"></i>
+                                </label>
+
+                                <input type="file" id="chatFile" hidden>
+
+                                <div class="input-wrapper">
+
+                                    <div id="imagePreview" class="image-preview"></div>
+
+                                    <textarea id="adminChatInput" placeholder="Type your message..." rows="1"></textarea>
+
+                                </div>
+                                <button type="button" id="adminChatSend">
+                                    <i class="bi bi-send-fill"></i>
+                                </button>
+
                             </div>
                         </div>
                         <div class="chat-right">
                             <h2>Messages</h2>
-                            <div id="chatNotifications"></div>
+                            <div id="chatNotifications">
+                            </div>
                         </div>
+
                     </div>
                 </div>
                 <!-- Contacts Info -->
@@ -724,10 +776,6 @@
                             <img src="../assets/img/flower1.jpg" alt="">
                             <button id="addProducts">+ Item</button>
                         </div>
-                        <div class="new-services">
-                            <img src="../assets/img/flower1.jpg" alt="">
-                            <button id="addServices">+ Services</button>
-                        </div>
                         <div class="materials">
                             <img src="../assets/img/flower1.jpg" alt="">
                             <button id="addMaterials">+ Materials</button>
@@ -746,28 +794,13 @@
                                         <th>ID</th>
                                         <th>Item</th>
                                         <th>Action</th>
-                                        <th>Old Value</th>
-                                        <th>New Value</th>
+                                        <th>Quantity</th>
                                         <th>Performed By</th>
                                         <th>Date & Time</th>
-                                        <th>Action</th>
+                                        <th>Manage</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>ADM-0326-033000</td>
-                                        <td>Wood</td>
-                                        <td>Add</td>
-                                        <td>100</td>
-                                        <td>90</td>
-                                        <td>Admin</td>
-                                        <td>03-03-2026 3:45PM</td>
-                                        <td class="inventory-btn">
-                                            <button class="inventory-delete"><i class="bi bi-trash3"></i></button>
-                                            <button class="inventory-edit"><i class="bi bi-pencil-square"></i></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>
@@ -1159,69 +1192,6 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- add services -->
-                        <div class="new-services-container" id="form-services-container">
-                            <h2>Add Services</h2>
-                            <div class="choice-btn">
-                                <button id="btn-add-new-services" class="active-choice">Add new services</button>
-                            </div>
-                            <div class="add-services-details">
-                                <div class="add-new-services-details">
-                                    <div class="new-services-details">
-                                        <div class="divided-first-row">
-                                            <div class="input-row">
-                                                <label for="services-coffin-origin">Coffin Origin:</label>
-                                                <select name="services-coffin-origin" id="services-coffin-origin">
-                                                    <option value="" disabled selected>Select coffin origin</option>
-                                                    <option value="local">Local</option>
-                                                    <option value="imported">Imported</option>
-                                                </select>
-                                            </div>
-                                            <div class="input-row">
-                                                <label for="services-coffin-type">Coffin Type:</label>
-                                                <select name="services-coffin-type" id="services-coffin-type">
-                                                    <option value="" disabled selected>Select coffin type</option>
-                                                    <option value="standard">Standard</option>
-                                                    <option value="premium">Premium</option>
-                                                </select>
-                                            </div>
-                                            <div class="input-row">
-                                                <label for="services-coffin-case-type">Case Type:</label>
-                                                <select name="services-coffin-case-type" id="services-coffin-case-type">
-                                                    <option value="" disabled selected>Select coffin case type</option>
-                                                    <option value="lifeplan">Life Plan</option>
-                                                    <option value="at-needService">At-Need Service</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="divided-second-row">
-                                            <div class="input-row">
-                                                <label for="services-name">Service package:</label>
-                                                <input type="text" id="service-name" placeholder="Enter service package" required>
-                                            </div>
-                                            <div class="input-row">
-                                                <label for="service-classification">Classification:</label>
-                                                <input type="number" id="service-classification" placeholder="Enter Classification" required>
-                                            </div>
-                                            <div class="input-row">
-                                                <label for="price">Price:</label>
-                                                <input type="number" id="service-price" placeholder="Price" required>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="divided-last-row">
-                                        <div class="input-row">
-                                            <label for="notes">Details:</label>
-                                            <textarea id="services-details" placeholder="Enter details..."></textarea>
-                                        </div>
-                                        <div class="add-new-services-btn">
-                                            <button id="new-services-btn">save</button>
-                                            <button id="new-services-cancel-btn">cancel</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         <!-- Add Materials -->
                         <div class="new-materials-container" id="new-materials-container">
                             <h2>Add Materials</h2>
@@ -1530,6 +1500,7 @@
                                     <div class="staff-grid" id="staff-grid"></div>   
                                 </div>
                             </div>
+                            <!-- access control -->
                             <div class="access-control-container hidden" id="access-control-container">
                                 <div class="table-container">
                                     <div class="employee-table">
@@ -2487,19 +2458,120 @@
         }
     });
 
-    // chat function (done)
     const adminInput = document.getElementById('adminChatInput');
     const adminButton = document.getElementById('adminChatSend');
     const messagesContainer = document.getElementById('messagesContainer');
     const notificationContainer = document.getElementById('chatNotifications');
     const chatNavigation = document.getElementById('chatNavigation');
+    const emptyChat = document.getElementById('emptyChat');
+
+    const fileInput = document.getElementById('chatFile');
+    const imagePreview = document.getElementById('imagePreview');
 
     let selectedCustomerId = 0;
+    let selectedFile = null;
+
     let unreadCounts = {};
     let processedMessages = new Set();
     let chatDisplayedMessages = new Set();
     let globalLastId = 0;
+    function adjustTextareaHeight() {
+        adminInput.style.height = 'auto';
+        adminInput.style.height = adminInput.scrollHeight + 'px';
+        
+        const wrapper = document.querySelector('.input-wrapper');
+        if (wrapper) {
+            wrapper.scrollTop = wrapper.scrollHeight;
+        }
+    }
+    adminInput.addEventListener('input', adjustTextareaHeight);
+    function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    fileInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (!file) return;
 
+        selectedFile = file;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            imagePreview.style.display = "flex"; 
+            imagePreview.innerHTML = `
+                <div class="preview-chip">
+                    <img src="${e.target.result}">
+                    <button type="button" id="removePreview">×</button>
+                </div>
+            `;
+            document.getElementById('removePreview').onclick = clearFile;
+            adjustTextareaHeight();
+        };
+        reader.readAsDataURL(file);
+    });
+
+    function clearFile() {
+        selectedFile = null;
+        fileInput.value = "";
+        imagePreview.style.display = "none";
+        imagePreview.innerHTML = "";
+        adjustTextareaHeight();
+    }
+    function addMessage(content, sender, image = null) {
+        const wrapper = document.createElement('div');
+        wrapper.className = `message-wrapper ${sender}`;
+
+        const div = document.createElement('div');
+        div.className = `message ${sender}`;
+
+        if (image) {
+            div.innerHTML = `
+                <img src="../assets/img/uploads/chat/${image}" class="chat-image">
+                ${content ? `<p>${content}</p>` : ''}
+            `;
+        } else {
+            div.textContent = content;
+        }
+
+        wrapper.appendChild(div);
+        messagesContainer.appendChild(wrapper);
+    }
+    function sendMessage() {
+        const message = adminInput.value.trim();
+        if (!message && !selectedFile) return;
+
+        if (selectedCustomerId === 0) {
+            alert("Select a customer first!");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('sender', 'admin');
+        formData.append('message', message);
+        formData.append('customer_id', selectedCustomerId);
+
+        if (selectedFile) {
+            formData.append('image', selectedFile);
+        }
+
+        fetch('../backend/message/send_message.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        adminInput.value = "";
+        clearFile();
+        
+        adminInput.style.height = '24px';
+        setTimeout(scrollToBottom, 50);
+    }
+
+    adminButton.addEventListener('click', sendMessage);
+    adminInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); 
+            sendMessage();
+        }
+    });
     function loadUnreadCounts() {
         fetch('../backend/message/unread_counts.php')
             .then(res => res.json())
@@ -2507,26 +2579,23 @@
                 unreadCounts = {};
                 data.forEach(row => {
                     unreadCounts[row.customer_id] = row.unread;
+                    // Populates sidebar layout items for any unread context elements 
+                    if(row.customer_name) {
+                        addNotification(row.customer_name, row.customer_id, row.profile_img);
+                    }
                 });
                 updateAllNotifications();
             });
     }
-    function addMessage(content, sender) {
-        const wrapper = document.createElement('div');
-        wrapper.classList.add('message-wrapper', sender);
-        const div = document.createElement('div');
-        div.classList.add('message', sender);
-        div.textContent = content;
-        wrapper.appendChild(div);
-        messagesContainer.appendChild(wrapper);
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
+
     function updateNotificationUI(id) {
         let notif = document.querySelector(`.notif-item[data-id="${id}"]`);
         if (!notif) return;
+
         let count = unreadCounts[id] || 0;
         let badge = notif.querySelector('.notif-count');
         let name = notif.querySelector('.notif-name');
+
         if (count > 0) {
             badge.style.display = "inline-block";
             badge.textContent = count;
@@ -2536,117 +2605,131 @@
             name.style.fontWeight = "normal";
         }
     }
+
     function updateAllNotifications() {
         document.querySelectorAll('.notif-item').forEach(el => {
-            let id = el.getAttribute('data-id');
-            updateNotificationUI(id);
+            updateNotificationUI(el.getAttribute('data-id'));
         });
     }
+
     function addNotification(name, customerId, profile) {
         let notif = document.querySelector(`.notif-item[data-id="${customerId}"]`);
+
         if (!notif) {
             notif = document.createElement('div');
             notif.classList.add('notif-item');
             notif.setAttribute('data-id', customerId);
+
             notif.innerHTML = `
-                <img src="${profile ? '../assets/img/uploads/profile/' + profile : '../assets/img/profile.png'}" class="notif-profile">
+                <img src="${profile ? '../assets/img/uploads/' + profile : '../assets/img/profile.png'}" class="notif-profile">
                 <span class="notif-name">${name}</span>
                 <span class="notif-count" style="display:none;"></span>
             `;
+
             notif.onclick = () => {
+                document.querySelectorAll('.notif-item').forEach(item => item.classList.remove('active'));
+
                 selectedCustomerId = customerId;
+                if (emptyChat) emptyChat.style.display = "none";
+
+                messagesContainer.style.display = "flex";
+                messagesContainer.innerHTML = "";
+
+                adminInput.disabled = false;
+                adminInput.placeholder = "Type your message...";
+
                 chatNavigation.innerHTML = `
                     <div class="chat-header">
-                        <img src="${profile ? '../assets/img/uploads/profile/' + profile : '../assets/img/profile.png'}" class="chat-profile">
-                        <span class="nav-name">${name}</span>
+                        <img src="${profile ? '../assets/img/uploads/' + profile : '../assets/img/profile.png'}" class="chat-profile">
+                        <div>
+                            <div class="nav-name">${name}</div>
+                            <small style="color:rgba(255,255,255,.8)">Active Conversation</small>
+                        </div>
                     </div>
                 `;
-                fetch('../backend/message/mark_read.php', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                    body: `customer_id=${customerId}`
-                });
+
+                triggerMarkAsRead(customerId);
+
                 unreadCounts[customerId] = 0;
-                document.querySelectorAll('.notif-item').forEach(i => i.classList.remove('active'));
                 notif.classList.add('active');
-                messagesContainer.innerHTML = '';
+
                 chatDisplayedMessages.clear();
                 updateNotificationUI(customerId);
                 fetchMessagesForCustomer(customerId);
+                
+                setTimeout(() => { adjustTextareaHeight(); }, 100); 
             };
-            notificationContainer.prepend(notif);
-        }
+
+            notificationContainer.appendChild(notif);
         updateNotificationUI(customerId);
+    }
+
+    function triggerMarkAsRead(customerId) {
+        fetch('../backend/message/mark_read.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `customer_id=${customerId}`
+        });
     }
     function fetchMessagesForCustomer(customerId) {
         fetch(`../backend/message/get_message.php?last_id=0&customer_id=${customerId}`)
             .then(res => res.json())
             .then(data => {
-                let latestId = 0;
+                messagesContainer.innerHTML = "";
                 data.forEach(msg => {
                     if (!chatDisplayedMessages.has(msg.id)) {
-                        addMessage(msg.message, msg.sender);
+                        addMessage(msg.message, msg.sender, msg.image);
                         chatDisplayedMessages.add(msg.id);
                     }
-
-                    if (msg.id > latestId) {
-                        latestId = msg.id;
-                    }
                 });
-
+                setTimeout(scrollToBottom, 50);
             });
     }
-    function sendMessage() {
-        const message = adminInput.value.trim();
-        if (!message) return;
-        if (selectedCustomerId === 0) {
-            alert("Select a customer first!");
-            return;
-        }
-        adminInput.value = '';
-        fetch('../backend/message/send_message.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `sender=admin&message=${encodeURIComponent(message)}&customer_id=${selectedCustomerId}`
-        });
-    }
-    setInterval(() => {
+    function pollMessages() {
         fetch(`../backend/message/get_message.php?last_id=${globalLastId}`)
             .then(res => res.json())
             .then(data => {
                 let hasNewCustomerMessage = false;
-                data.forEach(msg => {
-                    if (msg.id > globalLastId) {
-                        globalLastId = msg.id;
-                    }
-                    if (processedMessages.has(msg.id)) return;
-                    processedMessages.add(msg.id);
-                    if (msg.sender === 'customer') {
-                        let id = msg.customer_id;
-                        if (selectedCustomerId !== msg.customer_id) {
-                            hasNewCustomerMessage = true; 
+                let currentChatNeedsReadClear = false;
+
+                if (Array.isArray(data)) {
+                    data.forEach(msg => {
+                        if (msg.id > globalLastId) globalLastId = msg.id;
+                        if (processedMessages.has(msg.id)) return;
+                        processedMessages.add(msg.id);
+
+                        if (msg.sender === 'customer') {
+                            addNotification(msg.customer_name, msg.customer_id, msg.profile_img);
+                            if (selectedCustomerId !== msg.customer_id) {
+                                hasNewCustomerMessage = true;
+                            } else {
+                                currentChatNeedsReadClear = true;
+                            }
                         }
-                        addNotification(msg.customer_name, id, msg.profile_img);
-                        updateNotificationUI(id);
-                    }
-                    if (selectedCustomerId === msg.customer_id) {
-                        if (!chatDisplayedMessages.has(msg.id)) {
-                            addMessage(msg.message, msg.sender);
-                            chatDisplayedMessages.add(msg.id);
+
+                        if (selectedCustomerId === msg.customer_id) {
+                            if (!chatDisplayedMessages.has(msg.id)) {
+                                addMessage(msg.message, msg.sender, msg.image);
+                                chatDisplayedMessages.add(msg.id);
+                                scrollToBottom();
+                            }
                         }
-                    }
-                });
-                if (hasNewCustomerMessage) {
-                    loadUnreadCounts();
+                    });
                 }
-            }) ;
-    }, 1000);
-    loadUnreadCounts();
-    adminButton.addEventListener('click', sendMessage);
-    adminInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') sendMessage();
+
+                if (currentChatNeedsReadClear) triggerMarkAsRead(selectedCustomerId);
+                if (hasNewCustomerMessage || currentChatNeedsReadClear) loadUnreadCounts();
+            })
+            .catch(err => console.error("Polling error:", err))
+            .finally(() => {
+                setTimeout(pollMessages, 1500); 
+            });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadUnreadCounts();
+        pollMessages();
     });
-    // STAFF MANAGEMENT
     // add staff functions (done)
     document.getElementById("addStaffupdate").addEventListener("click", (e) => {
         e.preventDefault();
@@ -3146,14 +3229,12 @@
         // open inventory forms
         const overallContainer = document.querySelector(".overall-categories-container");
         const coffinForm = document.getElementById("new-item-container");
-        const servicesForm = document.getElementById("form-services-container");
         const materialsForm = document.getElementById("new-materials-container");
 
         const btnNewCoffin = document.getElementById("btn-add-new-coffin");
         const btnCoffin = document.getElementById("btn-increase-coffin");
         const btnNewFlower = document.getElementById("btn-add-new-flowers");
         const btnFlowers = document.getElementById("btn-increase-flowers");
-        const btnAddNewServices = document.getElementById("btn-add-new-services");
         const btnIncreaseMaterial = document.getElementById("btn-increase-stock");
         const btnAddNewMaterial = document.getElementById("btn-add-new-material");
         const btnAddImportedCoffin = document.getElementById("btn-imported");
@@ -3162,7 +3243,6 @@
         const formIncreaseCoffin = document.getElementById("form-increase-coffin-details");
         const formAddNewFlowers = document.getElementById("form-add-new-flowers");
         const formFlowers = document.getElementById("form-flowers-details");
-        const formAddNewServices = document.querySelector(".add-new-services-details");
         const formIncreaseMaterial = document.getElementById("form-increase-stock");
         const formAddNewMaterial = document.getElementById("form-add-new-material");
         const formAddNewImported = document.getElementById("form-imported-coffin-details");
@@ -3175,7 +3255,6 @@
 
         function hideAllMainForms() {
             coffinForm.classList.add("hidden");
-            servicesForm.classList.add("hidden");
             materialsForm.classList.add("hidden");
         }
 
@@ -3183,13 +3262,13 @@
             const allSubForms = [
                 formNewCoffin, formIncreaseCoffin, 
                 formAddNewFlowers, formFlowers,
-                formAddNewServices, formAddNewImported
+                formAddNewImported
             ];
             allSubForms.forEach(form => { if(form) form.classList.add("hidden"); });
 
             const allButtons = [
                 btnNewCoffin, btnCoffin, btnNewFlower, 
-                btnFlowers, btnAddImportedCoffin, btnAddNewServices
+                btnFlowers, btnAddImportedCoffin
             ];
             allButtons.forEach(btn => { if(btn) btn.classList.remove("active-choice"); });
             if (type === 'new-coffin') {
@@ -3207,9 +3286,6 @@
             } else if (type === 'increase-flower') {
                 formFlowers.classList.remove("hidden");
                 btnFlowers.classList.add("active-choice");
-            } else if (type === 'new-services') {
-                formAddNewServices.classList.remove("hidden");
-                btnAddNewServices.classList.add("active-choice");
             }
         }
         function toggleMaterialView(type) {
@@ -3232,13 +3308,6 @@
             toggleItemView('new-coffin');
         });
 
-        document.getElementById("addServices").addEventListener("click", () => {
-            hideAllMainForms();
-            servicesForm.classList.remove("hidden");
-            overallContainer.classList.remove("hidden");
-            toggleItemView('new-services');
-        });
-
         document.getElementById("addMaterials").addEventListener("click", () => {
             hideAllMainForms();
             materialsForm.classList.remove("hidden");
@@ -3256,7 +3325,6 @@
         if(btnNewFlower) btnNewFlower.addEventListener("click", () => toggleItemView('new-flower'));
         if(btnFlowers) btnFlowers.addEventListener("click", () => toggleItemView('increase-flower'));
         if(btnAddImportedCoffin) btnAddImportedCoffin.addEventListener("click", () => toggleItemView('imported-coffin'));
-        if(btnAddNewServices) btnAddNewServices.addEventListener("click", () => toggleItemView('new-services'));
                 
         if(btnIncreaseMaterial) btnIncreaseMaterial.addEventListener("click", () => toggleMaterialView('increase'));
         if(btnAddNewMaterial) btnAddNewMaterial.addEventListener("click", () => toggleMaterialView('add'));
@@ -3480,6 +3548,7 @@
         function coffinPopulateDropdowns(materials) {
             materials.forEach(item => {
                 let containerId = "";
+                
                 switch(item.material_type) {
                     case 'main_structure': 
                     case 'coffin_materials': 
@@ -3500,24 +3569,30 @@
                         containerId = "interiorContent"; 
                         break;
                 }
-                const container = document.getElementById(containerId);
-                if (container) {
-                    const safeId = generateSafeId(item);
-                    const itemHtml = `
-                        <div class="item">
-                            <span>${item.name} ${item.color ? `(${item.color})` : ''}</span>
-                            <div class="qty-control">
-                                <button type="button" onclick="changeQty('${safeId}', -1); window.updateLiveTotal();">-</button>
-                                <input type="text" 
-                                    id="${safeId}" 
-                                    name="materials[${item.id}]" 
-                                    value="0" 
-                                    min="0"
-                                    oninput="if(this.value < 0) this.value = 0; window.updateLiveTotal();"> 
-                                <button type="button" onclick="changeQty('${safeId}', 1); window.updateLiveTotal();">+</button>
-                            </div>
-                        </div>`;
-                    container.insertAdjacentHTML('beforeend', itemHtml);
+
+                if (containerId && containerId.trim() !== "") {
+                    const container = document.getElementById(containerId);
+                    
+                    if (container) {
+                        const safeId = generateSafeId(item);
+                        const itemHtml = `
+                            <div class="item">
+                                <span>${item.name} ${item.color ? `(${item.color})` : ''}</span>
+                                <div class="qty-control">
+                                    <button type="button" onclick="changeQty('${safeId}', -1); window.updateLiveTotal();">-</button>
+                                    <input type="text" 
+                                        id="${safeId}" 
+                                        name="materials[${item.id}]" 
+                                        value="0" 
+                                        min="0"
+                                        oninput="if(this.value < 0) this.value = 0; window.updateLiveTotal();"> 
+                                    <button type="button" onclick="changeQty('${safeId}', 1); window.updateLiveTotal();">+</button>
+                                </div>
+                            </div>`;
+                        container.insertAdjacentHTML('beforeend', itemHtml);
+                    }
+                } else {
+                    console.warn("Skipping item: Unknown or unhandled material_type:", item.material_type, item);
                 }
             });
         }
@@ -4577,76 +4652,6 @@
                 });
             });
         });
-        // new services
-        const newServicesBtn = document.getElementById('new-services-btn');
-
-        newServicesBtn.addEventListener("click", function (event) {
-            event.preventDefault();
-
-            // select values
-            const serviceCoffinType = document.getElementById('services-coffin-type').options[
-                document.getElementById('services-coffin-type').selectedIndex
-            ]?.text || "";
-
-            const servicesFlowerType = document.getElementById('services-flower-type').options[
-                document.getElementById('services-flower-type').selectedIndex
-            ]?.text || "";
-
-            const serviceName = document.getElementById('service-name').value;
-            const servicesprice = document.getElementById('total-services-price').value;
-            const price = document.getElementById('service-price').value;
-            const details = document.getElementById('services-details').value;
-
-            // validation
-            if (!serviceName.trim()) {
-                alert("Please enter service package name.");
-                return;
-            }
-
-            // equipment list
-            let equipmentHTML = "";
-            const equipmentItems = document.querySelectorAll('#dropdownContent .item');
-
-            equipmentItems.forEach(item => {
-                const name = item.querySelector('span').innerText;
-                const qty = parseInt(item.querySelector('input').value) || 0;
-
-                if (qty > 0) {
-                    equipmentHTML += `
-                        <li>
-                            <span class="item-label">${name}:</span>
-                            <span>${qty}</span>
-                        </li>
-                    `;
-                }
-            });
-
-            if (!equipmentHTML) {
-                equipmentHTML = "<li><span class='item-label'>Equipments:</span><span>None selected</span></li>";
-            }
-
-            const finalSummary = `
-                <ul class="item-details">
-                    <li><span class="item-label">Service Package:</span><span>${serviceName}</span></li>
-                    <li><span class="item-label">Coffin Type:</span><span>${serviceCoffinType || "N/A"}</span></li>
-                    <li><span class="item-label">Flower Type:</span><span>${servicesFlowerType || "N/A"}</span></li>
-                    <li><span class="item-label">Price:</span><span>₱${servicesprice || "0"}</span></li>
-                    <li><span class="item-label">Price:</span><span>₱${price || "0"}</span></li>
-
-                    <hr>
-
-                    <li style="font-weight:bold;">Equipments Included:</li>
-                    ${equipmentHTML}
-
-                    <hr>
-
-                    <li><span class="item-label">Details:</span><span>${details || "None"}</span></li>
-                </ul>
-            `;
-
-            summaryContent.innerHTML = finalSummary;
-            confirmModal.classList.remove("hidden");
-        });
         // new materials(done)
         const categorySelect = document.getElementById("new-material-category");
         const materialSelect = document.getElementById("all-materials");
@@ -5292,6 +5297,52 @@
             form.querySelector("textarea") && (form.querySelector("textarea").value = "");
         });
     });
+    // table 
+    async function loadInventoryLogs() {
+        try {
+            const response = await fetch("../backend/stock/get_inventory_log.php");
+            const result = await response.json();
+
+            const tbody = document.querySelector(".inventory-table tbody");
+            tbody.innerHTML = "";
+
+            if (!result.success) return;
+
+            result.data.forEach(row => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${row.id}</td>
+                        <td>${row.item_name}</td>
+                        <td>${row.action}</td>
+                        <td>${row.quantity}</td>
+                        <td>${row.performed_by}</td>
+                        <td>${formatDate(row.created_at)}</td>
+                        <td class="inventory-btn">
+                            <button class="inventory-delete" data-id="${row.id}">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+        } catch (error) {
+            console.error("Error loading inventory logs:", error);
+        }
+    }
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+
+        return date.toLocaleString("en-US", {
+            month: "2-digit",
+            day: "2-digit",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true
+        });
+    }
+    loadInventoryLogs();
     // Account and security
     const adminProfileInput = document.getElementById("adminProfileInput");
     const profileImage = document.getElementById("adminProfileImage");
@@ -5706,5 +5757,142 @@
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
     }
+    // cards
+    // total customers
+    async function loadCustomerGrowth() {
+        try {
+            const response = await fetch("../backend/users/total_customers.php");
+            const data = await response.json();
+            if (data.status === "success") {
+                document.getElementById("total-customers").textContent = Number(data.total_customers).toLocaleString();
+                const growthElement = document.getElementById("customer-growth");
+                if (data.trend === "up") {
+                    growthElement.innerHTML = `
+                        <i class="bi bi-arrow-up-short"></i>
+                        ${data.percentage}%
+                    `;
+                    growthElement.style.color = "green";
+                }
+                else if (data.trend === "down") {
+                    growthElement.innerHTML = `
+                        <i class="bi bi-arrow-down-short"></i>
+                        ${Math.abs(data.percentage)}%
+                    `;
+                    growthElement.style.color = "red";
+                }
+                else {
+                    growthElement.innerHTML = `
+                        <i class="bi bi-dash"></i>
+                        0%
+                    `;
+                    growthElement.style.color = "gray";
+                }
+            } else {
+                console.error(data.message);
+            }
+        } catch (error) {
+            console.error("Fetch Error:", error);
+        }
+    }
+    loadCustomerGrowth();
+    // customer origin
+    async function loadCustomerOriginChart() {
+
+        try {
+
+            const response = await fetch("../backend/users/customer_origin.php");
+            const result = await response.json();
+            if (!result.labels || !result.data) {
+                console.error("Invalid chart data");
+                return;
+            }
+            const ctx = document
+                .getElementById("new-customer-origin")
+                .getContext("2d");
+
+            new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: result.labels,
+                    datasets: [{
+                        data: result.data,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+                        legend: {
+                            position: "bottom"
+                        },
+                        title: {
+                            display: true,
+                            text: "New Customer Origin (Last 30 Days)"
+                        }
+                    }
+                }
+            });
+
+        } catch (error) {
+
+            console.error("Chart Error:", error);
+        }
+    }
+
+    loadCustomerOriginChart();
+    // total staff
+    async function loadTotalStaff() {
+        try {
+            const response = await fetch("../backend/staff/total_staff.php");
+            const data = await response.json();
+            if (data.status === "success") {
+                document.getElementById("total-staff").textContent =
+                    data.total_staff;
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+    loadTotalStaff();
+    // staff count chart
+    async function loadStaffChart() {
+        try {
+            const response = await fetch("../backend/staff/staff_count.php");
+            const result = await response.json();
+
+            if (result.status !== "success") return;
+
+            const ctx = document
+                .getElementById("staff-count")
+                .getContext("2d");
+
+            new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: result.labels,
+                    datasets: [{
+                        data: result.counts
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "bottom"
+                        }
+                    }
+                }
+            });
+
+        } catch (error) {
+            console.error("Failed to load staff chart:", error);
+        }
+    }
+
+    loadStaffChart();
+
 </script>
 </html>
