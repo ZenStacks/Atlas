@@ -46,6 +46,7 @@ Database
 Additional Tools
 - Composer
 - Xampp
+
 PROJECT STRUCTURE
 ├── admin/ # Administrator panel amd staff
 ├── assets/ # Images, CSS, and other assets
@@ -55,14 +56,17 @@ PROJECT STRUCTURE
 ├── login.php # Login page
 ├── composer.json # Composer dependencies
 ├── composer.lock └── .gitignore
+
 INSTALLATION
 Prerequisites
 - PHP 8.0 or later
 - MySQL
 - Composer
 - XAMPP
+
 Setup
 -
+
 System Modules
 - Authentication Module
 - Customer Management Module
@@ -72,6 +76,7 @@ System Modules
 - Order Management Module
 - Location and Mapping Module
 - Chat and Messaging Module
+
 CURRENT DEVELOPMET STATUS
 Completed
 - User Authentication
@@ -81,9 +86,12 @@ Completed
 - Order Processing
 - Revenue Dashboard
 - Google Maps Integration
+
 In progress
 - Preferences or Handling orders module
+
 CONTRIBUTORS
 Developed as part of a Funeral Management System project.
+
 LICENSE
 This project is intended for educational and academic purposes.
