@@ -1,7 +1,7 @@
 FUNERAL MANAGEMENT SYSTEM
 
 OVERVIEW
-The Memorial Care Management System is a web-based application designed to streamline the management of funeral services, 
+- The Memorial Care Management System is a web-based application designed to streamline the management of funeral services, 
 inventory, customer transactions, and administrative operations. The system helps funeral homes efficiently manage products, 
 services, customer records, orders, payments, and inventory through a centralized platform.
 
