@@ -48,16 +48,17 @@ Additional Tools
 - Xampp
 
 PROJECT STRUCTURE
-├── admin/ # Administrator panel amd staff
-├── assets/ # Images, CSS, and other assets
-├── backend/ # Backend logic and API endpoints
-├── users/ # Customer interface
-├── index.php # Home page
-├── login.php # Login page
-├── composer.json # Composer dependencies
-├── composer.lock └── .gitignore
+- ├── admin/ # Administrator panel amd staff
+- ├── assets/ # Images, CSS, and other assets
+- ├── backend/ # Backend logic and API endpoints
+- ├── users/ # Customer interface
+- ├── index.php # Home page
+- ├── login.php # Login page
+- ├── composer.json # Composer dependencies
+- ├── composer.lock └── .gitignore
 
 INSTALLATION
+
 Prerequisites
 - PHP 8.0 or later
 - MySQL
@@ -78,6 +79,7 @@ System Modules
 - Chat and Messaging Module
 
 CURRENT DEVELOPMET STATUS
+
 Completed
 - User Authentication
 - Inventory Management
@@ -91,7 +93,7 @@ In progress
 - Preferences or Handling orders module
 
 CONTRIBUTORS
-Developed as part of a Funeral Management System project.
+- Developed as part of a Funeral Management System project.
 
 LICENSE
-This project is intended for educational and academic purposes.
+- This project is intended for educational and academic purposes.
