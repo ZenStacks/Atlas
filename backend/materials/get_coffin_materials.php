@@ -30,17 +30,6 @@ function getDistinctMaterialNames($conn) {
     return $materials;
 }
 
-function getDistinctSuppliers($conn) {
-    $suppliers = [];
-    $query = "SELECT DISTINCT supplier FROM stock_transactions WHERE supplier IS NOT NULL AND supplier != '' ORDER BY supplier ASC";
-    $result = $conn->query($query);
-    if ($result) {
-        while ($row = $result->fetch_assoc()) {
-            $suppliers[] = $row['supplier'];
-        }
-    }
-    return $suppliers;
-}
 $materialTypes = getEnumValues($conn, "coffin_materials", "material_type");
 $coffinUnits = getEnumValues($conn, "unit_measurements", "unit_coffin");
 if (empty($coffinUnits)) {
@@ -50,7 +39,6 @@ if (empty($coffinUnits)) {
 $response = [
     "material_type" => $materialTypes,
     "material_name" => getDistinctMaterialNames($conn),
-    "supplier"=> getDistinctSuppliers($conn),
     "unit"=> $coffinUnits
 ];
 

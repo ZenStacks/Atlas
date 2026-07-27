@@ -17,7 +17,22 @@
     <div class="main-container">
         <div class="form-container" id="form-container">
             <div class="container">
-                <div class="login-content">
+                <div class="admin-security">
+                    <div class="security-header">
+                        <i class="bi bi-shield-lock-fill security-icon"></i>
+                        <h2>Administrator Verification</h2>
+                        <p>Enter the administrator access key to continue.</p>
+                    </div>
+                    <div class="verification-group">
+                        <label for="admin-key"><i class="bi bi-key-fill"></i> Access Key</label>
+                        <input type="password" id="admin-key" name="admin_key" placeholder="Enter administrator access key" autocomplete="off" required>
+                    </div>
+                    <div class="security-actions">
+                        <button type="button" class="cancel-btn" id="cancel-security-btn">Cancel</button>
+                        <button type="submit" class="verify-btn" id="verify-security-btn">Verify Access</button>
+                    </div>
+                </div>
+                <div class="login-content hidden">
                     <form method="POST" class="login-form">
                         <h2 class="form-title">Admin Login</h2>
                         <div class="input-group">
@@ -33,11 +48,8 @@
                             <input type="password" name="password" id="login-pass" required>
                             <i class="bi bi-eye password-toggle" id="eye"></i>
                         </div>
-                        
                         <a href="#" class="forgot-password-link">Forgot Password?</a>
-                        
                         <button type="submit" class="login-submit-btn">Login</button>
-
                         <div class="social-icons">
                             <div id="g_id_onload"
                                 data-client_id="415782306788-lgodseosmgiuop798cocnnd5al7g247n.apps.googleusercontent.com"
@@ -63,6 +75,65 @@
         <dotlottie-player src="../assets/loader/9e806b4e-1180-11ee-89a7-4f2a24dd42e5.json" background="transparent" speed="1" style="width: 300px; height: 300px;" loop autoplay></dotlottie-player>
     </div>
 <script>
+    const securityBox = document.querySelector(".admin-security");
+    const loginContent = document.querySelector(".login-content");
+    const verifyBtn = document.getElementById("verify-security-btn");
+    const cancelBtn = document.getElementById("cancel-security-btn");
+    const adminKeyInput = document.getElementById("admin-key");
+    verifyBtn.addEventListener("click", async () => {
+        const adminKey = adminKeyInput.value.trim();
+        if(adminKey === ""){
+            Swal.fire({
+                icon:"warning",
+                title:"Missing Access Key",
+                text:"Please enter the administrator access key."
+            });
+            return;
+        }
+        loadingOverlay.classList.add("show");
+        try{
+            const formData = new FormData();
+            formData.append("admin_key", adminKey);
+            const response = await fetch("../backend/admin/verify_admin_key.php",{
+                method:"POST",
+                body:formData
+            });
+            const result = await response.json();
+            loadingOverlay.classList.remove("show");
+            if(result.status === "success"){
+                Swal.fire({
+                    icon:"success",
+                    title:"Access Granted",
+                    text:result.message,
+                    timer:1200,
+                    showConfirmButton:false
+                });
+                setTimeout(()=>{
+                    securityBox.classList.add("hidden");
+                    loginContent.classList.remove("hidden");
+                },1200);
+            }else{
+                Swal.fire({
+                    icon:"error",
+                    title:"Access Denied",
+                    text:result.message
+                });
+                adminKeyInput.value="";
+                adminKeyInput.focus();
+            }
+        }catch(error){
+            loadingOverlay.classList.remove("show");
+            console.error(error);
+            Swal.fire({
+                icon:"error",
+                title:"Server Error",
+                text:"Unable to verify the administrator access key."
+            });
+        }
+    });
+    cancelBtn.addEventListener("click",()=>{
+        window.location.href="../login.php";
+    });
     //password eye toggle
     const password = document.getElementById('login-pass');
     const eye = document.getElementById('eye');
@@ -75,7 +146,6 @@
             eye.classList.toggle("bi-eye-slash");
         });
     }
-    //slide animation
     const container = document.getElementById('form-container');
     const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
     const loginForm = document.querySelector('.login-form');

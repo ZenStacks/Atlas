@@ -19,7 +19,7 @@ try {
     $flower_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
     if ($flower_id > 0) {
-        $stmt = $conn->prepare("SELECT id, flower_name, current_stock, flower_color, details FROM flowers WHERE id = ? LIMIT 1");
+        $stmt = $conn->prepare("SELECT id, flower_type, current_stock, cost, details FROM flowers WHERE id = ? LIMIT 1");
         if (!$stmt) {
             throw new Exception($conn->error);
         }
@@ -35,16 +35,16 @@ try {
         
         $data = [
             "id" => (int)$row["id"],
-            "item_name" => $row["flower_name"],
+            "item_name" => $row["flower_type"],
             "current_stock" => (int)$row["current_stock"],
-            "color" => $row["flower_color"] ?? "",
+            "cost" => (float)$row["cost"],
             "notes" => $row["details"] ?? ""
         ];
         
         $stmt->close();
     } else {
         
-        $query = "SELECT id, flower_name, current_stock, flower_color, details FROM flowers ORDER BY flower_name ASC";
+        $query = "SELECT id, flower_type, current_stock, cost, details FROM flowers ORDER BY flower_type ASC";
         $result = $conn->query($query);
         
         if (!$result) {
@@ -55,9 +55,9 @@ try {
         while ($row = $result->fetch_assoc()) {
             $data[] = [
                 "id" => (int)$row["id"],
-                "item_name" => $row["flower_name"],
+                "item_name" => $row["flower_type"],
                 "current_stock" => (int)$row["current_stock"],
-                "color" => $row["flower_color"] ?? "",
+                "cost" => (float)$row["cost"],
                 "notes" => $row["details"] ?? ""
             ];
         }

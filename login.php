@@ -17,7 +17,29 @@
     <div class="main-container">
         <div class="form-container" id="form-container">
             <div class="container">
-                <div class="login-content">
+                <div class="user-confirmation">
+                    <h2 class="confirmation-title">Select Your Account Type</h2>
+                    <p class="confirmation-text">
+                        Please choose how you would like to sign in.
+                    </p>
+                    <div class="confirmation-buttons">
+                        <a href="#"><button type="button" class="role-btn customer-btn">
+                            <i class="bi bi-person"></i>
+                            Customer
+                        </button></a>
+
+                        <a href="admin/staff/employerLogin.php"><button type="button" class="role-btn employee-btn">
+                            <i class="bi bi-briefcase"></i>
+                            Employee
+                        </button></a>
+
+                        <a href="admin/adminLogin.php"><button type="button" class="role-btn admin-btn">
+                            <i class="bi bi-shield-lock"></i>
+                            Administrator
+                        </button></a>
+                    </div>
+                </div>
+                <div class="login-content hidden">
                     <form action="../backend/login.php" method="POST" class="login-form">
                         <h2 class="form-title">Login</h2>
                         <div class="input-group">
@@ -37,8 +59,7 @@
                         <a href="#" class="forgot-password-link">Forgot Password?</a>
                         
                         <button type="submit" class="login-submit-btn">Login</button>
-
-                        <p class="social-text">or login with social platforms</p>
+                        <p class="social-text">Don't have an account? <a href="#" id="signup-btn">Sign Up</a> or login with social platforms</p>
                         <div class="social-icons">
                             <div id="g_id_onload"
                                 data-client_id="415782306788-lgodseosmgiuop798cocnnd5al7g247n.apps.googleusercontent.com"
@@ -57,7 +78,7 @@
                         </div>
                     </form>
                 </div>
-                <div class="registration-content">
+                <div class="registration-content hidden" >
                     <form action="../backend/register.php" method="POST" class="registration-form">
                         <h2 class="form-title">Registration</h2>
                         <div class="input-group">
@@ -82,28 +103,12 @@
                             </label>
                             <input type="password" name="confirmpass" id="confirmpass-field" required>
                         </div>
-                        <button type="submit" class="register-submit-btn">Sign Up</button>
+                        <button type="submit" class="register-submit-btn">Register</button>
 
-                        <p class="social-text">or login with social platforms</p>
-                        <div class="social-icons">
-                            <div id="g_id_onload"
-                                data-client_id="415782306788-lgodseosmgiuop798cocnnd5al7g247n.apps.googleusercontent.com"
-                                data-login_uri="http://localhost/atlas/login.php"
-                                data-auto_prompt="false">
-                            </div>
-
-                            <div class="g_id_signin" 
-                                data-type="icon"
-                                data-size="large"
-                                data-theme="outline"
-                                data-text="outline"
-                                data-shape="circle"
-                                data-logo_alignment="center">
-                            </div>
-                        </div>
+                        <p class="social-text">Already have an account? <a href="#" id="login-btn">Login.</a></p>
                     </form>
                 </div>
-                <div class="blue-cover-panel" id="blue-cover-panel">
+                <!-- <div class="blue-cover-panel" id="blue-cover-panel">
                     <div class="welcome-section welcome-register-prompt">
                         <h2>Hello, Friend!</h2>
                         <p>Register to manage arrangements, receive updates, and honor your loved ones with care.</p>
@@ -115,12 +120,11 @@
                         <p>Log in to access your account and continue planning with care and support.</p>
                         <button class="login-prompt-btn" id="to-register-btn">Register</button>
                     </div>
-                    <div class="tear-drop" id="tearDrop"></div>
                     <div class="mobile-actions">
                         <span id="mobile-login-trigger"></span>
                         <span id="mobile-register-trigger"></span>
                     </div>
-                </div>  
+                </div>   -->
             </div>
         </div>
         <div class="forgot-password-modal">
@@ -146,48 +150,69 @@
             eye.classList.toggle("bi-eye-slash");
         });
     }
+    const loginContainer = document.querySelector(".login-content");
+    const registerContainer = document.querySelector(".registration-content");
+
+    const loginForm = document.querySelector(".login-form");
+    const registerForm = document.querySelector(".register-form");
+
+    document.getElementById("signup-btn").addEventListener("click", ()=>{
+        registerContainer.classList.remove("hidden");
+        loginContainer.classList.add("hidden");
+    });
+    document.getElementById("login-btn").addEventListener("click", ()=>{
+        loginContainer.classList.remove("hidden");
+        registerContainer.classList.add("hidden");
+    });
+    const userContainer = document.querySelector(".user-confirmation");
+    document.querySelector(".customer-btn").addEventListener("click", ()=>{
+        loginContainer.classList.remove("hidden");
+        registerContainer.classList.add("hidden");
+        userContainer.classList.add("hidden");
+    })
+    
     //slide animation
-    const container = document.getElementById('form-container');
-    const toLoginBtn = document.getElementById('to-login-btn');
-    const toRegisterBtn = document.getElementById('to-register-btn');
-    const panel = document.querySelector('.blue-cover-panel');
-    const registerText = document.querySelector('.welcome-register-prompt');
-    const loginText = document.querySelector('.welcome-login-prompt');
-    const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
-    const loginForm = document.querySelector('.login-form');
-    const registerForm = document.querySelector('.registration-form');
+    // const container = document.getElementById('form-container');
+    // const toLoginBtn = document.getElementById('to-login-btn');
+    // const toRegisterBtn = document.getElementById('to-register-btn');
+    // const panel = document.querySelector('.blue-cover-panel');
+    // const registerText = document.querySelector('.welcome-register-prompt');
+    // const loginText = document.querySelector('.welcome-login-prompt');
+    // const mobileToggleBtn = document.getElementById('mobile-toggle-btn');
+    // const loginForm = document.querySelector('.login-form');
+    // const registerForm = document.querySelector('.registration-form');
 
-        function slideToLogin() {
-            registerForm.reset();
-            panel.style.width = '100%';
-            panel.style.left = '0';
-            registerText.style.transform = 'translateX(-100%)';
-            registerText.style.opacity = '0';
+    //     function slideToLogin() {
+    //         registerForm.reset();
+    //         panel.style.width = '100%';
+    //         panel.style.left = '0';
+    //         registerText.style.transform = 'translateX(-100%)';
+    //         registerText.style.opacity = '0';
 
-            loginText.style.transform = 'translateX(0)';
-            loginText.style.opacity = '1';
-            setTimeout(() => {
-                panel.style.width = '50%';
-                panel.style.left = '50%';
-            }, 600);
-        }
+    //         loginText.style.transform = 'translateX(0)';
+    //         loginText.style.opacity = '1';
+    //         setTimeout(() => {
+    //             panel.style.width = '50%';
+    //             panel.style.left = '50%';
+    //         }, 600);
+    //     }
 
-        function slideToRegister() {
-            loginForm.reset();
-            panel.style.width = '100%';
-            panel.style.left = '0';
-            loginText.style.transform = 'translateX(100%)';
-            loginText.style.opacity = '0';
+    //     function slideToRegister() {
+    //         loginForm.reset();
+    //         panel.style.width = '100%';
+    //         panel.style.left = '0';
+    //         loginText.style.transform = 'translateX(100%)';
+    //         loginText.style.opacity = '0';
 
-            registerText.style.transform = 'translateX(0)';
-            registerText.style.opacity = '1';
-            setTimeout(() => {
-                panel.style.width = '50%';
-                panel.style.left = '0';
-            }, 600);
-        }
-        toLoginBtn.addEventListener('click', slideToLogin);
-        toRegisterBtn.addEventListener('click', slideToRegister);
+    //         registerText.style.transform = 'translateX(0)';
+    //         registerText.style.opacity = '1';
+    //         setTimeout(() => {
+    //             panel.style.width = '50%';
+    //             panel.style.left = '0';
+    //         }, 600);
+    //     }
+    //     toLoginBtn.addEventListener('click', slideToLogin);
+    //     toRegisterBtn.addEventListener('click', slideToRegister);
     
     //forgot password modal
     const forgotPasswordLink = document.querySelector('.forgot-password-link');

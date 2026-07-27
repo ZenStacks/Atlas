@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - Alfonso Somo Funeral Homes</title>
+    <link rel="icon" type="image/png" href="../assets/img/somo_logo.png">
+    <link rel="stylesheet" href="../assets/style/faq.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="faq-container">
+    <div class="header">
+        <img src="../assets/img/somo_logo.png" alt="Logo">
+        <h1>Frequently Asked Questions</h1>
+        <p>Find answers to common questions about our funeral services.</p>
+    </div>
+
+    <div class="faq-list">
+
+        <div class="faq-item">
+            <button class="faq-question">
+                What funeral packages do you offer?
+                <i class="bi bi-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+                <p>
+                    We offer Standard and Premium funeral packages. Families may also request customized funeral arrangements based on their preferences and budget.
+                </p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-question">
+                Are your services available 24/7?
+                <i class="bi bi-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+                <p>
+                    Yes. Our staff is available 24 hours a day, 7 days a week to assist families during their time of need.
+                </p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-question">
+                Can I customize a funeral package?
+                <i class="bi bi-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+                <p>
+                    Yes. We can customize funeral services, floral arrangements, and other details according to your preferences and budget.
+                </p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-question">
+                Do you provide free funeral services?
+                <i class="bi bi-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+                <p>
+                    We provide free funeral services for unbaptized infants and young children. Please contact our office for assistance and requirements.
+                </p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-question">
+                What payment methods do you accept?
+                <i class="bi bi-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+                <p>
+                    We accept cash payments and other available payment options listed on our Payment page.
+                </p>
+            </div>
+        </div>
+
+        <div class="faq-item">
+            <button class="faq-question">
+                How can I contact Alfonso Somo Funeral Homes?
+                <i class="bi bi-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+                <p>
+                    You may call us at +63 919 273 4055 or send us a message through our Contact Us page.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <a href="../index.php" class="back-btn">
+        <i class="bi bi-arrow-left"></i> Back to Home
+    </a>
+</div>
+<div class="ending-container">
+    <div class="logo-container">
+        <div class="logo">
+            <img src="../assets/img/somo_logo.png" alt="Alfonso Somo Logo">
+            <h1>Alfonso Somo</h1>
+        </div>
+        <div class="availability">
+            <span>Funeral Services</span>
+            <div class="vertical-line"></div>
+            <span>24/7 Availability</span>
+        </div>
+    </div>
+    <div class="ending-details">
+        <p>Alfonso Somo Funeral Homes is a family-owned funeral service provider dedicated to serving families with compassion, 
+            dignity, and care. With years of experience in helping families during difficult times, we are committed to providing 
+            respectful and affordable funeral services tailored to your needs.
+        </p>
+        <p>Your can read our <strong>Privacy Policy</strong> and <strong>Terms of Use</strong> for more information on how we handle your data and the terms of our services. If you have any questions or need assistance, please don't hesitate to contact us.</p>
+    </div>
+    <div class="ending-button">
+        <button onclick="window.location.href='tel:+639192734055'">
+            <i class="bi bi-telephone-fill"></i>
+            CALL +63 919 273 4055
+        </button>
+        <a href="users/contact_us.php"><button><i class="bi bi-envelope-fill"></i> MESSAGE US</button></a>
+    </div>
+</div> 
+<div class="footer">
+    <div class="footer-content">
+        <div class="services">
+            <h3>Products</h3>
+            <p>Traditional</p>
+            <p>Plans</p>
+        </div>
+        <div class="about-us">
+            <h3>About Us</h3>
+            <p>Process</p>
+            <p>Why Us?</p>
+        </div>
+        <div class="legal">
+            <h3>Legal</h3>
+            <p>Terms of use</p>
+            <p>Privacy Policy</p>
+        </div>
+        <div class="resources">
+            <h3>Resources</h3>
+            <a href="profile.php?tab=profile-information-section"><p>Manage Account</p></a>
+            <a href="contact_us.php"><p>Contact Us</p></a>
+            <a href="payment.php"><p>Payment</p></a>
+            <a href="faq.html"><p>FAQ</p></a>
+        </div>
+        <div class="locations">
+            <h3>Our Location</h3>
+            <a href="admin/map.php"><p>Brgy. Naslo, Maasin, Iloilo Philippines</p></a>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.faq-question').forEach(question => {
+    question.addEventListener('click', () => {
+        question.parentElement.classList.toggle('active');
+    });
+});
+</script>
+
+</body>
+</html>

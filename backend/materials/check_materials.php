@@ -16,7 +16,6 @@ $isInterior = $data['isInterior'] ?? false;
 
 $allowedTables = [
     "coffin_materials",
-    "flower_materials",
     "equipment_materials",
     "interior_lining_materials"
 ];
@@ -35,13 +34,11 @@ if (empty($table) || empty($item_name) || empty($material_type)) {
 }
 $columnMap = [
     "coffin_materials" => "material_name",
-    "flower_materials" => "item_name",
     "equipment_materials" => "item_name",
     "interior_lining_materials" => "item_name"
 ];
 $typeMap = [
     "coffin_materials" => "material_type",
-    "flower_materials" => "material_type",
     "equipment_materials" => "equipment_type",
     "interior_lining_materials" => "interior_type"
 ];

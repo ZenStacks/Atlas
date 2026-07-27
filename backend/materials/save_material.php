@@ -13,8 +13,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     $stock = intval($_POST["stock"] ?? 0);
     $cost = floatval($_POST["cost"] ?? 0);
-    $rental_rate = floatval($_POST["rental_rate"] ?? 0);
-    $supplier = htmlspecialchars($_POST["supplier"] ?? "N/A", ENT_QUOTES, 'UTF-8');
     $notes = htmlspecialchars($_POST["notes"] ?? "None", ENT_QUOTES, 'UTF-8');
 
     $pattern = htmlspecialchars($_POST["pattern"] ?? "", ENT_QUOTES, 'UTF-8');
@@ -29,7 +27,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 
     $converted_quantity = $stock * $unit_multiplier;
-
     try {
 
         switch ($category) {
@@ -39,24 +36,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     VALUES (?, ?, ?, ?, ?, ?, ?)");
                 $stmt->bind_param("sssiids", $material_type, $item_name, $unit, $unit_multiplier, $converted_quantity, $cost, $notes);
                 break;
-            case "new-flower-materials":
-                $material_category = "flower_materials";
-                $stmt = $conn->prepare("INSERT INTO flower_materials(material_type, item_name, unit, unit_multiplier, current_stock, cost_per_unit, supplier, details)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("sssiidss", $material_type, $item_name, $unit, $unit_multiplier, $converted_quantity, $cost, $supplier, $notes);
-                break;
             case "new-equipment-materials":
                 $material_category = "equipment_materials";
-                $stmt = $conn->prepare("INSERT INTO equipment_materials(equipment_type, item_name, unit, unit_multiplier, current_stock, rent_per_day, cost_per_unit, details)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("sssiidds", $material_type, $item_name, $unit, $unit_multiplier, $converted_quantity, $rental_rate, $cost, $notes);
+                $stmt = $conn->prepare("INSERT INTO equipment_materials(equipment_type, item_name, unit, unit_multiplier,stock, current_stock, details)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssiiis", $material_type, $item_name, $unit, $unit_multiplier, $converted_quantity, $converted_quantity, $notes);
                 break;
             case "new-interior-materials":
                 $material_category = "interior_lining_materials";
                 $stmt = $conn->prepare("INSERT INTO interior_lining_materials(interior_type, item_name, color, pattern,  unit, unit_multiplier, current_stock, cost_per_unit, thickness, softness_level, details)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
-                $stmt->bind_param("sssssidssss", $material_type, $item_name, $color, $pattern, $unit, $unit_multiplier, $converted_quantity, $cost, $thickness, $softness, $notes);
+                $stmt->bind_param("sssssiidsss", $material_type, $item_name, $color, $pattern, $unit, $unit_multiplier, $converted_quantity, $cost, $thickness, $softness, $notes);
                 break;
             default:
                 echo json_encode([
@@ -77,11 +68,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 INSERT INTO stock_transactions(
                     performed_by, material_id, material_category, transaction_type, action,
                     quantity, unit, unit_multiplier, converted_quantity, 
-                    status, supplier, notes, created_at
-                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
+                    status, notes, created_at
+                ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
             
             $transaction->bind_param(
-                "sissssiisiis",
+                "sisssisiiss",
                 $performed_by, 
                 $material_id, 
                 $material_category, 
@@ -91,8 +82,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $unit, 
                 $unit_multiplier, 
                 $converted_quantity, 
-                $status, 
-                $supplier, 
+                $status,
                 $notes
             );
             

@@ -12,29 +12,21 @@ while ($row = mysqli_fetch_assoc($result)) {
             $table = 'coffin_materials';
             $nameColumn = 'material_name';
             break;
-
-        case 'flower_materials':
-            $table = 'flower_materials';
-            $nameColumn = 'item_name';
-            break;
-
         case 'equipment_materials':
             $table = 'equipment_materials';
             $nameColumn = 'item_name';
             break;
-
         case 'interior_lining_materials':
             $table = 'interior_lining_materials';
             $nameColumn = 'item_name';
             break;
-
         case 'coffins':
             $table = 'coffins';
             $nameColumn = 'item_name';
             break;
         case 'flowers':
             $table = 'flowers';
-            $nameColumn = 'flower_name';
+            $nameColumn = 'flower_type';
             break;
         case 'imported_coffins':
             $table = 'imported_coffins';

@@ -41,16 +41,20 @@ if ($action === "generate_otp") {
     }
     $mail = new PHPMailer(true);
 
-    try {   
+    try {
+        $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
+        $dotenv->load();
+        $smtpPass = $_ENV['SMTP_PASS'];
+        
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'lopezsherylgracefernandez@gmail.com';
-        $mail->Password = 'bssh mndg suqw nnan';
+        $mail->Username = 'alfonsosomo@gmail.com';
+        $mail->Password = $smtpPass;
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
-        $mail->setFrom('lopezsherylgracefernandez@gmail.com', 'Security Team');
+        $mail->setFrom('alfonsosomo@gmail.com', 'Security Team');
         $mail->addAddress($targetEmail);
         $mail->isHTML(true);
         $mail->Subject = 'Your Verification Security Passcode';

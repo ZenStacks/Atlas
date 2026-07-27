@@ -642,14 +642,15 @@ input:checked + .slider:before{
     color: #2c3e50;
 }
 .mark-all-read{
-    padding: 8px 14px;
     border: none;
     background: #2c3e50;
     color: white;
-    border-radius: 8px;
     cursor: pointer;
     font-size: 13px;
     transition: .3s;
+    margin-right: 10px;
+    padding: 10px 20px;
+    border-radius: 6px;
 }
 .mark-all-read:hover{
     background: #1f2d3a;
@@ -719,7 +720,7 @@ input:checked + .slider:before{
     border-radius: 50%;
     margin-left: auto;
 }
-#service-preferences{
+#service-preferences, #my-preferences{
     margin-top: 60px;
 }
 .user-preferences{
@@ -819,7 +820,7 @@ input:checked + .slider:before{
     font-weight: 700;
     color: #111827;
 }
-#confirm-services{
+#confirm-services, #delete-services{
     padding: 12px 20px;
     background: #2c3e50;
     color: white;
@@ -833,4 +834,91 @@ input:checked + .slider:before{
 #confirm-services:hover{
     background: #1f2d3a;
     transform: translateY(-2px);
+}
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+/* my preferences */
+.preferences-list{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    overflow-y: auto;
+    height: 500px;
+}
+
+.preference-card{
+    background:#fff;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.08);
+}
+
+.card-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.card-top h3{
+    margin:0;
+}
+
+.status{
+    padding:6px 14px;
+    border-radius:30px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.pending{
+    background:#fff3cd;
+    color:#856404;
+}
+.confirmed{
+    background:rgb(236, 187, 187);
+    color:rgb(131, 55, 8);
+}
+.approved{
+    background:#d4edda;
+    color:#155724;
+}
+
+.completed{
+    background:#d1ecf1;
+    color:#0c5460;
+}
+
+.info-row{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid #eee;
+}
+button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.pay-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.pay-btn:hover {
+    background-color: #218838;
+    transform: scale(1.02);
+}
+.disabled-btn {
+    background-color: #e0e0e0;
+    color: #a0a0a0;
+    cursor: not-allowed;
+    border: 1px solid #ccc;
 }

@@ -28,23 +28,9 @@ function getInteriorMaterials($conn) {
     }
     return $data;
 }
-function getFlowerMaterials($conn) {
-    $data = [];
-    $query = "SELECT id, item_name AS name, material_type, NULL AS color, current_stock, cost_per_unit, 'flower_materials' AS category 
-              FROM flower_materials WHERE item_name IS NOT NULL AND item_name != ''";
-              
-    $result = $conn->query($query);
-    if ($result) {
-        while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
-        }
-    }
-    return $data;
-}
 $materials = array_merge(
     getCoffinMaterials($conn),
-    getInteriorMaterials($conn),
-    getFlowerMaterials($conn)
+    getInteriorMaterials($conn)
 );
 echo json_encode([
     "success" => true,

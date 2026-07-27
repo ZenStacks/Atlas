@@ -111,7 +111,7 @@ try {
             }
             $fetched_material_name = $raw_material["material_name"];
             $current_material_stock = (int)$raw_material["current_stock"];
-            $material_unit = !empty($raw_material["unit"]) ? trim($raw_material["unit"]) : "Pcs"; 
+            $material_unit = !empty($raw_material["unit"]) ? trim($raw_material["unit"]) : "Piece"; 
             if ($current_material_stock < $total_needed) {
                 $conn->rollback();
                 echo json_encode([
@@ -134,8 +134,8 @@ try {
             }
             $updateMatStock->close();
             $matTransaction = $conn->prepare("
-                INSERT INTO stock_transactions (performed_by, material_id, material_category, transaction_type, action, quantity, unit, unit_multiplier, converted_quantity, status, supplier, notes, created_at)
-                VALUES (?, ?, ?, 'OUT', 'construct', ?, ?, 1, ?, 'completed', '', ?, NOW())");
+                INSERT INTO stock_transactions (performed_by, material_id, material_category, transaction_type, action, quantity, unit, unit_multiplier, converted_quantity, status, notes, created_at)
+                VALUES (?, ?, ?, 'OUT', 'construct', ?, ?, 1, ?, 'completed', ?, NOW())");
             if (!$matTransaction) {
                 throw new Exception($conn->error);
             }
@@ -196,7 +196,7 @@ try {
     $session_user = $_SESSION['username'] ?? 'System Admin';
 
     $transaction = $conn->prepare("INSERT INTO stock_transactions (performed_by, material_id, material_category, transaction_type, action, quantity, unit, unit_multiplier, converted_quantity, 
-    status, supplier, notes, created_at) VALUES (?, ?, ?, ?, 'add', ?, 'Pcs', 1, ?, ?, '', ?, NOW() )");
+    status, notes, created_at) VALUES (?, ?, ?, ?, 'add', ?, 'Pcs', 1, ?, ?, ?, NOW() )");
 
     if (!$transaction) {
         throw new Exception($conn->error);

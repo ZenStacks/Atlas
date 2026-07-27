@@ -241,7 +241,16 @@ async function sendMessage() {
         console.error("Transmission failed:", error);
     }
 }
-
+window.addEventListener("DOMContentLoaded", () => {
+    const intent = localStorage.getItem('admin_chat_intent');
+    
+    if (intent) {
+        messageInput.value = intent;
+        adjustTextareaHeight();
+        localStorage.removeItem('admin_chat_intent');
+        messageInput.focus();
+    }
+});
 sendBtn.addEventListener("click", sendMessage);
 messageInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter" && !e.shiftKey) {

@@ -53,28 +53,13 @@ function getDistinctMaterialNames($conn) {
     }
     return $materials;
 }
-
-function getDistinctSuppliers($conn) {
-    $suppliers = [];
-    $query = "SELECT DISTINCT supplier FROM stock_transactions WHERE supplier IS NOT NULL AND supplier != '' ORDER BY supplier ASC";
-    $result = $conn->query($query);
-    if ($result) {
-        while ($row = $result->fetch_assoc()) {
-            $suppliers[] = $row['supplier'];
-        }
-        $result->free();
-    }
-    return $suppliers;
-}
 $equipmentTypes = getEnumValues($conn, "equipment_type");
 $itemNames = getDistinctMaterialNames($conn);
-$suppliers = getDistinctSuppliers($conn);
 $measurementUnits = getUnitOfMeasurement($conn);
 
 $response = [
     "equipment_type" => $equipmentTypes,
     "item_name" => $itemNames,
-    "supplier" => $suppliers,
     "unit_of_measurement" => $measurementUnits
 ];
 $jsonOutput = json_encode($response);
@@ -82,7 +67,6 @@ if ($jsonOutput === false) {
     echo json_encode([
         "equipment_type" => [],
         "item_name" => [],
-        "supplier" => [],
         "unit_of_measurement" => ["pc", "set", "unit"],
         "error" => json_last_error_msg()
     ]);

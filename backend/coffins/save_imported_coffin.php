@@ -15,13 +15,16 @@ try {
     $color = htmlspecialchars(trim($_POST["color"] ?? ""), ENT_QUOTES, 'UTF-8');
     $initial_stock = $_POST["initial_stock"] ?? "";
     $cost = $_POST["cost"] ?? "";
+    $downpayment = $_POST["downpayment"] ?? "";
+    $retail = $_POST["retail_price"] ?? "";
+    $lifeplan = $_POST["lifeplan_max_months"] ?? "";
+    $atneed = $_POST["atneed_max_months"] ?? "";
     $supplier = htmlspecialchars(trim($_POST["supplier"] ?? ""), ENT_QUOTES, 'UTF-8');
     $coffin_type = htmlspecialchars(trim($_POST["coffin_type"] ?? ""), ENT_QUOTES, 'UTF-8');
     $tax = htmlspecialchars(trim($_POST["tax"] ?? ""), ENT_QUOTES, 'UTF-8');
-    $restock_date = $_POST["restock_date"] ?? null;
     $details = htmlspecialchars(trim($_POST["details"] ?? ""), ENT_QUOTES, 'UTF-8');
 
-    if ($item_name === "" || $color === "" || $supplier === "" || $coffin_type === "" || $tax === "" || $initial_stock === "" || $cost === "") {
+    if ($item_name === "" || $color === "" || $supplier === "" || $downpayment === "" || $retail === "" || $lifeplan === "" || $atneed === "" || $coffin_type === "" || $tax === "" || $initial_stock === "" || $cost === "") {
         echo json_encode([
             "success" => false,
             "message" => "Please fill in all required fields"
@@ -59,7 +62,7 @@ try {
     }
 
     $size = "Standard";
-    $reserved_stock = 3;
+    $reserved_stock = 1;
     $origin = "imported";
 
     $current_stock = $initial_stock - $reserved_stock;
@@ -82,7 +85,7 @@ try {
     }
 
     $sql = "INSERT INTO imported_coffins (item_name, color, size, initial_stock, current_stock, reserved_stock,
-    cost, supplier, coffin_type, tax, restock_date, details, origin, image, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+    cost, downpayment, retail_price, atneed_max_months, lifeplan_max_months, supplier, coffin_type, tax, details, origin, image, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
     
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
@@ -94,8 +97,8 @@ try {
     }
     
     $stmt->bind_param(
-        "sssiiidsssssss", $item_name, $color, $size, $initial_stock, $current_stock, $reserved_stock,
-        $cost, $supplier, $coffin_type, $tax, $restock_date, $details, $origin, $imagePath);
+        "sssiiidddiissssss", $item_name, $color, $size, $initial_stock, $current_stock, $reserved_stock,
+        $cost, $downpayment, $retail, $atneed, $lifeplan, $supplier, $coffin_type, $tax, $details, $origin, $imagePath);
     if (!$stmt->execute()) {
         echo json_encode([
             "success" => false,
@@ -115,12 +118,12 @@ try {
     $unit_multiplier = 1; 
 
     $logSql = "INSERT INTO stock_transactions (performed_by, material_id, material_category, transaction_type, action, quantity, unit, unit_multiplier, converted_quantity, 
-    status, expected_date, supplier, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+    status, notes, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
 
     $logStmt = $conn->prepare($logSql);
     if ($logStmt) {
         $logStmt->bind_param(
-            "sisssisssssss",
+            "sisssisiiss",
             $performed_by,
             $newInsertedMaterialId,
             $material_category,
@@ -131,8 +134,6 @@ try {
             $unit_multiplier,
             $initial_stock,
             $status,
-            $restock_date,
-            $supplier,
             $details
         );
         $logStmt->execute();

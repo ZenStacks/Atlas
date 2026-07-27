@@ -27,14 +27,9 @@ switch ($category) {
         $sql = "SELECT current_stock, cost_per_unit, details FROM $table WHERE material_type = ? AND id = ? LIMIT 1";
         break;
 
-    case "increase-flower-materials":
-        $table = "flower_materials";
-        $sql = "SELECT current_stock, cost_per_unit, details FROM $table WHERE material_type = ? AND id = ? LIMIT 1";
-        break;
-
     case "increase-equipment-furniture":
         $table = "equipment_materials";
-        $sql = "SELECT current_stock, cost_per_unit, details FROM $table WHERE equipment_type = ? AND id = ? LIMIT 1";
+        $sql = "SELECT current_stock, details FROM $table WHERE equipment_type = ? AND id = ? LIMIT 1";
         break;
 
     case "increase-interior":
@@ -56,7 +51,11 @@ $result = $stmt->get_result();
 if ($row = $result->fetch_assoc()) {
     $response["success"] = true;
     $response["current_stock"] = $row["current_stock"];
-    $response["cost_per_unit"] = $row["cost_per_unit"] !== null ? $row["cost_per_unit"] : "";
+    if (isset($row["cost_per_unit"])) {
+        $response["cost_per_unit"] = $row["cost_per_unit"];
+    } else {
+        $response["cost_per_unit"] = "";
+    }
     $response["details"] = $row["details"] !== null ? $row["details"] : "";
 }
 

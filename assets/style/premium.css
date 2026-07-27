@@ -73,10 +73,10 @@ h1 {
 }
 .navigation{
     position: fixed;
-    top: 30%;
+    top: 23%;
     right: 0;
     width: 90px;
-    height: 55%;
+    height: 70%;
     background-color: white;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     z-index: 1000;
@@ -370,64 +370,136 @@ button:hover{
 .coffin{
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
     justify-items: center;
+    width: 100%;
+    margin-left: 50px;
 }
-.coffin-card{
-    background-color: white;
+.product-card{
     width: 200px;
     height: auto;
-    border-radius: 20px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    background-color: white;
+    border-radius: 15px;
+    border: 1px solid rgb(0 0 0 / 10%);
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+.product-card-details{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    flex: 1;
+    padding: 15px;
+    gap: 10px;
+    width:auto;
+}
+.product-card-img{
     display: flex;
     justify-content: flex-start;
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
 }
-.coffin-card h2{
-    font-size: 18px;
+.product-card-img img{
+    height: 125px;
+    width: 200px;
+    border: 1px solid rgb(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+.product-details{
     padding: 15px;
-    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-    color: rgb(44, 62, 80);
-    align-self: center;
-}
-.price-details{
     display: flex;
-    flex-direction: row;
-    margin-left: 20px;
-    padding: 5px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
-.price-details h3{
-    font-size: 14px;
-    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
-    color: rgb(44, 62, 80);
+.product-header{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: left;
+    height: 50px;
+    width: 200px;
+    margin-bottom: 20px;
 }
-.price-details p{
+.product-header h2{
+    margin: 0;
     font-size: 13px;
-    font-style: italic;
-    margin-left: 10px;
+    color: #111827;
+    border-bottom: none;
+    font-weight: 600;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding-bottom: 4px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
 }
-.coffin-card img{
-    width: 150px;
-    height: 150px;
+.product-badge{
+    display: inline-block;
+    margin-top: 5px;
+    padding: 4px 10px;
+    background: #eef2ff;
+    color: #4F46E5;
     border-radius: 20px;
-    align-self: center;
-    margin-top: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid rgba(89, 89, 89, 0.1);
 }
-.coffin-card button{
-    margin: 10px 5px;
-    padding: 5px 20px;
-    border: 2px solid rgb(44, 62, 80);
-    background: white;
-    color: rgb(44, 62, 80);
-    border-radius: 30px;
-    cursor: pointer;
+.product-pricing{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    height: 50px;
+    justify-content: center;
+    align-items: center;
+}
+.price-item{
+    flex: 1;
+    padding: 5px;
+    background: #f9fafb;
+    border-radius: 8px;
+    text-align: center;
+    flex-direction: row;
+    display: flex;
+    gap: 20px;
+    border: 1px solid rgb(89, 89, 89, 0.1);
+    width: 100%;
+}
+.price-item .label{
+    display: block;
     font-size: 14px;
-    align-self: center;
+    color: #6b7280;
+    margin-bottom: 2px;
 }
-.coffin-card button:hover{
-    background-color: rgb(44, 62, 80);
+.price-item h3{
+    margin: 0;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 500;
+}
+.casket-btn{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 0;
+    height: 30px;
+}
+.buy-btn{
+    width: 150px;
+    border: none;
+    padding: 8px;
+    border-radius: 8px;
+    background: #1e293b;
     color: white;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.buy-btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(79,70,229,.25);
 }
 .ending-container{
     display: flex;
@@ -537,19 +609,22 @@ button:hover{
     align-items: flex-start;
     width: 100%;
 }
-.services, .about-us, .locations{
+.services, .about-us, .locations,
+.legal, .resources{
     display: flex;
     flex-direction: column;
     gap: 2px;
     margin-top: 20px;
 }
-.services h3, .about-us h3, .locations h3{
+.services h3, .about-us h3, .locations h3,
+.legal h3, .resources h3{
     color: rgb(37, 51, 66);
     font-size: 14px;
     font-weight: bold;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.services p, .about-us p, .locations p{
+.services p, .about-us p, .locations p, 
+.legal p, .resources p{
     color: rgb(50, 50, 50);
     font-size: 12px;
     font-weight: 500;
@@ -579,4 +654,439 @@ button:hover{
 }
 a{
     text-decoration: none;
+}
+.requirements-modal{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+    padding:20px;
+}
+.requirements-modal.active{
+    display:flex;
+}
+.details-modal{
+    width:100%;
+    max-width:850px;
+    height:90vh;
+    background:#fff;
+    border-radius:18px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+/* header */
+.modal-header{
+    padding:25px;
+    border-bottom:1px solid #ececec;
+    background:#fafafa;
+    flex-shrink:0;
+}
+
+.modal-header h2{
+    margin:0;
+    font-size:24px;
+    color:#222;
+}
+
+.modal-header p{
+    margin-top:6px;
+    color:#666;
+    font-size:14px;
+}
+/* body */
+.modal-body{
+    flex:1;
+    overflow-y:auto;
+    padding:25px;
+}
+.modal-body::-webkit-scrollbar{
+    width:8px;
+}
+.modal-body::-webkit-scrollbar-thumb{
+    background:#c7c7c7;
+    border-radius:20px;
+}
+/* form section */
+.form-section{
+    margin-bottom:30px;
+    padding:20px;
+    border:1px solid #efefef;
+    border-radius:12px;
+    background:#fcfcfc;
+}
+
+.form-section h3{
+    margin-top:0;
+    margin-bottom:20px;
+    font-size:18px;
+    color:#8b5e3c;
+}
+/* input */
+.input-row{
+    display:flex;
+    flex-direction:column;
+    margin-bottom:15px;
+}
+
+.input-row label{
+    font-size:14px;
+    font-weight:600;
+    margin-bottom:6px;
+    color:#444;
+}
+.input-row input,
+.input-row select,
+.input-row textarea{
+    width:100%;
+    box-sizing:border-box;
+    height:45px;
+    padding:0 14px;
+    border:1px solid #d9d9d9;
+    border-radius:8px;
+    font-size:14px;
+}
+.input-row textarea{
+    height:100px;
+    padding:12px 14px;
+}
+.input-row input::placeholder,
+.input-row textarea::placeholder{
+    color:#999;
+}
+.input-row input:focus,
+.input-row select:focus,
+.input-row textarea:focus{
+    outline:none;
+    border-color:#8b5e3c;
+    box-shadow:0 0 0 4px rgba(139,94,60,.12);
+}
+.file-input {
+    display: none;
+}
+.file-upload-btn {
+    display: inline-block;
+    padding: 12px 20px;
+    color: white;
+    border:1px solid #d9d9d9;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.3s ease;
+}
+.file-upload-btn:hover{
+    background-color: #e8e8e8;
+    border: 1px solid #969696;
+}
+#file-name {
+    margin-left: 10px;
+    font-size: 14px;
+    color: #666;
+}
+.declaration-text{
+    color: #444;
+    font-size: 14px;
+}
+.others-relation {
+    display: none;
+    margin-top: 8px;
+}
+.modal-actions{
+    padding:20px 25px;
+    border-top:1px solid #ececec;
+    display:flex;
+    justify-content: space-between;
+    gap:10px;
+    background:#fafafa;
+    flex-shrink:0;
+}
+.modal-ps{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50%;
+}
+.modal-ps p{
+    font-size: 14px;
+    color: red;
+    font-style: italic;
+}
+.modal-button{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content:flex-end;
+}
+.cancel-btn,
+.submit-btn{
+    min-width:130px;
+    height:45px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+}
+
+.cancel-btn{
+    background:#e74c3c;
+    color:#fff;
+}
+
+.submit-btn{
+    background:#8b5e3c;
+    color:#fff;
+}
+/* buy modal */
+.buy-confirmation.active{
+    display:flex;
+}
+.buy-confirmation{
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    padding: 20px;
+}
+.confirmation-box{
+    background: #fff;
+    width: 1200px;
+    max-width: 95%;
+    height: 650px;
+    border-radius: 20px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2);
+}
+.casket-nav{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+.casket-nav i{
+    font-size: 28px;
+    color: #2c3e50;
+    transition: .3s;
+}
+.casket-nav:hover i{
+    transform: translateX(-5px);
+}
+.agreement-container{
+    display: flex;
+    gap: 25px;
+    flex: 1;
+}
+.agreement-details,
+.casket-details{
+    background: #fff;
+    border-radius: 15px;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 2px 10px rgba(0,0,0,.08);
+    height: 450px;
+}
+.agreement-details{
+    width: 40%;
+    padding: 20px;
+}
+.casket-details{
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 500px;
+}
+.casket-image{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+}
+.casket-text h2{
+    font-size: 28px;
+    color: #2c3e50;
+    margin-bottom: 8px;
+}
+.casket-text p{
+    font-size: 22px;
+    font-weight: 600;
+    color: #27ae60;
+}
+.casket-image img{
+    width: 300px;
+    height: 200px;
+    border-radius: 15px;
+    margin-left: 0;
+}
+.casket-contract{
+    padding: 20px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    box-sizing: border-box;
+}
+.contract-details:first-child,
+.contract-details:nth-child(2){
+    grid-column: span 2;
+}
+.contract-details{
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 5px;
+}
+.contract-price-container{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    margin-bottom: 5px;
+}
+.contract-details h2{
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+.contract-details label,
+.contract-price-container label{
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #555;
+}
+.contract-details input,
+.contract-details select{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+input[readonly]{
+    caret-color: transparent;
+}
+input[readonly]:focus{
+    outline: none;
+}
+.contract-details{
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.radio-button{
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 15px;
+    flex-shrink: 0;
+}
+
+.radio-button input{
+    width: 15px;
+    height: 15px;
+}
+
+.radio-button p{
+    margin: 0;
+    color: #2c3e50;
+}
+.bottom-container{
+    display: flex;
+    justify-content: space-between;
+}
+.casket-button{
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+.notice{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+.notice p{
+    font-size: 14px;
+    color: red;
+    font-style: italic;
+    padding: 7px 15px;
+}
+.casket-button button{
+    padding: 7px 15px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: .3s;
+}
+
+.casket-button button:first-child{
+    background: #2c3e50;
+    color: white;
+}
+
+.casket-button button:first-child:hover{
+    background: #1b2836;
+}
+
+.casket-button button:last-child{
+    background: #e5e5e5;
+    color: #333;
+}
+
+.casket-button button:last-child:hover{
+    background: #d5d5d5;
+}
+#buy-confirm-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+hr{
+    border: none;
+    border-top: 1px solid #ececec;
+    margin: 5px 0;
+}
+.agreement-details{
+    width: 40%;
+    padding: 25px;
+    overflow-y: auto;
+}
+.agreement-details h2{
+    color: #2c3e50;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+.benefits-list{
+    padding-left: 20px;
+    margin-bottom: 25px;
+}
+.benefits-list li{
+    margin-bottom: 10px;
+    line-height: 1.5;
+    color: #555;
+}
+.terms-content p{
+    margin-bottom: 15px;
+    line-height: 1.6;
+    color: #555;
+    text-align: justify;
+}
+.disabled-field {
+    background-color: #000;
+    color: #fff;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+.swal2-container {
+    z-index: 20000 !important;
 }

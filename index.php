@@ -1,3 +1,28 @@
+<?php
+session_start();
+require_once __DIR__ . '/backend/conn.php';
+
+$name = "Guest";
+$image = "assets/img/profile.png";
+
+if (isset($_SESSION['customer_id'])) {
+
+    $customerId = $_SESSION['customer_id'];
+
+    $stmt = $conn->prepare("SELECT name, profile_img FROM customers WHERE id = ?");
+    $stmt->bind_param("i", $customerId);
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    if ($row = $result->fetch_assoc()) {
+        $name = $row['name'];
+        if (!empty($row['profile_img'])) {
+            $image = "assets/img/uploads/profile/" . $row['profile_img'];
+        }
+    }
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,10 +41,10 @@
                 <h1>Alfonso Somo</h1>
             </div>
             <div class="navbar">
-                <ul>
-                    <li><a href="users/profile.php?tab=service-preferences">My Cart</a></li>
-                    <li><a href="users/profile.php">Profile</a></li>
-                </ul>
+                <p><?php echo htmlspecialchars($name); ?></p>
+                <a href="users/profile.php">
+                    <img src="<?php echo $image; ?>" alt="Profile">
+                </a>
             </div>
         </div>
         <div class="content" id="home">
@@ -28,11 +53,11 @@
                 <div class="sample-image-card">
                     <div class="first-sample-image">
                         <h2>Standard Setup</h2>
-                        <img src="assets/img/standard.png" alt="Standard Setup">
+                        <div class="standard-container"><img src="assets/img/standard.png" alt="Standard Setup"></div>
                     </div>
                     <div class="second-sample-image">
                         <h2>Premium Setup</h2>
-                        <img src="assets/img/Premium-coffin.jpg" alt="Premium Setup">
+                        <div class="premium-container"><img src="assets/img/Premium-coffin.jpg" alt="Premium Setup"></div>
                     </div>
                 </div>
             </div>
@@ -54,30 +79,38 @@
 
                 <div class="features-column">
                     <div class="spacer"></div>
-                    <p>Available 24/7</p>
-                    <p>Transfer and care of your loved one</p>
-                    <p>Legal paperwork</p>
-                    <p>Cremation and return of ashes</p>
-                    <p>Coffin suitable for funeral service</p>
-                    <p>Funeral arrangement</p>
-                    <p>Funeral transfer</p>
-                    <p>Chapel hire</p>
+                    <p>24/7 Funeral Assistance</p>
+                    <p>Transfer and Care of the Deceased</p>
+                    <p>Processing of Legal Documents</p>
+                    <p>Basic Wake Setup</p>
+                    <p>Funeral Service Coordination</p>
+                    <p>Flower Arrangements</p>
+                    <p>Coffin Included</p>
+                    <p>Memorial Photo Display</p>
+                    <p>Guest Book & Memorial Cards</p>
+                    <p>Premium Venue Decorations</p>
+                    <p>Bereavement Support Guidance</p>
                 </div>
 
+                <!-- Standard Package -->
                 <div class="package-card standard">
                     <h2>Standard Package</h2>
                     <div class="feature">✔</div>
                     <div class="feature">✔</div>
                     <div class="feature">✔</div>
                     <div class="feature">✔</div>
+                    <div class="feature">✔</div>
+                    <div class="feature">✔</div>
+                    <div class="feature">✔</div>
                     <div class="feature">✖</div>
                     <div class="feature">✖</div>
                     <div class="feature">✖</div>
                     <div class="feature">✖</div>
-
+                    
                     <button id="standard-btn">See Full Details</button>
                 </div>
 
+                <!-- Premium Package -->
                 <div class="package-card-premium premium">
                     <h2>Premium Package</h2>
                     <div class="feature">✔</div>
@@ -88,9 +121,13 @@
                     <div class="feature">✔</div>
                     <div class="feature">✔</div>
                     <div class="feature">✔</div>
-
+                    <div class="feature">✔</div>
+                    <div class="feature">✔</div>
+                    <div class="feature">✔</div>
+                    
                     <button id="premium-btn">See Full Details</button>
                 </div>
+
             </div>
             <div class="price-guarantee">
                 <div class="guarantee-pic">
@@ -152,7 +189,7 @@
                     dignity, and care. With years of experience in helping families during difficult times, we are committed to providing 
                     respectful and affordable funeral services tailored to your needs.
                 </p>
-                <p>Your can read our <strong>Privacy Policy</strong> and <strong>Terms of Service</strong> for more information on how we handle your data and the terms of our services. If you have any questions or need assistance, please don't hesitate to contact us.</p>
+                <p>Your can read our <strong>Privacy Policy</strong> and <strong>Terms of Use</strong> for more information on how we handle your data and the terms of our services. If you have any questions or need assistance, please don't hesitate to contact us.</p>
             </div>
             <div class="ending-button">
                 <button onclick="window.location.href='tel:+639192734055'">
@@ -165,20 +202,25 @@
         <div class="footer">
             <div class="footer-content">
                 <div class="services">
-                    <h3>Our Services</h3>
-                    <p>Funeral Planning</p>
-                    <p>Coffin Selection</p>
-                    <p>Funeral Arrangements</p>
-                    <p>Chapel Hire</p>
+                    <h3>Products</h3>
+                    <a href="users/package.php"><p>Plans</p></a>
                 </div>
                 <div class="about-us">
                     <h3>About Us</h3>
                     <p>Process</p>
                     <p>Why Us?</p>
-                    <p>FAQ</p>
-                    <p>Payments</p>
-                    <p>Terms of use</p>
-                    <p>Privacy Policy</p>
+                </div>
+                <div class="legal">
+                    <h3>Legal</h3>
+                    <a href="users/terms_of_use.html"><p>Terms of use</p></a>
+                    <a href="users/privacy_policy.html"><p>Privacy Policy</p></a>
+                </div>
+                <div class="resources">
+                    <h3>Resources</h3>
+                    <a href="users/profile.php?tab=profile-information-section"><p>Manage Account</p></a>
+                    <a href="users/contact_us.php"><p>Contact Us</p></a>
+                    <a href="users/payment.php"><p>Payment</p></a>
+                    <a href="users/faq.html"><p>FAQ</p></a>
                 </div>
                 <div class="locations">
                     <h3>Our Location</h3>
@@ -195,8 +237,16 @@
                     </a>
                 </div>
                 <div class="navigation-icon">
-                    <a href="users/package.php"><i class="bi bi-box-seam-fill"></i></a>
-                    <span class="nav-label">Packages</span>
+                    <a href="users/package.php"><i class="bi bi-shield-check"></i></a>
+                    <span class="nav-label">Pre-Need/LifePlan</span>
+                </div>
+                <div class="navigation-icon">
+                    <a href="users/standard.php"><i class="bi bi-cart"></i></a>
+                    <span class="nav-label">At-Need - Standard</span>
+                </div>
+                <div class="navigation-icon">
+                    <a href="users/premium.php"><i class="bi bi-cart-check"></i></a>
+                    <span class="nav-label">At-Need - Premium</span>
                 </div>
                 <div class="navigation-icon">
                     <a href="users/map.php"><i class="bi bi-pin-map-fill"></i></a>
@@ -207,8 +257,8 @@
                     <span class="nav-label">Payment</span>
                 </div>
                 <div class="navigation-icon">
-                    <i class="bi bi-basket2"></i>
-                    <span class="nav-label">Buy now</span>
+                    <a href="users/profile.php?tab=service-preferences"><i class="bi bi-basket2"></i></a>
+                    <span class="nav-label">My Cart</span>
                 </div>
                 <div class="navigation-icon">
                     <a href="users/contact_us.php"><i class="bi bi-envelope-fill"></i> </a>

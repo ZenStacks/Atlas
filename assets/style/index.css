@@ -37,18 +37,27 @@
 .navbar {
     display: flex;
     align-items: flex-end;
+    align-items: center;
     justify-content: center;
-    gap: 30px;
-    padding: 20px;
-    margin-right: 10px;
-}
-.navbar ul {
-    list-style: none;
-    display: flex;
     gap: 10px;
-
+    padding: 10px;
 }
-.navbar ul li a {
+.navbar p{
+    color: rgb(44, 62, 80);
+    font-size: 20px;
+    margin-top: 10px;
+}
+.navbar img {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    margin: 0;
+    border-radius: 50%;
+    border: 1px solid rgb(122, 122, 122);
+}
+.navbar a {
     text-decoration: none;
     color: rgb(44, 62, 80);
     font-size: 16px;
@@ -56,10 +65,6 @@
     padding: 10px 15px;
     border-radius: 30px;
     transition: background-color 0.3s ease, color 0.3s ease;
-}
-.navbar ul li a:hover {
-    background-color: rgb(44, 62, 80);
-    color: white;
 }
 .content{
     display: flex;
@@ -92,14 +97,6 @@ h1 {
     background-color: rgb(44, 62, 80);
     border-radius: 15px;
 }
-.first-sample-image img, .second-sample-image img {
-    width: 100%;
-    height: 400px;
-    object-fit: cover;
-    border-radius: 15px;
-    display: block;
-    margin-top: 20px;
-}
 .first-sample-image h2, .second-sample-image h2 {
     color: white;
     font-size: 45px;
@@ -110,15 +107,21 @@ h1 {
     align-items: center;
     padding: 10px;
 }
-.first-sample-image p, .second-sample-image p {
-    color: white;
-    font-size: 30px;
-    font-weight: 600;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+.standard-container, .premium-container{
     display: flex;
     justify-content: center;
-    align-items: center;
-    padding: 10px;
+    align-content: center;
+    padding-bottom: 10px;
+}
+.standard-container img, .premium-container img{
+    width: 100%;
+    height: 420px;
+    object-fit: cover;
+    border-radius: 15px;
+    display: block;
+    margin-top: 20px;
+    padding: 5px;
+    background-color: white
 }
 .details-container {
     display: flex;
@@ -498,20 +501,20 @@ button:hover{
     align-items: flex-start;
     width: 100%;
 }
-.services, .about-us, .locations{
+.services, .about-us, .locations, .legal, .resources{
     display: flex;
     flex-direction: column;
     gap: 2px;
     margin-top: 20px;
     margin-bottom: 20px;
 }
-.services h3, .about-us h3, .locations h3{
+.services h3, .about-us h3, .locations h3, .legal h3, .resources h3{
     color: rgb(37, 51, 66);
     font-size: 14px;
     font-weight: bold;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.services p, .about-us p, .locations p{
+.services p, .about-us p, .locations p, .legal p, .resources p{
     color: rgb(50, 50, 50);
     font-size: 12px;
     font-weight: 500;
@@ -519,15 +522,17 @@ button:hover{
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     cursor: pointer;
 }
-.locations a{
+.locations a,
+.resources a,
+.legal a{
     text-decoration: none;
 }
 .navigation{
     position: fixed;
-    top: 30%;
+    top: 23%;
     right: 0;
     width: 90px;
-    height: 53%;
+    height: 70%;
     background-color: white;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     z-index: 1000;

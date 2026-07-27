@@ -6,18 +6,16 @@ $table = $data['table'] ?? '';
 $item_id = intval($data['item_id'] ?? 0);
 
 $quantity = floatval($data['quantity'] ?? 0);
+$unit = $data['unit'] ?? '';
 $unit_multiplier = intval($data['unit_multiplier'] ?? 1);
 
 $converted_quantity = $quantity * $unit_multiplier;
 
 $cost = floatval($data['cost'] ?? 0);
-$supplier = $data['supplier'] ?? '';
-$restock_date = $data['restock_date'] ?? null;
 $notes = $data['notes'] ?? '';
 
 $allowedTables = [
     "coffin_materials",
-    "flower_materials",
     "equipment_materials",
     "interior_lining_materials"
 ];
@@ -52,7 +50,6 @@ try {
         ]);
         exit;
     }
-
     $row = $result->fetch_assoc();
     $current_stock = floatval($row['current_stock']);
     $new_stock = $current_stock + $converted_quantity;
@@ -66,11 +63,11 @@ try {
     $transaction_type = "IN";
     $status = "completed";
 
-    $transaction = $conn->prepare("INSERT INTO stock_transactions (material_id, material_category, transaction_type, quantity, unit_multiplier, converted_quantity, status, supplier, notes, created_at)
+    $transaction = $conn->prepare("INSERT INTO stock_transactions (material_id, material_category, transaction_type, quantity, unit, unit_multiplier, converted_quantity, status, notes, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())");
 
-    $transaction->bind_param("issiidsss",
-        $item_id, $table, $transaction_type, $quantity, $unit_multiplier, $converted_quantity, $status, $supplier, $notes);
+    $transaction->bind_param("issisiiss",
+        $item_id, $table, $transaction_type, $quantity, $unit, $unit_multiplier, $converted_quantity, $status, $notes);
     $transaction->execute();
     echo json_encode([
         "status" => "success",

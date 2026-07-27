@@ -21,6 +21,7 @@
                         <a href="#" class="nav-item" data-tab="account-settings">Account Settings</a>
                         <a href="#" class="nav-item" data-tab="notifications">Notifications</a>
                         <a href="#" class="nav-item" data-tab="service-preferences">Service Preferences</a>
+                        <a href="#" class="nav-item" data-tab="my-preferences">My Preferences</a>
                         <li class="logout"><i class="bi bi-box-arrow-left"></i><a href="#logout" id="logout-btn">Logout</a></li>
                     </ul>
                 </div>
@@ -252,6 +253,9 @@
                         <button class="mark-all-read">
                             Mark all as read
                         </button>
+                        <button class="delete-notif">
+                            Delete notifications
+                        </button>
                     </div>
                     <div class="notification-scroll" id="notification-list">
                     </div>
@@ -269,19 +273,23 @@
                             <table class="receipt-table">
                                 <thead>
                                     <tr>
-                                        <th>Service</th>
-                                        <th>Details</th>
-                                        <th>Price</th>
+                                        <th>Qty</th>
+                                        <th>Package</th>
+                                        <th>Type</th>
+                                        <th>Source</th>
+                                        <th>Downpayment</th>
+                                        <th style="text-align: center;">Action</th>
                                     </tr>
                                 </thead>
-
-                                <tbody id="receipt-body">
-                                    <!-- dynamic rows -->
-                                </tbody>
+                                <tbody id="receipt-body"></tbody>
                             </table>
                         </div>
                         <div class="receipt-footer">
                             <div class="receipt-total">
+                                <div class="total-row">
+                                    <span>Downpayment</span>
+                                    <h4>₱<span id="downpayment">0</span></h4>
+                                </div>
                                 <div class="total-row">
                                     <span>Sub-Total</span>
                                     <h4>₱<span id="sub-total">0</span></h4>
@@ -295,17 +303,44 @@
                                     <h3>₱<span id="total-amount">0</span></h3>
                                 </div>
                             </div>
-                            <button id="confirm-services">
+                            <div class="button-arrangement">
+                                <button id="confirm-services">
                                 Confirm Arrangement
-                            </button>
+                                </button>
+                                <button id="delete-services">
+                                    Delete All Arrangement
+                                </button>
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div id="my-preferences" class="tab-content">
+                <div class="user-preferences">
+
+                    <div class="service-header">
+                        <h2>My Preferences</h2>
+                        <p>Your submitted funeral service arrangements.</p>
+                    </div>
+                    <div class="preferences-list"></div>
                 </div>
             </div>
         </div>
     </div>
 </body>
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(() => {
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get("tab");
+        if (tab) {
+            const navItem = document.querySelector(`[data-tab="${tab}"]`);
+            if (navItem) {
+                navItem.click();
+            }
+        }
+    }, 200); 
+});
 // navigation
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -449,8 +484,6 @@ async function loadProfile() {
                 "../assets/img/uploads/profile/" + user.profile_img;
         }
     } catch (error) {
-        console.error(error);
-
         Swal.fire({
             icon: "error",
             title: "Error",
@@ -539,7 +572,6 @@ function setupSaveProfile() {
                 });
             }
         } catch (error) {
-            console.error(error);
             Swal.fire({
                 icon: "error",
                 title: "Error",
@@ -618,7 +650,6 @@ document.querySelector(".change-password-form")
             });
         }
     }catch(error){
-        console.error(error);
         Swal.fire({
             icon: "error",
             title: "Error",
@@ -660,7 +691,6 @@ document.querySelector(".save-notification-btn")
             });
         }
     } catch(error){
-        console.error(error);
         Swal.fire({
             icon: "error",
             title: "Error",
@@ -701,7 +731,6 @@ document.querySelector(".save-privacy-btn")
             });
         }
     } catch(error){
-        console.error(error);
         Swal.fire({
             icon: "error",
             title: "Error",
@@ -772,7 +801,14 @@ async function loadNotifications() {
         });
 
     } catch(error) {
-        console.error("Notification Error:", error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Something went wrong',
+            text: 'We encountered an issue. Please try again or refresh the page.',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true
+        });
     }
 }
 
@@ -819,9 +855,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
 
             } catch(error){
-
-                console.error(error);
-
                 Swal.fire({
                     icon: "error",
                     title: "Error",
@@ -859,16 +892,307 @@ document.getElementById("logout-btn").addEventListener("click", function(e){
     });
 
 });
-document.addEventListener("DOMContentLoaded", () => {
-    const params = new URLSearchParams(window.location.search);
-    const tab = params.get("tab");
-
-    if (tab) {
-        const navItem = document.querySelector(`[data-tab="${tab}"]`);
-        if (navItem) {
-            navItem.click();
+document.addEventListener("DOMContentLoaded", async () => {
+    const tbody = document.getElementById("receipt-body");
+    const confirmBtn = document.getElementById("confirm-services");
+    if (!tbody) return;
+    try {
+        const response = await fetch(
+            "../backend/orders/get_service_preferences.php",
+            {
+                credentials: "include"
+            }
+        );
+        const result = await response.json();
+        console.log(result);
+        if (!result.success || !result.data || result.data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6">No pending items found.</td>
+                </tr>
+            `;
+            if (confirmBtn) {
+                confirmBtn.disabled = true;
+            }
+            return;
         }
+        let grandTotal = 0;
+        tbody.innerHTML = result.data.map(item => {
+            const quantity = Number(item.quantity || 1);
+            const downpayment = Number(item.downpayment || 0);
+            grandTotal += quantity * downpayment;
+            return `
+                <tr>
+                    <td>x${quantity}</td>
+                    <td>${item.item_name ?? "-"}</td>
+                    <td>${item.coffin_type ?? "-"}</td>
+                    <td>${item.coffin_source ?? "-"}</td>
+                    <td>₱${downpayment.toLocaleString()}</td>
+                    <td style="text-align:center; color: red;">
+                        <i class="bi bi-trash3 delete-item"
+                        data-id="${item.id}"
+                        style="cursor:pointer;"></i>
+                    </td>
+                </tr>
+            `;
+        }).join("");
+        // delete action
+        tbody.addEventListener("click", async (e) => {
+            if (!e.target.classList.contains("delete-item")) {
+                return;
+            }
+            const id = e.target.dataset.id;
+            const result = await Swal.fire({
+                title: "Delete Item?",
+                text: "This item will be removed.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: "Delete"
+            });
+            if (!result.isConfirmed) return;
+            try {
+                const response = await fetch(
+                    "../backend/orders/delete_service_item.php",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ id })
+                    }
+                );
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message);
+                }
+                e.target.closest("tr").remove();
+                Swal.fire(
+                    "Deleted!",
+                    "Item removed successfully.",
+                    "success"
+                );
+            } catch (err) {
+                Swal.fire(
+                    "Error",
+                    err.message,
+                    "error"
+                );
+            }
+        });
+        const downpaymentEl = document.getElementById("downpayment");
+        const subtotalEl = document.getElementById("sub-total");
+        const discountEl = document.getElementById("discount");
+        const totalEl = document.getElementById("total-amount");
+
+        if (downpaymentEl) downpaymentEl.innerText = grandTotal.toLocaleString();
+        if (subtotalEl) subtotalEl.innerText = grandTotal.toLocaleString();
+        if (discountEl) discountEl.innerText = "0";
+        if (totalEl) totalEl.innerText = grandTotal.toLocaleString();
+
+    } catch (error) {
+        console.error("Load Error:", error);
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="6">Failed to load service preferences.</td>
+            </tr>
+        `;
     }
+    if (confirmBtn) {
+        confirmBtn.addEventListener("click", async () => {
+            const result = await Swal.fire({
+                title: "Confirm Arrangement?",
+                text: "Do you want to submit this arrangement?",
+                icon: "question",
+                showCancelButton: true,
+                confirmButtonText: "Confirm"
+            });
+            if (!result.isConfirmed) return;
+            try {
+                const response = await fetch(
+                    "../backend/orders/confirm_service_preferences.php",
+                    {
+                        method: "POST"
+                    }
+                );
+                const data = await response.json();
+                if (!data.success) {
+                    throw new Error(data.message || "Confirmation failed");
+                }
+                await Swal.fire(
+                    "Success!",
+                    "Arrangement confirmed successfully.",
+                    "success"
+                );
+                window.location.href = "profile.php?tab=my-preferences";
+            } catch (err) {
+
+                Swal.fire(
+                    "Error",
+                    err.message,
+                    "error"
+                );
+
+            }
+        });
+    }
+    const deleteBtn = document.getElementById("delete-services")
+    if (!deleteBtn) return;
+    deleteBtn.addEventListener("click", async () => {
+
+        const swalResult = await Swal.fire({
+            title: "Are you sure?",
+            text: "This will remove all selected services.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete it"
+        });
+        if (!swalResult.isConfirmed) return;
+        try {
+            const response = await fetch(
+                "../backend/orders/delete_service_preferences.php",
+                {
+                    method: "POST"
+                }
+            );
+            const data = await response.json();
+            if (!data.success) {
+                throw new Error(data.message || "Delete failed");
+            }
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5">No pending items found.</td>
+                </tr>
+            `;
+            document.getElementById("downpayment").innerText = "0";
+            document.getElementById("sub-total").innerText = "0";
+            document.getElementById("discount").innerText = "0";
+            document.getElementById("total-amount").innerText = "0";
+
+            await Swal.fire(
+                "Deleted!",
+                "Services removed successfully.",
+                "success"
+            );
+        } catch (err) {
+            console.error(err);
+            Swal.fire(
+                "Error",
+                err.message,
+                "error"
+            );
+        }
+    });
 });
+
+// my preferences
+function goToPayment(orderId) {
+    window.location.href = `payment.php?order_id=${orderId}`;
+}
+document.addEventListener("DOMContentLoaded", () => {
+    loadPreferences();
+
+    // Reload every 5 seconds
+    setInterval(loadPreferences, 5000);
+});
+
+async function loadPreferences() {
+    const container = document.querySelector(".preferences-list");
+    if (!container) return;
+
+    try {
+        const res = await fetch(
+            "../backend/orders/get_my_preferences.php?t=" + Date.now(),
+            {
+                credentials: "include",
+                cache: "no-store"
+            }
+        );
+
+        const result = await res.json();
+
+        if (!result.success || !result.data?.length) {
+            container.innerHTML = `<p>No preferences yet.</p>`;
+            return;
+        }
+
+        const html = result.data.map(order => {
+            const price = Number(order.price || 0);
+            const downpayment = Number(order.downpayment || 0);
+            const discount = Number(order.discount || 0);
+            const downpaymentFormatted = downpayment.toLocaleString();
+
+            const isApproved = order.status === "approved";
+
+            const remainingText = isApproved
+                ? "₱" + Number(order.remaining_balance || 0).toLocaleString()
+                : "Pending Approval";
+
+            const discountText = isApproved
+                ? "₱" + discount.toLocaleString()
+                : "Pending Approval";
+
+            const priceText = isApproved
+                ? "₱" + price.toLocaleString()
+                : "Pending Approval";
+
+            const canPay =
+                order.status === "confirmed" ||
+                (order.status === "approved" &&
+                    Number(order.remaining_balance || 0) > 0);
+
+            return `
+            <div class="preference-card">
+                <div class="card-top">
+                    <h3>${order.item_name}</h3>
+                    <span class="status ${order.status}">${order.status}</span>
+                </div>
+                <div class="card-body">
+                    ${renderInfoRow("Qty", "x" + order.quantity)}
+                    ${renderInfoRow("Coffin Type", order.coffin_type)}
+                    ${renderInfoRow("Downpayment", "₱" + downpaymentFormatted)}
+                    ${renderInfoRow("Price", priceText)}
+                    ${renderInfoRow("Discount", discountText)}
+                    ${renderInfoRow("Remaining Balance", remainingText)}
+                    ${renderInfoRow("Source", order.coffin_source)}
+                    ${renderInfoRow("Service Request No.", order.service_request_no)}
+                    ${renderInfoRow("Date Submitted", order.created_at)}
+                    <div class="info-row">
+                        <span>Action</span>
+                        <div class="button">
+                            <button onclick="prepareMessageForAdmin('${order.item_name}')">
+                                Message Admin
+                            </button>
+                            <button
+                                ${!canPay ? "disabled" : ""}
+                                class="${!canPay ? "disabled-btn" : "pay-btn"}"
+                                onclick="${canPay ? `goToPayment(${order.id})` : ""}">
+                                Proceed to Payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }).join("");
+
+        container.innerHTML = html;
+
+    } catch (err) {
+        container.innerHTML = `<p>Error loading your preferences. Please try again later.</p>`;
+    }
+}
+
+function renderInfoRow(label, value) {
+    return `
+    <div class="info-row">
+        <span>${label}</span>
+        <strong>${value}</strong>
+    </div>`;
+}
+
+function prepareMessageForAdmin(itemName) {
+    const message = `Hi! I'm interested in purchasing: ${itemName}. Can you provide more details?`;
+    localStorage.setItem("admin_chat_intent", message);
+    window.location.href = "contact_us.php";
+}
 </script>
 </html>

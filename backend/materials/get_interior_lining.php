@@ -19,9 +19,7 @@ function getDistinctMaterialNames($conn) {
     
     $materials = [];
     $query = "SELECT DISTINCT id, interior_type, item_name, color, pattern, thickness, softness_level, unit 
-              FROM interior_lining_materials 
-              WHERE item_name IS NOT NULL AND item_name != '' 
-              ORDER BY item_name ASC";
+              FROM interior_lining_materials WHERE item_name IS NOT NULL AND item_name != '' ORDER BY item_name ASC";
               
     $result = $conn->query($query);
     if (!$result) {
@@ -43,17 +41,6 @@ function getDistinctMaterialNames($conn) {
     return $materials;
 }
 
-function getDistinctSuppliers($conn) {
-    $suppliers = [];
-    $query = "SELECT DISTINCT supplier FROM stock_transactions WHERE supplier IS NOT NULL AND supplier != '' ORDER BY supplier ASC";
-    $result = $conn->query($query);
-    if ($result) {
-        while ($row = $result->fetch_assoc()) {
-            $suppliers[] = $row['supplier'];
-        }
-    }
-    return $suppliers;
-}
 $interiorTypes = getEnumValues($conn, "interior_lining_materials", "interior_type");
 $patternTypes = getEnumValues($conn, "interior_lining_materials", "pattern");
 $thicknessTypes = getEnumValues($conn, "interior_lining_materials", "thickness");
@@ -69,7 +56,6 @@ $response = [
     "pattern" => $patternTypes,
     "thickness"=> $thicknessTypes,
     "softness_level"=> $softnessLevels,
-    "supplier" => getDistinctSuppliers($conn),
     "unit_of_measurement" => $measurementUnits
 ];
 

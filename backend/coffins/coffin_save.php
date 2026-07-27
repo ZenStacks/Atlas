@@ -24,20 +24,21 @@ try {
 
     $performed_by = $_SESSION['username'] ?? 'System Admin';
 
-    // Safely capture payload from Javascript mapping
     $item_name = strtolower(trim($_POST["item_name"] ?? ""));
     $coffin_type = strtolower(trim($_POST["coffin_type"] ?? ""));
     $size = strtolower(trim($_POST["size"] ?? ""));
     $color = strtolower(trim($_POST["color"] ?? ""));
     $tax_type = strtolower(trim($_POST["tax_type"] ?? ""));
     $details = trim(htmlspecialchars($_POST["details"] ?? "", ENT_QUOTES, 'UTF-8'));
-    $weight_limit = (float)($_POST["weight_limit"] ?? 0);
+    $downpayment = (float)($_POST["downpayment"] ?? 0);
+    $retail_price = (float)($_POST["retail_price"] ?? 0);
+    $lifePlan = (int)($_POST["lifeplan_max_months"] ?? "");
+    $atNeed = (int)($_POST["atneed_max_months"] ?? "");
     $cost_price = (float)($_POST["cost_price"] ?? 0);
     $stock = (int)($_POST["stock"] ?? 0);
     
-    $reserved = 2;
+    $reserved = 1;
     $available = max(0, $stock - $reserved);
-    $supplier = trim(htmlspecialchars($_POST["supplier"] ?? "", ENT_QUOTES, 'UTF-8'));
 
     if (empty($item_name) || empty($coffin_type) || empty($size) || empty($color)) {
         throw new Exception("Required production profile fields are missing.");
@@ -61,11 +62,11 @@ try {
     }
     ksort($submitted_materials);
 
-    $checkStmt = $conn->prepare("SELECT id FROM coffins WHERE LOWER(coffin_type) = LOWER(?) AND weight_limit = ? AND LOWER(color) = LOWER(?)");
+    $checkStmt = $conn->prepare("SELECT id FROM coffins WHERE LOWER(coffin_type) = LOWER(?) AND LOWER(color) = LOWER(?)");
     if (!$checkStmt) {
         throw new Exception("Duplicate Verification Prepare Fail: " . $conn->error);
     }
-    $checkStmt->bind_param("sds", $coffin_type, $weight_limit, $color);
+    $checkStmt->bind_param("ss", $coffin_type, $color);
     $checkStmt->execute();
     $results = $checkStmt->get_result();
     
@@ -117,12 +118,12 @@ try {
     
     $conn->begin_transaction();
     
-    $stmt = $conn->prepare("INSERT INTO coffins (item_name, coffin_type, size, color, weight_limit, stock, reserved_stock, available_stock, tax_type, image, details, cost_price, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW(), NOW())");
+    $stmt = $conn->prepare("INSERT INTO coffins (item_name, coffin_type, size, color, stock, reserved_stock, available_stock, tax_type, image, details, cost_price, downpayment, retail_price, lifeplan_max_months, atneed_max_months, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW(), NOW())");
     if (!$stmt) {
         throw new Exception("Coffins Insert Prepare Fail: " . $conn->error);
     }
     
-    $stmt->bind_param("ssssdiiisssd", $item_name, $coffin_type, $size, $color, $weight_limit, $stock, $reserved, $available, $tax_type, $imagePath, $details, $cost_price);
+    $stmt->bind_param("ssssdiisssiidii", $item_name, $coffin_type, $size, $color, $stock, $reserved, $available, $tax_type, $imagePath, $details, $cost_price, $downpayment, $retail_price, $lifePlan, $atNeed);
     if (!$stmt->execute()) {
         throw new Exception("Coffins Insert Execute Fail: " . $stmt->error);
     }
@@ -204,8 +205,8 @@ try {
                 INSERT INTO stock_transactions (
                     performed_by, material_id, material_category, transaction_type, action, 
                     quantity, unit, unit_multiplier, converted_quantity, status, 
-                    expected_date, supplier, notes, created_at
-                ) VALUES (?, ?, ?, 'OUT', 'construct', ?, ?, 1, ?, 'completed', NULL, ?, ?, NOW())");
+                    notes, created_at
+                ) VALUES (?, ?, ?, 'OUT', 'construct', ?, ?, 1, ?, 'completed', ?, NOW())");
             
             if (!$materialTransaction) {
                 throw new Exception("Material Transaction Log Prepare Fail: " . $conn->error);
@@ -213,14 +214,13 @@ try {
 
             $tx_notes = "Used in Coffin Batch Production";
             $materialTransaction->bind_param(
-                "sisisiss", 
+                "sisisis", 
                 $performed_by, 
                 $m_id, 
                 $m_type, 
                 $total_needed_qty, 
                 $m_unit, 
-                $total_needed_qty, 
-                $supplier,
+                $total_needed_qty,
                 $tx_notes
             );
             if (!$materialTransaction->execute()) {
@@ -235,8 +235,8 @@ try {
         INSERT INTO stock_transactions (
             performed_by, material_id, material_category, transaction_type, action, 
             quantity, unit, unit_multiplier, converted_quantity, status, 
-            expected_date, supplier, notes, created_at
-        ) VALUES (?, ?, 'coffins', 'IN', 'add', ?, 'Pcs', 1, ?, 'completed', NULL, ?, ?, NOW())");
+            notes, created_at
+        ) VALUES (?, ?, 'coffins', 'IN', 'add', ?, 'Pcs', 1, ?, 'completed', ?, NOW())");
         
     if (!$coffinTransaction) {
         throw new Exception("Product Transaction Log Prepare Fail: " . $conn->error);
@@ -244,12 +244,11 @@ try {
     
     $coffin_notes = "Manufactured Batch: " . ucwords($item_name) . " ({$coffin_type}, {$color}, {$size})";
     $coffinTransaction->bind_param(
-        "siiiss",
+        "siiis",
         $performed_by,
         $new_coffin_id,
         $stock,
         $stock,
-        $supplier,
         $coffin_notes
     );
     if (!$coffinTransaction->execute()) {
