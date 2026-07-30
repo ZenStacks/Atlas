@@ -30,7 +30,7 @@ try {
                 END AS coffin_type
             FROM approved_lifeplans al
 
-            INNER JOIN lifeplan_requests lp
+            INNER JOIN lifeplan_request lp
                 ON al.lifeplan_request_id = lp.id
 
             LEFT JOIN customers c

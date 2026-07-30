@@ -57,7 +57,7 @@ try {
             WHEN lp.coffin_source = 'imported' THEN ic.tax
         END AS tax_type
 
-        FROM lifeplan_requests lp
+        FROM lifeplan_request lp
 
         LEFT JOIN customers c
             ON lp.user_id = c.id

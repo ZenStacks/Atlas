@@ -60,7 +60,7 @@ try {
             WHEN lr.coffin_source = 'imported' THEN ic.retail_price
         END AS coffin_retail_price
 
-    FROM lifeplan_requests lr
+    FROM lifeplan_request lr
 
     LEFT JOIN customers c
         ON lr.user_id = c.id

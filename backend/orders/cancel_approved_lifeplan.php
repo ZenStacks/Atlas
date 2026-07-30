@@ -20,7 +20,7 @@ try {
         throw new Exception("Approved life plan not found.");
     }
     $approved = $result->fetch_assoc();
-    $stmt = $conn->prepare("UPDATE lifeplan_requests SET status = 'cancelled' WHERE id = ?");
+    $stmt = $conn->prepare("UPDATE lifeplan_request SET status = 'cancelled' WHERE id = ?");
     $stmt->bind_param("i", $approved["lifeplan_request_id"]);
     if (!$stmt->execute()) {
         throw new Exception($stmt->error);

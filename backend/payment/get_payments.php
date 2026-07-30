@@ -56,7 +56,7 @@ try {
             FROM lifeplan_payments lp
             INNER JOIN approved_lifeplans ap
                 ON lp.approved_lifeplan_id = ap.id
-            INNER JOIN lifeplan_requests lr
+            INNER JOIN lifeplan_request lr
                 ON ap.lifeplan_no = lr.lifeplan_no
             WHERE lp.status = 'Pending'
             ORDER BY lp.created_at DESC";

@@ -10116,6 +10116,69 @@ document.getElementById("closeScheduleModal").onclick = () => {
     modalSchedule.classList.remove("active");
     modalSchedule.classList.add("hidden");
 };
+const modalScheduleNo = document.getElementById("modalScheduleNo");
+const modalCustomer = document.getElementById("modalCustomer");
+const modalDeceased = document.getElementById("modalDeceased");
+const modalService = document.getElementById("modalService");
+const modalDate = document.getElementById("modalDate");
+const modalTime = document.getElementById("modalTime");
+const modalLocation = document.getElementById("modalLocation");
+async function loadSchedules() {
+
+    const response = await fetch("../backend/schedule/get_schedule.php");
+    const result = await response.json();
+
+    if (!result.success) return;
+
+    const pendingList = document.getElementById("pendingScheduleList");
+    const completedList = document.getElementById("completedScheduleList");
+
+    pendingList.innerHTML = "";
+    completedList.innerHTML = "";
+
+    result.data.forEach(schedule => {
+
+        const row = document.createElement("tr");
+        row.className = "schedule-row";
+
+        row.onclick = () => {
+            modalSchedule.classList.remove("hidden");
+            modalSchedule.classList.add("active");
+
+            modalScheduleNo.textContent = schedule.arrangement_no;
+            modalCustomer.textContent = schedule.performed_by;
+            modalDeceased.textContent = schedule.deceased_name;
+            modalService.textContent = schedule.service_type;
+            modalDate.textContent = schedule.arrangement_date;
+            modalTime.textContent = schedule.arrangement_time ?? "-"; // was missing
+            modalLocation.textContent = schedule.location;
+        };
+
+        row.innerHTML = `
+            <td>${schedule.arrangement_no}</td>
+            <td>${schedule.performed_by}</td>
+            <td>${schedule.deceased_name}</td>
+            <td>${schedule.service_type}</td>
+            <td>${schedule.arrangement_date}</td>
+            <td>${schedule.arrangement_time ?? "-"}</td>
+            <td>
+                <span class="${schedule.status === "Pending" ? "pending-badge" : "completed-badge"}">
+                    ${schedule.status}
+                </span>
+            </td>
+        `;
+
+        if (schedule.status === "Pending") {
+            pendingList.appendChild(row);
+        } else {
+            completedList.appendChild(row);
+        }
+
+    });
+
+}
+
+loadSchedules();
 // search function in each container of the preferences
 // pending orders
 const search = document.getElementById("preferenceSearch");

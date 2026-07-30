@@ -13,7 +13,7 @@ try{
     }
     $stmt = $conn->prepare("
         SELECT lifeplan_no
-        FROM lifeplan_requests
+        FROM lifeplan_request
         WHERE id=?
     ");
 
@@ -29,7 +29,7 @@ try{
     $order = $result->fetch_assoc();
     $conn->begin_transaction();
     $stmt = $conn->prepare("
-        UPDATE lifeplan_requests
+        UPDATE lifeplan_request
         SET status='rejected'
         WHERE id=?
     ");

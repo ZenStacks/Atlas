@@ -2611,24 +2611,30 @@ form {
 }
 /* Schedule */
 .schedule-container{
-    width:100%;
-    padding:20px;
-    background:#f7f9fc;
-    border-radius:15px;
-    box-sizing:border-box;
+    display: flex;
+    flex-direction: column;
+    width: 100% !important;
 }
 .schedule-container h2{
-    font-size:30px;
-    color:#1d2b53;
-    margin-bottom:20px;
+    margin: 0;
+    width: 100%;
+    font-size: 28px;
+    font-weight: 600;
+    color: #2c3e50;
+    border-bottom: 3px solid #111;
+    padding-bottom: 4px;
+    display: inline-block;
+    letter-spacing: 3px;
+    text-transform: uppercase;
 }
 .schedule-tabs{
     display:flex;
     gap:15px;
     margin-bottom:20px;
+    margin-top: 10px;
 }
 .schedule-tab{
-    padding:12px 28px;
+    padding:10px 20px;
     border:none;
     outline:none;
     background:#ececec;

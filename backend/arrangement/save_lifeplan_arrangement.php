@@ -77,7 +77,7 @@ try {
         $updateStock->close();
         $checkStock->close();
     }
-    $updateLifeplan = $conn->prepare("UPDATE lifeplan_requests SET status = 'In Progress' WHERE lifeplan_no = ?");
+    $updateLifeplan = $conn->prepare("UPDATE  SET status = 'In Progress' WHERE lifeplan_no = ?");
     $updateLifeplan->bind_param("s", $lifeplanNo);
     if (!$updateLifeplan->execute()) {
         throw new Exception($updateLifeplan->error);

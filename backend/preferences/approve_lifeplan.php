@@ -24,7 +24,7 @@ try {
     $remainingBalance = floatval(htmlspecialchars(trim($_POST["remaining_balance"])));
     $approvedBy = $_SESSION["user_id"];
 
-    $stmt = $conn->prepare("SELECT id, lifeplan_no, user_id FROM lifeplan_requests WHERE id = ?");
+    $stmt = $conn->prepare("SELECT id, lifeplan_no, user_id FROM lifeplan_request WHERE id = ?");
     $stmt->bind_param("i", $lifeplanRequestId);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -52,7 +52,7 @@ try {
     if (!$insert->execute()) {
         throw new Exception($insert->error);
     }
-    $update = $conn->prepare("UPDATE lifeplan_requests SET status='approved' WHERE id=?");
+    $update = $conn->prepare("UPDATE lifeplan_request SET status='approved' WHERE id=?");
     $update->bind_param("i", $lifeplanRequestId);
     if (!$update->execute()) {
         throw new Exception($update->error);

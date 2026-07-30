@@ -102,7 +102,7 @@ try {
         );
     }
     $year = date("Y");
-    $result = $conn->query("SELECT MAX(id) AS last_id FROM lifeplan_requests");
+    $result = $conn->query("SELECT MAX(id) AS last_id FROM lifeplan_request");
     $row = $result->fetch_assoc();
     $nextId = ($row['last_id'] ?? 0) + 1;
 
@@ -112,7 +112,7 @@ try {
         $nextId
     );
 
-    $check = $conn->prepare("SELECT id FROM lifeplan_requests WHERE planholder_lastname = ?
+    $check = $conn->prepare("SELECT id FROM lifeplan_request WHERE planholder_lastname = ?
         AND planholder_firstname = ? AND planholder_middlename = ? AND date_of_birth = ? 
         AND gov_id_number = ? AND status != 'cancelled' LIMIT 1");
 
@@ -131,7 +131,7 @@ try {
     if ($result->num_rows > 0) {
         throw new Exception("A Life Plan already exists for this plan holder.");
     }
-    $stmt = $conn->prepare("INSERT INTO lifeplan_requests (lifeplan_no, user_id, performed_by, coffin_id, coffin_source, quantity,
+    $stmt = $conn->prepare("INSERT INTO lifeplan_request (lifeplan_no, user_id, performed_by, coffin_id, coffin_source, quantity,
         relationship, applicant_name, applicant_contact_no, applicant_email, planholder_lastname, planholder_firstname, planholder_middlename, age, date_of_birth,
         gender, civil_status, occupation, contact_number, email_address, residential_address, plan_type, payment_option, 
         payment_term, retail_price, lifeplan_max_months, term_payment, funeral_service, prefered_cemetery, 

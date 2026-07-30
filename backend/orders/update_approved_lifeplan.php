@@ -67,7 +67,7 @@ try {
     if (!$stmt->execute()) {
         throw new Exception($stmt->error);
     }
-    $stmt = $conn->prepare("UPDATE lifeplan_requests SET residential_address = ? WHERE lifeplan_no = ?");
+    $stmt = $conn->prepare("UPDATE lifeplan_request SET residential_address = ? WHERE lifeplan_no = ?");
     $stmt->bind_param(
         "ss",
         $residentialAddress,

@@ -45,7 +45,7 @@ try {
 
         FROM approved_lifeplans apl
 
-        INNER JOIN lifeplan_requests lp
+        INNER JOIN lifeplan_request lp
             ON apl.lifeplan_request_id = lp.id
 
         LEFT JOIN customers c
