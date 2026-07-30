@@ -1,3 +1,135 @@
+<?php
+require '../../backend/conn.php';
+
+if (!isset($_SESSION["user_id"])) {
+    header("Location: ../../login.php");
+    exit;
+}
+
+$user_id = $_SESSION["user_id"];
+
+$stmt = $conn->prepare("
+    SELECT name
+    FROM employer
+    WHERE id = ?
+");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+
+$result = $stmt->get_result();
+$staff = $result->fetch_assoc();
+
+$name = $staff['name'] ?? 'Staff';
+$sql = "SELECT
+        sa.id,
+        sa.arrangement_no,
+        sa.arrangement_date,
+        sa.status,
+        sa.created_by,
+        sa.assigned_by,
+        sa.completed_by,
+        sa.completed_at,
+        sr.service_request_no AS request_no,
+        sr.performed_by,
+        CONCAT(
+            sr.beneficiary_firstname,' ',
+            IFNULL(sr.beneficiary_middlename,''),' ',
+            sr.beneficiary_lastname
+        ) AS deceased_name,
+        sr.service_type,
+        sr.location,
+        'At-Need' AS schedule_type,
+        'service' AS source
+
+    FROM service_arrangements sa
+    INNER JOIN service_requests sr
+        ON sa.service_request_no = sr.service_request_no
+    WHERE sa.status IN ('Pending', 'In Progress')
+
+    UNION ALL
+
+    SELECT
+        la.id,
+        la.arrangement_no,
+        la.arrangement_date,
+        la.status,
+        la.created_by,
+        la.assigned_by,
+        NULL AS completed_by,
+        NULL AS completed_at,
+        lr.lifeplan_no AS request_no,
+        lr.performed_by,
+        CONCAT(
+            lr.planholder_firstname,' ',
+            IFNULL(lr.planholder_middlename,''),' ',
+            lr.planholder_lastname
+        ) AS deceased_name,
+        'Pre-Need' AS service_type,
+        '-' AS location,
+        'Pre-Need' AS schedule_type,
+        'lifeplan' AS source
+
+    FROM lifeplan_arrangements la
+    INNER JOIN approved_lifeplans ap
+        ON la.approved_lifeplan_id = ap.id
+    INNER JOIN lifeplan_request lr
+        ON ap.lifeplan_request_id = lr.id
+    WHERE la.status IN ('Pending', 'In Progress')
+
+    ORDER BY
+        status='Pending' DESC,
+        arrangement_date ASC
+";
+$result = $conn->query($sql);
+$tasks = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+
+// completed service
+$sqlCompleted = "SELECT
+        sa.id,
+        CONCAT(
+            sr.beneficiary_firstname,' ',
+            IFNULL(sr.beneficiary_middlename,''),' ',
+            sr.beneficiary_lastname
+        ) AS deceased_name,
+        sr.service_type,
+        sr.date_need,
+        sr.interment_date,
+        sa.status
+
+    FROM service_arrangements sa
+    INNER JOIN service_requests sr
+        ON sa.service_request_no = sr.service_request_no
+
+    WHERE sa.status = 'Completed'
+
+    UNION ALL
+
+    SELECT
+        la.id,
+        CONCAT(
+            lr.planholder_firstname,' ',
+            IFNULL(lr.planholder_middlename,''),' ',
+            lr.planholder_lastname
+        ) AS deceased_name,
+        'Pre-Need' AS service_type,
+        NULL AS date_need,
+        NULL AS interment_date,
+        la.status
+
+    FROM lifeplan_arrangements la
+    INNER JOIN approved_lifeplans ap
+        ON la.approved_lifeplan_id = ap.id
+    INNER JOIN lifeplan_request lr
+        ON ap.lifeplan_request_id = lr.id
+
+    WHERE la.status = 'Completed'
+
+    ORDER BY interment_date DESC, date_need DESC;
+    ";
+
+$resultCompleted = $conn->query($sqlCompleted);
+$completedServices = $resultCompleted ? $resultCompleted->fetch_all(MYSQLI_ASSOC) : [];
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +138,7 @@
     <title>Staff Page</title>
     <link rel="stylesheet" href="../../assets/style/staff.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <div class="whole-page-container">
@@ -14,61 +147,141 @@
                 <div class="navigation">
                     <span>Staff Dashboard</span>
                 </div>
-
                 <div class="welcome-section">
-                    <h2>Welcome, John Smith</h2>
+                    <h2>Welcome, <?= htmlspecialchars($name) ?></h2>
                     <p>Manage your assigned duties, leave requests, and service information.</p>
                 </div>
-
                 <div class="quick-actions">
-
                     <div class="action-card" id="profile-card">
                         <h3>My Profile</h3>
                         <p>View and update your personal information and account details.</p>
                     </div>
-
                     <div class="action-card" id="assigned-task">
                         <h3>Assigned Tasks</h3>
                         <p>View your assigned funeral service duties and task schedules.</p>
                     </div>
-
-                    <div class="action-card" id="leave-request">
-                        <h3>Leave Requests</h3>
-                        <p>Submit, track, and manage your leave applications.</p>
-                    </div>
-
                     <div class="action-card" id="deceased-records">
                         <h3>Deceased Records</h3>
                         <p>View deceased information and service details assigned by management.</p>
                     </div>
-
                 </div>
-
                 <div class="staff-overview">
-
                     <div class="status-section">
                         <h2>Availability Status</h2>
                         <div class="status-card">
-                            <span class="available">Available</span>
+                            <span class="available" id="availabilityStatus">
+                                Available
+                            </span>
+                            <button id="toggleAvailabilityBtn" class="unavailable-btn">
+                                Mark as Unavailable Today
+                            </button>
                         </div>
                     </div>
-
                     <div class="task-section">
                         <h2>Today's Assigned Tasks</h2>
-
-                        <ul>
-                            <li>Prepare viewing chapel for Juan Dela Cruz</li>
-                            <li>Coordinate floral arrangements</li>
-                            <li>Assist family consultation at 2:00 PM</li>
-                            <li>Verify burial schedule documents</li>
-                        </ul>
+                        <table class="tasks-table">
+                            <thead>
+                                <tr>
+                                    <th>Deceased Name</th>
+                                    <th>Service Type</th>
+                                    <th>Schedule</th>
+                                    <th>Arrangement Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (count($tasks) > 0): ?>
+                                    <?php foreach ($tasks as $task):
+                                        $statusNorm = strtolower(str_replace(' ', '_', $task['status']));
+                                    ?>
+                                        <tr>
+                                            <td>
+                                                <a href="#"
+                                                class="deceased-link"
+                                                data-task-id="<?= htmlspecialchars($task['id']) ?>"
+                                                data-source="<?= htmlspecialchars($task['source']) ?>"
+                                                data-name="<?= htmlspecialchars($task['deceased_name']) ?>"
+                                                data-request-no="<?= htmlspecialchars($task['request_no']) ?>"
+                                                data-service-type="<?= htmlspecialchars($task['service_type']) ?>"
+                                                data-location="<?= htmlspecialchars($task['location']) ?>"
+                                                data-performed-by="<?= htmlspecialchars($task['performed_by']) ?>"
+                                                data-arrangement-date="<?= htmlspecialchars($task['arrangement_date']) ?>"
+                                                data-status="<?= htmlspecialchars($task['status']) ?>">
+                                                    <?= htmlspecialchars($task['deceased_name']) ?>
+                                                </a>
+                                            </td>
+                                            <td><?= htmlspecialchars($task['service_type']) ?></td>
+                                            <td><?= htmlspecialchars($task['schedule_type']) ?></td>
+                                            <td><?= htmlspecialchars($task['arrangement_date']) ?></td>
+                                            <td>
+                                                <span class="task-status status-<?= htmlspecialchars($statusNorm) ?>">
+                                                    <?= htmlspecialchars(ucfirst(str_replace('_', ' ', $task['status']))) ?>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr><td colspan="6">No arrangements assigned.</td></tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
+                    <!-- Modal -->
+                    <div id="deceasedModal" class="modal">
+                        <div class="modal-content">
 
+                            <div class="modal-header">
+                                <div>
+                                    <h2 id="modalName"></h2>
+                                    <span class="modal-subtitle">Assigned Funeral Service</span>
+                                </div>
+
+                                <span class="close-modal">&times;</span>
+                            </div>
+
+                            <div class="modal-body">
+
+                                <div class="detail-card">
+                                    <div class="detail-item">
+                                        <label>Request No.</label>
+                                        <span id="modalRequestNo"></span>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <label>Service Type</label>
+                                        <span id="modalServiceType"></span>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <label>Location</label>
+                                        <span id="modalLocation"></span>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <label>Performed By</label>
+                                        <span id="modalPerformedBy"></span>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <label>Arrangement Date</label>
+                                        <span id="modalArrangementDate"></span>
+                                    </div>
+
+                                    <div class="detail-item">
+                                        <label>Status</label>
+                                        <span id="modalStatus" class="status-badge"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="cancel-btn">Close</button>
+                                <button id="modalActionBtn"></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
                 <div class="deceased-section">
                     <h2>Assigned Service Information</h2>
-
                     <table>
                         <thead>
                             <tr>
@@ -79,15 +292,34 @@
                                 <th>Status</th>
                             </tr>
                         </thead>
-
                         <tbody>
+                        <?php if (!empty($completedServices)): ?>
+                            <?php foreach ($completedServices as $service): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($service['deceased_name']) ?></td>
+                                    <td><?= htmlspecialchars($service['service_type']) ?></td>
+                                    <td>
+                                        <?= $service['date_need']
+                                            ? date("F j, Y", strtotime($service['date_need']))
+                                            : '-' ?>
+                                    </td>
+                                    <td>
+                                        <?= $service['interment_date']
+                                            ? date("F j, Y", strtotime($service['interment_date']))
+                                            : '-' ?>
+                                    </td>
+                                    <td>
+                                        <span class="task-status status-completed">
+                                            <?= htmlspecialchars($service['status']) ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
                             <tr>
-                                <td>Juan Dela Cruz</td>
-                                <td>Premium Package</td>
-                                <td>June 15, 2026</td>
-                                <td>June 18, 2026</td>
-                                <td>Assigned</td>
+                                <td colspan="5">No completed services found.</td>
                             </tr>
+                        <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -108,44 +340,35 @@
                         <label>Employee ID</label>
                         <input type="text" value="EMP-001" readonly>
                     </div>
-
-                    <div class="profile-group">
-                        <label>First Name</label>
-                        <input type="text" value="John">
-                    </div>
-
-                    <div class="profile-group">
-                        <label>Last Name</label>
-                        <input type="text" value="Smith">
-                    </div>
-
-                    <div class="profile-group">
-                        <label>Email Address</label>
-                        <input type="email" value="johnsmith@gmail.com">
-                    </div>
-
                     <div class="profile-group">
                         <label>Contact Number</label>
                         <input type="text" value="09123456789">
                     </div>
-
+                    <div class="profile-group">
+                        <label>First Name</label>
+                        <input type="text" value="John">
+                    </div>
+                    <div class="profile-group">
+                        <label>Email Address</label>
+                        <input type="email" value="johnsmith@gmail.com">
+                    </div>
+                    <div class="profile-group">
+                        <label>Last Name</label>
+                        <input type="text" value="Smith">
+                    </div>
                     <div class="profile-group">
                         <label>Address</label>
                         <textarea rows="3">Maasin, Iloilo</textarea>
                     </div>
-
                     <div class="profile-group">
                         <label>Position</label>
                         <input type="text" value="Funeral Staff" readonly>
                     </div>
-
                     <div class="profile-buttons">
                         <button class="save-btn">Save Changes</button>
                         <button class="password-btn">Change Password</button>
                     </div>
-
                 </div>
-
             </div>
         </div>
         <!-- assigned task section -->
@@ -181,99 +404,11 @@
                         <span class="task-date">June 15, 2026 • 2:00 PM</span>
                         <span class="task-status completed">Completed</span>
                     </div>
-
                 </div>
-
             </div>
-
-        </div>
-        <div class="leave-request-section" id="leave-request-section">
-            <div class="leave-request-container">
-                <div class="leave-request-header">
-                    <div class="leave-request-title">
-                        <i class="bi bi-arrow-left" id="leave-request-back-button"></i>
-                        <h2>Leave Requests</h2>
-                    </div>
-                    <p>Submit and monitor your leave applications.</p>
-                </div>
-                <form class="leave-form">
-
-                    <div class="form-group">
-                        <label>Leave Type</label>
-                        <select>
-                            <option>Sick Leave</option>
-                            <option>Vacation Leave</option>
-                            <option>Emergency Leave</option>
-                            <option>Maternity Leave</option>
-                            <option>Paternity Leave</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Start Date</label>
-                        <input type="date">
-                    </div>
-
-                    <div class="form-group">
-                        <label>End Date</label>
-                        <input type="date">
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>Reason</label>
-                        <textarea rows="4"></textarea>
-                    </div>
-
-                    <div class="form-buttons">
-                        <button type="submit" class="submit-btn">
-                            Submit Request
-                        </button>
-                    </div>
-
-                </form>
-
-                <div class="leave-history">
-
-                    <h3>Previous Requests</h3>
-
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Type</th>
-                                <th>Duration</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            <tr>
-                                <td>Vacation Leave</td>
-                                <td>June 1 - June 3, 2026</td>
-                                <td><span class="approved">Approved</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Sick Leave</td>
-                                <td>May 12, 2026</td>
-                                <td><span class="pending">Pending</span></td>
-                            </tr>
-
-                            <tr>
-                                <td>Emergency Leave</td>
-                                <td>April 5, 2026</td>
-                                <td><span class="rejected">Rejected</span></td>
-                            </tr>
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
         </div>
         <!-- deceased record -->
-         <div class="deceased-records-section" id="deceased-records-section">
+        <div class="deceased-records-section" id="deceased-records-section">
             <div class="deceased-records-container">
                 <div class="records-header">
                     <div class="deceased-records-title">
@@ -294,44 +429,33 @@
                             <th>Status</th>
                         </tr>
                     </thead>
-
                     <tbody>
-
+                    <?php if(!empty($completedRecords)): ?>
+                        <?php foreach($completedRecords as $record): ?>
                         <tr>
-                            <td>DC-001</td>
-                            <td>Juan Dela Cruz</td>
-                            <td>68</td>
-                            <td>Premium Package</td>
-                            <td>June 15, 2026</td>
-                            <td>June 18, 2026</td>
-                            <td><span class="assigned">Assigned</span></td>
+                            <td><?= htmlspecialchars($record['case_no']) ?></td>
+                            <td><?= htmlspecialchars($record['deceased_name']) ?></td>
+                            <td><?= htmlspecialchars($record['age']) ?></td>
+                            <td><?= htmlspecialchars($record['service_type']) ?></td>
+                            <td><?= date("F j, Y", strtotime($record['date_need'])) ?></td>
+                            <td><?= date("F j, Y", strtotime($record['interment_date'])) ?></td>
+                            <td>
+                                <span class="completed">
+                                    Completed
+                                </span>
+                            </td>
                         </tr>
-
-                        <tr>
-                            <td>DC-002</td>
-                            <td>Maria Santos</td>
-                            <td>74</td>
-                            <td>Standard Package</td>
-                            <td>June 20, 2026</td>
-                            <td>June 23, 2026</td>
-                            <td><span class="ongoing">Ongoing</span></td>
-                        </tr>
-
-                        <tr>
-                            <td>DC-003</td>
-                            <td>Pedro Reyes</td>
-                            <td>80</td>
-                            <td>Premium Package</td>
-                            <td>June 25, 2026</td>
-                            <td>June 28, 2026</td>
-                            <td><span class="completed">Completed</span></td>
-                        </tr>
-
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                    <tr>
+                        <td colspan="7" style="text-align:center;">
+                            No completed deceased records found.
+                        </td>
+                    </tr>
+                    <?php endif; ?>
                     </tbody>
                 </table>
-
             </div>
-
         </div>
     </div>
 </body>
@@ -351,7 +475,51 @@ document.addEventListener("DOMContentLoaded", () => {
         dashboardContent.style.display = "block";
 
     });
-    // assigned task section
+    // available button
+    const status = document.getElementById("availabilityStatus");
+    const btn = document.getElementById("toggleAvailabilityBtn");
+
+    btn.addEventListener("click", () => {
+        const newStatus = status.textContent.trim() === "Available"
+            ? "Unavailable"
+            : "Active";
+
+        fetch("../../backend/staff/update_availability.php", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "status=" + encodeURIComponent(newStatus)
+        })
+        .then(res => res.json())
+        .then(data => {
+
+            if (data.status === "success") {
+
+                if (newStatus === "Unavailable") {
+                    status.textContent = "Unavailable Today";
+                    status.className = "unavailable";
+                    btn.textContent = "Mark as Available";
+                    btn.classList.add("available-btn");
+                } else {
+                    status.textContent = "Available";
+                    status.className = "available";
+                    btn.textContent = "Mark as Unavailable Today";
+                    btn.classList.remove("available-btn");
+                }
+
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: data.message
+                });
+            }
+
+        })
+        .catch(console.error);
+
+    });
+    // assigned tasks
     const assignedTaskCard = document.getElementById("assigned-task");
     const assignedTaskSection = document.getElementById("assigned-task-section");
     const assignedTaskBackButton = document.getElementById("assigned-task-back-button");
@@ -363,19 +531,111 @@ document.addEventListener("DOMContentLoaded", () => {
         assignedTaskSection.style.display = "none";
         dashboardContent.style.display = "block";
     });
-    // leave request
-    const leaveRequestCard = document.getElementById("leave-request");
-    const leaveRequestSection = document.getElementById("leave-request-section");
-    const leaveRequestBackButton = document.getElementById("leave-request-back-button");
-    leaveRequestCard.addEventListener("click", () => {
-        dashboardContent.style.display = "none";
-        leaveRequestSection.style.display = "block";
-    });
-    leaveRequestBackButton.addEventListener("click", () => {
-        leaveRequestSection.style.display = "none";
-        dashboardContent.style.display = "block";
+    const modal = document.getElementById("deceasedModal");
+    const closeModal = document.querySelector(".close-modal");
+    let currentTaskId = null;
+    let currentStatus = null;
+    let currentSource = null;
+    document.querySelectorAll(".deceased-link").forEach(link => {
+        link.addEventListener("click", (e) => {
+            e.preventDefault();console.log("Clicked!");
+            const d = e.currentTarget.dataset;
+            console.log(d);
+            currentTaskId = d.taskId;
+            currentStatus = d.status;
+            currentSource = d.source;
 
+            document.getElementById("modalName").innerText = d.name;
+            document.getElementById("modalRequestNo").innerText = d.requestNo;
+            document.getElementById("modalServiceType").innerText = d.serviceType;
+            document.getElementById("modalLocation").innerText = d.location || "N/A";
+            document.getElementById("modalPerformedBy").innerText = d.performedBy;
+            document.getElementById("modalArrangementDate").innerText = d.arrangementDate;
+            document.getElementById("modalStatus").innerText = d.status;
+
+            const actionBtn = document.getElementById("modalActionBtn");
+            const status = d.status.toLowerCase().replace(/\s+/g, "_");
+
+            if (status === "pending") {
+                actionBtn.innerText = "Begin";
+                actionBtn.dataset.action = "begin";
+                actionBtn.style.display = "inline-block";
+            } else if (status === "in_progress") {
+                actionBtn.innerText = "Mark as Complete";
+                actionBtn.dataset.action = "complete";
+                actionBtn.style.display = "inline-block";
+            } else {
+                actionBtn.style.display = "none";
+            }
+
+            modal.style.display = "flex";
+        });
     });
+
+    closeModal.addEventListener("click", () => modal.style.display = "none");
+    window.addEventListener("click", (e) => {
+        if (e.target === modal) modal.style.display = "none";
+    });
+    document.getElementById("modalActionBtn").addEventListener("click", (e) => {
+        const action = e.target.dataset.action;
+        updateTaskStatus(currentTaskId, currentSource, action, true); 
+    });
+    document.querySelectorAll(".begin-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            updateTaskStatus(
+                e.target.dataset.taskId,
+                e.target.dataset.source,
+                "begin",
+                false
+            );
+        });
+    });
+
+    document.querySelectorAll(".complete-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            updateTaskStatus(
+                e.target.dataset.taskId,
+                e.target.dataset.source,
+                "complete",
+                false
+            );
+        });
+    });
+    function updateTaskStatus(taskId, source, action, fromModal) {
+
+        fetch("../../backend/staff/update_status.php", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: new URLSearchParams({
+                task_id: taskId,
+                source: source,
+                action: action
+            })
+        })
+        .then(res => res.text())
+        .then(data => {
+            const json = JSON.parse(data);
+            if (json.status === "success") {
+                Swal.fire({
+                    icon: "success",
+                    title: action === "begin"
+                        ? "Task Started"
+                        : "Task Completed",
+                    timer: 1200,
+                    showConfirmButton: false
+                }).then(() => location.reload());
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: json.message
+                });
+            }
+        })
+        .catch(err => console.error(err));
+    }
     // deceased record
     const deceasedRecordsCard = document.getElementById("deceased-records");
     const deceasedRecordsSection = document.getElementById("deceased-records-section");

@@ -2238,17 +2238,6 @@ session_start();
                             </thead>
                             <tbody id="pendingScheduleList">
                                 <tr class="schedule-row">
-                                    <td>SC-2026001</td>
-                                    <td>Juan Dela Cruz</td>
-                                    <td>Maria Cruz</td>
-                                    <td>Burial Service</td>
-                                    <td>July 30, 2026</td>
-                                    <td>8:00 AM</td>
-                                    <td>
-                                        <span class="pending-badge">
-                                            Pending
-                                        </span>
-                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -2963,9 +2952,10 @@ session_start();
                                             <label for="status">Status: </label>
                                             <select id="status" name="status">
                                                 <option value="" disabled selected>Select Employee Status</option>
-                                                <option value="active">Active</option>
-                                                <option value="on-leave">On leave</option>
-                                                <option value="terminated">Terminated</option>
+                                                <option value="Active">Active</option>
+                                                <option value="Unavailable">Unavailable</option>
+                                                <option value="On Leave">On Leave</option>
+                                                <option value="Terminated">Terminated</option>
                                             </select>
                                             <label for="hired">Date Hired:</label>
                                             <input type="date" id="hired" name="hired" placeholder="Enter Date Hired">
@@ -3558,9 +3548,7 @@ session_start();
     fileInput.addEventListener('change', function () {
         const file = this.files[0];
         if (!file) return;
-
         selectedFile = file;
-
         const reader = new FileReader();
         reader.onload = function (e) {
             imagePreview.style.display = "flex"; 
@@ -3575,7 +3563,6 @@ session_start();
         };
         reader.readAsDataURL(file);
     });
-
     function clearFile() {
         selectedFile = null;
         fileInput.value = "";
@@ -3586,10 +3573,8 @@ session_start();
     function addMessage(content, sender, image = null) {
         const wrapper = document.createElement('div');
         wrapper.className = `message-wrapper ${sender}`;
-
         const div = document.createElement('div');
         div.className = `message ${sender}`;
-
         if (image) {
             div.innerHTML = `
                 <img src="../assets/img/uploads/chat/${image}" class="chat-image">
@@ -3598,14 +3583,12 @@ session_start();
         } else {
             div.textContent = content;
         }
-
         wrapper.appendChild(div);
         messagesContainer.appendChild(wrapper);
     }
     function sendMessage() {
         const message = adminInput.value.trim();
         if (!message && !selectedFile) return;
-
         if (selectedCustomerId === 0) {
             Swal.fire({
                 icon: "warning",
@@ -3615,24 +3598,19 @@ session_start();
             });
             return;
         }
-
         const formData = new FormData();
         formData.append('sender', 'admin');
         formData.append('message', message);
         formData.append('customer_id', selectedCustomerId);
-
         if (selectedFile) {
             formData.append('image', selectedFile);
         }
-
         fetch('../backend/message/send_message.php', {
             method: 'POST',
             body: formData
         });
-
         adminInput.value = "";
         clearFile();
-        
         adminInput.style.height = '24px';
         setTimeout(scrollToBottom, 50);
     }
@@ -3651,7 +3629,6 @@ session_start();
                 unreadCounts = {};
                 data.forEach(row => {
                     unreadCounts[row.customer_id] = row.unread;
-                    // Populates sidebar layout items for any unread context elements 
                     if(row.customer_name) {
                         addNotification(row.customer_name, row.customer_id, row.profile_img);
                     }
@@ -10150,7 +10127,7 @@ async function loadSchedules() {
             modalDeceased.textContent = schedule.deceased_name;
             modalService.textContent = schedule.service_type;
             modalDate.textContent = schedule.arrangement_date;
-            modalTime.textContent = schedule.arrangement_time ?? "-"; // was missing
+            modalTime.textContent = new Date().toLocaleTimeString("en-US", {hour: "numeric",minute: "2-digit",hour12: true});
             modalLocation.textContent = schedule.location;
         };
 
@@ -10160,7 +10137,7 @@ async function loadSchedules() {
             <td>${schedule.deceased_name}</td>
             <td>${schedule.service_type}</td>
             <td>${schedule.arrangement_date}</td>
-            <td>${schedule.arrangement_time ?? "-"}</td>
+            <td>${new Date().toLocaleDateString()}</td>
             <td>
                 <span class="${schedule.status === "Pending" ? "pending-badge" : "completed-badge"}">
                     ${schedule.status}

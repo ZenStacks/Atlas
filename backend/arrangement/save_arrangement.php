@@ -24,8 +24,8 @@ try {
         throw new Exception("An arrangement has already been created for this service request.");
     }
     // create arrangement
-    $stmt = $conn->prepare("INSERT INTO service_arrangements (arrangement_no, service_request_no, arrangement_date, status, remarks, created_by)
-        VALUES(?, ?, CURDATE(), 'Pending', '', ?)");
+    $stmt = $conn->prepare("INSERT INTO service_arrangements (arrangement_no, service_request_no, arrangement_date, status, created_by)
+        VALUES(?, ?, CURDATE(), 'Pending', ?)");
     $stmt->bind_param(
         "ssi",
         $arrangement_no,

@@ -88,9 +88,10 @@ Completed
 - Order Processing
 - Revenue Dashboard
 - Google Maps Integration
+- Customer Preferences
 
 In progress
-- Preferences or Handling orders module
+- Schedule - fetching pending data to assign schedule
 
 CONTRIBUTORS
 - Developed as part of a Funeral Management System project.
