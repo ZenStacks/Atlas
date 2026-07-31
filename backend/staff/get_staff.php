@@ -39,6 +39,7 @@ if ($actionType === "profile") {
             "name" => $user["name"],
             "username" => $user["username"],
             "email" => $user["email"],
+            "ip_address" => $user["ip_address"],
             "role" => $displayRole,
             "department" => $user["department"],
             "type" => $user["type"],

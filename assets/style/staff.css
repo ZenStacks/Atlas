@@ -173,6 +173,17 @@ body{
 .deceased-section tr:hover{
     background: #f8f9fa;
 }
+.view-more{
+    display: block;
+    text-align: right;
+    margin-top: 15px;
+    color: #3c3d8b;
+    text-decoration: none;
+    font-weight: 600;
+}
+.view-more:hover{
+    text-decoration: underline;
+}
 .profile-section{
     display: none;
     background: #f4f6f9;
@@ -307,10 +318,41 @@ body{
 .assigned-task-section{
     display: none;
 }
-.assigned-task-title{
-    display: flex;
-    flex-direction: row;
-    gap: 20px;
+.assigned-task-table-container{
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,.08);
+}
+
+.assigned-task-table{
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.assigned-task-table thead{
+    background: #2c3e50;
+    color: #fff;
+}
+
+.assigned-task-table th{
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.assigned-task-table td{
+    padding: 14px 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.assigned-task-table tbody tr:hover{
+    background: #f8f9fa;
+}
+
+.assigned-task-table tbody tr:last-child td{
+    border-bottom: none;
 }
 #assigned-task-back-button,
 #leave-request-back-button,
@@ -360,6 +402,7 @@ body{
     border-collapse:collapse;
     overflow:hidden;
     border-radius:12px;
+    max-height: 145px;
 }
 
 .tasks-table thead{

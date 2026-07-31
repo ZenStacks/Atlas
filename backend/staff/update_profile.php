@@ -42,8 +42,6 @@ if ($result->num_rows === 0) {
 }
 
 $user = $result->fetch_assoc();
-
-// CLEANED UP LOGIC: Only validate password adjustments if a new password value is supplied
 $isUpdatingPassword = false;
 if (!empty($new_password)) {
     if (empty($current_password)) {
@@ -63,19 +61,13 @@ if (!empty($new_password)) {
     }
     $isUpdatingPassword = true;
 }
-
-// File Upload Handler
 $profileName = $user["profile"];
 if (isset($_FILES["profile"]) && $_FILES["profile"]["error"] === 0) {
     $uploadDir = dirname(__DIR__, 2) . "../assets/img/uploads/profile/";
-
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
-
     $fileExtension = strtolower(pathinfo($_FILES["profile"]["name"], PATHINFO_EXTENSION));
-    
-    // Quick file extension whitelist check for security
     $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
     if (!in_array($fileExtension, $allowedExtensions)) {
         echo json_encode([

@@ -44,7 +44,7 @@ $sql = "SELECT
     FROM service_arrangements sa
     INNER JOIN service_requests sr
         ON sa.service_request_no = sr.service_request_no
-    WHERE sa.status IN ('Pending', 'In Progress')
+    WHERE sa.status IN ('Pending')
 
     UNION ALL
 
@@ -74,7 +74,7 @@ $sql = "SELECT
         ON la.approved_lifeplan_id = ap.id
     INNER JOIN lifeplan_request lr
         ON ap.lifeplan_request_id = lr.id
-    WHERE la.status IN ('Pending', 'In Progress')
+    WHERE la.status IN ('Pending')
 
     ORDER BY
         status='Pending' DESC,
@@ -82,9 +82,8 @@ $sql = "SELECT
 ";
 $result = $conn->query($sql);
 $tasks = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-
-// completed service
-$sqlCompleted = "SELECT
+// In progress service
+$sqlInProgress = "SELECT
         sa.id,
         CONCAT(
             sr.beneficiary_firstname,' ',
@@ -100,7 +99,7 @@ $sqlCompleted = "SELECT
     INNER JOIN service_requests sr
         ON sa.service_request_no = sr.service_request_no
 
-    WHERE sa.status = 'Completed'
+    WHERE sa.status = 'In Progress'
 
     UNION ALL
 
@@ -122,13 +121,61 @@ $sqlCompleted = "SELECT
     INNER JOIN lifeplan_request lr
         ON ap.lifeplan_request_id = lr.id
 
+    WHERE la.status = 'In Progress'
+
+    ORDER BY interment_date DESC, date_need DESC";
+
+$resultInProgress = $conn->query($sqlInProgress);
+$inProgressServices = $resultInProgress ? $resultInProgress->fetch_all(MYSQLI_ASSOC) : [];
+
+// complete
+$sqlComplete = "SELECT
+        sa.id,
+        CONCAT(
+            sr.beneficiary_firstname,' ',
+            IFNULL(sr.beneficiary_middlename,''),' ',
+            sr.beneficiary_lastname
+        ) AS deceased_name,
+        sr.service_type,
+        sr.age,
+        sr.date_need,
+        sr.interment_date,
+        sa.status,
+        sa.service_request_no AS case_no
+
+    FROM service_arrangements sa
+    INNER JOIN service_requests sr
+        ON sa.service_request_no = sr.service_request_no
+
+    WHERE sa.status = 'Completed'
+
+    UNION ALL
+
+    SELECT
+        la.id,
+        CONCAT(
+            lr.planholder_firstname,' ',
+            IFNULL(lr.planholder_middlename,''),' ',
+            lr.planholder_lastname
+        ) AS deceased_name,
+        'Pre-Need' AS service_type,
+        NULL AS date_need,
+        NULL AS interment_date,
+        lr.age,
+        la.status,
+        lr.lifeplan_no AS case_no
+    FROM lifeplan_arrangements la
+    INNER JOIN approved_lifeplans ap
+        ON la.approved_lifeplan_id = ap.id
+    INNER JOIN lifeplan_request lr
+        ON ap.lifeplan_request_id = lr.id
+
     WHERE la.status = 'Completed'
 
-    ORDER BY interment_date DESC, date_need DESC;
-    ";
+    ORDER BY interment_date DESC, date_need DESC";
 
-$resultCompleted = $conn->query($sqlCompleted);
-$completedServices = $resultCompleted ? $resultCompleted->fetch_all(MYSQLI_ASSOC) : [];
+$resultComplete = $conn->query($sqlComplete);
+$completeService = $resultComplete ? $resultComplete->fetch_all(MYSQLI_ASSOC) : [];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -225,59 +272,7 @@ $completedServices = $resultCompleted ? $resultCompleted->fetch_all(MYSQLI_ASSOC
                                 <?php endif; ?>
                             </tbody>
                         </table>
-                    </div>
-                    <!-- Modal -->
-                    <div id="deceasedModal" class="modal">
-                        <div class="modal-content">
-
-                            <div class="modal-header">
-                                <div>
-                                    <h2 id="modalName"></h2>
-                                    <span class="modal-subtitle">Assigned Funeral Service</span>
-                                </div>
-
-                                <span class="close-modal">&times;</span>
-                            </div>
-
-                            <div class="modal-body">
-
-                                <div class="detail-card">
-                                    <div class="detail-item">
-                                        <label>Request No.</label>
-                                        <span id="modalRequestNo"></span>
-                                    </div>
-
-                                    <div class="detail-item">
-                                        <label>Service Type</label>
-                                        <span id="modalServiceType"></span>
-                                    </div>
-
-                                    <div class="detail-item">
-                                        <label>Location</label>
-                                        <span id="modalLocation"></span>
-                                    </div>
-
-                                    <div class="detail-item">
-                                        <label>Performed By</label>
-                                        <span id="modalPerformedBy"></span>
-                                    </div>
-
-                                    <div class="detail-item">
-                                        <label>Arrangement Date</label>
-                                        <span id="modalArrangementDate"></span>
-                                    </div>
-
-                                    <div class="detail-item">
-                                        <label>Status</label>
-                                        <span id="modalStatus" class="status-badge"></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="modal-footer">
-                                <button class="cancel-btn">Close</button>
-                                <button id="modalActionBtn"></button>
-                            </div>
-                        </div>
+                        <a href="#" id="view-more-tasks" class="view-more">View More <i class="bi bi-arrow-right"></i></a>
                     </div>
                 </div>
                 <div class="deceased-section">
@@ -293,8 +288,8 @@ $completedServices = $resultCompleted ? $resultCompleted->fetch_all(MYSQLI_ASSOC
                             </tr>
                         </thead>
                         <tbody>
-                        <?php if (!empty($completedServices)): ?>
-                            <?php foreach ($completedServices as $service): ?>
+                        <?php if (!empty($inProgressServices)): ?>
+                            <?php foreach ($inProgressServices as $service): ?>
                                 <tr>
                                     <td><?= htmlspecialchars($service['deceased_name']) ?></td>
                                     <td><?= htmlspecialchars($service['service_type']) ?></td>
@@ -309,7 +304,7 @@ $completedServices = $resultCompleted ? $resultCompleted->fetch_all(MYSQLI_ASSOC
                                             : '-' ?>
                                     </td>
                                     <td>
-                                        <span class="task-status status-completed">
+                                        <span class="task-status status-in_progress">
                                             <?= htmlspecialchars($service['status']) ?>
                                         </span>
                                     </td>
@@ -317,7 +312,7 @@ $completedServices = $resultCompleted ? $resultCompleted->fetch_all(MYSQLI_ASSOC
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="5">No completed services found.</td>
+                                <td colspan="5">No services currently in progress.</td>
                             </tr>
                         <?php endif; ?>
                         </tbody>
@@ -331,38 +326,32 @@ $completedServices = $resultCompleted ? $resultCompleted->fetch_all(MYSQLI_ASSOC
             <div class="profile-container">
                 <div class="profile-image">
                     <h2>My Profile</h2>
-                    <img src="../../assets/img/profile.png" alt="Profile Picture">
+                    <img id="profilePreview" src="../../assets/img/profile.png" alt="Profile Picture">
                 </div>
-
                 <div class="profile-details">
-
                     <div class="profile-group">
                         <label>Employee ID</label>
-                        <input type="text" value="EMP-001" readonly>
+                        <input id="staffId" type="text" value="" readonly>
                     </div>
                     <div class="profile-group">
                         <label>Contact Number</label>
-                        <input type="text" value="09123456789">
+                        <input id="contactNo" type="text" value="">
                     </div>
                     <div class="profile-group">
-                        <label>First Name</label>
-                        <input type="text" value="John">
-                    </div>
-                    <div class="profile-group">
-                        <label>Email Address</label>
-                        <input type="email" value="johnsmith@gmail.com">
-                    </div>
-                    <div class="profile-group">
-                        <label>Last Name</label>
-                        <input type="text" value="Smith">
+                        <label>Employee Name</label>
+                        <input id="staffName" type="text" readonly>
                     </div>
                     <div class="profile-group">
                         <label>Address</label>
-                        <textarea rows="3">Maasin, Iloilo</textarea>
+                        <textarea id="address" rows="3"></textarea>
+                    </div>
+                    <div class="profile-group">
+                        <label>Email Address</label>
+                        <input id="email" type="email">
                     </div>
                     <div class="profile-group">
                         <label>Position</label>
-                        <input type="text" value="Funeral Staff" readonly>
+                        <input id="position" type="text" readonly>
                     </div>
                     <div class="profile-buttons">
                         <button class="save-btn">Save Changes</button>
@@ -374,36 +363,71 @@ $completedServices = $resultCompleted ? $resultCompleted->fetch_all(MYSQLI_ASSOC
         <!-- assigned task section -->
         <div class="assigned-task-section" id="assigned-task-section">
             <div class="assigned-task-container">
+
                 <div class="assigned-task-header">
                     <div class="assigned-task-title">
                         <i class="bi bi-arrow-left" id="assigned-task-back-button"></i>
-                        <h2>Assigned Tasks</h2>
+                        <h2>All Assigned Tasks</h2>
                     </div>
-                    <p>Your scheduled duties and responsibilities.</p>
+                    <p>
+                        View all of your assigned funeral service tasks, including pending,
+                        in progress, completed, and upcoming assignments.
+                    </p>
                 </div>
+                <div class="assigned-task-table-container">
+                    <table class="assigned-task-table">
+                        <thead>
+                            <tr>
+                                <th>Request No.</th>
+                                <th>Deceased Name</th>
+                                <th>Service Type</th>
+                                <th>Schedule</th>
+                                <th>Arrangement Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
 
-                <div class="task-list">
-
-                    <div class="task-card">
-                        <h3>Prepare Viewing Chapel</h3>
-                        <p>Juan Dela Cruz</p>
-                        <span class="task-date">June 15, 2026 • 8:00 AM</span>
-                        <span class="task-status pending">Pending</span>
-                    </div>
-
-                    <div class="task-card">
-                        <h3>Coordinate Floral Arrangement</h3>
-                        <p>Maria Santos</p>
-                        <span class="task-date">June 15, 2026 • 10:00 AM</span>
-                        <span class="task-status ongoing">Ongoing</span>
-                    </div>
-
-                    <div class="task-card">
-                        <h3>Family Consultation</h3>
-                        <p>Cruz Family</p>
-                        <span class="task-date">June 15, 2026 • 2:00 PM</span>
-                        <span class="task-status completed">Completed</span>
-                    </div>
+                        <tbody>
+                            <?php if (!empty($tasks)): ?>
+                                <?php foreach ($tasks as $task):
+                                    $statusNorm = strtolower(str_replace(' ', '_', $task['status']));
+                                ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($task['request_no']) ?></td>
+                                    <td>
+                                        <a href="#"
+                                            class="deceased-link"
+                                            data-task-id="<?= htmlspecialchars($task['id']) ?>"
+                                            data-source="<?= htmlspecialchars($task['source']) ?>"
+                                            data-name="<?= htmlspecialchars($task['deceased_name']) ?>"
+                                            data-request-no="<?= htmlspecialchars($task['request_no']) ?>"
+                                            data-service-type="<?= htmlspecialchars($task['service_type']) ?>"
+                                            data-location="<?= htmlspecialchars($task['location']) ?>"
+                                            data-performed-by="<?= htmlspecialchars($task['performed_by']) ?>"
+                                            data-arrangement-date="<?= htmlspecialchars($task['arrangement_date']) ?>"
+                                            data-status="<?= htmlspecialchars($task['status']) ?>">
+                                            <?= htmlspecialchars($task['deceased_name']) ?>
+                                        </a>
+                                    </td>
+                                    <td><?= htmlspecialchars($task['service_type']) ?></td>
+                                    <td><?= htmlspecialchars($task['schedule_type']) ?></td>
+                                    <td><?= date("F j, Y", strtotime($task['arrangement_date'])) ?></td>
+                                    <td>
+                                        <span class="task-status status-<?= $statusNorm; ?>">
+                                            <?= htmlspecialchars($task['status']) ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="6" style="text-align:center;">
+                                        No assigned tasks found.
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -430,8 +454,8 @@ $completedServices = $resultCompleted ? $resultCompleted->fetch_all(MYSQLI_ASSOC
                         </tr>
                     </thead>
                     <tbody>
-                    <?php if(!empty($completedRecords)): ?>
-                        <?php foreach($completedRecords as $record): ?>
+                    <?php if(!empty($completeService)): ?>
+                        <?php foreach($completeService as $record): ?>
                         <tr>
                             <td><?= htmlspecialchars($record['case_no']) ?></td>
                             <td><?= htmlspecialchars($record['deceased_name']) ?></td>
@@ -458,6 +482,59 @@ $completedServices = $resultCompleted ? $resultCompleted->fetch_all(MYSQLI_ASSOC
             </div>
         </div>
     </div>
+    <!-- Modal -->
+    <div id="deceasedModal" class="modal">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <div>
+                    <h2 id="modalName"></h2>
+                    <span class="modal-subtitle">Assigned Funeral Service</span>
+                </div>
+
+                <span class="close-modal">&times;</span>
+            </div>
+
+            <div class="modal-body">
+
+                <div class="detail-card">
+                    <div class="detail-item">
+                        <label>Request No.</label>
+                        <span id="modalRequestNo"></span>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Service Type</label>
+                        <span id="modalServiceType"></span>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Location</label>
+                        <span id="modalLocation"></span>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Performed By</label>
+                        <span id="modalPerformedBy"></span>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Arrangement Date</label>
+                        <span id="modalArrangementDate"></span>
+                    </div>
+
+                    <div class="detail-item">
+                        <label>Status</label>
+                        <span id="modalStatus" class="status-badge"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn">Close</button>
+                <button id="modalActionBtn"></button>
+            </div>
+        </div>
+    </div>
 </body>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
@@ -468,12 +545,11 @@ document.addEventListener("DOMContentLoaded", () => {
     profileCard.addEventListener("click", () => {
         dashboardContent.style.display = "none";
         profileSection.style.display = "block";
-
+        loadProfile();
     });
     backButton.addEventListener("click", () => {
         profileSection.style.display = "none";
         dashboardContent.style.display = "block";
-
     });
     // available button
     const status = document.getElementById("availabilityStatus");
@@ -522,8 +598,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // assigned tasks
     const assignedTaskCard = document.getElementById("assigned-task");
     const assignedTaskSection = document.getElementById("assigned-task-section");
+    const viewMoreBtn = document.getElementById("view-more-tasks");
     const assignedTaskBackButton = document.getElementById("assigned-task-back-button");
     assignedTaskCard.addEventListener("click", () => {
+        dashboardContent.style.display = "none";
+        assignedTaskSection.style.display = "block";
+    });
+    viewMoreBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+
         dashboardContent.style.display = "none";
         assignedTaskSection.style.display = "block";
     });
@@ -536,40 +619,42 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentTaskId = null;
     let currentStatus = null;
     let currentSource = null;
-    document.querySelectorAll(".deceased-link").forEach(link => {
-        link.addEventListener("click", (e) => {
-            e.preventDefault();console.log("Clicked!");
-            const d = e.currentTarget.dataset;
-            console.log(d);
-            currentTaskId = d.taskId;
-            currentStatus = d.status;
-            currentSource = d.source;
+    document.addEventListener("click", (e) => {
+        const link = e.target.closest(".deceased-link");
+        if (!link) return;
 
-            document.getElementById("modalName").innerText = d.name;
-            document.getElementById("modalRequestNo").innerText = d.requestNo;
-            document.getElementById("modalServiceType").innerText = d.serviceType;
-            document.getElementById("modalLocation").innerText = d.location || "N/A";
-            document.getElementById("modalPerformedBy").innerText = d.performedBy;
-            document.getElementById("modalArrangementDate").innerText = d.arrangementDate;
-            document.getElementById("modalStatus").innerText = d.status;
+        e.preventDefault();
 
-            const actionBtn = document.getElementById("modalActionBtn");
-            const status = d.status.toLowerCase().replace(/\s+/g, "_");
+        const d = link.dataset;
 
-            if (status === "pending") {
-                actionBtn.innerText = "Begin";
-                actionBtn.dataset.action = "begin";
-                actionBtn.style.display = "inline-block";
-            } else if (status === "in_progress") {
-                actionBtn.innerText = "Mark as Complete";
-                actionBtn.dataset.action = "complete";
-                actionBtn.style.display = "inline-block";
-            } else {
-                actionBtn.style.display = "none";
-            }
+        currentTaskId = d.taskId;
+        currentStatus = d.status;
+        currentSource = d.source;
 
-            modal.style.display = "flex";
-        });
+        document.getElementById("modalName").innerText = d.name;
+        document.getElementById("modalRequestNo").innerText = d.requestNo;
+        document.getElementById("modalServiceType").innerText = d.serviceType;
+        document.getElementById("modalLocation").innerText = d.location || "N/A";
+        document.getElementById("modalPerformedBy").innerText = d.performedBy;
+        document.getElementById("modalArrangementDate").innerText = d.arrangementDate;
+        document.getElementById("modalStatus").innerText = d.status;
+
+        const actionBtn = document.getElementById("modalActionBtn");
+        const status = d.status.toLowerCase().replace(/\s+/g, "_");
+
+        if (status === "pending") {
+            actionBtn.innerText = "Begin";
+            actionBtn.dataset.action = "begin";
+            actionBtn.style.display = "inline-block";
+        } else if (status === "in_progress") {
+            actionBtn.innerText = "Mark as Complete";
+            actionBtn.dataset.action = "complete";
+            actionBtn.style.display = "inline-block";
+        } else {
+            actionBtn.style.display = "none";
+        }
+
+        modal.style.display = "flex";
     });
 
     closeModal.addEventListener("click", () => modal.style.display = "none");
@@ -650,6 +735,47 @@ document.addEventListener("DOMContentLoaded", () => {
         dashboardContent.style.display = "block";
     });
 });
+// profile
+function loadProfile() {
+    fetch("../../backend/staff/get_staff.php?action=profile")
+        .then(response => response.json())
+        .then(result => {
+
+            console.log(result);
+
+            if (result.status !== "success") {
+                Swal.fire({
+                    icon: "error",
+                    title: result.message
+                });
+                return;
+            }
+
+            const staff = result.data;
+
+            document.getElementById("staffId").value = staff.staff_id;
+            document.getElementById("staffName").value = staff.name;
+            document.getElementById("contactNo").value = staff.contact_no;
+            document.getElementById("email").value = staff.email;
+            document.getElementById("address").value = staff.ip_address;
+            document.getElementById("position").value = staff.department;
+            const profileImg = document.getElementById("profilePreview");
+            profileImg.src = staff.profile || "../../assets/img/uploads/profile.png";
+            profileImg.onerror = function () {
+                this.src = "../../assets/img/profile.png";
+            };
+
+        })
+        .catch(error => {
+            console.error(error);
+
+            Swal.fire({
+                icon: "error",
+                title: "Failed to load profile."
+            });
+        });
+}
+
 </script>
 
 </html>
