@@ -84,46 +84,52 @@ $result = $conn->query($sql);
 $tasks = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
 // In progress service
 $sqlInProgress = "SELECT
-        sa.id,
-        CONCAT(
-            sr.beneficiary_firstname,' ',
-            IFNULL(sr.beneficiary_middlename,''),' ',
-            sr.beneficiary_lastname
-        ) AS deceased_name,
-        sr.service_type,
-        sr.date_need,
-        sr.interment_date,
-        sa.status
+    sa.id,
+    sa.arrangement_date,
+    sa.service_request_no AS request_no,
+    sr.performed_by,
+    sr.location,
+    CONCAT(
+        sr.beneficiary_firstname,' ',
+        IFNULL(sr.beneficiary_middlename,''),' ',
+        sr.beneficiary_lastname
+    ) AS deceased_name,
+    sr.service_type,
+    sr.date_need,
+    sr.interment_date,
+    sa.status,
+    'service' AS source
+FROM service_arrangements sa
+INNER JOIN service_requests sr
+    ON sa.service_request_no = sr.service_request_no
+WHERE sa.status = 'In Progress'
 
-    FROM service_arrangements sa
-    INNER JOIN service_requests sr
-        ON sa.service_request_no = sr.service_request_no
+UNION ALL
 
-    WHERE sa.status = 'In Progress'
+SELECT
+    la.id,
+    la.arrangement_date,
+    lr.lifeplan_no AS request_no,
+    lr.performed_by,
+    '-' AS location,
+    CONCAT(
+        lr.planholder_firstname,' ',
+        IFNULL(lr.planholder_middlename,''),' ',
+        lr.planholder_lastname
+    ) AS deceased_name,
+    'Pre-Need' AS service_type,
+    NULL AS date_need,
+    NULL AS interment_date,
+    la.status,
+    'lifeplan' AS source
+FROM lifeplan_arrangements la
+INNER JOIN approved_lifeplans ap
+    ON la.approved_lifeplan_id = ap.id
+INNER JOIN lifeplan_request lr
+    ON ap.lifeplan_request_id = lr.id
+WHERE la.status = 'In Progress'
 
-    UNION ALL
-
-    SELECT
-        la.id,
-        CONCAT(
-            lr.planholder_firstname,' ',
-            IFNULL(lr.planholder_middlename,''),' ',
-            lr.planholder_lastname
-        ) AS deceased_name,
-        'Pre-Need' AS service_type,
-        NULL AS date_need,
-        NULL AS interment_date,
-        la.status
-
-    FROM lifeplan_arrangements la
-    INNER JOIN approved_lifeplans ap
-        ON la.approved_lifeplan_id = ap.id
-    INNER JOIN lifeplan_request lr
-        ON ap.lifeplan_request_id = lr.id
-
-    WHERE la.status = 'In Progress'
-
-    ORDER BY interment_date DESC, date_need DESC";
+ORDER BY interment_date DESC, date_need DESC";
 
 $resultInProgress = $conn->query($sqlInProgress);
 $inProgressServices = $resultInProgress ? $resultInProgress->fetch_all(MYSQLI_ASSOC) : [];
@@ -291,7 +297,21 @@ $completeService = $resultComplete ? $resultComplete->fetch_all(MYSQLI_ASSOC) : 
                         <?php if (!empty($inProgressServices)): ?>
                             <?php foreach ($inProgressServices as $service): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($service['deceased_name']) ?></td>
+                                    <td>
+                                        <a href="#"
+                                        class="deceased-link"
+                                        data-task-id="<?= htmlspecialchars($service['id']) ?>"
+                                        data-source="<?= htmlspecialchars($service['source']) ?>"
+                                        data-name="<?= htmlspecialchars($service['deceased_name']) ?>"
+                                        data-request-no="<?= htmlspecialchars($service['request_no']) ?>"
+                                        data-service-type="<?= htmlspecialchars($service['service_type']) ?>"
+                                        data-location="<?= htmlspecialchars($service['location']) ?>"
+                                        data-performed-by="<?= htmlspecialchars($service['performed_by']) ?>"
+                                        data-arrangement-date="<?= htmlspecialchars($service['arrangement_date']) ?>"
+                                        data-status="<?= htmlspecialchars($service['status']) ?>">
+                                            <?= htmlspecialchars($service['deceased_name']) ?>
+                                        </a>
+                                    </td>
                                     <td><?= htmlspecialchars($service['service_type']) ?></td>
                                     <td>
                                         <?= $service['date_need']
@@ -321,42 +341,145 @@ $completeService = $resultComplete ? $resultComplete->fetch_all(MYSQLI_ASSOC) : 
             </div>
         </div>
         <!-- profile section -->
-        <div class="profile-section" id="profile-section">
-            <i class="bi bi-arrow-left" id="profile-back-button"></i>
-            <div class="profile-container">
-                <div class="profile-image">
-                    <h2>My Profile</h2>
-                    <img id="profilePreview" src="../../assets/img/profile.png" alt="Profile Picture">
+        <form id="profileForm" enctype="multipart/form-data">
+            <div class="profile-section" id="profile-section">
+                <i class="bi bi-arrow-left" id="profile-back-button"></i>
+                <div class="profile-container">
+                    <div class="profile-image">
+                        <h2>My Profile</h2>
+                        <img id="profilePreview" src="../../assets/img/profile.png" alt="Profile Picture">
+                        <input type="file" id="profileFile" name="profile" accept="image/*" hidden>
+                    </div>
+                    <div class="profile-details">
+                        <div class="profile-group">
+                            <label>Employee ID</label>
+                            <input id="staffId" type="text" readonly>
+                        </div>
+
+                        <div class="profile-group">
+                            <label>Contact Number</label>
+                            <input id="contactNo" type="text">
+                        </div>
+
+                        <div class="profile-group">
+                            <label>Employee Name</label>
+                            <input id="staffName" type="text" readonly>
+                        </div>
+
+                        <div class="profile-group">
+                            <label>Address</label>
+                            <textarea id="address" rows="3"></textarea>
+                        </div>
+
+                        <div class="profile-group">
+                            <label>Email Address</label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email">
+                        </div>
+
+                        <div class="profile-group">
+                            <label>Position</label>
+                            <input id="position" type="text" readonly>
+                        </div>
+
+                        <div class="profile-buttons">
+                            <button type="submit" class="save-btn">
+                                Save Changes
+                            </button>
+
+                            <button type="button" class="password-btn">
+                                Change Password
+                            </button>
+                        </div>
+
+                    </div>
                 </div>
-                <div class="profile-details">
-                    <div class="profile-group">
-                        <label>Employee ID</label>
-                        <input id="staffId" type="text" value="" readonly>
-                    </div>
-                    <div class="profile-group">
-                        <label>Contact Number</label>
-                        <input id="contactNo" type="text" value="">
-                    </div>
-                    <div class="profile-group">
-                        <label>Employee Name</label>
-                        <input id="staffName" type="text" readonly>
-                    </div>
-                    <div class="profile-group">
-                        <label>Address</label>
-                        <textarea id="address" rows="3"></textarea>
-                    </div>
+            </div>
+        </form>
+        <div id="passwordModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Change Password</h2>
+                    <span class="close-password">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <form id="passwordForm">
+                        <div class="profile-group">
+                            <label>Current Password</label>
+                            <input type="password" id="currentPassword" name="current_password">
+                        </div>
+                        <div class="profile-group">
+                            <label>New Password</label>
+                            <input type="password" id="newPassword" name="new_password">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancelPassword" class="cancel-btn">
+                        Cancel
+                    </button>
+                    <button type="submit" form="passwordForm" id="savePasswordBtn">
+                        Update Password
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- email verification -->
+        <div id="emailVerificationModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Email Verification</h2>
+                    <span class="close-email-modal">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p style="margin-bottom:15px;">
+                        For security purposes, please enter your registered email address
+                        to confirm your identity.
+                    </p>
                     <div class="profile-group">
                         <label>Email Address</label>
-                        <input id="email" type="email">
+                        <input type="email" id="verifyEmail" placeholder="Enter your registered email">
                     </div>
-                    <div class="profile-group">
-                        <label>Position</label>
-                        <input id="position" type="text" readonly>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancelEmailVerification" class="cancel-btn">
+                        Cancel
+                    </button>
+                    <button type="button" id="confirmEmailBtn">
+                        Verify & Update Password
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="otpModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 style="color: #f6f8fa;">OTP Verification</h2>
+                    <span class="close-otp">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        A 6-digit verification code has been sent to your registered email.
+                        Please enter it below. The code expires in <strong>3 minutes</strong>.
+                    </p>
+                    <input type="text" id="otp" maxlength="6" placeholder="000000" autocomplete="one-time-code">
+                    <div class="otp-timer">
+                        OTP expires in
+                        <span id="otpCountdown">03:00</span>
                     </div>
-                    <div class="profile-buttons">
-                        <button class="save-btn">Save Changes</button>
-                        <button class="password-btn">Change Password</button>
-                    </div>
+                    <button type="button" id="resendOtpBtn" class="resend-btn" disabled>
+                        Resend OTP (03:00)
+                    </button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="cancelOtp" class="cancel-btn">
+                        Cancel
+                    </button>
+                    <button type="button" id="verifyOtpBtn">
+                        Verify OTP
+                    </button>
                 </div>
             </div>
         </div>
@@ -554,12 +677,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // available button
     const status = document.getElementById("availabilityStatus");
     const btn = document.getElementById("toggleAvailabilityBtn");
-
     btn.addEventListener("click", () => {
         const newStatus = status.textContent.trim() === "Available"
             ? "Unavailable"
             : "Active";
-
         fetch("../../backend/staff/update_availability.php", {
             method: "POST",
             headers: {
@@ -569,9 +690,7 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .then(res => res.json())
         .then(data => {
-
             if (data.status === "success") {
-
                 if (newStatus === "Unavailable") {
                     status.textContent = "Unavailable Today";
                     status.className = "unavailable";
@@ -583,17 +702,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     btn.textContent = "Mark as Unavailable Today";
                     btn.classList.remove("available-btn");
                 }
-
             } else {
                 Swal.fire({
                     icon: "error",
                     title: data.message
                 });
             }
-
         })
         .catch(console.error);
-
     });
     // assigned tasks
     const assignedTaskCard = document.getElementById("assigned-task");
@@ -622,11 +738,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("click", (e) => {
         const link = e.target.closest(".deceased-link");
         if (!link) return;
-
         e.preventDefault();
-
         const d = link.dataset;
-
         currentTaskId = d.taskId;
         currentStatus = d.status;
         currentSource = d.source;
@@ -641,7 +754,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const actionBtn = document.getElementById("modalActionBtn");
         const status = d.status.toLowerCase().replace(/\s+/g, "_");
-
         if (status === "pending") {
             actionBtn.innerText = "Begin";
             actionBtn.dataset.action = "begin";
@@ -653,14 +765,9 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             actionBtn.style.display = "none";
         }
-
         modal.style.display = "flex";
     });
-
     closeModal.addEventListener("click", () => modal.style.display = "none");
-    window.addEventListener("click", (e) => {
-        if (e.target === modal) modal.style.display = "none";
-    });
     document.getElementById("modalActionBtn").addEventListener("click", (e) => {
         const action = e.target.dataset.action;
         updateTaskStatus(currentTaskId, currentSource, action, true); 
@@ -675,7 +782,6 @@ document.addEventListener("DOMContentLoaded", () => {
             );
         });
     });
-
     document.querySelectorAll(".complete-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
             updateTaskStatus(
@@ -687,7 +793,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
     function updateTaskStatus(taskId, source, action, fromModal) {
-
         fetch("../../backend/staff/update_status.php", {
             method: "POST",
             credentials: "include",
@@ -736,13 +841,52 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 // profile
+const profilePreview = document.getElementById("profilePreview");
+const profileFile = document.getElementById("profileFile");
+profilePreview.style.cursor = "pointer";
+profilePreview.addEventListener("click", () => {
+    profileFile.click();
+});
+profileFile.addEventListener("change", function () {
+    if (this.files.length > 0) {
+        document.getElementById("profilePreview").src = URL.createObjectURL(this.files[0]);
+    }
+});
+document.getElementById("profileForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch("../../backend/staff/update_profile.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            Swal.fire({
+                icon: "success",
+                title: data.message
+            });
+            loadProfile();
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: data.message
+            });
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        Swal.fire({
+            icon: "error",
+            title: "Failed to update profile."
+        });
+    });
+});
 function loadProfile() {
     fetch("../../backend/staff/get_staff.php?action=profile")
         .then(response => response.json())
         .then(result => {
-
             console.log(result);
-
             if (result.status !== "success") {
                 Swal.fire({
                     icon: "error",
@@ -750,9 +894,7 @@ function loadProfile() {
                 });
                 return;
             }
-
             const staff = result.data;
-
             document.getElementById("staffId").value = staff.staff_id;
             document.getElementById("staffName").value = staff.name;
             document.getElementById("contactNo").value = staff.contact_no;
@@ -760,11 +902,10 @@ function loadProfile() {
             document.getElementById("address").value = staff.ip_address;
             document.getElementById("position").value = staff.department;
             const profileImg = document.getElementById("profilePreview");
-            profileImg.src = staff.profile || "../../assets/img/uploads/profile.png";
+            profileImg.src = staff.profile ? "../../assets/img/uploads/profile/" + staff.profile : "../../assets/img/profile.png";
             profileImg.onerror = function () {
                 this.src = "../../assets/img/profile.png";
             };
-
         })
         .catch(error => {
             console.error(error);
@@ -775,7 +916,217 @@ function loadProfile() {
             });
         });
 }
+// password
+const passwordBtn = document.querySelector(".password-btn");
+const passwordModal = document.getElementById("passwordModal");
+const profileSection = document.getElementById("profile-section");
+passwordBtn.addEventListener("click", () => {
+    profileSection.style.display = "none";
+    passwordModal.style.display = "flex";
+});
+function closePasswordModal() {
+    passwordModal.style.display = "none";
+    profileSection.style.display = "block";
+}
+const emailVerificationModal = document.getElementById("emailVerificationModal");
+document.querySelector(".close-email-modal").addEventListener("click", closeEmailModal);
+document.getElementById("cancelEmailVerification").addEventListener("click", closeEmailModal);
+function closeEmailModal() {
+    emailVerificationModal.style.display = "none";
+    profileSection.style.display = "block";
+}
+document.querySelector(".close-password").addEventListener("click", closePasswordModal);
+document.getElementById("cancelPassword").addEventListener("click", closePasswordModal);
 
+document.getElementById("passwordForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const currentPassword = document.getElementById("currentPassword").value.trim();
+    const newPassword = document.getElementById("newPassword").value.trim();
+
+    if (currentPassword === "" || newPassword === "") {
+        Swal.fire({
+            icon: "warning",
+            title: "Missing Information",
+            text: "Please enter your current password and new password."
+        });
+        return;
+    }
+    if (currentPassword === newPassword) {
+        Swal.fire({
+            icon: "warning",
+            title: "Invalid Password",
+            text: "Your new password must be different from your current password."
+        });
+        return;
+    }
+    document.getElementById("passwordModal").style.display = "none";
+    document.getElementById("emailVerificationModal").style.display = "flex";
+});
+// Password form submit
+document.getElementById("passwordForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const currentPassword = document.getElementById("currentPassword").value.trim();
+    const newPassword = document.getElementById("newPassword").value.trim();
+    if (!currentPassword || !newPassword) {
+        Swal.fire({
+            icon: "warning",
+            title: "Missing Information",
+            text: "Please enter your current password and new password."
+        });
+        return;
+    }
+    if (currentPassword === newPassword) {
+        Swal.fire({
+            icon: "warning",
+            title: "Invalid Password",
+            text: "Your new password must be different from your current password."
+        });
+        return;
+    }
+    document.getElementById("passwordModal").style.display = "none";
+    document.getElementById("emailVerificationModal").style.display = "flex";
+});
+document.getElementById("confirmEmailBtn").addEventListener("click", () => {
+    const enteredEmail = document.getElementById("verifyEmail").value.trim();
+    if (!enteredEmail) {
+        Swal.fire({
+            icon: "warning",
+            title: "Missing Email",
+            text: "Please enter your registered email address."
+        });
+        return;
+    }
+    const formData = new FormData(document.getElementById("passwordForm"));
+    formData.append("email", enteredEmail);
+    fetch("../../backend/staff/update_password.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+
+            Swal.fire({
+                icon: "success",
+                title: "OTP Sent",
+                text: data.message
+            }).then(() => {
+                document.getElementById("emailVerificationModal").style.display = "none";
+                document.getElementById("otpModal").style.display = "flex";
+                startOtpTimer();
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: data.message
+            });
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        Swal.fire({
+            icon: "error",
+            title: "Something went wrong.",
+            text: "Please try again."
+        });
+    });
+});
+const otpModal = document.getElementById("otpModal");
+function closeOtpModal() {
+    clearInterval(otpTimer);
+    otpModal.style.display = "none";
+    profileSection.style.display = "block";
+}
+document.querySelector(".close-otp").addEventListener("click", closeOtpModal);
+document.getElementById("cancelOtp").addEventListener("click", closeOtpModal);
+document.getElementById("verifyOtpBtn").addEventListener("click", () => {
+    const otp = document.getElementById("otp").value.trim();
+    if (otp.length !== 6) {
+        Swal.fire({
+            icon: "warning",
+            title: "Invalid OTP",
+            text: "Please enter the 6-digit verification code."
+        });
+        return;
+    }
+    const formData = new FormData();
+    formData.append("otp", otp);
+    fetch("../../backend/staff/verify_password_otp.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === "success") {
+            Swal.fire({
+                icon: "success",
+                title: data.message,
+                showConfirmButton: false,
+                timer: 2000
+            }).then(() => {
+                clearInterval(otpTimer);
+                otpModal.style.display = "none";
+                profileSection.style.display = "block";
+                document.getElementById("passwordForm").reset();
+                document.getElementById("verifyEmail").value = "";
+                document.getElementById("otp").value = "";
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: data.message,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        }
+    });
+});
+// otp timer
+let otpTimer;
+let timeLeft = 180;
+function startOtpTimer() {
+    clearInterval(otpTimer);
+    timeLeft = 180;
+    const countdown = document.getElementById("otpCountdown");
+    const resendBtn = document.getElementById("resendOtpBtn");
+    resendBtn.disabled = true;
+    otpTimer = setInterval(() => {
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        countdown.textContent = `${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+        resendBtn.textContent = `Resend OTP (${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")})`;
+        if(timeLeft <= 0){
+            clearInterval(otpTimer);
+            countdown.textContent = "Expired";
+            resendBtn.disabled = false;
+            resendBtn.textContent = "Resend OTP";
+        }
+        timeLeft--;
+    },1000);
+}
+document.getElementById("resendOtpBtn").addEventListener("click", () => {
+    fetch("../../backend/staff/resend_password_otp.php", {
+        method: "POST"
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.status === "success"){
+            Swal.fire({
+                icon: "success",
+                title: "OTP Sent",
+                text: "A new OTP has been sent to your email.",
+                timer: 1800,
+                showConfirmButton: false
+            });
+            startOtpTimer();
+        }else{
+            Swal.fire({
+                icon: "error",
+                title: data.message
+            });
+        }
+    });
+});
 </script>
-
 </html>

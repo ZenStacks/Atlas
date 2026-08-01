@@ -63,7 +63,7 @@ if (!empty($new_password)) {
 }
 $profileName = $user["profile"];
 if (isset($_FILES["profile"]) && $_FILES["profile"]["error"] === 0) {
-    $uploadDir = dirname(__DIR__, 2) . "../assets/img/uploads/profile/";
+    $uploadDir = dirname(__DIR__, 2) . "/assets/img/uploads/profile/";
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }

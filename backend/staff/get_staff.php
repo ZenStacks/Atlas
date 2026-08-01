@@ -49,21 +49,16 @@ if ($actionType === "profile") {
             "staff_id" => $user["staff_id"],
             "status" => $user["status"],
             "two_factor_auth" => $user["two_factor_auth"],
-            "profile" => $user["profile"] ? "../assets/img/uploads/profile/" . $user["profile"] : "../assets/img/profile.png"
+            "profile" => $user["profile"]
         ]
     ]);
     exit;
 
 } else {
-    $result = $conn->query("SELECT id, name, profile, age, gender, contact_no, username, email, ip_address, staff_id, department, type, status, two_factor_auth FROM employer");
+    $result = $conn->query("SELECT * FROM employer");
 
     $staff = [];
     while($row = $result->fetch_assoc()){
-        if (!empty($row['profile'])) {
-            $row['profile'] = "../assets/img/uploads/profile/" . $row['profile'];
-        } else {
-            $row['profile'] = "../assets/img/profile.png";
-        }
         $staff[] = $row;
     }
 
