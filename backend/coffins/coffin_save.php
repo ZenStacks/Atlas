@@ -118,12 +118,12 @@ try {
     
     $conn->begin_transaction();
     
-    $stmt = $conn->prepare("INSERT INTO coffins (item_name, coffin_type, size, color, stock, reserved_stock, available_stock, tax_type, image, details, cost_price, downpayment, retail_price, lifeplan_max_months, atneed_max_months, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW(), NOW())");
+    $stmt = $conn->prepare("INSERT INTO coffins (item_name, coffin_type, size, color, stock, available_stock, tax_type, image, details, cost_price, downpayment, retail_price, lifeplan_max_months, atneed_max_months, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'active', NOW(), NOW())");
     if (!$stmt) {
         throw new Exception("Coffins Insert Prepare Fail: " . $conn->error);
     }
     
-    $stmt->bind_param("ssssdiisssiidii", $item_name, $coffin_type, $size, $color, $stock, $reserved, $available, $tax_type, $imagePath, $details, $cost_price, $downpayment, $retail_price, $lifePlan, $atNeed);
+    $stmt->bind_param("ssssiisssdddii", $item_name, $coffin_type, $size, $color, $stock, $reserved, $available, $tax_type, $imagePath, $details, $cost_price, $downpayment, $retail_price, $lifePlan, $atNeed);
     if (!$stmt->execute()) {
         throw new Exception("Coffins Insert Execute Fail: " . $stmt->error);
     }

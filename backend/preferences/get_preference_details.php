@@ -1,15 +1,13 @@
 <?php
 header('Content-Type: application/json');
 require_once __DIR__ . '/../conn.php';
+require_once __DIR__ . '/../encryption.php';
 
 try {
     $orderId = $_GET['id'] ?? 0;
     $serviceRequestNo = $_GET['service_request_no'] ?? '';
     $stmt = $conn->prepare("SELECT sr.*,
-        CASE
-            WHEN sr.performed_by = 'customer' THEN c.name
-            WHEN sr.performed_by = 'admin' THEN e.name
-        END AS name,
+        sr.customer_name AS name,
 
         CASE
             WHEN sr.performed_by = 'customer' THEN c.phone_no
@@ -20,11 +18,9 @@ try {
             WHEN sr.performed_by = 'customer' THEN c.email
             WHEN sr.performed_by = 'admin' THEN e.email
         END AS email,
-
-        CASE
-            WHEN sr.performed_by = 'customer' THEN c.selected_address
-            WHEN sr.performed_by = 'admin' THEN e.ip_address
-        END AS selected_address,
+        sr.date_of_death AS date_of_death,
+        sr.date_need AS date_need,
+        sr.residential_address AS selected_address,
 
         CASE
             WHEN sr.performed_by = 'customer' THEN c.profile_img
@@ -77,7 +73,6 @@ try {
         AND sr.service_request_no = ?
         AND sr.status = 'confirmed'
     ");
-
     if (!$stmt) {
         throw new Exception($conn->error);
     }
@@ -91,9 +86,18 @@ try {
         throw new Exception("Order not found");
     }
 
+    $data = $result->fetch_assoc();
+
+    $data["name"] = decryptData($data["name"]);
+    $data["selected_address"] = decryptData($data["selected_address"]);
+    $data["beneficiary_lastname"] = decryptData($data["beneficiary_lastname"]);
+    $data["beneficiary_firstname"] = decryptData($data["beneficiary_firstname"]);
+    $data["beneficiary_middlename"] = decryptData($data["beneficiary_middlename"]);
+    $data["location"] = decryptData($data["location"]);
+
     echo json_encode([
         "success" => true,
-        "data" => $result->fetch_assoc()
+        "data" => $data
     ]);
 
 } catch (Exception $e) {

@@ -1,35 +1,21 @@
 <?php
 header('Content-Type: application/json');
 require_once __DIR__ . '/../conn.php';
-
+require_once __DIR__ . '/../encryption.php';
 try {
     $orderId = $_GET['id'] ?? 0;
     $lifeplanNo = $_GET['lifeplan_no'] ?? '';
     $stmt = $conn->prepare("SELECT lp.*,
-        CASE
-            WHEN lp.performed_by = 'customer' THEN c.name
-            WHEN lp.performed_by = 'admin' THEN e.name
-        END AS name,
-
-        CASE
-            WHEN lp.performed_by = 'customer' THEN c.phone_no
-            WHEN lp.performed_by = 'admin' THEN e.contact_no
-        END AS phone_no,
-
-        CASE
-            WHEN lp.performed_by = 'customer' THEN c.email
-            WHEN lp.performed_by = 'admin' THEN e.email
-        END AS email,
-
+        lp.applicant_name AS name,
+        lp.applicant_contact_no AS phone_no,
+        lp.applicant_email AS email,
+        
         CASE
             WHEN lp.performed_by = 'customer' THEN c.selected_address
-            WHEN lp.performed_by = 'admin' THEN e.ip_address
+            WHEN lp.performed_by = 'admin' THEN lp.residential_address
         END AS selected_address,
 
-        CASE
-            WHEN lp.performed_by = 'customer' THEN c.profile_img
-            WHEN lp.performed_by = 'admin' THEN e.profile
-        END AS profile_img,
+        c.profile_img AS profile_img,
 
         CASE
             WHEN lp.coffin_source = 'local' THEN lc.item_name
@@ -90,10 +76,25 @@ try {
     if ($result->num_rows === 0) {
         throw new Exception("Order not found");
     }
-
+    $data = $result->fetch_assoc();
+    $data["name"] = decryptData($data["name"]);
+    $data["phone_no"] = decryptData($data["phone_no"]);
+    $data["email"] = decryptData($data["email"]);
+    if ($data["performed_by"] === "admin") {
+        $data["selected_address"] = decryptData($data["selected_address"]);
+    }
+    $data["applicant_name"] = decryptData($data["applicant_name"]);
+    $data["applicant_contact_no"] = decryptData($data["applicant_contact_no"]);
+    $data["applicant_email"] = decryptData($data["applicant_email"]);
+    $data["planholder_lastname"] = decryptData($data["planholder_lastname"]);
+    $data["planholder_firstname"] = decryptData($data["planholder_firstname"]);
+    $data["planholder_middlename"] = decryptData($data["planholder_middlename"]);
+    $data["contact_number"] = decryptData($data["contact_number"]);
+    $data["email_address"] = decryptData($data["email_address"]);
+    $data["residential_address"] = decryptData($data["residential_address"]);
     echo json_encode([
         "success" => true,
-        "data" => $result->fetch_assoc()
+        "data" => $data
     ]);
 
 } catch (Exception $e) {

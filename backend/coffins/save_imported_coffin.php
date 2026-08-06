@@ -62,10 +62,9 @@ try {
     }
 
     $size = "Standard";
-    $reserved_stock = 1;
     $origin = "imported";
 
-    $current_stock = $initial_stock - $reserved_stock;
+    $current_stock = $initial_stock;
     if ($current_stock < 0) {
         $current_stock = 0;
     }
@@ -84,8 +83,8 @@ try {
         }
     }
 
-    $sql = "INSERT INTO imported_coffins (item_name, color, size, initial_stock, current_stock, reserved_stock,
-    cost, downpayment, retail_price, atneed_max_months, lifeplan_max_months, supplier, coffin_type, tax, details, origin, image, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+    $sql = "INSERT INTO imported_coffins (item_name, color, size, initial_stock, current_stock,
+    cost, downpayment, retail_price, atneed_max_months, lifeplan_max_months, supplier, coffin_type, tax, details, origin, image, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
     
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
@@ -97,7 +96,7 @@ try {
     }
     
     $stmt->bind_param(
-        "sssiiidddiissssss", $item_name, $color, $size, $initial_stock, $current_stock, $reserved_stock,
+        "sssiidddiissssss", $item_name, $color, $size, $initial_stock, $current_stock,
         $cost, $downpayment, $retail, $atneed, $lifeplan, $supplier, $coffin_type, $tax, $details, $origin, $imagePath);
     if (!$stmt->execute()) {
         echo json_encode([

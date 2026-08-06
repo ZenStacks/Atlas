@@ -2,15 +2,10 @@
 session_start();
 header('Content-Type: application/json');
 require_once __DIR__ . '/../conn.php';
-
+require_once __DIR__ . '/../encryption.php';
 try {
-    $sql = "SELECT sr.id, sr.service_request_no, sr.quantity, sr.purchase_type, sr.status, sr.created_at,
-        sr.beneficiary_lastname, sr.beneficiary_firstname, sr.beneficiary_middlename, sr.relationship, sr.date_need, sr.condition, sr.location, sr.interment_date,
-        CASE
-            WHEN sr.performed_by = 'customer' THEN c.name
-            WHEN sr.performed_by = 'admin' THEN e.name
-        END AS name,
-
+    $sql = "SELECT sr.*,
+    sr.customer_name AS name,
         CASE
             WHEN sr.performed_by = 'customer' THEN c.phone_no
             WHEN sr.performed_by = 'admin' THEN e.contact_no
@@ -26,10 +21,7 @@ try {
             WHEN sr.performed_by = 'admin' THEN e.ip_address
         END AS selected_address,
 
-        CASE
-            WHEN sr.performed_by = 'customer' THEN c.profile_img
-            WHEN sr.performed_by = 'admin' THEN e.profile
-        END AS profile_img,
+        c.profile_img AS profile_img,
 
         CASE
             WHEN sr.coffin_source = 'local' THEN lc.item_name
@@ -73,22 +65,40 @@ try {
 
         ORDER BY sr.created_at DESC";
 
-    $result = $conn->query($sql);
+    $stmt = $conn->prepare($sql);
+
+    if (!$stmt) {
+        throw new Exception($conn->error);
+    }
+
+    $stmt->execute();
+
+    $result = $stmt->get_result();
 
     $data = [];
 
     while ($row = $result->fetch_assoc()) {
+
+        $row["name"] = decryptData($row["name"]);
+        $row["selected_address"] = decryptData($row["selected_address"]);
+        $row["beneficiary_lastname"] = decryptData($row["beneficiary_lastname"]);
+        $row["beneficiary_firstname"] = decryptData($row["beneficiary_firstname"]);
+        $row["beneficiary_middlename"] = decryptData($row["beneficiary_middlename"]);
+        $row["location"] = decryptData($row["location"]);
+
         $data[] = $row;
     }
-
     echo json_encode([
         "success" => true,
         "data" => $data
     ]);
+} 
 
-} catch (Exception $e) {
+catch (Exception $e) {
+    http_response_code(500);
     echo json_encode([
         "success" => false,
         "message" => $e->getMessage()
     ]);
+    exit;
 }

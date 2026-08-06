@@ -89,6 +89,7 @@ Completed
 - Revenue Dashboard
 - Google Maps Integration
 - Customer Preferences
+- Employer / Staff Dashboard
 
 In progress
 - Schedule - fetching pending data to assign schedule

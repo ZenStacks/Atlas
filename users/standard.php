@@ -8,7 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.27/dist/sweetalert2.all.min.js"></script>
-    <script src="../assets/script/standard.js" defer></script>
 </head>
 <body>
     <div class="whole-page-container">
@@ -197,6 +196,10 @@
                                 <input type="text" id="otherRelationship" class="others-relation" placeholder="Please specify relationship">
                             </div>
                             <div class="input-row">
+                                <label for="date-of-death">Anticipated Date of Death</label>
+                                <input type="date" id="date-of-death" name="date_of_death">
+                            </div>
+                            <div class="input-row">
                                 <label for="date-need">Anticipated Date of Service Requirement</label>
                                 <input type="date" id="date-need" name="date_need">
                             </div>
@@ -221,6 +224,14 @@
                                 <input type="text" id="beneficiary-middle-name" name="beneficiary_middle_name" placeholder="e.g., De Magiba" required>
                             </div>
                             <div class="input-row">
+                                <label>Gender of the Benificiary</label>
+                                <select id="beneficiary-gender" name="beneficiary_gender" required>
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="input-row">
                                 <label>Age of the Benificiary</label>
                                 <input type="text" id="beneficiary-age" name="beneficiary_age" placeholder="e.g., 75" required>
                             </div>
@@ -238,7 +249,7 @@
                             </div>
                             <div class="input-row">
                                 <label>Residential Address:</label>
-                                <input type="text" placeholder="e.g., 123 Main Street, Country">
+                                <input type="text" id="residential-address" name="residential_address" placeholder="e.g., 123 Main Street, Country">
                             </div>
                         </div>
                     </div>
@@ -658,6 +669,8 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     const beneficiaryMiddleName = document.getElementById("beneficiary-middle-name").value.trim();
     const beneficiaryAge = document.getElementById("beneficiary-age").value.trim();
     const beneficiaryBirthdate = document.getElementById("beneficiary-birthdate").value;
+    const dateOfDeath = document.getElementById("date-of-death").value;
+    const residentialAddress = document.getElementById("residential-address").value.trim();
     const contactNumber = document.getElementById("contact-number").value.trim();
     const emailAddress = document.getElementById("email-address").value.trim();
     const beneficiaryGovIdNumber = document.getElementById("gov-id-number").value.trim();
@@ -748,11 +761,14 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     formData.append("beneficiary_lastname", beneficiaryLastName);
     formData.append("beneficiary_firstname", beneficiaryFirstName);
     formData.append("beneficiary_middlename", beneficiaryMiddleName);
+    formData.append("beneficiary_gender", document.getElementById("beneficiary-gender").value);
     formData.append("beneficiary_age", beneficiaryAge);
     formData.append("beneficiary_birthdate", beneficiaryBirthdate);
     formData.append("contact_number", contactNumber);
     formData.append("email_address", emailAddress);
+    formData.append("residential_address", residentialAddress);
     formData.append("date_need", document.getElementById("date-need").value);
+    formData.append("date_of_death", dateOfDeath);
     formData.append("condition", document.getElementById("beneficiary-condition").value);
     formData.append("location", document.getElementById("beneficiary-location").value);
     formData.append("service_type", document.getElementById("service-type").value);
@@ -794,12 +810,15 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             document.getElementById("beneficiary-last-name").value = "";
             document.getElementById("beneficiary-first-name").value = "";
             document.getElementById("beneficiary-middle-name").value = "";
+            document.getElementById("beneficiary-gender").value = "";
             document.getElementById("beneficiary-age").value = "";
-            document.getElementById("beneficiary-dob").value = "";
             document.getElementById("contact-number").value = "";
             document.getElementById("email-address").value = "";
+            document.getElementById("residential-address").value = "";
             document.getElementById("date-need").value = "";
+            document.getElementById("date-of-death").value = "";
             document.getElementById("beneficiary-condition").value = "";
+            document.getElementById("beneficiary-birthdate").value = "";
             document.getElementById("beneficiary-location").value = "";
             document.getElementById("service-type").value = "";
             document.getElementById("wake-location").value = "";

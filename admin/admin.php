@@ -1,5 +1,11 @@
 <?php
 session_start();
+require '../backend/conn.php';
+
+if (!isset($_SESSION["user_id"])) {
+    header("Location: ../login.php");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -52,7 +58,6 @@ session_start();
                         </li>
                         <li class="category-item"><i class="bi bi-person-gear"></i> Account &amp; security</li>
                         <li class="category-item"><i class="bi bi-shield-lock-fill security-icon"></i> Access Key</li>
-                        <li class="category-item"><i class="bi bi-folder2"></i> Data Management</li>
                         <!-- communication cat -->
                         <li class="category-title">
                             Communication
@@ -69,6 +74,7 @@ session_start();
                         <li class="category-item"><i class="bi bi-star-half"></i> Preferences</li>
                         <li class="category-item"><i class="bi bi-calendar"></i> Schedule</li>
                         <li class="category-item"><i class="bi bi-clipboard2-plus"></i> Inventory &amp; items</li>
+                        <li class="category-item"><i class="bi bi-folder2"></i> Data Management</li>
                         <li class="category-item"><i class="bi bi-people"></i> Staff Management</li>
                     </ul>
                 </div>
@@ -102,7 +108,6 @@ session_start();
                         <h3>Pending Orders</h3>
                         <div class="inside">
                             <p class="value" id="pending-request-count">0</p>
-
                             <p id="pending-trend">
                                 <i id="pending-arrow" class="bi"></i>
                                 <span id="pending-percentage">0%</span>
@@ -641,57 +646,113 @@ session_start();
                 <div class="data-management-container" id="data-management-container">
                     <h2>Data Management</h2>
                     <div class="data-tabs">
-                        <button class="tab-btn active">Deceased Records</button>
-                        <button class="tab-btn">At-Need Records</button>
-                        <button class="tab-btn">Pre-Need Records</button>
-                        <button class="tab-btn">Products Records</button>
+                        <button class="data-tab active">Deceased Records</button>
+                        <button class="data-tab">At-Need Records</button>
+                        <button class="data-tab">Pre-Need Records</button>
+                        <button class="data-tab">Products Records</button>
+                        <button class="data-tab">Material Records</button>
+                        <input type="text" placeholder="Search records..." id="dataSearchInput">
+                    </div>
+                    <div class="data-section active">
+                        <!-- Deceased Table -->
+                        <table class="deceased-table">
+                        <h2>Deceased Records</h2>
+                            <thead>
+                                <tr>
+                                    <th>Deceased ID</th>
+                                    <th>Full Name</th>
+                                    <th>Date of Death</th>
+                                    <th>Age</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deceasedRecordsBody">
+                                <!-- Deceased records will be dynamically populated here -->
+                            </tbody>
+                        </table>
                     </div>
                     <div class="data-section">
-                        <div class="data-header">
-                            <h3>Deceased Information</h3>
-                            <button class="add-btn">+ Add Record</button>
-                        </div>
-                        <div class="table-wrapper">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Age</th>
-                                        <th>Gender</th>
-                                        <th>Date of Death</th>
-                                        <th>Location</th>
-                                        <th>Visibility</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Sheryl Grace Dumali</td>
-                                        <td>72</td>
-                                        <td>Female</td>
-                                        <td>March 5, 2026</td>
-                                        <td>Cebu Memorial</td>
-                                        <td>Admin Only</td>
-                                        <td>
-                                            <button class="edit-btn">Edit</button>
-                                            <button class="delete-btn">Delete</button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Juan Dela Cruz</td>
-                                        <td>65</td>
-                                        <td>Male</td>
-                                        <td>March 7, 2026</td>
-                                        <td>St. Peter Chapel</td>
-                                        <td>Staff Allowed</td>
-                                        <td>
-                                            <button class="edit-btn">Edit</button>
-                                            <button class="delete-btn">Delete</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        <!-- At-Need Table -->
+                        <table class="at-need-table">
+                        <h2>At-Need Records</h2>
+                            <thead>
+                                <tr>
+                                    <th>Service ID</th>
+                                    <th>Customer Name</th>
+                                    <th>Service Type</th>
+                                    <th>Date of Service</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="atNeedRecordsBody">
+                                <!-- At-Need records will be dynamically populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="data-section">
+                        <!-- Pre-Need Table -->
+                        <table class="pre-need-table">
+                            <h2>Pre-Need Records</h2>
+                            <thead>
+                                <tr>
+                                    <th>Pre-Need ID</th>
+                                    <th>Customer Name</th>
+                                    <th>Service Type</th>
+                                    <th>Date of Service</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preNeedRecordsBody">
+                                <!-- Pre-Need records will be dynamically populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="data-section">
+                        <!-- Products Table -->
+                        <table class="products-table">
+                            <h2>Products Records</h2>
+                            <thead>
+                                <tr>
+                                    <th>Product ID</th>
+                                    <th>Product Name</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                    <th>Price</th>
+                                    <th>Stock</th>
+                                    <th>Origin</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsRecordsBody">
+                                <!-- Products records will be dynamically populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="data-section">
+                        <!-- Materials Table -->
+                        <table class="materials-table">
+                            <h2>Materials Records</h2>
+                            <thead>
+                                <tr>
+                                    <th>Material ID</th>
+                                    <th>Material Type</th>
+                                    <th>Material Name</th>
+                                    <th>Unit</th>
+                                    <th>Description</th>
+                                    <th>Cost</th>
+                                    <th>Stock</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="materialsRecordsBody">
+                                <!-- Materials records will be dynamically populated here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <!-- Chat -->
@@ -773,15 +834,19 @@ session_start();
                         <div class="first-preference-row">
                             <button id="pending-btn" class="active">
                                 <img src="../assets/img/Pending.png" alt="">
+                                <span>Pending Orders</span>
                             </button>
                             <button id="products-onsite-btn">
                                 <img src="../assets/img/Products.png" alt="">
+                                <span>Products Onsite</span>
                             </button>
                             <button id="orders-approve-btn">
                                 <img src="../assets/img/Orders.png" alt="">
+                                <span>Orders to Approve</span>
                             </button>
                             <button id="payment-pending-btn">
                                 <img src="../assets/img/payment.png" alt="">
+                                <span>Pending Payment</span>
                             </button>
                         </div>
                         <div class="second-preference-row">
@@ -792,7 +857,6 @@ session_start();
                                 </div>
                                 <div class="header-side">
                                     <input type="text" id="preferenceSearch" placeholder="Search preferences">
-                                    <button id="view-all">View all</button>
                                 </div>
                             </div>
                             <!-- ongoing -->
@@ -843,6 +907,10 @@ session_start();
                                                 <h3>Beneficiary Information</h3>
                                                 <div class="first-modal">
                                                     <div class="onsite-row">
+                                                        <label for="atneed-customer-name">Applicant Name</label>
+                                                        <input type="text" id="atneed-customer-name" name="atneed_customer_name" placeholder="Enter the full name of the applicant" required>
+                                                    </div>
+                                                    <div class="onsite-row">
                                                         <label for="relationship">Relationship of the Applicant to the Beneficiary</label>
                                                         <select id="relationship" name="relationship">
                                                             <option value="">Select Relationship</option>
@@ -856,6 +924,10 @@ session_start();
                                                             <option value="other">Other</option>
                                                         </select>
                                                         <input type="text" id="otherRelationship" class="others-relation" placeholder="Please specify relationship">
+                                                    </div>
+                                                    <div class="onsite-row">
+                                                        <label for="date-of-death">Anticipated Date of Death</label>
+                                                        <input type="date" id="date-of-death" name="date_of_death">
                                                     </div>
                                                     <div class="onsite-row">
                                                         <label for="date-need">Anticipated Date of Service Requirement</label>
@@ -882,6 +954,14 @@ session_start();
                                                         <input type="text" id="beneficiary-middle-name" name="beneficiary_middle_name" placeholder="e.g., De Magiba" required>
                                                     </div>
                                                     <div class="onsite-row">
+                                                        <label>Gender of the Benificiary</label>
+                                                        <select id="beneficiary-gender" name="beneficiary_gender" required>
+                                                            <option value="">Select Gender</option>
+                                                            <option value="Male">Male</option>
+                                                            <option value="Female">Female</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="onsite-row">
                                                         <label>Age of the Benificiary</label>
                                                         <input type="text" id="beneficiary-age" name="beneficiary_age" placeholder="e.g., 75" required>
                                                     </div>
@@ -899,7 +979,7 @@ session_start();
                                                     </div>
                                                     <div class="onsite-row">
                                                         <label>Residential Address:</label>
-                                                        <input type="text" placeholder="e.g., 123 Main Street, Country">
+                                                        <input type="text" id="residential-address" name="residential_address" placeholder="e.g., 123 Main Street, Country" required>
                                                     </div>
                                                 </div>
                                             </div>
@@ -947,7 +1027,7 @@ session_start();
                                                         </select>
                                                     </div>
                                                     <div class="onsite-row">
-                                                        <label for="floral-setup">Floral Setup</label>
+                                                        <label for="onsite-floral-setup">Floral Setup</label>
                                                         <input type="text" id="onsite-floral-setup" name="floral_setup" placeholder="e.g., Standard">
                                                     </div>
                                                     <div class="onsite-row">
@@ -975,12 +1055,6 @@ session_start();
                                                 <div class="onsite-row">
                                                     <label>Beneficiary Government Id Number</label>
                                                     <input type="text" id="gov-id-number" placeholder="e.g., 1234-5678-9012" required>
-                                                </div>
-                                                <div class="onsite-row">
-                                                    <label>Beneficiary Government ID (Upload Image)</label>
-                                                    <input type="file" id="beneficiary-gov-id" name="beneficiary_gov_id" accept="image/*" class="file-input">
-                                                    <label for="beneficiary-gov-id" class="file-upload-btn">Choose Government ID File</label>
-                                                    <span id="file-gov-id-name">No file selected</span>
                                                 </div>
                                                 <div class="onsite-row">
                                                     <label for="applicant-signature">Applicant's Signature (Upload Image)</label>
@@ -1163,12 +1237,6 @@ session_start();
                                                 <div class="onsite-row">
                                                     <label>Plan Holder Government Id Number</label>
                                                     <input type="text" id="lp-gov-id-number" placeholder="e.g., 1234-5678-9012" required>
-                                                </div>
-                                                <div class="onsite-row">
-                                                    <label for="lp-applicant-gov-id">Plan Holder Government ID (Upload Image)</label>
-                                                    <input type="file" id="lp-applicant-gov-id" name="lp_applicant_gov_id" accept="image/*" class="file-input">
-                                                    <label for="lp-applicant-gov-id" class="file-upload-btn">Choose Government ID File</label>
-                                                    <span id="lp-file-gov-id-name">No file selected</span>
                                                 </div>
                                                 <div class="onsite-row">
                                                     <label for="lp-applicant-signature">Applicant's Signature (Upload Image)</label>
@@ -1795,7 +1863,7 @@ session_start();
                                     <h2>Preferences</h2>
                                 </div>
                                 <div class="preference-details">
-                                    <h3>Customer Information</h3>
+                                    <h3>Requester Information</h3>
                                     <div class="customer-name">
                                         <h2 id="customer-name">Select a customer</h2>
                                         <p id="customer-contacts">-</p>
@@ -1960,7 +2028,7 @@ session_start();
                                                 </div>
                                                 <div class="form-details">
                                                     <label>Floral Setup:</label>
-                                                    <p id="floral-setup"></p>
+                                                    <p id="view-floral-setup"></p>
                                                 </div>
                                                 <div class="form-details">
                                                     <label>Qty:</label>
@@ -2002,11 +2070,11 @@ session_start();
                                             <div class="second-preferences-row">
                                                 <div class="form-details">
                                                     <label>Date of Death:</label>
-                                                    <p id="date-of-death"></p>
+                                                    <p id="view-date-of-death"></p>
                                                 </div>
                                                 <div class="form-details">
                                                     <label>Interment Date:</label>
-                                                    <p id="interment-date"></p>
+                                                    <p id="view-interment-date"></p>
                                                 </div>
                                             </div>
                                         </div>
@@ -3168,15 +3236,15 @@ session_start();
     const settingsTitle = allSidebarItems[2];//settings and privacy title
     const accountItem = allSidebarItems[3];//account security
     const accessKey = allSidebarItems[4];
-    const dataManagementItem = allSidebarItems[5];//data management
-    const communicationTitle = allSidebarItems[6];//title 
-    const chatItem = allSidebarItems[7];//chat
-    const contactsItem = allSidebarItems[8]; //contacts
-    const notificationsItem = allSidebarItems[9];//notifications
-    const manageTitle = allSidebarItems[10];//management title
-    const preferenceItem = allSidebarItems[11];//preference
-    const scheduleItem = allSidebarItems[12];//schedule
-    const inventoryItem = allSidebarItems[13];//inventory and supplies
+    const communicationTitle = allSidebarItems[5];//title 
+    const chatItem = allSidebarItems[6];//chat
+    const contactsItem = allSidebarItems[7]; //contacts
+    const notificationsItem = allSidebarItems[8];//notifications
+    const manageTitle = allSidebarItems[9];//management title
+    const preferenceItem = allSidebarItems[10];//preference
+    const scheduleItem = allSidebarItems[11];//schedule
+    const inventoryItem = allSidebarItems[12];// data management
+    const dataManagementItem = allSidebarItems[13];//inventory and supplies
     const staffManagementItem = allSidebarItems[14];//staff management
 
     const firstTotalCards = document.getElementById("first-total-card");
@@ -6214,8 +6282,14 @@ session_start();
                 if (document.getElementById("adminUsername")) document.getElementById("adminUsername").value = user.username || "";
                 if (document.getElementById("adminEmail")) document.getElementById("adminEmail").value = user.email || "";
                 if (document.getElementById("adminRole")) document.getElementById("adminRole").value = user.role || "";
-                if (profileImage && user.profile) {
-                    profileImage.src = user.profile;
+                if (profileImage) {
+                    profileImage.src = user.profile
+                        ? "../assets/img/uploads/profile/" + user.profile
+                        : "../assets/img/profile.png";
+
+                    profileImage.onerror = function () {
+                        this.src = "../assets/img/profile.png";
+                    };
                 }
             } else {
                 console.warn("Profile fetching failed: " + response.message);
@@ -7371,18 +7445,38 @@ async function loadLifeplanOrders() {
         `;
     }
 }
-document.addEventListener("DOMContentLoaded", () => {
-    loadPendingOrders();
-    loadLifeplanOrders();
+let lastPendingCount = 0;
+async function checkPendingOrders() {
+    try {
+        const response = await fetch("../backend/preferences/get_pending_orders.php");
+        const result = await response.json();
+        if (!result.success) return;
+        if (result.count !== lastPendingCount) {
+            lastPendingCount = result.count;
+
+            await loadPendingOrders();
+            await loadLifeplanOrders();
+        }
+    } catch (error) {
+        console.error(error);
+    }
+}
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadPendingOrders();
+    await loadLifeplanOrders();
+    const response = await fetch("../backend/preferences/get_pending_orders.php");
+    const result = await response.json();
+    if (result.success) {
+        lastPendingCount = result.count;
+    }
+    setInterval(checkPendingOrders, 5000);
 });
 document.addEventListener("click", e => {
     const row = e.target.closest(".customer-row-details");
     if (!row) return;
-
     const orderId = row.dataset.orderId;
     const requestNo = row.dataset.requestNo;
     const type = row.dataset.type;
-
     if (type === "atneed") {
         loadPreferenceDetails(orderId, requestNo);
     } else if (type === "preneed") {
@@ -7426,7 +7520,7 @@ async function loadPreferenceDetails(orderId, requestNo) {
         document.getElementById("service-item-package").textContent = order.item_name || "N/A";
         document.getElementById("purchase-service-type").textContent = order.purchase_type + " Service" || "N/A";
         document.getElementById("coffin-source").textContent = order.coffin_source || "N/A";
-        document.getElementById("floral-setup").textContent = order.floral_setup || "N/A";
+        document.getElementById("view-floral-setup").textContent = order.floral_setup || "N/A";
         document.getElementById("service-quantity").textContent = order.quantity || 0;
         // Beneficiary Details
         document.getElementById("bene-name").textContent = 
@@ -7437,8 +7531,8 @@ async function loadPreferenceDetails(orderId, requestNo) {
         document.getElementById("bene-location").textContent = order.location || "N/A";
         document.getElementById("bene-relation").textContent = order.relationship || "N/A";
         // Date Details
-        document.getElementById("date-of-death").textContent = order.date_need || "N/A";
-        document.getElementById("interment-date").textContent = order.interment_date || "N/A";
+        document.getElementById("view-date-of-death").textContent = order.date_of_death || "N/A";
+        document.getElementById("view-interment-date").textContent = order.interment_date || "N/A";
         // price details
         document.getElementById("services-price").value = order.retail_price || 0;
         document.getElementById("downpayment-price").value = order.downpayment || 0;
@@ -8264,11 +8358,11 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     const beneficiaryFirstName = document.getElementById("beneficiary-first-name").value.trim();
     const beneficiaryMiddleName = document.getElementById("beneficiary-middle-name").value.trim();
     const beneficiaryAge = document.getElementById("beneficiary-age").value.trim();
+    const beneficiaryGender = document.getElementById("beneficiary-gender").value;
     const beneficiaryBirthdate = document.getElementById("beneficiary-birthdate").value;
     const contactNumber = document.getElementById("contact-number").value.trim();
     const emailAddress = document.getElementById("email-address").value.trim();
     const beneficiaryGovIdNumber = document.getElementById("gov-id-number").value.trim();
-    const beneficiaryGovId = document.getElementById("beneficiary-gov-id").files[0];
     const signatureFile = document.getElementById("applicant-signature").files[0];
     const relationshipSelect = document.getElementById("relationship").value;
     const otherRelationship = document.getElementById("otherRelationship").value.trim();
@@ -8351,30 +8445,32 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     formData.append("coffin_id", id);
     formData.append("coffin_source", source);
     formData.append("quantity", 1);
+    formData.append("atneed_customer_name", document.getElementById("atneed-customer-name").value);
     formData.append("relationship", relationship);
     formData.append("beneficiary_lastname", beneficiaryLastName);
     formData.append("beneficiary_firstname", beneficiaryFirstName);
     formData.append("beneficiary_middlename", beneficiaryMiddleName);
     formData.append("beneficiary_age", beneficiaryAge);
+    formData.append("beneficiary_gender", beneficiaryGender);
     formData.append("beneficiary_birthdate", beneficiaryBirthdate);
     formData.append("contact_number", contactNumber);
     formData.append("email_address", emailAddress);
     formData.append("date_need", document.getElementById("date-need").value);
+    formData.append("date_of_death", document.getElementById("date-of-death").value);
     formData.append("condition", document.getElementById("beneficiary-condition").value);
     formData.append("location", document.getElementById("beneficiary-location").value);
+    formData.append("residential_address", document.getElementById("residential-address").value);
     formData.append("service_type", document.getElementById("service-type").value);
     formData.append("wake_location", document.getElementById("wake-location").value);
-    formData.append("interment_date", document.getElementById("interment-date").value);
+    formData.append("onsite_interment_date", document.getElementById("onsite-interment-date").value);
     formData.append("cemetery", document.getElementById("cemetery").value);
     formData.append("transportation", document.getElementById("transportation").value);
     formData.append("floral", document.getElementById("floral").value);
-    formData.append("floral_setup", document.getElementById("floral-setup").value);
+    formData.append("onsite_floral_setup", document.getElementById("onsite-floral-setup").value);
     formData.append("chapel", document.getElementById("chapel").value);
     formData.append("gov_id_number", beneficiaryGovIdNumber);
-    formData.append("gov_id", beneficiaryGovId);
     formData.append("signature", signatureFile);
     formData.append("signature_date", document.getElementById("signature-date").value);
-
     try {
         const response = await fetch("../backend/service/admin_save_request.php", {
             method: "POST",
@@ -8398,26 +8494,30 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             showConfirmButton: false,
             timer: 2500
         }).then(() =>{
+            document.querySelector(".onsite-modal").classList.remove("active");
+            document.getElementById("atneed-customer-name").value = "";
             document.getElementById("beneficiary-last-name").value = "";
             document.getElementById("beneficiary-first-name").value = "";
             document.getElementById("beneficiary-middle-name").value = "";
             document.getElementById("beneficiary-age").value = "";
-            document.getElementById("beneficiary-dob").value = "";
+            document.getElementById("beneficiary-gender").value = "";
+            document.getElementById("beneficiary-birthdate").value = "";
             document.getElementById("contact-number").value = "";
             document.getElementById("email-address").value = "";
             document.getElementById("date-need").value = "";
+            document.getElementById("date-of-death").value = "";
             document.getElementById("beneficiary-condition").value = "";
             document.getElementById("beneficiary-location").value = "";
+            document.getElementById("residential-address").value = "";
             document.getElementById("service-type").value = "";
             document.getElementById("wake-location").value = "";
             document.getElementById("interment-date").value = "";
             document.getElementById("cemetery").value = "";
             document.getElementById("transportation").value = "";
             document.getElementById("floral").value = "";
-            document.getElementById("floral-setup").value = "";
+            document.getElementById("onsite-floral-setup").value = "";
             document.getElementById("chapel").value = "";
             document.getElementById("gov-id-number").value = "";
-            document.getElementById("beneficiary-gov-id").value = "";
             document.getElementById("applicant-signature").value = "";
             document.getElementById("relationship").value = "";
             document.getElementById("otherRelationship").value = "";
@@ -8453,16 +8553,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     document.getElementById("contact-number").addEventListener("input", function () {
         this.value = this.value.replace(/\D/g, "").slice(0, 12);
-    });
-    // gov file id upload
-    const govIdInput = document.getElementById("beneficiary-gov-id");
-    const govFileNameSpan = document.getElementById("file-gov-id-name");
-    govIdInput.addEventListener("change", () => {
-        if(govIdInput.files.length > 0){
-            govFileNameSpan.textContent = govIdInput.files[0].name;
-        }else{
-            govFileNameSpan.textContent = "No file selected";
-        }
     });
     // file signature
     const signatureInput = document.getElementById("applicant-signature");
@@ -8673,21 +8763,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     loadLifeplanStandardCoffins();
     const lpapplicantInput = document.getElementById("lp-applicant-signature");
-    const lpgovIdInput = document.getElementById("lp-applicant-gov-id");
     const lpsignatureName = document.getElementById("lp-file-signature-name");
-    const lpgovIdName = document.getElementById("lp-file-gov-id-name");
     lpapplicantInput.addEventListener("change", () => {
         if (lpapplicantInput.files.length > 0) {
             lpsignatureName.textContent = lpapplicantInput.files[0].name;
         } else {
             lpsignatureName.textContent = "No file selected";
-        }
-    });
-    lpgovIdInput.addEventListener("change", () => {
-        if (lpgovIdInput.files.length > 0) {
-            lpgovIdName.textContent = lpgovIdInput.files[0].name;
-        } else {
-            lpgovIdName.textContent = "No file selected";
         }
     });
     const lppaymentTerm = document.getElementById("lp-payment-term");
@@ -8767,7 +8848,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const lpspecialInstructions = document.getElementById("lp-special-instructions").value.trim();
         // Declaration and signature
         const lpgovIdNumber = document.getElementById("lp-gov-id-number").value.trim();
-        const lpgovId = document.getElementById("lp-applicant-gov-id").files[0];
         const lpapplicantSignature = document.getElementById("lp-applicant-signature").files[0];
         const lpsignatureDate = document.getElementById("lp-signature-date").value;
         if (!lprelationship || (lprelationship === "other" && !lpotherRelationship)) {
@@ -8821,7 +8901,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             return;
         }
-        if (!lpgovIdNumber || !lpgovId || !lpapplicantSignature || !lpsignatureDate) {
+        if (!lpgovIdNumber || !lpapplicantSignature || !lpsignatureDate) {
             Swal.fire({
                 icon: "warning",
                 title: "Incomplete Information",
@@ -8881,7 +8961,6 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("lp_special_instructions", lpspecialInstructions || "-");
         // Uploads
         formData.append("lp_gov_id_number", lpgovIdNumber);
-        formData.append("lp_gov_id", lpgovId);
         formData.append("lp_signature", lpapplicantSignature);
         // Declaration
         formData.append("lp_signature_date", lpsignatureDate);
@@ -8930,9 +9009,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("lp-special-instructions").value = "";
 
                 document.getElementById("lp-gov-id-number").value = "";
-                document.getElementById("lp-applicant-gov-id").value = "";
                 document.getElementById("lp-applicant-signature").value = "";
-                document.getElementById("lp-file-gov-id-name").textContent = "No file selected";
                 document.getElementById("lp-file-signature-name").textContent = "No file selected";
                 document.getElementById("lp-signature-date").value = "";
 
@@ -9278,6 +9355,7 @@ document.querySelector(".update-service-btn").addEventListener("click", async ()
     const formData = new URLSearchParams();
     formData.append("service_request_no", selectedServiceRequestNo);
     formData.append("total_payable", cleanAmount(totalAmountInput.value));
+    formData.append("floral_setup", document.getElementById("floralSetup").value);
     formData.append("remaining_balance",cleanAmount(remainingBalanceInput.value));
     formData.append("partial_payment", cleanAmount(partialPaymentInput.value));
     formData.append("condition", document.getElementById("beneficiaryCondition").value);
@@ -10101,27 +10179,19 @@ const modalDate = document.getElementById("modalDate");
 const modalTime = document.getElementById("modalTime");
 const modalLocation = document.getElementById("modalLocation");
 async function loadSchedules() {
-
     const response = await fetch("../backend/schedule/get_schedule.php");
     const result = await response.json();
-
     if (!result.success) return;
-
     const pendingList = document.getElementById("pendingScheduleList");
     const completedList = document.getElementById("completedScheduleList");
-
     pendingList.innerHTML = "";
     completedList.innerHTML = "";
-
     result.data.forEach(schedule => {
-
         const row = document.createElement("tr");
         row.className = "schedule-row";
-
         row.onclick = () => {
             modalSchedule.classList.remove("hidden");
             modalSchedule.classList.add("active");
-
             modalScheduleNo.textContent = schedule.arrangement_no;
             modalCustomer.textContent = schedule.performed_by;
             modalDeceased.textContent = schedule.deceased_name;
@@ -10130,7 +10200,6 @@ async function loadSchedules() {
             modalTime.textContent = new Date().toLocaleTimeString("en-US", {hour: "numeric",minute: "2-digit",hour12: true});
             modalLocation.textContent = schedule.location;
         };
-
         row.innerHTML = `
             <td>${schedule.arrangement_no}</td>
             <td>${schedule.performed_by}</td>
@@ -10144,17 +10213,13 @@ async function loadSchedules() {
                 </span>
             </td>
         `;
-
         if (schedule.status === "Pending") {
             pendingList.appendChild(row);
         } else {
             completedList.appendChild(row);
         }
-
     });
-
 }
-
 loadSchedules();
 // search function in each container of the preferences
 // pending orders
@@ -10231,6 +10296,66 @@ new Chart(ctx, {
         }
     }
 });
+// data management
+document.addEventListener("DOMContentLoaded", () => {
+    const tabs = document.querySelectorAll(".data-tab");
+    const sections = document.querySelectorAll(".data-section");
 
+    tabs.forEach((tab, index) => {
+        tab.addEventListener("click", () => {
+            tabs.forEach(btn => btn.classList.remove("active"));
+            sections.forEach(section => section.classList.remove("active"));
+
+            tab.classList.add("active");
+            sections[index].classList.add("active");
+        });
+    });
+});
+// products records
+async function loadProductsRecords() {
+    try {
+        const response = await fetch("../backend/data_management/get_products_records.php");
+        const result = await response.json();
+        const tbody = document.getElementById("productsRecordsBody");
+        tbody.innerHTML = "";
+        if (!result.success || result.data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center">
+                        No product records found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        result.data.forEach(product => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${product.product_id}</td>
+                    <td>${product.item_name}</td>
+                    <td>${product.type}</td>
+                    <td>${product.description}</td>
+                    <td>₱${Number(product.retail_price).toLocaleString()}</td>
+                    <td>${product.stock}</td>
+                    <td>${product.origin}</td>
+                    <td>
+                        <button class="view-btn" data-id="${product.product_id}">
+                            View
+                        </button>
+                        <button class="edit-btn" data-id="${product.product_id}">
+                            Edit
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+    } catch (error) {
+        console.error("Error loading products:", error);
+    }
+}
+document.addEventListener("DOMContentLoaded", () => {
+    loadProductsRecords();
+});
 </script>
 </html>

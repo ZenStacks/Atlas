@@ -2,6 +2,7 @@
 session_start();
 header("Content-Type: application/json; charset=utf-8");
 require_once __DIR__ . '/../conn.php';
+require_once __DIR__ . '/../encryption.php';
 if(!isset($_SESSION['user_id'])) {
     echo json_encode([
         "status"=>"error",
@@ -21,20 +22,22 @@ try {
     $beneficiary_firstname = trim($_POST["beneficiary_firstname"] ?? "");
     $beneficiary_middlename = trim($_POST["beneficiary_middlename"] ?? "");
     $beneficiary_age = $_POST["beneficiary_age"] ?? 0;
+    $beneficiary_gender = trim($_POST["beneficiary_gender"] ?? "");
     $beneficiary_birthdate = $_POST["beneficiary_birthdate"] ?? "";
     $date_need = $_POST["date_need"] ?? null;
+    $date_of_death = $_POST["date_of_death"] ?? null;
     $condition = trim($_POST["condition"] ?? "");
     $location = trim($_POST["location"] ?? "");
-
+    $residential_address = trim($_POST["residential_address"] ?? "");
     $service_type = $_POST["service_type"] ?? "";
     $wake_location = trim($_POST["wake_location"] ?? "");
-    $interment_date = $_POST["interment_date"] ?? null;
+    $interment_date = $_POST["onsite_interment_date"] ?? null;
     $cemetery = trim($_POST["cemetery"] ?? "");
     $transportation = $_POST["transportation"] ?? "";
     $floral = $_POST["floral"] ?? "";
-    $floral_setup = trim($_POST["floral_setup"] ?? "");
+    $floral_setup = trim($_POST["onsite_floral_setup"] ?? "");
     $chapel = $_POST["chapel"] ?? "";
-    $gov_id_number = trim($_POST["gov_id_number"]?? "" );
+    $gov_id_number = trim($_POST["gov_id_number"] ?? "");
     $signature_date = $_POST["signature_date"] ?? null;
     $signature_file = "";
     if (isset($_FILES["signature"]) && $_FILES["signature"]["error"] === 0) {
@@ -97,15 +100,19 @@ try {
         $year,
         $nextId
     );
-    $checkStmt = $conn->prepare("SELECT id FROM service_requests WHERE beneficiary_lastname = ? AND 
-    beneficiary_firstname = ? AND beneficiary_middlename = ? AND birth_date = ? AND gov_id_number = ? LIMIT 1");
+    $lastname_hash = hash('sha256', strtolower(trim($beneficiary_lastname)));
+    $firstname_hash = hash('sha256', strtolower(trim($beneficiary_firstname)));
+    $middlename_hash = hash('sha256', strtolower(trim($beneficiary_middlename)));
+    $gov_id_number_hash = hash('sha256', strtolower(trim($gov_id_number)));
+    $checkStmt = $conn->prepare("SELECT id FROM service_requests WHERE lastname_hash = ? AND 
+    firstname_hash = ? AND middlename_hash = ? AND birth_date = ? AND gov_id_number_hash = ? LIMIT 1");
     $checkStmt->bind_param(
         "sssss",
-        $beneficiary_lastname,
-        $beneficiary_firstname,
-        $beneficiary_middlename,
+        $lastname_hash,
+        $firstname_hash,
+        $middlename_hash,
         $beneficiary_birthdate,
-        $gov_id_number
+        $gov_id_number_hash
     );
     $checkStmt->execute();
     $checkStmt->store_result();
@@ -114,18 +121,29 @@ try {
             "A service request for this beneficiary has already been submitted."
         );
     }
+    $customer_name = trim($_POST["atneed_customer_name"] ?? "");
+    $customer_name = encryptData($customer_name);
+
+    $beneficiary_lastname = encryptData($beneficiary_lastname);
+    $beneficiary_firstname = encryptData($beneficiary_firstname);
+    $beneficiary_middlename = encryptData($beneficiary_middlename);
+    $location = encryptData($location);
+    $residential_address = encryptData($residential_address);
+    $gov_id_number = encryptData($gov_id_number);
+
     $checkStmt->close();
-    $stmt = $conn->prepare("INSERT INTO service_requests (service_request_no, user_id, performed_by, coffin_id, coffin_source, quantity, relationship, 
-            beneficiary_lastname, beneficiary_firstname, beneficiary_middlename, age, birth_date, date_need, `condition`, location, service_type, wake_location, 
-            interment_date, cemetery, transportation, floral, floral_setup, chapel, gov_id_number, gov_id, signature_file, signature_date, status)
-            VALUES (?, ?, 'customer',?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+    $stmt = $conn->prepare("INSERT INTO service_requests (service_request_no, user_id, performed_by, customer_name, coffin_id, coffin_source, quantity, relationship,
+            beneficiary_lastname, beneficiary_firstname, beneficiary_middlename, gender, age, birth_date, date_need, date_of_death, `condition`, location, residential_address, service_type, wake_location,
+            interment_date, cemetery, transportation, floral, floral_setup, chapel, gov_id_number, gov_id, signature_file, signature_date, status, lastname_hash, firstname_hash, middlename_hash, gov_id_number_hash)
+            VALUES (?, ?, 'admin',?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '-', ?, ?, 'pending', ?, ?, ?, ?)");
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }
     $stmt->bind_param(
-        "siisissssissssssssssssssss",
+        "sisisisssssisssssssssssssssssssss",
         $serviceRequestNo,
         $user_id,
+        $customer_name,
         $coffin_id,
         $coffin_source,
         $quantity,
@@ -133,11 +151,14 @@ try {
         $beneficiary_lastname,
         $beneficiary_firstname,
         $beneficiary_middlename,
+        $beneficiary_gender,
         $beneficiary_age,
         $beneficiary_birthdate,
         $date_need,
+        $date_of_death,
         $condition,
         $location,
+        $residential_address,
         $service_type,
         $wake_location,
         $interment_date,
@@ -147,9 +168,12 @@ try {
         $floral_setup,
         $chapel,
         $gov_id_number,
-        $gov_id_file,
         $signature_file,
-        $signature_date
+        $signature_date,
+        $lastname_hash,
+        $firstname_hash,
+        $middlename_hash,
+        $gov_id_number_hash
     );
     $stmt->execute();
     echo json_encode([

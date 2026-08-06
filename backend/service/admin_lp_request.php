@@ -2,6 +2,7 @@
 session_start();
 header("Content-Type: application/json; charset=utf-8");
 require_once __DIR__ . '/../conn.php';
+require_once __DIR__ . '/../encryption.php';
 if(!isset($_SESSION['user_id'])) {
     echo json_encode([
         "status"=>"error",
@@ -79,26 +80,7 @@ try {
             throw new Exception("Failed to upload signature file.");
         }
     }
-    $lp_gov_id_file = "";
-    if (isset($_FILES["lp_gov_id"]) && $_FILES["lp_gov_id"]["error"] === 0) {
-        $file = $_FILES["lp_gov_id"];
-        if ($file["size"] > 2 * 1024 * 1024) {
-            throw new Exception("Government ID file is too large.");
-        }
-        $ext = strtolower(pathinfo($file["name"], PATHINFO_EXTENSION));
-        if (!in_array($ext, ["jpg","jpeg","png"])) {
-            throw new Exception("Invalid Government ID.");
-        }
-        $lp_gov_id_file = uniqid("gov_", true).".".$ext;
-        $uploadDir = __DIR__."/uploads/gov_ids/";
-        if(!is_dir($uploadDir)){
-            mkdir($uploadDir,0755,true);
-        }
-        move_uploaded_file(
-            $file["tmp_name"],
-            $uploadDir.$lp_gov_id_file
-        );
-    }
+    
     $year = date("Y");
     $result = $conn->query("SELECT MAX(id) AS last_id FROM lifeplan_request");
     $row = $result->fetch_assoc();
@@ -109,39 +91,60 @@ try {
         $year,
         $nextId
     );
+    $lastname_hash = hash('sha256', strtolower(trim($lp_planholder_lastname)));
+    $firstname_hash = hash('sha256', strtolower(trim($lp_planholder_firstname)));
+    $middlename_hash = hash('sha256', strtolower(trim($lp_planholder_middlename)));
+    $contact_number_hash = hash('sha256', strtolower(trim($lp_planholder_number)));
+    $email_address_hash = hash('sha256', strtolower(trim($lp_planholder_email)));
+    $address_hash = hash('sha256', strtolower(trim($lp_planholder_address)));
+    $gov_id_number_hash = hash('sha256', strtolower(trim($lp_gov_id_number)));
 
-    $check = $conn->prepare("SELECT id FROM lifeplan_request WHERE planholder_lastname = ?
-        AND planholder_firstname = ? AND planholder_middlename = ? AND date_of_birth = ? 
-        AND gov_id_number = ? AND status != 'cancelled' LIMIT 1");
+    $applicant_name_hash = hash('sha256', strtolower(trim($lp_applicant_name)));
+    $applicant_contact_no_hash = hash('sha256', strtolower(trim($lp_applicant_number)));
+    $applicant_email_hash = hash('sha256', strtolower(trim($lp_applicant_email)));
+
+    $check = $conn->prepare("SELECT id FROM lifeplan_request WHERE lastname_hash = ?
+        AND firstname_hash = ? AND middlename_hash = ? AND date_of_birth = ? 
+        AND gov_id_number_hash = ? AND status != 'cancelled' LIMIT 1");
 
     $check->bind_param(
         "sssss",
-        $lp_planholder_lastname,
-        $lp_planholder_firstname,
-        $lp_planholder_middlename,
+        $lastname_hash,
+        $firstname_hash,
+        $middlename_hash,
         $lp_planholder_dob,
-        $lp_gov_id_number
+        $gov_id_number_hash
     );
-
     $check->execute();
     $result = $check->get_result();
 
     if ($result->num_rows > 0) {
         throw new Exception("A Life Plan already exists for this plan holder.");
     }
+    $check->close();
+    $lp_planholder_lastname = encryptData($lp_planholder_lastname);
+    $lp_planholder_firstname = encryptData($lp_planholder_firstname);
+    $lp_planholder_middlename = encryptData($lp_planholder_middlename);
+    $lp_planholder_number = encryptData($lp_planholder_number);
+    $lp_planholder_email = encryptData($lp_planholder_email);
+    $lp_planholder_address = encryptData($lp_planholder_address);
+    $lp_gov_id_number = encryptData($lp_gov_id_number);
+    // applicant info
+    $lp_applicant_name = encryptData($lp_applicant_name);
+    $lp_applicant_number = encryptData($lp_applicant_number);
+    $lp_applicant_email = encryptData($lp_applicant_email);
     $stmt = $conn->prepare("INSERT INTO lifeplan_request (lifeplan_no, user_id, performed_by, coffin_id, coffin_source, quantity,
         relationship, applicant_name, applicant_contact_no, applicant_email, planholder_lastname, planholder_firstname, planholder_middlename, age, date_of_birth,
         gender, civil_status, occupation, contact_number, email_address, residential_address, plan_type, payment_option, 
         payment_term, retail_price, lifeplan_max_months, term_payment, funeral_service, prefered_cemetery, 
-        religious_affiliation, special_instruction, gov_id_number, gov_id, applicant_signature, date_signed, status)
-        VALUES (?, ?, 'admin', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
-
+        religious_affiliation, special_instruction, gov_id_number, gov_id, applicant_signature, date_signed, status, lastname_hash, firstname_hash, middlename_hash, 
+        gov_id_number_hash, applicant_name_hash, applicant_contact_no_hash, applicant_email_hash, contact_number_hash, email_address_hash, address_hash)
+        VALUES (?, ?, 'admin', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '-', ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }
-
     $stmt->bind_param(
-        "siisisssssssissssssssssdiissssssss",
+        "siisisssssssissssssssssdiisssssssssssssssss",
         $lifeplanRequestNo,
         $user_id,
         $coffin_id,
@@ -173,21 +176,29 @@ try {
         $lp_religious_affiliation,
         $lp_special_instruction,
         $lp_gov_id_number,
-        $lp_gov_id_file,
         $lp_signature_file,
-        $lp_signature_date
+        $lp_signature_date,
+        $lastname_hash,
+        $firstname_hash,
+        $middlename_hash,
+        $gov_id_number_hash,
+        $applicant_name_hash,
+        $applicant_contact_no_hash,
+        $applicant_email_hash,
+        $contact_number_hash,
+        $email_address_hash,
+        $address_hash
     );
-    $stmt->execute();
-
+    if (!$stmt->execute()) {
+        throw new Exception($stmt->error);
+    }
     echo json_encode([
         "success" => true,
         "message" => "Life plan request saved successfully",
         "request_id" => $stmt->insert_id,
         "lifeplan_no" => $lifeplanRequestNo
     ]);
-
 } catch (Exception $e) {
-
     echo json_encode([
         "success" => false,
         "message" => $e->getMessage()

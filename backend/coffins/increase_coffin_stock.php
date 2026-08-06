@@ -160,8 +160,7 @@ try {
     }
     $new_stock = $current_stock + $quantity;
     if ($origin === "local") {
-        $reserved_stock = 3;
-        $available_stock = max(0, $new_stock - $reserved_stock);
+        $available_stock = max(0, $new_stock);
         $update = $conn->prepare("UPDATE coffins SET stock = ?, available_stock = ? WHERE id = ?");
         if (!$update) {
             throw new Exception($conn->error);

@@ -38,12 +38,11 @@ try {
     }
     $checkStmt->close();
     $current_stock = $initial_stock;
-    $reserved_stock = 2;
-    $stmt = $conn->prepare("INSERT INTO flowers (flower_type, initial_stock, current_stock, reserved_stock, cost, details, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())");
+    $stmt = $conn->prepare("INSERT INTO flowers (flower_type, initial_stock, current_stock, cost, details, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())");
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }
-    $stmt->bind_param("siiids", $flower_type, $initial_stock, $current_stock, $reserved_stock, $cost, $details);
+    $stmt->bind_param("siids", $flower_type, $initial_stock, $current_stock, $cost, $details);
     if (!$stmt->execute()) {
         throw new Exception("Insert failed: " . $stmt->error);
     }

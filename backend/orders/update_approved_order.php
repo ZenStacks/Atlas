@@ -12,6 +12,7 @@ if (!isset($_SESSION["user_id"])) {
 $required = [
     "service_request_no",
     "total_payable",
+    "floral_setup",
     "condition",
     "location",
     "date_need",
@@ -32,6 +33,7 @@ $newPartialPayment = isset($_POST["partial_payment"])
     ? floatval($_POST["partial_payment"])
     : 0;
 
+$floralSetup = trim($_POST["floral_setup"]);
 $condition = trim($_POST["condition"]);
 $location = trim($_POST["location"]);
 $dateNeed = $_POST["date_need"];
@@ -40,13 +42,14 @@ $intermentDate = $_POST["interment_date"];
 $conn->begin_transaction();
 
 try {
-    $stmt1 = $conn->prepare("UPDATE service_requests SET `condition`=?, location=?, date_need=?, interment_date=? WHERE service_request_no=?");
+    $stmt1 = $conn->prepare("UPDATE service_requests SET `condition`=?, location=?, date_need=?, interment_date=?, floral_setup=? WHERE service_request_no=?");
     $stmt1->bind_param(
-        "sssss",
+        "ssssss",
         $condition,
         $location,
         $dateNeed,
         $intermentDate,
+        $floralSetup,
         $serviceRequestNo
     );
     if(!$stmt1->execute()){
