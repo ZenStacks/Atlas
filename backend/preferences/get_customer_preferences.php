@@ -11,10 +11,7 @@ try {
             WHEN sr.performed_by = 'admin' THEN e.contact_no
         END AS phone_no,
 
-        CASE
-            WHEN sr.performed_by = 'customer' THEN c.email
-            WHEN sr.performed_by = 'admin' THEN e.email
-        END AS email,
+        sr.email AS email,
 
         CASE
             WHEN sr.performed_by = 'customer' THEN c.selected_address

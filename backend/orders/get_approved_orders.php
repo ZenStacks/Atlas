@@ -1,66 +1,109 @@
 <?php
+
 session_start();
+
 header("Content-Type: application/json; charset=utf-8");
+
 require_once __DIR__ . '/../conn.php';
-if(!isset($_SESSION['user_id'])) {
+require_once __DIR__ . '/../encryption.php';
+
+if (!isset($_SESSION['user_id'])) {
+
     echo json_encode([
-        "status"=>"error",
-        "message"=>"Admin not logged in"
+        "success" => false,
+        "message" => "Admin not logged in"
     ]);
+
     exit;
 }
-$user_id = $_SESSION["user_id"];
-try{
-    $sql = "SELECT
-        sr.service_request_no,
-        sr.purchase_type,
-        sr.service_type,
-        sr.status,
-        sr.created_at,
-        c.name,
-        c.profile_img,
 
-        ao.total_payable,
-        ao.downpayment,
-        ao.remaining_balance,
-        ao.approved_at,
-        ao.service_price,
+try {
 
-        COALESCE(cf.item_name, ic.item_name) AS item_name,
-        COALESCE(cf.coffin_type, ic.coffin_type) AS coffin_type
+    $sql = "
+        SELECT
 
-    FROM service_requests sr
+            sr.service_request_no,
+            sr.purchase_type,
+            sr.service_type,
+            sr.status,
+            sr.created_at,
+            sr.performed_by,
 
-    JOIN customers c
-        ON c.id = sr.user_id
+            CASE
+                WHEN sr.performed_by = 'customer'
+                    THEN c.name
+                ELSE sr.customer_name
+            END AS name,
 
-    JOIN approved_orders ao
-        ON ao.service_request_no = sr.service_request_no
+            CASE
+                WHEN sr.performed_by = 'customer'
+                    AND c.profile_img IS NOT NULL
+                    AND c.profile_img != ''
+                    THEN c.profile_img
+                ELSE 'profile.png'
+            END AS profile_img,
 
-    LEFT JOIN coffins cf
-        ON cf.id = sr.coffin_id
-        AND sr.coffin_source = 'local'
+            ao.total_payable,
+            ao.downpayment,
+            ao.remaining_balance,
+            ao.approved_at,
+            ao.service_price,
 
-    LEFT JOIN imported_coffins ic
-        ON ic.id = sr.coffin_id
-        AND sr.coffin_source = 'imported'
+            COALESCE(
+                cf.item_name,
+                ic.item_name
+            ) AS item_name,
 
-    WHERE sr.status = 'Approved'
+            COALESCE(
+                cf.coffin_type,
+                ic.coffin_type
+            ) AS coffin_type
 
-    ORDER BY sr.created_at DESC";
+        FROM service_requests sr
+
+        LEFT JOIN customers c
+            ON c.id = sr.user_id
+            AND sr.performed_by = 'customer'
+
+        INNER JOIN approved_orders ao
+            ON ao.service_request_no = sr.service_request_no
+
+        LEFT JOIN coffins cf
+            ON cf.id = sr.coffin_id
+            AND sr.coffin_source = 'local'
+
+        LEFT JOIN imported_coffins ic
+            ON ic.id = sr.coffin_id
+            AND sr.coffin_source = 'imported'
+
+        WHERE sr.status = 'Approved'
+
+        ORDER BY sr.created_at DESC
+    ";
+
     $result = $conn->query($sql);
 
     if (!$result) {
-        echo json_encode([
-            "success" => false,
-            "message" => $conn->error
-        ]);
-        exit;
+        throw new Exception($conn->error);
     }
 
     $data = [];
 
     while ($row = $result->fetch_assoc()) {
+
+        if (!empty($row["name"])) {
+            $row["name"] = decryptData($row["name"]);
+        } else {
+            $row["name"] = "Unknown Customer";
+        }
+
+        if (
+            empty($row["profile_img"]) ||
+            $row["performed_by"] === "admin"
+        ) {
+            $row["profile_img"] = "profile.png";
+        }
+
         $data[] = $row;
     }
 
@@ -68,10 +111,14 @@ try{
         "success" => true,
         "data" => $data
     ]);
-}catch (Exception $e) {
+
+} catch (Exception $e) {
+
+    http_response_code(500);
 
     echo json_encode([
         "success" => false,
         "message" => $e->getMessage()
     ]);
 }
+?>

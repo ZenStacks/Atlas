@@ -139,7 +139,7 @@ try {
         payment_term, retail_price, lifeplan_max_months, term_payment, funeral_service, prefered_cemetery, 
         religious_affiliation, special_instruction, gov_id_number, gov_id, applicant_signature, date_signed, status, lastname_hash, firstname_hash, middlename_hash, 
         gov_id_number_hash, applicant_name_hash, applicant_contact_no_hash, applicant_email_hash, contact_number_hash, email_address_hash, address_hash)
-        VALUES (?, ?, 'admin', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '-', ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        VALUES (?, ?, 'admin', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '-', ?, ?, ?, 'confirmed', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }

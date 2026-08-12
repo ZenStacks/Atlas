@@ -77,11 +77,18 @@ try {
         $updateStock->close();
         $checkStock->close();
     }
-    $updateLifeplan = $conn->prepare("UPDATE  SET status = 'In Progress' WHERE lifeplan_no = ?");
-    $updateLifeplan->bind_param("s", $lifeplanNo);
-    if (!$updateLifeplan->execute()) {
-        throw new Exception($updateLifeplan->error);
+    $updateLifeplan = $conn->prepare("UPDATE lifeplan_request SET status = 'Pending' WHERE lifeplan_no = ?");
+
+    if (!$updateLifeplan) {
+        throw new Exception("Failed to prepare lifeplan update: " . $conn->error);
     }
+
+    $updateLifeplan->bind_param("s", $lifeplanNo);
+
+    if (!$updateLifeplan->execute()) {
+        throw new Exception("Failed to update lifeplan status: " . $updateLifeplan->error);
+    }
+
     $updateLifeplan->close();
     $conn->commit();
     echo json_encode([

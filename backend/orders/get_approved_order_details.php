@@ -1,114 +1,190 @@
 <?php
+
 require_once __DIR__ . "/../conn.php";
 require_once __DIR__ . "/../encryption.php";
 
 header("Content-Type: application/json; charset=utf-8");
 
+ini_set("display_errors", "0");
+error_reporting(E_ALL);
+
+function decryptIfEncrypted($value)
+{
+    if ($value === null || $value === '') {
+        return '';
+    }
+
+    $decrypted = @decryptData($value);
+
+    if ($decrypted !== false && $decrypted !== null) {
+        return $decrypted;
+    }
+
+    return $value;
+}
+
 try {
 
-    if (!isset($_GET["service_request_no"])) {
+    if (
+        !isset($_GET["service_request_no"]) ||
+        trim($_GET["service_request_no"]) === ""
+    ) {
         throw new Exception("Service Request Number is required.");
     }
 
-    $serviceRequestNo = $_GET["service_request_no"];
+    $serviceRequestNo = trim($_GET["service_request_no"]);
 
-    $sql = "SELECT
-                sr.service_request_no,
-                sr.customer_name,
-                sr.purchase_type,
-                sr.service_type,
-                sr.relationship,
-                sr.transportation,
-                sr.floral,
-                sr.floral_setup,
-                sr.chapel,
-                sr.status,
-                sr.created_at,
-                sr.condition,
-                sr.location,
-                sr.date_need,
-                sr.interment_date,
+    $sql = "
+        SELECT
 
-                sr.beneficiary_firstname,
-                sr.beneficiary_middlename,
-                sr.beneficiary_lastname,
+            sr.service_request_no,
+            sr.customer_name,
+            sr.phone_no,
+            sr.email,
+            sr.residential_address,
+            sr.purchase_type,
+            sr.service_type,
+            sr.relationship,
+            sr.transportation,
+            sr.floral,
+            sr.floral_setup,
+            sr.chapel,
+            sr.status,
+            sr.created_at,
+            sr.condition,
+            sr.location,
+            sr.date_need,
+            sr.interment_date,
 
-                c.name,
-                c.phone_no,
-                c.email,
-                c.selected_address,
-                c.profile_img,
+            sr.beneficiary_firstname,
+            sr.beneficiary_middlename,
+            sr.beneficiary_lastname,
 
-                ao.service_price,
-                ao.total_payable,
-                ao.downpayment,
-                COALESCE(pp.approved_partial_payment, 0) AS partial_payment,
-                (ao.total_payable - ao.downpayment - COALESCE(pp.approved_partial_payment, 0))
-                AS remaining_balance,
-                ao.approved_at,
+            ao.service_price,
+            ao.total_payable,
+            ao.downpayment,
 
-                COALESCE(cf.item_name, ic.item_name) AS item_name,
-                COALESCE(cf.coffin_type, ic.coffin_type) AS coffin_type
+            COALESCE(
+                pp.approved_partial_payment,
+                0
+            ) AS partial_payment,
 
-            FROM service_requests sr
+            (
+                ao.total_payable
+                - ao.downpayment
+                - COALESCE(pp.approved_partial_payment, 0)
+            ) AS remaining_balance,
 
-            INNER JOIN customers c
-                ON c.id = sr.user_id
+            ao.approved_at,
 
-            INNER JOIN approved_orders ao
-                ON ao.service_request_no = sr.service_request_no
+            COALESCE(
+                cf.item_name,
+                ic.item_name
+            ) AS item_name,
 
-            LEFT JOIN (
-                SELECT
-                    order_id,
-                    SUM(amount) AS approved_partial_payment
-                FROM payment_proofs
-                WHERE status = 'Approved'
-                GROUP BY order_id
-            ) pp
-                ON pp.order_id = sr.id
+            COALESCE(
+                cf.coffin_type,
+                ic.coffin_type
+            ) AS coffin_type
 
-            LEFT JOIN coffins cf
-                ON cf.id = sr.coffin_id
-                AND sr.coffin_source = 'local'
+        FROM service_requests sr
 
-            LEFT JOIN imported_coffins ic
-                ON ic.id = sr.coffin_id
-                AND sr.coffin_source = 'imported'
+        INNER JOIN approved_orders ao
+            ON ao.service_request_no = sr.service_request_no
 
-            WHERE sr.service_request_no = ?";
+        LEFT JOIN (
+            SELECT
+                order_id,
+                SUM(amount) AS approved_partial_payment
+            FROM payment_proofs
+            WHERE status = 'Approved'
+            GROUP BY order_id
+        ) pp
+            ON pp.order_id = sr.id
+
+        LEFT JOIN coffins cf
+            ON cf.id = sr.coffin_id
+            AND sr.coffin_source = 'local'
+
+        LEFT JOIN imported_coffins ic
+            ON ic.id = sr.coffin_id
+            AND sr.coffin_source = 'imported'
+
+        WHERE sr.service_request_no = ?
+    ";
 
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
-        throw new Exception($conn->error);
+        throw new Exception(
+            "Prepare failed: " . $conn->error
+        );
     }
 
-    $stmt->bind_param("s", $serviceRequestNo);
-    $stmt->execute();
+    $stmt->bind_param(
+        "s",
+        $serviceRequestNo
+    );
+
+    if (!$stmt->execute()) {
+        throw new Exception(
+            "Execute failed: " . $stmt->error
+        );
+    }
 
     $result = $stmt->get_result();
 
+    if (!$result) {
+        throw new Exception(
+            "Unable to retrieve order details."
+        );
+    }
+
     if ($result->num_rows === 0) {
-        throw new Exception("Order not found");
+        throw new Exception(
+            "Order not found."
+        );
     }
 
     $data = $result->fetch_assoc();
 
-    $data["customer_name"] = !empty($data["customer_name"]) ? decryptData($data["customer_name"]) : "";
-    $data["beneficiary_firstname"] = !empty($data["beneficiary_firstname"]) ? decryptData($data["beneficiary_firstname"]) : "";
-    $data["beneficiary_middlename"] = !empty($data["beneficiary_middlename"]) ? decryptData($data["beneficiary_middlename"]) : "";
-    $data["beneficiary_lastname"] = !empty($data["beneficiary_lastname"]) ? decryptData($data["beneficiary_lastname"]) : "";
-    $data["location"] = !empty($data["location"]) ? decryptData($data["location"]) : "";
+    $fieldsToDecrypt = [
+        "customer_name",
+        "email",
+        "residential_address",
+        "beneficiary_firstname",
+        "beneficiary_middlename",
+        "beneficiary_lastname",
+        "location"
+    ];
 
-    echo json_encode([
-        "success" => true,
-        "data" => $data
-    ]);
+    foreach ($fieldsToDecrypt as $field) {
 
-} catch (Exception $e) {
-    echo json_encode([
-        "success" => false,
-        "message" => $e->getMessage()
-    ]);
+        $data[$field] = decryptIfEncrypted(
+            $data[$field] ?? null
+        );
+    }
+
+    echo json_encode(
+        [
+            "success" => true,
+            "data" => $data
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
+
+    $stmt->close();
+
+} catch (Throwable $e) {
+
+    http_response_code(500);
+
+    echo json_encode(
+        [
+            "success" => false,
+            "message" => $e->getMessage()
+        ],
+        JSON_UNESCAPED_UNICODE
+    );
 }
+?>

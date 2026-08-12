@@ -29,3 +29,4 @@ echo json_encode([
 ], JSON_UNESCAPED_UNICODE);
 
 $conn->close();
+?>

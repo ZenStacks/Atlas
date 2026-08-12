@@ -7,9 +7,15 @@ $image = "assets/img/profile.png";
 
 if (isset($_SESSION['customer_id'])) {
 
-    $customerId = $_SESSION['customer_id'];
+    $customerId = (int) $_SESSION['customer_id'];
 
-    $stmt = $conn->prepare("SELECT name, profile_img FROM customers WHERE id = ?");
+    $stmt = $conn->prepare("
+        SELECT name, profile_img
+        FROM customers
+        WHERE id = ?
+        LIMIT 1
+    ");
+
     $stmt->bind_param("i", $customerId);
     $stmt->execute();
 
@@ -17,10 +23,13 @@ if (isset($_SESSION['customer_id'])) {
 
     if ($row = $result->fetch_assoc()) {
         $name = $row['name'];
+
         if (!empty($row['profile_img'])) {
             $image = "assets/img/uploads/profile/" . $row['profile_img'];
         }
     }
+
+    $stmt->close();
 }
 ?>
 <!DOCTYPE html>
@@ -146,20 +155,31 @@ if (isset($_SESSION['customer_id'])) {
             </div>
             <div class="review-section">
                 <div class="review-container">
-                    <div class="review-title">
-                        <h2>Trusted By Local Families</h2>
-                        <div class="review-stars">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <p>4.9 ratings of 57 reviews</p>
+                    <div class="review-header">
+                        <div class="review-title">
+                            <h2>Trusted By Local Families</h2>
+                            <div class="review-stars" id="homepageReviewStars">
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                                <i class="bi bi-star"></i>
+                                <p id="homepageReviewSummary">
+                                    No reviews yet
+                                </p>
+                            </div>
+                        </div>
+                        <hr class="vertical-line">
+                        <div class="review-button">
+                            <a href="users/reviews.php">
+                                <button type="button">
+                                    Leave a Review
+                                </button>
+                            </a>
                         </div>
                     </div>
-                    <hr class="vertical-line">
-                    <div class="review-button">
-                        <button>Leave a Review</button>
+                    <div class="homepage-reviews-wrapper">
+                        <div class="homepage-reviews-track" id="homepageReviewsTrack"></div>
                     </div>
                 </div>
             </div>
@@ -207,8 +227,8 @@ if (isset($_SESSION['customer_id'])) {
                 </div>
                 <div class="about-us">
                     <h3>About Us</h3>
-                    <p>Process</p>
-                    <p>Why Us?</p>
+                    <a href="users/process.html"><p>Process</p></a>
+                    <a href="users/why_us.php"><p>Why Us?</p></a>
                 </div>
                 <div class="legal">
                     <h3>Legal</h3>
@@ -269,11 +289,250 @@ if (isset($_SESSION['customer_id'])) {
     </div>
 </body>
 <script>
-    document.getElementById('standard-btn').addEventListener('click', (e) =>{
-        window.location.href = 'users/standard.php';
-    });
-    document.getElementById('premium-btn').addEventListener('click', (e) =>{
-        window.location.href = 'users/premium.php';
-    })
+document.getElementById('standard-btn').addEventListener('click', (e) => {
+    window.location.href = 'users/standard.php';
+});
+document.getElementById('premium-btn').addEventListener('click', (e) => {
+    window.location.href = 'users/premium.php';
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const reviewStars = document.querySelectorAll("#homepageReviewStars i");
+    const reviewSummary = document.getElementById("homepageReviewSummary");
+    const reviewTrack = document.getElementById("homepageReviewsTrack");
+
+    let reviews = [];
+    let currentSlide = 0;
+    let slideInterval = null;
+    let realReviewCount = 0;
+
+    const visibleCards = 4;
+    const cardGap = 20;
+
+    async function loadHomepageReviews() {
+        try {
+            const response = await fetch(
+                "backend/users/get_reviews.php",
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.message || "Unable to load reviews."
+                );
+            }
+
+            const average = Number(result.average_rating) || 0;
+            const total = Number(result.total_reviews) || 0;
+
+            reviews = Array.isArray(result.reviews)
+                ? result.reviews
+                : [];
+
+            reviewStars.forEach((star, index) => {
+                const starNumber = index + 1;
+
+                if (starNumber <= Math.round(average)) {
+                    star.classList.remove("bi-star");
+                    star.classList.add("bi-star-fill");
+                } else {
+                    star.classList.remove("bi-star-fill");
+                    star.classList.add("bi-star");
+                }
+            });
+
+            if (total === 0) {
+                reviewSummary.textContent = "No reviews yet";
+            } else {
+                reviewSummary.textContent = `${average.toFixed(1)} ratings of ${total} review${total === 1 ? "" : "s"}`;
+            }
+
+            renderHomepageReviews();
+
+            if (reviews.length > visibleCards) {
+                startSlider();
+            } else {
+                stopSlider();
+            }
+        } catch (error) {
+            console.error("Homepage review loading error:", error);
+            reviewSummary.textContent = "Reviews unavailable";
+            if (reviewTrack) {
+                reviewTrack.innerHTML = `
+                    <div class="homepage-review-card">
+                        <p class="homepage-review-text">
+                            Unable to load reviews.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    function renderHomepageReviews() {
+        if (!reviewTrack) {
+            return;
+        }
+        if (reviews.length === 0) {
+            reviewTrack.innerHTML = `
+                <div class="homepage-review-card">
+                    <p class="homepage-review-text">
+                        No reviews yet.
+                    </p>
+                </div>
+            `;
+            return;
+        }
+
+        realReviewCount = reviews.length;
+
+        const buildCard = (review) => {
+            const rating = Number(review.rating) || 0;
+            const name = escapeHtml(review.name || "Customer");
+            const initial = escapeHtml(review.initial || name.charAt(0).toUpperCase());
+            const reviewText = escapeHtml(review.review_text || "");
+            const date = formatDate(review.created_at);
+            return `
+                <div class="homepage-review-card">
+                    <div>
+                        <div class="homepage-review-card-header">
+                            <div class="homepage-review-avatar">
+                                ${initial}
+                            </div>
+                            <div>
+                                <h3 class="homepage-review-name">
+                                    ${name}
+                                </h3>
+                                <span class="homepage-review-verified">
+                                    Verified Customer
+                                </span>
+                            </div>
+                        </div>
+                        <div class="homepage-review-stars">
+                            ${createStars(rating)}
+                        </div>
+                        <p class="homepage-review-text">
+                            ${reviewText}
+                        </p>
+                    </div>
+                    <span class="homepage-review-date">
+                        ${date}
+                    </span>
+                </div>
+            `;
+        };
+
+        let cardsHtml = reviews.map(buildCard);
+        if (reviews.length > visibleCards) {
+            cardsHtml = cardsHtml.concat(reviews.slice(0, visibleCards).map(buildCard));
+        }
+
+        reviewTrack.innerHTML = cardsHtml.join("");
+
+        currentSlide = 0;
+        reviewTrack.style.transition = "none";
+        updateSliderPosition();
+        void reviewTrack.offsetWidth;
+        reviewTrack.style.transition = "transform 0.3s ease-in-out";
+    }
+
+    function startSlider() {
+        stopSlider();
+        if (realReviewCount <= visibleCards) {
+            return;
+        }
+        slideInterval = setInterval(moveToNextSlide, 2500);
+    }
+
+    function moveToNextSlide() {
+        if (!reviewTrack) {
+            return;
+        }
+        currentSlide++;
+        updateSliderPosition();
+        if (currentSlide === realReviewCount) {
+            reviewTrack.addEventListener("transitionend", resetToStart, { once: true });
+        }
+    }
+
+    function resetToStart() {
+        currentSlide = 0;
+        reviewTrack.style.transition = "none";
+        updateSliderPosition();
+        void reviewTrack.offsetWidth;
+        reviewTrack.style.transition = "transform 0.3s ease-in-out";
+    }
+
+    function stopSlider() {
+        if (slideInterval) {
+            clearInterval(slideInterval);
+            slideInterval = null;
+        }
+    }
+
+    function updateSliderPosition() {
+        if (!reviewTrack) {
+            return;
+        }
+        const cards = reviewTrack.querySelectorAll(".homepage-review-card");
+        if (!cards.length) {
+            return;
+        }
+        const cardWidth = cards[0].offsetWidth || cards[0].clientWidth;
+        if (!cardWidth) {
+            return;
+        }
+        const amount = currentSlide * (cardWidth + cardGap);
+        reviewTrack.style.transform = `translateX(-${amount}px)`;
+    }
+
+    function createStars(rating) {
+        let stars = "";
+        for (let i = 1; i <= 5; i++) {
+            if (i <= rating) {
+                stars += `<i class="bi bi-star-fill"></i>`;
+            } else {
+                stars += `<i class="bi bi-star"></i>`;
+            }
+        }
+        return stars;
+    }
+
+    function escapeHtml(value) {
+        const element = document.createElement("div");
+        element.textContent = value ?? "";
+        return element.innerHTML;
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) {
+            return "";
+        }
+        const normalizedDate = dateString.replace(" ", "T");
+        const date = new Date(normalizedDate);
+        if (Number.isNaN(date.getTime())) {
+            return dateString;
+        }
+        return date.toLocaleDateString(
+            "en-US",
+            {
+                month: "long",
+                year: "numeric"
+            }
+        );
+    }
+
+    reviewTrack?.addEventListener("mouseenter", stopSlider);
+    reviewTrack?.addEventListener("mouseleave", startSlider);
+
+    loadHomepageReviews();
+    window.addEventListener("resize", updateSliderPosition);
+});
 </script>
 </html>

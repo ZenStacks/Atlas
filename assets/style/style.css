@@ -24,6 +24,7 @@ body{
     flex-direction: column;
     width: 100%;
     margin-top: 70px;
+
 }
 .main-container.full-width{
     margin-left: 0 !important;

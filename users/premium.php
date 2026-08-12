@@ -206,15 +206,16 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-section">
-                        <h3>Beneficiary Information</h3>
+                        <h3>Deceased Information</h3>
                         <div class="first-modal">
                             <div class="input-row">
-                                <label for="relationship">Relationship of the Applicant to the Beneficiary</label>
+                                <label for="relationship">Relationship of the Applicant to the Deceased</label>
                                 <select id="relationship" name="relationship">
                                     <option value="">Select Relationship</option>
                                     <option value="self">Self</option>
                                     <option value="spouse">Spouse</option>
-                                    <option value="child">Child</option>
+                                    <option value="daughter">Daughter</option>
+                                    <option value="son">son</option>
                                     <option value="mother">Mother</option>
                                     <option value="father">Father</option>
                                     <option value="siblings">Sibling</option>
@@ -224,35 +225,47 @@
                                 <input type="text" id="otherRelationship" class="others-relation" placeholder="Please specify relationship">
                             </div>
                             <div class="input-row">
+                                <label for="date-of-death">Anticipated Date of Death</label>
+                                <input type="date" id="date-of-death" name="date_need">
+                            </div>
+                            <div class="input-row">
                                 <label for="date-need">Anticipated Date of Service Requirement</label>
                                 <input type="date" id="date-need" name="date_need">
                             </div>
                             <div class="input-row">
-                                <label for="beneficiary-condition">Current Medical Condition of the Beneficiary</label>
+                                <label for="beneficiary-condition">Current Medical Condition of the Deceased</label>
                                 <input type="text" id="beneficiary-condition" name="beneficiary_condition" placeholder="e.g., Critical Condition, Terminal Illness, Hospice Care">
                             </div>
                             <div class="input-row">
-                                <label for="beneficiary-location">Current Location of the Beneficiary (Hospital, Residence, Care Facility, etc.)</label>
+                                <label for="beneficiary-location">Current Location of the Deceased (Hospital, Residence, Care Facility, etc.)</label>
                                 <input type="text" id="beneficiary-location" name="beneficiary_location" placeholder="Enter current location">
                             </div>
                             <div class="input-row">
-                                <label>Last Name of the Beneficiary</label>
+                                <label>Last Name of the Deceased</label>
                                 <input type="text"  id="beneficiary-last-name" name="beneficiary_last_name" placeholder="e.g., Dela Cruz" required>
                             </div>
                             <div class="input-row">
-                                <label>First Name of the Beneficiary</label>
+                                <label>First Name of the Deceased</label>
                                 <input type="text"  id="beneficiary-first-name" name="beneficiary_first_name" placeholder="e.g., Juan" required>
                             </div>
                             <div class="input-row">
-                                <label>Middle Name of the Beneficiary</label>
+                                <label>Middle Name of the Deceased</label>
                                 <input type="text"  id="beneficiary-middle-name" name="beneficiary_middle_name" placeholder="e.g., De Magiba" required>
                             </div>
                             <div class="input-row">
-                                <label>Age of the Beneficiary</label>
+                                <label>Gender of the Deceased</label>
+                                <select name="gender" id="gender">
+                                    <option value=""disabled>Select Gender</option>
+                                    <option value="female">Female</option>
+                                    <option value="male">Male</option>
+                                </select>
+                            </div>
+                            <div class="input-row">
+                                <label>Age of the Deceased</label>
                                 <input type="text"  id="beneficiary-age" name="beneficiary_age" placeholder="e.g., 75" required>
                             </div>
                             <div class="input-row">
-                                <label>Birth Date of the Beneficiary</label>
+                                <label>Birth Date of the Deceased</label>
                                 <input type="date" id="beneficiary-dob" name="beneficiary_dob" required>
                             </div>
                             <div class="input-row">
@@ -265,7 +278,7 @@
                             </div>
                             <div class="input-row">
                                 <label>Residential Address:</label>
-                                <input type="text" placeholder="e.g., 123 Main Street, Country">
+                                <input type="text" id="resident-address" placeholder="e.g., 123 Main Street, Country">
                             </div>
                         </div>
                     </div>
@@ -327,6 +340,19 @@
                         </div>
                     </div>
                     <div class="form-section">
+                        <h3>Payment Preferences</h3>
+                        <div class="third-modal">
+                            <div class="input-row">
+                                <label for="payment-option">Payment Option</label>
+                                <select id="payment-option" name="payment_option">
+                                    <option value="">Select Option</option>
+                                    <option value="Installment">Installment</option>
+                                    <option value="Spot Cash">Full Payment</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-section">
                         <h3>Declaration and Signature</h3>
                         <div class="input-row">
                             <p class="declaration-text">
@@ -338,11 +364,11 @@
                             </p>
                         </div>
                         <div class="input-row">
-                            <label>Beneficiary Government Id Number</label>
+                            <label>Deceased Government Id Number</label>
                             <input type="text" id="gov-id-number" placeholder="e.g., 1234-5678-9012" required>
                         </div>
                         <div class="input-row">
-                            <label>Beneficiary Government ID (Upload Image)</label>
+                            <label>Deceased Government ID (Upload Image)</label>
                             <input type="file" id="beneficiary-gov-id" name="beneficiary_gov_id" accept="image/*" class="file-input">
                             <label for="beneficiary-gov-id" class="file-upload-btn">Choose Government ID File</label>
                             <span id="file-gov-id-name">No file selected</span>
@@ -405,8 +431,8 @@
                 </div>
                 <div class="about-us">
                     <h3>About Us</h3>
-                    <p>Process</p>
-                    <p>Why Us?</p>
+                    <a href="process.html"><p>Process</p></a>
+                    <a href="why_us.php"><p>Why Us?</p></a>
                 </div>
                 <div class="legal">
                     <h3>Legal</h3>
@@ -782,13 +808,16 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     formData.append("coffin_source", source);
     formData.append("quantity", 1);
     formData.append("relationship", relationship);
+    formData.append("date_of_death", document.getElementById("date-of-death").value);
     formData.append("beneficiary_lastname", beneficiaryLastName);
     formData.append("beneficiary_firstname", beneficiaryFirstName);
     formData.append("beneficiary_middlename", beneficiaryMiddleName);
+    formData.append("gender", document.getElementById("gender").value);
     formData.append("beneficiary_age", beneficiaryAge);
     formData.append("beneficiary_birthdate", beneficiaryDob);
     formData.append("contact_number", contactNumber);
     formData.append("email_address", emailAddress);
+    formData.append("residential_address", document.getElementById("resident-address").value);
     formData.append("date_need", document.getElementById("date-need").value);
     formData.append("condition", document.getElementById("beneficiary-condition").value);
     formData.append("location", document.getElementById("beneficiary-location").value);
@@ -804,7 +833,13 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     formData.append("gov_id", beneficiaryGovId);
     formData.append("signature", signatureFile);
     formData.append("signature_date", document.getElementById("signature-date").value);
-
+    const paymentOption = document.getElementById("payment-option").value;
+    formData.append("payment_option", paymentOption);
+    if (paymentOption === "Installment") {
+        formData.append("payment_term", document.getElementById("atNeedTerm").value);
+    } else {
+        formData.append("payment_term", "-");
+    }
     try {
         const response = await fetch("../backend/service/save_request.php", {
             method: "POST",
@@ -828,6 +863,9 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             showConfirmButton: false,
             timer: 2500
         }).then(() =>{
+            document.getElementById("gender").value = "";
+            document.getElementById("date-of-death").value = "";
+            document.getElementById("resident-address").value = "";
             document.getElementById("beneficiary-last-name").value = "";
             document.getElementById("beneficiary-first-name").value = "";
             document.getElementById("beneficiary-middle-name").value = "";

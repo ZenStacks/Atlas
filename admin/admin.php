@@ -1,11 +1,19 @@
 <?php
-session_start();
-require '../backend/conn.php';
 
-if (!isset($_SESSION["user_id"])) {
-    header("Location: ../login.php");
+ini_set('session.cookie_path', '/');
+ini_set('session.cookie_httponly', 1);
+
+session_start();
+
+require_once __DIR__ . '/../backend/conn.php';
+
+if (!isset($_SESSION['user_id'])) {
+    header('Location: ../login.php');
     exit;
 }
+
+$userId = (int)$_SESSION['user_id'];
+$username = $_SESSION['username'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -34,10 +42,10 @@ if (!isset($_SESSION["user_id"])) {
             </div>
             <div class="info-card">
                 <ul>
-                    <li><i class="bi bi-question-circle"></i>Help &amp; Support</li>
-                    <li><i class="bi bi-file-earmark-text"></i>Terms and Conditions</li>
-                    <li><i class="bi bi-shield-lock"></i>Privacy Policy</li>
-                    <li class="logout" style="color: red;"><i class="bi bi-box-arrow-right"></i> Logout</li>
+                    <!-- <li><i class="bi bi-question-circle"></i>Help &amp; Support</li>
+                    <a href=""><li><i class="bi bi-file-earmark-text"></i>Terms and Conditions</li></a>
+                    <a href="../users/privacy_policy.php"><li><i class="bi bi-shield-lock"></i>Privacy Policy</li></a> -->
+                    <a href="../backend/admin/adminLogout.php"><li class="logout" style="color: red;"><i class="bi bi-box-arrow-right"></i> Logout</li></a>
                 </ul>
             </div>
         </div>
@@ -50,7 +58,7 @@ if (!isset($_SESSION["user_id"])) {
                             Analytics
                             <i class="bi bi-caret-right-fill caret-icon"></i>
                         </li>
-                        <li class="category-item"><i class="bi bi-bar-chart"></i> Reports</li>
+                        <!-- <li class="category-item"><i class="bi bi-bar-chart"></i> Reports</li> -->
                         <!-- settings -->
                         <li class="category-title">
                             Settings &amp; privacy
@@ -65,7 +73,11 @@ if (!isset($_SESSION["user_id"])) {
                         </li>
                         <li class="category-item"><i class="bi bi-chat-dots"></i> Chat</li>
                         <li class="category-item"><i class="bi bi-telephone"></i> Contacts</li>
-                        <li class="category-item"><i class="bi bi-bell"></i> Notifications</li>
+                        <!-- <li class="category-item notification-menu" id="notificationMenu">
+                            <i class="bi bi-bell"></i>
+                            Notifications
+                            <span class="notification-badge" id="notificationBadge"></span>
+                        </li> -->
 
                         <li class="category-title">
                             Management
@@ -105,6 +117,33 @@ if (!isset($_SESSION["user_id"])) {
                         </div>
                     </div>
                     <div class="card">
+                        <h3>Lost Revenue</h3>
+                        <div class="inside">
+                            <p class="value" id="loss-revenue">₱0.00</p>
+                            <p id="loss-revenue-change">
+                                <i class="bi bi-dash"></i> 0%
+                            </p>
+                        </div>
+                        <div class="label">
+                            <p>vs previous 30 days</p>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Loss Profit</h3>
+                        <div class="inside">
+                            <p class="value" id="net-revenue-value">₱0.00</p>
+                            <p id="net-revenue-change">
+                                <i class="bi bi-dash"></i> 0%
+                            </p>
+                        </div>
+                        <div class="label">
+                            <p>vs previous 30 days</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- second total card -->
+                <div class="total-card" id="second-total-card">
+                    <div class="card">
                         <h3>Pending Orders</h3>
                         <div class="inside">
                             <p class="value" id="pending-request-count">0</p>
@@ -125,33 +164,6 @@ if (!isset($_SESSION["user_id"])) {
                             <p id="total-orders-trend">
                                 <i id="total-orders-arrow" class="bi"></i>
                                 <span id="total-orders-percentage">0%</span>
-                            </p>
-                        </div>
-                        <div class="label">
-                            <p>vs previous 30 days</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- second total card -->
-                <div class="total-card" id="second-total-card">
-                    <div class="card">
-                        <h3>Loss Revenue</h3>
-                        <div class="inside">
-                            <p class="value" id="revenue-value">₱0.00</p>
-                            <p id="revenue-change">
-                                <i class="bi bi-dash"></i> 0%
-                            </p>
-                        </div>
-                        <div class="label">
-                            <p>vs previous 30 days</p>
-                        </div>
-                    </div>
-                    <div class="card">
-                        <h3>Loss Profit</h3>
-                        <div class="inside">
-                            <p class="value" id="net-revenue-value">₱0.00</p>
-                            <p id="net-revenue-change">
-                                <i class="bi bi-dash"></i> 0%
                             </p>
                         </div>
                         <div class="label">
@@ -197,22 +209,25 @@ if (!isset($_SESSION["user_id"])) {
                         </div>
                     </div>
                 </div>
-                <div class="bottom-container">
+                <div class="requested-bottom-container">
                     <div class="most-requested-items">
                         <div class="requested-items">
-                            <canvas id="requested-items"></canvas>
-                            <div class="most-requested-note" id="most-requested-note">
-                                Predicting next month demand services
+                            <div class="most-request">
+                                <canvas id="requested-items"></canvas>
+                                <div class="most-requested-note" id="most-requested-note">
+                                    Predicting next month demand services
+                                </div>
+                            </div>
+                        </div>
+                        <div class="staff-count">
+                            <div class="staff-count-chart">
+                                <canvas id="staff-count"></canvas>
                             </div>
                         </div>
                     </div>
-                    <div class="staff-count">
-                        <div class="staff-count-chart">
-                            <canvas id="staff-count"></canvas>
-                        </div>
-                    </div>
                 </div>
-                <div class="last-container">
+                <!-- tago ka sakin -->
+                <!-- <div class="last-container">
                     <div class="overall">
                         <div class="overall-chart-card transactions-card">
                             <h3>Recent Funeral Transactions</h3>
@@ -267,13 +282,9 @@ if (!isset($_SESSION["user_id"])) {
                             </div>
                         </div>
                     </div>
-                </div>
-                <!-- sidebar -->
-                <div class="revenue-container" id="revenue-container">
-                    <!-- revenue -->
-                </div>
-                <!-- REPORTS -->
-                <div class="reports-container hidden" id="reports-container">
+                </div> -->
+                <!-- REPORTS tago ka sakin --> 
+                <!-- <div class="reports-container hidden" id="reports-container">
                     <h2>Funeral Service Report</h2>
                     <div class="report-toolbar">
                         <div class="report-filter-date">
@@ -487,7 +498,7 @@ if (!isset($_SESSION["user_id"])) {
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 <!-- account and security  -->
                 <div class="account-security-container" id="account-security-container">
                     <h2>Account & Security</h2>
@@ -611,6 +622,23 @@ if (!isset($_SESSION["user_id"])) {
                                     <button type="button" id="btnSubmitOtpCheck" class="tfa-btn-primary" style="width: 100%;">Verify Token Code</button>
                                 </div>
                             </div>
+                            <div id="panelEmailVerify" class="tfa-panel">
+                                <div class="email-verification-wrapper">
+                                    <h2>Verify Email</h2>
+                                    <label for="tfaVerificationEmail">
+                                        Registered Email Address
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="tfaVerificationEmail"
+                                        placeholder="Enter your registered email"
+                                        autocomplete="email"
+                                    >
+                                    <button type="button" id="btnVerifyEmailForTfa">
+                                        Continue
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <button class="save-security" id="save-security">
@@ -647,112 +675,542 @@ if (!isset($_SESSION["user_id"])) {
                     <h2>Data Management</h2>
                     <div class="data-tabs">
                         <button class="data-tab active">Deceased Records</button>
-                        <button class="data-tab">At-Need Records</button>
-                        <button class="data-tab">Pre-Need Records</button>
                         <button class="data-tab">Products Records</button>
                         <button class="data-tab">Material Records</button>
                         <input type="text" placeholder="Search records..." id="dataSearchInput">
                     </div>
+                    <!-- Deceased Table -->
                     <div class="data-section active">
-                        <!-- Deceased Table -->
-                        <table class="deceased-table">
                         <h2>Deceased Records</h2>
-                            <thead>
-                                <tr>
-                                    <th>Deceased ID</th>
-                                    <th>Full Name</th>
-                                    <th>Date of Death</th>
-                                    <th>Age</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="deceasedRecordsBody">
-                                <!-- Deceased records will be dynamically populated here -->
-                            </tbody>
-                        </table>
+                        <div class="table-wrapper">
+                            <table class="deceased-table">
+                                <thead>
+                                    <tr>
+                                        <th>Deceased ID</th>
+                                        <th>Full Name</th>
+                                        <th>Date of Death</th>
+                                        <th>Age</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="deceasedRecordsBody">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+                    <!-- products table -->
                     <div class="data-section">
-                        <!-- At-Need Table -->
-                        <table class="at-need-table">
-                        <h2>At-Need Records</h2>
-                            <thead>
-                                <tr>
-                                    <th>Service ID</th>
-                                    <th>Customer Name</th>
-                                    <th>Service Type</th>
-                                    <th>Date of Service</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="atNeedRecordsBody">
-                                <!-- At-Need records will be dynamically populated here -->
-                            </tbody>
-                        </table>
+                        <h2>Products Records</h2>
+                        <div class="table-wrapper">
+                            <table class="products-table">
+                                <thead>
+                                    <tr>
+                                        <th>Product ID</th>
+                                        <th>Product Name</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                        <th>Price</th>
+                                        <th>Stock</th>
+                                        <th>Origin</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsRecordsBody">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-
+                    <!-- Materials Table -->
                     <div class="data-section">
-                        <!-- Pre-Need Table -->
-                        <table class="pre-need-table">
-                            <h2>Pre-Need Records</h2>
-                            <thead>
-                                <tr>
-                                    <th>Pre-Need ID</th>
-                                    <th>Customer Name</th>
-                                    <th>Service Type</th>
-                                    <th>Date of Service</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="preNeedRecordsBody">
-                                <!-- Pre-Need records will be dynamically populated here -->
-                            </tbody>
-                        </table>
+                        <h2>Material Records</h2>
+                        <div class="table-wrapper">
+                            <table class="edit-materials-table">
+                                <thead>
+                                    <tr>
+                                        <th>Material ID</th>
+                                        <th>Material Name</th>
+                                        <th>Material Type</th>
+                                        <th>Description</th>
+                                        <th>Cost</th>
+                                        <th>Stock</th>
+                                        <th>Unit</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="materialsRecordsBody">
+                                    <!-- Materials records will be dynamically populated here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-
-                    <div class="data-section">
-                        <!-- Products Table -->
-                        <table class="products-table">
-                            <h2>Products Records</h2>
-                            <thead>
-                                <tr>
-                                    <th>Product ID</th>
-                                    <th>Product Name</th>
-                                    <th>Type</th>
-                                    <th>Description</th>
-                                    <th>Price</th>
-                                    <th>Stock</th>
-                                    <th>Origin</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="productsRecordsBody">
-                                <!-- Products records will be dynamically populated here -->
-                            </tbody>
-                        </table>
+                </div>
+                <!-- data management action button modal -->
+                <!-- products view modal -->
+                <div class="data-management-view-modal">
+                    <!-- View Product Modal -->
+                    <div class="modal-overlay" id="viewProductModal">
+                        <div class="product-view-modal">
+                            <div class="modal-header">
+                                <h2>Product Details</h2>
+                                <button class="close-modal" id="closeViewProduct">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="product-image-section">
+                                    <img id="viewProductImage"
+                                        src="../assets/img/no-image.jpg"
+                                        alt="Product Image">
+                                </div>
+                                <div class="product-details-grid">
+                                    <div class="detail-group">
+                                        <label>Product Name</label>
+                                        <span id="viewProductName"></span>
+                                    </div>
+                                    <div class="detail-group">
+                                        <label>Size</label>
+                                        <span id="viewProductSize"></span>
+                                    </div>
+                                    <div class="detail-group">
+                                        <label>Origin</label>
+                                        <span id="viewProductOrigin"></span>
+                                    </div>
+                                    <div class="detail-group">
+                                        <label>Tax Type</label>
+                                        <span id="viewProductTax"></span>
+                                    </div>
+                                    <div class="detail-group">
+                                        <label>Cost Price</label>
+                                        <span id="viewProductCost"></span>
+                                    </div>
+                                    <div class="detail-group">
+                                        <label>Retail Price</label>
+                                        <span id="viewProductRetail"></span>
+                                    </div>
+                                    <div class="detail-group">
+                                        <label>Status</label>
+                                        <span id="viewProductStatus"></span>
+                                    </div>
+                                    <div class="detail-group">
+                                        <label>Color</label>
+                                        <span id="viewProductColor"></span>
+                                    </div>
+                                    <div class="detail-group full-width">
+                                        <label>Description</label>
+                                        <p id="viewProductDescription"></p>
+                                    </div>
+                                    <div class="detail-group full-width">
+                                        <label>Last Updated</label>
+                                        <span id="viewProductUpdated"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="close-btn" id="closeViewProduct2">Close</button>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="data-section">
-                        <!-- Materials Table -->
-                        <table class="materials-table">
-                            <h2>Materials Records</h2>
-                            <thead>
-                                <tr>
-                                    <th>Material ID</th>
-                                    <th>Material Type</th>
-                                    <th>Material Name</th>
-                                    <th>Unit</th>
-                                    <th>Description</th>
-                                    <th>Cost</th>
-                                    <th>Stock</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="materialsRecordsBody">
-                                <!-- Materials records will be dynamically populated here -->
-                            </tbody>
-                        </table>
+                </div>
+                <!-- products edit modal -->
+                <div class="data-management-edit-modal">
+                    <div class="modal-overlay" id="editProductModal">
+                        <div class="product-edit-modal">
+                            <div class="modal-header">
+                                <h2>Edit Product</h2>
+                                <button class="close-modal" id="closeEditProduct">&times;</button>
+                            </div>
+                            <form id="editProductForm" enctype="multipart/form-data">
+                                <input type="hidden" id="editProductId" name="product_id">
+                                <input type="hidden" id="editProductOriginHidden" name="origin">
+                                <div class="modal-body">
+                                    <div class="product-image-section">
+                                        <img id="editProductPreview"
+                                            src="../assets/img/no-image.jpg"
+                                            alt="Product">
+                                        <input type="file"
+                                            id="editProductImage"
+                                            name="image"
+                                            accept="image/*">
+                                    </div>
+                                    <div class="edit-form-container">
+                                        <div class="edit-form-grid">
+                                            <div class="form-field">
+                                                <label>Product Name</label>
+                                                <input type="text" id="editProductName">
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Type</label>
+                                                <input type="text" id="editProductType">
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Size</label>
+                                                <input type="text" id="editProductSize">
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Color</label>
+                                                <input type="text" id="editProductColor">
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Origin</label>
+                                                <input type="text" id="editProductOrigin" readonly>
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Tax Type</label>
+                                                <select id="editProductTax">
+                                                    <option value="inclusive">Inclusive</option>
+                                                    <option value="exclusive">Exclusive</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Cost Price</label>
+                                                <input type="number" id="editProductCost">
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Retail Price</label>
+                                                <input type="number" id="editProductRetail">
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Stock</label>
+                                                <input type="number" id="editProductStock">
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Status</label>
+                                                <select id="editProductStatus">
+                                                    <option value="Available">Available</option>
+                                                    <option value="Out of Stock">Out of Stock</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-field full-width">
+                                                <label>Description</label>
+                                                <textarea id="editProductDescription" rows="4"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="data-edit-close-btn" id="closeEditProduct2">Cancel</button>
+                                    <button type="submit" class="data-edit-save-btn">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- materials edit modal -->
+                <div class="data-management-material-edit-modal">
+                    <div class="modal-overlay" id="editMaterialModal">
+                        <div class="product-edit-modal">
+                            <div class="modal-header">
+                                <h2>Edit Material</h2>
+                                <button class="close-modal" id="closeEditMaterial">&times;</button>
+                            </div>
+                            <form id="editMaterialForm">
+                                <input type="hidden" id="editMaterialId" name="material_id">
+                                <input type="hidden" id="editMaterialCategory" name="material_category">
+                                <div class="modal-body">
+                                    <div class="edit-form-container">
+                                        <div class="edit-form-grid">
+                                            <div class="form-field">
+                                                <label>Material Name</label>
+                                                <input
+                                                    type="text"
+                                                    id="editMaterialName"
+                                                    name="material_name"
+                                                    required>
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Material Type</label>
+                                                <input
+                                                    type="text"
+                                                    id="editMaterialType"
+                                                    name="material_type"
+                                                    required>
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Unit</label>
+                                                <input
+                                                    type="text"
+                                                    id="editMaterialUnit"
+                                                    name="unit"
+                                                    required>
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Cost</label>
+                                                <input
+                                                    type="number"
+                                                    id="editMaterialCost"
+                                                    name="cost"
+                                                    min="0"
+                                                    step="0.01"
+                                                    required>
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Current Stock</label>
+                                                <input
+                                                    type="number"
+                                                    id="editMaterialStock"
+                                                    name="current_stock"
+                                                    min="0"
+                                                    required>
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Material Category</label>
+                                                <input
+                                                    type="text"
+                                                    id="editMaterialCategoryDisplay"
+                                                    readonly>
+                                            </div>
+                                            <div class="form-field full-width">
+                                                <label>Description</label>
+                                                <textarea
+                                                    id="editMaterialDescription"
+                                                    name="details"
+                                                    rows="4"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button
+                                        type="button"
+                                        class="data-edit-close-btn"
+                                        id="closeEditMaterial2">
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        class="data-edit-save-btn">
+                                        Save Changes
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <!-- deceased edit modal -->
+                <div class="edit-deceased-modal-overlay" id="editDeceasedModal">
+                    <div class="edit-deceased-modal">
+                        <div class="edit-deceased-modal-header">
+                            <div>
+                                <h2>Edit Deceased Record</h2>
+                                <p>Update the deceased record information.</p>
+                            </div>
+                            <button
+                                type="button"
+                                class="close-edit-deceased"
+                                id="closeEditDeceased">
+                                &times;
+                            </button>
+                        </div>
+                        <form id="editDeceasedForm">
+                            <input
+                                type="hidden"
+                                id="editDeceasedId"
+                                name="id">
+                            <div class="edit-deceased-section">
+                                <div class="edit-deceased-section-title">
+                                    <i class="bi bi-person"></i>
+                                    <span>Personal Information</span>
+                                </div>
+                                <div class="edit-deceased-grid">
+                                    <div class="edit-deceased-field">
+                                        <label for="editFirstName">
+                                            First Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="editFirstName"
+                                            name="deceased_firstname"
+                                            placeholder="Enter first name"
+                                            required
+                                        >
+                                    </div>
+                                    <div class="edit-deceased-field">
+                                        <label for="editMiddleName">
+                                            Middle Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="editMiddleName"
+                                            name="deceased_middlename"
+                                            placeholder="Enter middle name"
+                                        >
+                                    </div>
+                                    <div class="edit-deceased-field">
+                                        <label for="editLastName">
+                                            Last Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="editLastName"
+                                            name="deceased_lastname"
+                                            placeholder="Enter last name"
+                                            required>
+                                    </div>
+                                    <div class="edit-deceased-field">
+                                        <label for="editGender">
+                                            Gender
+                                        </label>
+                                        <select id="editGender" name="gender">
+                                            <option value="">
+                                                Select gender
+                                            </option>
+                                            <option value="Male">
+                                                Male
+                                            </option>
+                                            <option value="Female">
+                                                Female
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-deceased-field">
+                                        <label for="editBirthDate">
+                                            Birth Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            id="editBirthDate"
+                                            name="birth_date"
+                                        >
+                                    </div>
+                                    <div class="edit-deceased-field">
+                                        <label for="editAge">
+                                            Age
+                                        </label>
+                                        <input
+                                            type="number"
+                                            id="editAge"
+                                            name="age"
+                                            min="0"
+                                            placeholder="Enter age"
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="edit-deceased-section">
+                                <div class="edit-deceased-section-title">
+                                    <i class="bi bi-calendar-event"></i>
+                                    <span>Death Information</span>
+                                </div>
+                                <div class="edit-deceased-grid">
+                                    <div class="edit-deceased-field">
+                                        <label for="editDateOfDeath">
+                                            Date of Death
+                                        </label>
+                                        <input
+                                            type="date"
+                                            id="editDateOfDeath"
+                                            name="date_of_death"
+                                        >
+                                    </div>
+                                    <div class="edit-deceased-field">
+                                        <label for="editDateNeed">
+                                            Date Needed
+                                        </label>
+                                        <input
+                                            type="date"
+                                            id="editDateNeed"
+                                            name="date_need"
+                                        >
+                                    </div>
+                                    <div class="edit-deceased-field">
+                                        <label for="editIntermentDate">
+                                            Interment Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            id="editIntermentDate"
+                                            name="interment_date"
+                                        >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="edit-deceased-section">
+                                <div class="edit-deceased-section-title">
+                                    <i class="bi bi-box-seam"></i>
+                                    <span>Service Information</span>
+                                </div>
+                                <div class="edit-deceased-grid">
+                                    <div class="edit-deceased-field">
+                                        <label for="editServicePackage">
+                                            Service Package
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="editServicePackage"
+                                            name="service_package"
+                                            placeholder="Enter service package">
+                                    </div>
+                                    <div class="edit-deceased-field">
+                                        <label for="editWakeLocation">
+                                            Wake Location
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="editWakeLocation"
+                                            name="wake_location"
+                                            placeholder="Enter wake location"
+                                        >
+                                    </div>
+                                    <div class="edit-deceased-field">
+                                        <label for="editCemetery">
+                                            Cemetery
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="editCemetery"
+                                            name="cemetery"
+                                            placeholder="Enter cemetery">
+                                    </div>
+                                    <div class="edit-deceased-field">
+                                        <label for="editLocation">
+                                            Location
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="editLocation"
+                                            name="location"
+                                            placeholder="Enter location">
+                                    </div>
+                                    <div class="edit-deceased-field edit-deceased-full">
+                                        <label for="editPerformedBy">
+                                            Performed By
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="editPerformedBy"
+                                            name="performed_by"
+                                            placeholder="Enter performed by">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="edit-deceased-section">
+                                <div class="edit-deceased-section-title">
+                                    <i class="bi bi-chat-left-text"></i>
+                                    <span>Remarks</span>
+                                </div>
+                                <div class="edit-deceased-field">
+                                    <textarea
+                                        id="editRemarks"
+                                        name="remarks"
+                                        rows="4"
+                                        placeholder="Enter remarks..."
+                                    ></textarea>
+                                </div>
+                            </div>
+                        </form>
+                        <div class="edit-deceased-modal-footer">
+                            <button
+                                type="button"
+                                class="cancel-edit-deceased"
+                                id="cancelEditDeceased">
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                form="editDeceasedForm"
+                                class="save-edit-deceased">
+                                <i class="bi bi-check-lg"></i>
+                                Save Changes
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <!-- Chat -->
@@ -816,17 +1274,19 @@ if (!isset($_SESSION["user_id"])) {
                         <div class="contacts-grid" id="contacts-grid"></div>
                     </div>
                 </div>
-                <div class="notif-container" id="notif-container">
+                <!-- <div class="notif-container" id="notif-container">
                     <h2>Notifications</h2>
-                     <div class="notification-item">
-                        <p><strong>Service Update:</strong> Your funeral service booking has been confirmed.</p>
-                        <span class="time">Today, 10:45 AM</span>
+                    <div class="notification-header">
+                        <button type="button" id="mark-all-read" class="mark-all-btn">
+                            Mark all as read
+                        </button>
                     </div>
-                    <div class="notification-item">
-                        <p><strong>Reminder:</strong> Payment for the selected services is due tomorrow.</p>
-                        <span class="time">Yesterday, 5:00 PM</span>
+                    <div id="notification-list">
+                        <div class="notification-loading">
+                            Loading notifications...
+                        </div>
                     </div>
-                </div>
+                </div> -->
                 <!-- Preferences of a customer -->
                 <div class="preference-container" id="preference-container">
                     <h2>Preferences</h2>
@@ -916,7 +1376,8 @@ if (!isset($_SESSION["user_id"])) {
                                                             <option value="">Select Relationship</option>
                                                             <option value="self">Self</option>
                                                             <option value="spouse">Spouse</option>
-                                                            <option value="child">Child</option>
+                                                            <option value="daughter">Daughter</option>
+                                                            <option value="daughter">Son</option>
                                                             <option value="mother">Mother</option>
                                                             <option value="father">Father</option>
                                                             <option value="siblings">Sibling</option>
@@ -1036,6 +1497,19 @@ if (!isset($_SESSION["user_id"])) {
                                                             <option value="">Select Option</option>
                                                             <option value="yes">Yes</option>
                                                             <option value="no">No</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-section">
+                                                <h3>Payment Preferences</h3>
+                                                <div class="third-modal">
+                                                    <div class="onsite-row">
+                                                        <label for="atneed-payment-option">Payment Option</label>
+                                                        <select id="atneed-payment-option" name="atneed_payment_option">
+                                                            <option value="">Select Option</option>
+                                                            <option value="Installment">Installment</option>
+                                                            <option value="Spot Cash">Full Payment</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -1483,6 +1957,7 @@ if (!isset($_SESSION["user_id"])) {
                                     </div>
                                 </div>
                             </div>
+                            <!-- orders to approve / begin service -->
                             <div class="orders-approve-container">
                                 <div class="orders-approve-list">
                                     <div class="product-tabs">
@@ -1886,31 +2361,6 @@ if (!isset($_SESSION["user_id"])) {
                                         <tbody id="service-details-body"></tbody>
                                     </table>
                                 </div>
-                                <div class="payment-summary">
-                                    <h3>Payment Summary</h3>
-                                    <div class="scroll-payment">
-                                        <div class="payment">
-                                            <p id="preference-tax">Tax(%)</p>
-                                            <p>0</p>
-                                        </div>
-                                        <div class="payment">
-                                            <p style="color: red;">Discount(%)</p>
-                                            <p style="color: red;" id="discount">0</p>
-                                        </div>
-                                        <div class="payment">
-                                            <p style="color:red;">DownPayment</p>
-                                            <p style="color: red;"id="downpayment">0</p>
-                                        </div>
-                                        <div class="payment">
-                                            <p>Sub Total</p>
-                                            <p id="subtotal">0</p>
-                                        </div>
-                                        <div class="total">
-                                            <p>Remaining Balance</p>
-                                            <p id="remaining-balance">0</p>
-                                        </div>
-                                    </div>
-                                </div>
                                 <div class="preference-button">
                                     <button id="view" class="action-btn">View</button>
                                     <button id="approve">Approve</button>
@@ -1944,27 +2394,6 @@ if (!isset($_SESSION["user_id"])) {
                                         </thead>
                                         <tbody id="preneed-service-details-body"></tbody>
                                     </table>
-                                </div>
-                                <div class="payment-summary">
-                                    <h3>Payment Summary</h3>
-                                    <div class="scroll-payment">
-                                        <div class="payment">
-                                            <p id="preneed-preference-tax">Tax(%)</p>
-                                            <p>0</p>
-                                        </div>
-                                        <div class="payment">
-                                            <p style="color: red;">Discount(%)</p>
-                                            <p style="color: red;" id="preneed-discount">0</p>
-                                        </div>
-                                        <div class="payment">
-                                            <p>Sub Total</p>
-                                            <p id="preneed-subtotal">0</p>
-                                        </div>
-                                        <div class="total">
-                                            <p>Remaining Balance</p>
-                                            <p id="preneed-remaining-balance">0</p>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="preference-button">
                                     <button id="preneed-view" class="action-btn">View</button>
@@ -2349,14 +2778,8 @@ if (!isset($_SESSION["user_id"])) {
                             </div>
                         </div>
                         <div class="schedule-modal-footer">
-                            <button id="prevSchedule">
-                                ◀ Previous
-                            </button>
                             <button class="complete-btn" id="markComplete">
-                                ✔ Mark as Completed
-                            </button>
-                            <button id="nextSchedule">
-                                Next ▶
+                                ✔ Mark as Complete
                             </button>
                         </div>
                     </div>
@@ -3020,7 +3443,7 @@ if (!isset($_SESSION["user_id"])) {
                                             <label for="status">Status: </label>
                                             <select id="status" name="status">
                                                 <option value="" disabled selected>Select Employee Status</option>
-                                                <option value="Active">Active</option>
+                                                <option value="Available">Available</option>
                                                 <option value="Unavailable">Unavailable</option>
                                                 <option value="On Leave">On Leave</option>
                                                 <option value="Terminated">Terminated</option>
@@ -3031,28 +3454,17 @@ if (!isset($_SESSION["user_id"])) {
                                     </div>
                                     <div class="details-container">
                                         <div class="profile-staff">
-                                            <div class="picture" id="picture" data-name="">
-                                                <img id="profile-preview" src="../assets/img/profile.png">
-                                                <span>Select Profile</span>
-                                                <input type="file" id="profile-input" accept="image/*" style="display:none">
-                                            </div>
                                             <div class="staff-details">
                                                 <p data-label="Name:" id="staff-name"><span></span></p>
                                                 <p data-label="Age:" id="staff-age"><span></span></p>
                                                 <p data-label="Gender:" id="staff-gender"><span></span></p>
                                                 <p data-label="Contact No.:" id="staff-contact"><span></span></p>
-                                            </div>
-                                        </div>
-                                        <div class="bottom-details">
-                                            <div class="first-row">
-                                                <p data-label="Staff ID:" id="staff-id"><span></span></p>
-                                                <p data-label="Department:" id="staff-department"><span></span></p>
-                                                <p data-label="Type:" id="staff-type"><span></span></p>
-                                                <p data-label="Status:" id="staff-status"><span></span></p>
-                                            </div>
-                                            <div class="second-row">
                                                 <p data-label="Username:" id="staff-username"><span></span></p>
                                                 <p data-label="Email:" id="staff-email"><span></span></p>
+                                                <p data-label="Department:" id="staff-department"><span></span></p>
+                                                <p data-label="Staff ID:" id="staff-id"><span></span></p>
+                                                <p data-label="Type:" id="staff-type"><span></span></p>
+                                                <p data-label="Status:" id="staff-status"><span></span></p>
                                                 <p data-label="Date Hired:" id="staff-hired"><span></span></p>
                                             </div>
                                         </div>
@@ -3063,6 +3475,7 @@ if (!isset($_SESSION["user_id"])) {
                                     </div>
                                 </div>
                             </div>
+                            <!-- assigned roles -->
                             <div class="assign-roles-container hidden" id="assign-roles-container">
                                 <div class="staff-grid-container">
                                     <div class="staff-grid" id="staff-grid"></div>   
@@ -3232,36 +3645,36 @@ if (!isset($_SESSION["user_id"])) {
 
     //sidebar items
     const dashboardTitle = allSidebarItems[0];//dashboard title
-    const reportsItem = allSidebarItems[1];//reports
-    const settingsTitle = allSidebarItems[2];//settings and privacy title
-    const accountItem = allSidebarItems[3];//account security
-    const accessKey = allSidebarItems[4];
-    const communicationTitle = allSidebarItems[5];//title 
-    const chatItem = allSidebarItems[6];//chat
-    const contactsItem = allSidebarItems[7]; //contacts
-    const notificationsItem = allSidebarItems[8];//notifications
-    const manageTitle = allSidebarItems[9];//management title
-    const preferenceItem = allSidebarItems[10];//preference
-    const scheduleItem = allSidebarItems[11];//schedule
-    const inventoryItem = allSidebarItems[12];// data management
-    const dataManagementItem = allSidebarItems[13];//inventory and supplies
-    const staffManagementItem = allSidebarItems[14];//staff management
+    // const reportsItem = allSidebarItems[1];//reports
+    const settingsTitle = allSidebarItems[1];//settings and privacy title
+    const accountItem = allSidebarItems[2];//account security
+    const accessKey = allSidebarItems[3];
+    const communicationTitle = allSidebarItems[4];//title 
+    const chatItem = allSidebarItems[5];//chat
+    const contactsItem = allSidebarItems[6]; //contacts
+    // const notificationsItem = allSidebarItems[7];//notifications
+    const manageTitle = allSidebarItems[7];//management title
+    const preferenceItem = allSidebarItems[8];//preference
+    const scheduleItem = allSidebarItems[9];//schedule
+    const inventoryItem = allSidebarItems[10];// data management
+    const dataManagementItem = allSidebarItems[11];//inventory and supplies
+    const staffManagementItem = allSidebarItems[12];//staff management
 
     const firstTotalCards = document.getElementById("first-total-card");
     const secondTotalCards = document.getElementById("second-total-card");
     const dashboardContent = document.querySelector('.content-row'); 
-    const reportsContainer = document.getElementById('reports-container');
+    // const reportsContainer = document.getElementById('reports-container');
     const accountSecurityContainer = document.getElementById('account-security-container');
     const accessKeyContainer = document.getElementById('admin-access-key-container');
     const dataManagementContainer = document.getElementById('data-management-container');
     const chatContainer = document.getElementById('chat-section');
     const contactsContainer = document.getElementById('contacts-container');
-    const notifContainer = document.getElementById('notif-container');
+    // const notifContainer = document.getElementById('notif-container');
     const preferenceContainer = document.getElementById('preference-container');
     const scheduleContainer = document.getElementById('schedule-container');
     const inventoryContainer = document.getElementById('inventory-container');
     const staffContainer = document.getElementById('staff-container');
-    const bottomContainer = document.querySelector('.bottom-container');
+    const bottomContainer = document.querySelector('.requested-bottom-container');
     const lastContainer = document.querySelector('.last-container');
 
 
@@ -3269,26 +3682,26 @@ if (!isset($_SESSION["user_id"])) {
         firstTotalCards.style.display = 'none';
         secondTotalCards.style.display = 'none';
         dashboardContent.style.display = 'none';
-        reportsContainer.style.display = 'none';
+        // reportsContainer.style.display = 'none';
         accountSecurityContainer.style.display='none';
         accessKeyContainer.style.display='none';
         dataManagementContainer.style.display='none';
         chatContainer.style.display = 'none';
         contactsContainer.style.display = 'none';
-        notifContainer.style.display = 'none';
+        // notifContainer.style.display = 'none';
         preferenceContainer.style.display ='none';
         scheduleContainer.style.display = 'none';
         inventoryContainer.style.display ='none';
         staffContainer.style.display='none';
         bottomContainer.style.display = 'none';
-        lastContainer.style.display = 'none';
+        // lastContainer.style.display = 'none';
     }
     hideAll();
         firstTotalCards.style.display = 'flex';
         secondTotalCards.style.display = 'flex';
         dashboardContent.style.display = 'flex';
         bottomContainer.style.display = 'flex';
-        lastContainer.style.display = 'flex';
+        // lastContainer.style.display = 'flex';
 
     //dashboard 
     dashboardTitle.addEventListener('click', ()=>{
@@ -3297,13 +3710,13 @@ if (!isset($_SESSION["user_id"])) {
         secondTotalCards.style.display = 'flex';
         dashboardContent.style.display = 'flex';
         bottomContainer.style.display = 'flex';
-        lastContainer.style.display = 'flex';
+        // lastContainer.style.display = 'flex';
     });
     // report click
-    reportsItem.addEventListener('click', () => {
-        hideAll();
-        reportsContainer.style.display = 'flex';
-    });
+    // reportsItem.addEventListener('click', () => {
+    //     hideAll();
+    //     reportsContainer.style.display = 'flex';
+    // });
     accountItem.addEventListener('click', ()=>{
         hideAll();
         accountSecurityContainer.style.display ='block';
@@ -3326,10 +3739,10 @@ if (!isset($_SESSION["user_id"])) {
         contactsContainer.style.display = 'block';
     });
     //notif click
-    notificationsItem.addEventListener('click', () => {
-        hideAll();
-        notifContainer.style.display = 'block';
-    });
+    // notificationsItem.addEventListener('click', () => {
+    //     hideAll();
+    //     notifContainer.style.display = 'block';
+    // });
     preferenceItem.addEventListener('click', ()=>{
         hideAll();
         preferenceContainer.style.display='block';
@@ -3346,24 +3759,6 @@ if (!isset($_SESSION["user_id"])) {
     staffManagementItem.addEventListener('click', ()=>{
         hideAll();
         staffContainer.style.display ='block';
-    });
-    //profile upload
-    const pictureDiv = document.getElementById('picture');
-    const profileInput = document.getElementById('profile-input');
-
-    pictureDiv.addEventListener('click', () => {
-        profileInput.click();
-    });
-
-    profileInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if(file){
-            const reader = new FileReader();
-            reader.onload = function(event){
-                pictureDiv.innerHTML = `<img src="${event.target.result}" alt="Profile Picture">`;
-            }
-            reader.readAsDataURL(file);
-        }
     });
     //input fields
     const inputName = document.getElementById('name');
@@ -3437,7 +3832,6 @@ if (!isset($_SESSION["user_id"])) {
             staffHired.textContent = 'Date Hired: ';
         }
     });
-    
     //generate staff id
     const generateId = document.getElementById('generate');
     const departmentSelected = document.getElementById('department');
@@ -3524,56 +3918,6 @@ if (!isset($_SESSION["user_id"])) {
         allButtons.forEach(btn => btn.classList.remove('active'));
         clickedBtn.classList.add('active');
     }
-        
-    //staff management button
-    const addStaffBtn = document.getElementById('add-staff');
-    const addStaffContainer = document.getElementById('add-staff-container');
-    const assignedRoles = document.getElementById('assign-roles-container');
-    const assignRolesBtn = document.getElementById('assign-roles');
-    const auditActivity = document.getElementById('auditActivity');
-    const auditContainer = document.getElementById('audit-container');
-    const viewbtn = document.getElementById('viewStaff');
-    const viewContainer = document.getElementById('view-staff');
-
-    addStaffBtn.addEventListener('click', function () {
-        setActive(this);
-        addStaffContainer.classList.remove('hidden');
-        assignedRoles.classList.add('hidden');
-        auditContainer.classList.add('hidden');
-        viewContainer.classList.add('hidden');
-    });
-    //assignroles button
-    assignRolesBtn.addEventListener('click', function () {
-        setActive(this);
-        assignedRoles.classList.remove('hidden');
-        addStaffContainer.classList.add('hidden');
-        auditContainer.classList.add('hidden');
-        viewContainer.classList.add('hidden');
-    });
-    auditActivity.addEventListener('click', function () {
-        setActive(this);
-        assignedRoles.classList.add('hidden');
-        addStaffContainer.classList.add('hidden');
-        auditContainer.classList.remove('hidden');
-        viewContainer.classList.add('hidden');
-    });
-    viewbtn.addEventListener('click', function () {
-        setActive(this);
-        assignedRoles.classList.add('hidden');
-        addStaffContainer.classList.add('hidden');
-        auditContainer.classList.add('hidden');
-        viewContainer.classList.remove('hidden');
-        fetchViewStaff();
-    });
-    //control choices
-    const controlChoices = document.querySelectorAll('.control-choices ul li');
-    controlChoices.forEach(item =>{
-        item.addEventListener('click', ()=>{
-            controlChoices.forEach(li=>li.classList.remove('active'));
-            item.classList.add('active');
-        });
-    });
-    
     //schedule fuhnction
     const dateToday = new Date();
     const formatdate = dateToday.toLocaleDateString("en-US", {
@@ -3730,58 +4074,126 @@ if (!isset($_SESSION["user_id"])) {
     }
 
     function addNotification(name, customerId, profile) {
-        let notif = document.querySelector(`.notif-item[data-id="${customerId}"]`);
 
+        let notif = document.querySelector( `.notif-item[data-id="${customerId}"]`);
         if (!notif) {
             notif = document.createElement('div');
             notif.classList.add('notif-item');
-            notif.setAttribute('data-id', customerId);
-
+            notif.setAttribute('data-id',customerId);
             notif.innerHTML = `
-                <img src="${profile ? '../assets/img/uploads/profile/' + profile : '../assets/img/profile.png'}" class="notif-profile">
-                <span class="notif-name">${name}</span>
-                <span class="notif-count" style="display:none;"></span>
+                <img
+                    src="${
+                        profile
+                            ? '../assets/img/uploads/profile/' + profile
+                            : '../assets/img/profile.png'
+                    }"
+                    class="notif-profile"
+                >
+
+                <span class="notif-name">
+                    ${escapeHtml(name)}
+                </span>
+
+                <span class="notif-count" style="display:none;" ></span>
             `;
-
             notif.onclick = () => {
-                document.querySelectorAll('.notif-item').forEach(item => item.classList.remove('active'));
 
-                selectedCustomerId = customerId;
-                if (emptyChat) emptyChat.style.display = "none";
+                document
+                    .querySelectorAll('.notif-item')
+                    .forEach(item =>
+                        item.classList.remove('active')
+                    );
 
-                messagesContainer.style.display = "flex";
+
+                selectedCustomerId =
+                    Number(customerId);
+
+
+                if (emptyChat) {
+                    emptyChat.style.display = "none";
+                }
+
+
+                messagesContainer.style.display =
+                    "flex";
+
+
                 messagesContainer.innerHTML = "";
 
+
                 adminInput.disabled = false;
-                adminInput.placeholder = "Type your message...";
+
+                adminInput.placeholder =
+                    "Type your message...";
+
 
                 chatNavigation.innerHTML = `
                     <div class="chat-header">
-                        <img src="${profile ? '../assets/img/uploads/profile/' + profile : '../assets/img/profile.png'}" class="chat-profile">
+
+                        <img
+                            src="${
+                                profile
+                                    ? '../assets/img/uploads/profile/' + profile
+                                    : '../assets/img/profile.png'
+                            }"
+                            class="chat-profile"
+                        >
+
                         <div>
-                            <div class="nav-name">${name}</div>
-                            <small style="color:rgba(255,255,255,.8)">Active Conversation</small>
+
+                            <div class="nav-name">
+                                ${escapeHtml(name)}
+                            </div>
+
+                            <small
+                                style="color:rgba(255,255,255,.8)"
+                            >
+                                Active Conversation
+                            </small>
+
                         </div>
+
                     </div>
                 `;
-
                 triggerMarkAsRead(customerId);
 
+
                 unreadCounts[customerId] = 0;
+
+
                 notif.classList.add('active');
 
+
                 chatDisplayedMessages.clear();
+
+
                 updateNotificationUI(customerId);
-                fetchMessagesForCustomer(customerId);
-                
-                setTimeout(() => { adjustTextareaHeight(); }, 100); 
+
+
+                fetchMessagesForCustomer(
+                    customerId
+                );
+
+
+                setTimeout(() => {
+
+                    adjustTextareaHeight();
+
+                }, 100);
+
             };
 
-            notificationContainer.appendChild(notif);
-            updateNotificationUI(customerId);
-        }
-    }
+            notificationContainer.prepend(
+                notif
+            );
 
+        } else {
+            notificationContainer.prepend(
+                notif
+            );
+        }
+        updateNotificationUI(customerId);
+    }
     function triggerMarkAsRead(customerId) {
         fetch('../backend/message/mark_read.php', {
             method: 'POST',
@@ -3848,6 +4260,55 @@ if (!isset($_SESSION["user_id"])) {
         loadUnreadCounts();
         pollMessages();
     });
+    //staff management button
+    const addStaffBtn = document.getElementById('add-staff');
+    const addStaffContainer = document.getElementById('add-staff-container');
+    const assignedRoles = document.getElementById('assign-roles-container');
+    const assignRolesBtn = document.getElementById('assign-roles');
+    const auditActivity = document.getElementById('auditActivity');
+    const auditContainer = document.getElementById('audit-container');
+    const viewbtn = document.getElementById('viewStaff');
+    const viewContainer = document.getElementById('view-staff');
+
+    addStaffBtn.addEventListener('click', function () {
+        setActive(this);
+        addStaffContainer.classList.remove('hidden');
+        assignedRoles.classList.add('hidden');
+        auditContainer.classList.add('hidden');
+        viewContainer.classList.add('hidden');
+    });
+    //assignroles button
+    assignRolesBtn.addEventListener('click', function () {
+        setActive(this);
+        assignedRoles.classList.remove('hidden');
+        addStaffContainer.classList.add('hidden');
+        auditContainer.classList.add('hidden');
+        viewContainer.classList.add('hidden');
+    });
+    auditActivity.addEventListener('click', function () {
+        setActive(this);
+        assignedRoles.classList.add('hidden');
+        addStaffContainer.classList.add('hidden');
+        auditContainer.classList.remove('hidden');
+        viewContainer.classList.add('hidden');
+        fetchAuditLogs();
+    });
+    viewbtn.addEventListener('click', function () {
+        setActive(this);
+        assignedRoles.classList.add('hidden');
+        addStaffContainer.classList.add('hidden');
+        auditContainer.classList.add('hidden');
+        viewContainer.classList.remove('hidden');
+        fetchViewStaff();
+    });
+    //control choices
+    const controlChoices = document.querySelectorAll('.control-choices ul li');
+    controlChoices.forEach(item =>{
+        item.addEventListener('click', ()=>{
+            controlChoices.forEach(li=>li.classList.remove('active'));
+            item.classList.add('active');
+        });
+    });
     // add staff functions (done)
     document.getElementById("addStaffupdate").addEventListener("click", (e) => {
         e.preventDefault();
@@ -3883,7 +4344,7 @@ if (!isset($_SESSION["user_id"])) {
 
             if (result.isConfirmed) {
 
-                const data = new URLSearchParams();
+                const data = new FormData();
 
                 data.append("mode", isEditing ? "edit" : "add");
 
@@ -3898,7 +4359,7 @@ if (!isset($_SESSION["user_id"])) {
                 data.append("type", inputType.value);
                 data.append("status", inputStatus.value);
                 data.append("hired", inputHired.value);
-
+                
                 fetch('../backend/staff/add_staff.php', {
                     method: 'POST',
                     body: data
@@ -3927,7 +4388,8 @@ if (!isset($_SESSION["user_id"])) {
 
                         resetCard();
                         fetchStaff();
-
+                        fetchViewStaff();
+                        fetchAuditLogs();
                         isEditing = false;
                     } else {
                         Swal.fire({
@@ -3968,9 +4430,6 @@ if (!isset($_SESSION["user_id"])) {
         staffDepartment.textContent = "";
         staffType.textContent = "";
         staffStatus.textContent = "";
-        staffHired.textContent = "";
-
-        document.getElementById("profile-preview").src = "../assets/img/profile.png";
     };
     document.getElementById("cancel").addEventListener("click", (e) => {
         e.preventDefault();
@@ -4015,6 +4474,19 @@ if (!isset($_SESSION["user_id"])) {
                 const left = document.createElement("div");
                 left.classList.add("edit-left-container");
                 const pic = document.createElement("div");
+                pic.classList.add("employee-pic");
+                const profileImg = document.createElement("img");
+                profileImg.alt = "Employee Profile";
+                profileImg.src = "../assets/img/profile.png";
+                if (staff.profile && staff.profile.trim() !== "") {
+                    profileImg.src =
+                        "../assets/img/uploads/profile/" + staff.profile;
+                }
+                profileImg.onerror = function () {
+                    this.onerror = null;
+                    this.src = "../assets/img/profile.png";
+                };
+                pic.appendChild(profileImg);
                 pic.classList.add("employee-pic");
                 const details = document.createElement("div");
                 details.classList.add("employee-details");
@@ -4065,16 +4537,6 @@ if (!isset($_SESSION["user_id"])) {
                     inputId.value = staff.staff_id;
                     inputType.value = staff.type;
                     inputStatus.value = staff.status;
-
-                    const profilePreview = document.getElementById("profile-preview");
-
-                    if (profilePreview) {
-                        if (staff.profile && staff.profile !== "") {
-                            profilePreview.src = "../assets/img/uploads/profile" + staff.profile;
-                        } else {
-                            profilePreview.src = "../assets/img/profile.png";
-                        }
-                    }
 
                     staffName.textContent = staff.name;
                     staffAge.textContent = staff.age;
@@ -4246,90 +4708,217 @@ if (!isset($_SESSION["user_id"])) {
     const auditActionFilter = document.getElementById("auditActionFilter");
     const searchInput = document.getElementById("searchInput");
     const auditDateFilter = document.getElementById("auditDateFilter");
-    let allAuditData = [];
-    function fetchAuditLogs() {
-        fetch("../backend/staff/get_logs.php")
-            .then(res => res.json())
-            .then(data => {
-                if (data.status !== "success") return;
 
-                allAuditData = data.data;
-                applyFilters();
-                // fetchAuditLogs();
-            })
-            .catch(err => console.error(err));
+    let allAuditData = [];
+    async function fetchAuditLogs() {
+        console.log("fetchAuditLogs() CALLED");
+        if (!auditTableBody) {
+            console.error("ERROR: .logs-table tbody was NOT found.");
+            return;
+        }
+        try {
+            const response = await fetch(
+                "../backend/staff/get_logs.php",
+                {
+                    method: "GET",
+                    credentials: "include",
+                    cache: "no-store"
+                }
+            );
+            console.log("Audit HTTP status:",response.status);
+            const responseText = await response.text();
+            console.log("Audit RAW response:",responseText);
+            let data;
+            try {
+                data = JSON.parse(responseText);
+            } catch (jsonError) {
+                console.error("AUDIT RESPONSE IS NOT JSON:",jsonError);
+                auditTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6"
+                            style="text-align:center;">
+                            Server returned invalid JSON.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            console.log("Audit parsed data:",data);
+            if (data.status !== "success") {
+                console.error("Audit API returned error:",data.message);
+                auditTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6"
+                            style="text-align:center;">
+                            ${escapeHtml(
+                                data.message ||
+                                "Failed to load audit logs."
+                            )}
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            allAuditData = Array.isArray(data.data) ? data.data : [];
+            console.log("TOTAL AUDIT LOGS:",allAuditData.length);
+            renderAuditTable(allAuditData);
+        } catch (error) {
+            console.error("FETCH AUDIT ERROR:",error);
+            auditTableBody.innerHTML = `
+                <tr>
+                    <td colspan="6"
+                        style="text-align:center;">
+                        Failed to load audit logs.
+                    </td>
+                </tr>
+            `;
+        }
     }
     function renderAuditTable(data) {
+        console.log("renderAuditTable()",data);
+        if (!auditTableBody) {
+            console.error("Audit table body does not exist.");
+            return;
+        }
         auditTableBody.innerHTML = "";
+        if (!Array.isArray(data) || data.length === 0) {
+            auditTableBody.innerHTML = `
+                <tr>
+                    <td colspan="6"
+                        style="text-align:center;">
+                        No audit logs found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
         data.forEach(log => {
             const row = document.createElement("tr");
             const badgeClass = getBadgeClass(log.action);
             row.innerHTML = `
                 <td class="user-cell">
-                    <img src="../assets/img/profile.png">
-                    ${log.username}
+                    <img
+                        src="../assets/img/profile.png"
+                        alt="Profile"
+                    >
+
+                    ${escapeHtml(
+                        log.username || "N/A"
+                    )}
                 </td>
-                <td>${log.roles || log.role || "N/A"}</td>
+                <td>
+                    ${escapeHtml(
+                        log.roles ||
+                        log.role ||
+                        "N/A"
+                    )}
+                </td>
                 <td>
                     <span class="viewbadge ${badgeClass}">
-                        ${log.action}
+                        ${escapeHtml(
+                            log.action || "N/A"
+                        )}
                     </span>
                 </td>
-                <td>${log.created_at}</td>
-                <td>${log.ip_address}</td>
-                <td>${log.details}</td>
+                <td>
+                    ${escapeHtml(
+                        log.created_at || "N/A"
+                    )}
+                </td>
+                <td>
+                    ${escapeHtml(
+                        log.ip_address || "N/A"
+                    )}
+                </td>
+                <td>
+                    ${escapeHtml(
+                        log.details || "N/A"
+                    )}
+                </td>
             `;
             auditTableBody.appendChild(row);
         });
     }
-    fetchAuditLogs();
-
-    function applyFilters() {
-        const search = searchInput.value.toLowerCase().trim();
-        const clean = (str) => (str || "").toLowerCase().replace(/[\s-]/g, '');
-        const selectedRole = clean(auditRoleFilter.value);
-        const selectedAction = clean(auditActionFilter.value);
-        const selectedDays = auditDateFilter.value;
+    function applyAuditFilters() {
+        const search = searchInput ? searchInput.value.toLowerCase().trim() : "";
+        const clean = value => (value || "") .toLowerCase().replace(/[\s-]/g, "");
+        const selectedRole = auditRoleFilter ? clean(auditRoleFilter.value) : "all";
+        const selectedAction = auditActionFilter ? clean(auditActionFilter.value) : "all";
+        const selectedDays = auditDateFilter ? auditDateFilter.value : "all";
         const filtered = allAuditData.filter(log => {
             const logRole = clean(log.roles || log.role);
             const logAction = clean(log.action);
             const matchesRole = selectedRole === "all" || selectedRole === "allusers" || logRole === selectedRole;
-            const matchesAction = selectedAction === "all" || selectedAction === "allactions" || logAction === selectedAction;
-
+            const matchesAction = selectedAction === "all" || selectedAction === "allactions" || logAction.includes(selectedAction);
             let matchesDate = true;
             if (selectedDays !== "all") {
                 const logDate = new Date(log.created_at);
                 const now = new Date();
-                const diffInTime = now.getTime() - logDate.getTime();
-                const diffInDays = diffInTime / (1000 * 3600 * 24);
-                matchesDate = diffInDays <= parseInt(selectedDays);
+                const diff =
+                    (
+                        now.getTime() -
+                        logDate.getTime()
+                    ) /
+                    (1000 * 60 * 60 * 24);
+                matchesDate =
+                    diff >= 0 &&
+                    diff <=
+                    parseInt(selectedDays);
             }
-            const matchesSearch = !search || [
-                log.username,
-                log.roles || log.role,
-                log.action,
-                log.details
-            ].some(field => (field || "").toLowerCase().includes(search));
-            return matchesRole && matchesAction && matchesSearch && matchesDate;
+            const matchesSearch =
+                !search ||
+                [
+                    log.username,
+                    log.roles || log.role,
+                    log.action,
+                    log.details,
+                    log.ip_address
+                ].some(value =>
+                    String(value || "")
+                        .toLowerCase()
+                        .includes(search)
+                );
+            return (
+                matchesRole &&
+                matchesAction &&
+                matchesDate &&
+                matchesSearch
+            );
         });
         renderAuditTable(filtered);
     }
-    auditDateFilter.addEventListener("change", applyFilters);
-    // badge color
     function getBadgeClass(action) {
-        const act = action.toLowerCase();
-
-        if (act.includes("login")) return "blue";
-        if (act.includes("add")) return "green";
-        if (act.includes("update")) return "orange";
-        if (act.includes("delete") || act.includes("terminate")) return "red";
-
+        const act = String(action || "").toLowerCase();
+        if (act.includes("login"))
+            return "blue";
+        if (act.includes("add"))
+            return "green";
+        if (act.includes("update"))
+            return "orange";
+        if (act.includes("delete") || act.includes("terminate"))
+            return "red";
         return "gray";
     }
-    searchInput.addEventListener("input", applyFilters);
-    auditRoleFilter.addEventListener("change", applyFilters);
-    auditActionFilter.addEventListener("change", applyFilters);
-    fetchAuditLogs();
+    function escapeHtml(value) {
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+    if (searchInput) {
+        searchInput.addEventListener("input",applyAuditFilters);
+    }
+    if (auditRoleFilter) {
+        auditRoleFilter.addEventListener("change",applyAuditFilters);
+    }
+    if (auditActionFilter) {
+        auditActionFilter.addEventListener("change",applyAuditFilters);
+    }
+    if (auditDateFilter) {
+        auditDateFilter.addEventListener("change",applyAuditFilters);
+    }
     // INVENTORY
     function changeQty(id, change) {
     const input = document.getElementById(id);
@@ -5463,7 +6052,7 @@ if (!isset($_SESSION["user_id"])) {
                     flowerStockInput.value = "";
                     flowerNotesArea.value = "";
                     flowerCost.value = "";
-                    
+                    loadInventoryLogs();
                     initFlowerDropdowns();
 
                 }else {
@@ -6139,7 +6728,7 @@ if (!isset($_SESSION["user_id"])) {
                                 if (patternField) patternField.selectedIndex = 0;
                                 if (thicknessField) thicknessField.selectedIndex = 0;
                                 if (softnessField) softnessField.selectedIndex = 0;
-
+                                loadInventoryLogs();
                                 cachedBackendData = null;
                             } else {
                                 Swal.fire("Error", data.message, "error");
@@ -6355,6 +6944,16 @@ if (!isset($_SESSION["user_id"])) {
         if (adminProfileInput && adminProfileInput.files.length > 0) {
             formData.append("profile", adminProfileInput.files[0]);
         }
+        Swal.fire({
+            title: "Saving Changes...",
+            text: "Please wait while your security settings are being updated.",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
         fetch("../backend/staff/update_profile.php", {
             method: "POST",
             body: formData
@@ -6409,8 +7008,9 @@ if (!isset($_SESSION["user_id"])) {
     let tfaOperationMode = "enable"; 
     let systemDatabaseSavedTfaState = "none";
     let checkbox2FA, modal2FA, closeBtn2FA;
-    let panelHuman, panelMethod, panelOtp;
+    let panelHuman, panelMethod, panelEmailVerify, panelOtp;
     let robotCheck, sendOtpBtn, verifyOtpBtn, otpCells;
+    let emailVerificationInput, verifyEmailBtn;
 
     document.addEventListener("DOMContentLoaded", function() {
         checkbox2FA = document.getElementById("twoFactorAuth");
@@ -6423,8 +7023,11 @@ if (!isset($_SESSION["user_id"])) {
         sendOtpBtn = document.getElementById("btnSendSetupOtp");
         verifyOtpBtn = document.getElementById("btnSubmitOtpCheck");
         otpCells = document.querySelectorAll(".otp-cell");
+        panelEmailVerify = document.getElementById("panelEmailVerify");
+        emailVerificationInput = document.getElementById("tfaVerificationEmail");
+        verifyEmailBtn = document.getElementById("btnVerifyEmailForTfa");
 
-    fetch("../backend/staff/get_staff.php?action=profile")
+        fetch("../backend/staff/get_staff.php?action=profile")
         .then(res => res.json())
         .then(data => {
             if (data.status === "success") {
@@ -6444,18 +7047,32 @@ if (!isset($_SESSION["user_id"])) {
                 e.preventDefault();
                 if (systemDatabaseSavedTfaState === "none") {
                     tfaOperationMode = "enable";
-                    document.getElementById("otpPanelTitle").innerHTML = '<i class="fa-solid fa-shield-halved" style="color:#3b82f6;"></i> Enter Security Token';
-                    document.getElementById("otpPanelDescription").innerText = "A 6-digit security verification code will be sent to your selected destination.";
-                    if (robotCheck) robotCheck.checked = false;
+                    document.getElementById("otpPanelTitle").innerHTML =
+                        '<i class="fa-solid fa-shield-halved" style="color:#3b82f6;"></i> Enter Security Token';
+                    document.getElementById("otpPanelDescription").innerText =
+                        "A 6-digit security verification code will be sent to your selected destination.";
+
+                    if (robotCheck) {
+                        robotCheck.checked = false;
+                    }
                     showPanel(panelHuman);
-                    if (modal2FA) modal2FA.style.display = "flex";
+                    if (modal2FA) {
+                        modal2FA.style.display = "flex";
+                    }
                 } else {
                     tfaOperationMode = "disable";
-                    document.getElementById("otpPanelTitle").innerHTML = '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Disable Two-Factor Authentication';
-                    document.getElementById("otpPanelDescription").innerText = "A verification passcode has been dispatched directly to your email address.";
-                    showPanel(panelOtp);
-                    if (modal2FA) modal2FA.style.display = "flex";
-                    dispatchSecurityTokenBackend();
+                    document.getElementById("otpPanelTitle").innerHTML =
+                        '<i class="fa-solid fa-triangle-exclamation" style="color:#ef4444;"></i> Disable Two-Factor Authentication';
+                    document.getElementById("otpPanelDescription").innerText =
+                        "Enter your registered email address to verify ownership before receiving the security code.";
+                    showPanel(panelEmailVerify);
+                    if (modal2FA) {
+                        modal2FA.style.display = "flex";
+                    }
+                    if (emailVerificationInput) {
+                        emailVerificationInput.value = "";
+                        emailVerificationInput.focus();
+                    }
                 }
             });
         }
@@ -6555,6 +7172,79 @@ if (!isset($_SESSION["user_id"])) {
                 });
             });
         }
+        if (verifyEmailBtn) {
+            verifyEmailBtn.addEventListener("click", function() {
+                const email = emailVerificationInput ? emailVerificationInput.value.trim() : "";
+                if (!email) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Email Required",
+                        text: "Please enter your registered email address."
+                    });
+                    return;
+                }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Invalid Email",
+                        text: "Please enter a valid email address."
+                    });
+                    return;
+                }
+                const payload = new FormData();
+                payload.append("action", "verify_email_for_tfa");
+                payload.append("email", email);
+                payload.append("mode", "disable");
+                verifyEmailBtn.disabled = true;
+                verifyEmailBtn.innerText = "Verifying...";
+                fetch("/Atlas/backend/security/tfa_handshake.php", {
+                    method: "POST",
+                    body: payload
+                })
+                .then(async res => {
+                    const text = await res.text();
+                    try {
+                        return JSON.parse(text);
+                    } catch (error) {
+                        console.error("Invalid JSON:", text);
+                        throw new Error("Invalid server response.");
+                    }
+                })
+                .then(data => {
+                    if (data.status === "success") {
+                        Swal.fire({
+                            icon: "success",
+                            title: "Email Verified",
+                            text: "A verification OTP has been sent to your registered email address.",
+                            timer: 1800,
+                            showConfirmButton: false
+                        });
+                        showPanel(panelOtp);
+                        if (otpCells && otpCells[0]) {
+                            otpCells[0].focus();
+                        }
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Email Verification Failed",
+                            text: data.message
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Email verification error:", error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Verification Failed",
+                        text: "Unable to verify your email address."
+                    });
+                })
+                .finally(() => {
+                    verifyEmailBtn.disabled = false;
+                    verifyEmailBtn.innerText = "Continue";
+                });
+            });
+        }
         if (closeBtn2FA) {
             closeBtn2FA.addEventListener("click", function() {
                 if (modal2FA) modal2FA.style.display = "none";
@@ -6568,11 +7258,20 @@ if (!isset($_SESSION["user_id"])) {
         });
     });
     function showPanel(targetPanel) {
-        if (!panelHuman || !panelMethod || !panelOtp) return;
-        [panelHuman, panelMethod, panelOtp].forEach(panel => {
-            panel.classList.remove("active");
+        const panels = [
+            panelHuman,
+            panelMethod,
+            panelEmailVerify,
+            panelOtp
+        ];
+        panels.forEach(panel => {
+            if (panel) {
+                panel.classList.remove("active");
+            }
         });
-        targetPanel.classList.add("active");
+        if (targetPanel) {
+            targetPanel.classList.add("active");
+        }
     }
     function compileDigits() {
         let code = "";
@@ -6587,7 +7286,16 @@ if (!isset($_SESSION["user_id"])) {
         const payload = new FormData();
         payload.append("action", "generate_otp");
         payload.append("channel", "email");
-
+        Swal.fire({
+            title: "Sending Verification Code...",
+            text: "Please wait while we send the verification code to your email.",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
         fetch("/Atlas/backend/security/tfa_handshake.php", {
             method: "POST",
             body: payload
@@ -6610,6 +7318,13 @@ if (!isset($_SESSION["user_id"])) {
                 showPanel(panelOtp);
                 if (modal2FA) modal2FA.style.display = "flex";
                 if (otpCells && otpCells[0]) otpCells[0].focus();
+                Swal.fire({
+                    icon: "success",
+                    title: "Verification Code Sent",
+                    text: "A 6-digit verification code has been sent to your registered email.",
+                    timer: 1800,
+                    showConfirmButton: false
+                });
             } else {
                 Swal.fire({
                     icon: "info",
@@ -6675,6 +7390,77 @@ if (!isset($_SESSION["user_id"])) {
             .catch(error => console.error("Network error updating auto-logout setting:", error));
         });
     }
+    let activityTimeout;
+    function updateUserActivity() {
+        fetch("../backend/security/update_activity.php", {
+            method: "POST",
+            credentials: "same-origin"
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "logout") {
+                window.location.href = "../login.php";
+            }
+        })
+        .catch(error => {
+            console.error("Activity update failed:", error);
+        });
+    }
+    document.addEventListener("click", updateUserActivity);
+    document.addEventListener("keydown", updateUserActivity);
+    document.addEventListener("mousemove", updateUserActivity);
+    document.addEventListener("scroll", updateUserActivity);
+
+    let lastActivitySent = 0;
+    function registerActivity() {
+        const now = Date.now();
+        if (now - lastActivitySent < 5 * 60 * 1000) {
+            return;
+        }
+        lastActivitySent = now;
+        fetch("../backend/security/update_activity.php", {
+            method: "POST",
+            credentials: "same-origin"
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "logout") {
+                window.location.href = "../login.php";
+            }
+        })
+        .catch(error => {
+            console.error("Activity update failed:", error);
+        });
+    }
+    document.addEventListener("click", registerActivity);
+    document.addEventListener("keydown", registerActivity);
+    document.addEventListener("scroll", registerActivity);
+    document.addEventListener("mousemove", registerActivity);
+
+    function checkAutoLogout() {
+        fetch("../backend/security/check_session.php", {
+            method: "GET",
+            credentials: "same-origin"
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "logout") {
+                Swal.fire({
+                    icon: "warning",
+                    title: "Session Expired",
+                    text: data.message,
+                    confirmButtonText: "OK",
+                    allowOutsideClick: false
+                }).then(() => {
+                    window.location.href = "../login.php";
+                });
+            }
+        })
+        .catch(error => {
+            console.error("Session check failed:", error);
+        });
+    }
+    setInterval(checkAutoLogout, 60 * 1000);
     // contacts info
     document.addEventListener("DOMContentLoaded", () => {
         fetchStaffContacts();
@@ -6902,26 +7688,47 @@ if (!isset($_SESSION["user_id"])) {
     // total orders
     async function loadTotalOrders() {
         try {
-            const res = await fetch("../backend/orders/get_total_count.php");
+            const res = await fetch(
+                "../backend/orders/get_total_count.php"
+            );
             const data = await res.json();
-            if (!data.success) return;
-            document.getElementById("total-orders-count").textContent = data.total;
-            const percentEl = document.getElementById("total-orders-percentage");
-            const arrowEl = document.getElementById("total-orders-arrow");
-            percentEl.textContent = `${Math.abs(data.growth)}%`;
-            const parent = document.getElementById("total-orders-trend");
+            if (!data.success) {
+                return;
+            }
+            document.getElementById(
+                "total-orders-count"
+            ).textContent = data.total;
+            const percentEl =
+                document.getElementById(
+                    "total-orders-percentage"
+                );
+            const arrowEl =
+                document.getElementById(
+                    "total-orders-arrow"
+                );
+            const parent =
+                document.getElementById(
+                    "total-orders-trend"
+                );
+
+            percentEl.textContent =
+                `${Math.abs(data.growth)}%`;
             if (data.growth >= 0) {
                 parent.style.color = "green";
-                arrowEl.className = "bi bi-arrow-up-short";
+                arrowEl.className =
+                    "bi bi-arrow-up-short";
             } else {
                 parent.style.color = "red";
-                arrowEl.className = "bi bi-arrow-down-short";
+                arrowEl.className =
+                    "bi bi-arrow-down-short";
             }
         } catch (err) {
-            console.error(err);
+            console.error(
+                "Error loading total orders:",
+                err
+            );
         }
     }
-    loadTotalOrders();
     // revenue count
     async function loadRevenue() {
         try {
@@ -6946,7 +7753,6 @@ if (!isset($_SESSION["user_id"])) {
             console.error(error);
         }
     }
-    loadRevenue();
     const Utils = {
         CHART_COLORS: {
             red: 'rgb(255, 99, 132)',
@@ -7055,14 +7861,11 @@ if (!isset($_SESSION["user_id"])) {
             console.error("Chart Error:", err);
         }   
     }
-    loadRevenueChart();
     // revenue prediction
     async function loadRevenuePrediction() {
         try {
             const res = await fetch("../backend/revenue/get_revenue_prediction.php");
             const data = await res.json();
-
-            console.log("AI DATA:", data);
 
             if (!data.success) return;
 
@@ -7092,7 +7895,6 @@ if (!isset($_SESSION["user_id"])) {
         }
     }
 
-    loadRevenuePrediction();
     // net revenue
     async function loadNetRevenue() {
         try {
@@ -7111,7 +7913,386 @@ if (!isset($_SESSION["user_id"])) {
             console.error(err);
         }
     }
-    loadNetRevenue();
+    // loss revenue
+    async function loadLossRevenue() {
+        const lossRevenueElement =
+            document.getElementById("loss-revenue");
+
+        const lossRevenueChangeElement =
+            document.getElementById("loss-revenue-change");
+        if (
+            !lossRevenueElement ||
+            !lossRevenueChangeElement
+        ) {
+            console.error(
+                "Loss revenue elements not found."
+            );
+            return;
+        }
+
+
+        try {
+
+            const response = await fetch(
+                "../backend/revenue/get_loss_revenue.php",
+                {
+                    method: "GET",
+                    cache: "no-cache"
+                }
+            );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    `HTTP error: ${response.status}`
+                );
+            }
+
+
+            const data = await response.json();
+
+
+            console.log(
+                "Loss Revenue API Response:",
+                data
+            );
+
+
+            if (!data.success) {
+
+                throw new Error(
+                    data.message ||
+                    "Failed to load lost revenue."
+                );
+            }
+
+            const lostRevenue =
+                Number(data.lost_revenue) || 0;
+
+
+            lossRevenueElement.textContent =
+                "₱" +
+                lostRevenue.toLocaleString(
+                    "en-PH",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+            const change =
+                Number(data.change) || 0;
+
+            const direction =
+                data.direction || "same";
+
+            if (direction === "up") {
+
+                lossRevenueChangeElement.innerHTML = `
+                    <i class="bi bi-arrow-up"></i>
+                    ${Math.abs(change).toFixed(2)}%
+                `;
+
+                lossRevenueChangeElement.classList.remove(
+                    "positive",
+                    "same"
+                );
+
+                lossRevenueChangeElement.classList.add(
+                    "negative"
+                );
+
+
+            } else if (direction === "down") {
+
+                lossRevenueChangeElement.innerHTML = `
+                    <i class="bi bi-arrow-down"></i>
+                    ${Math.abs(change).toFixed(2)}%
+                `;
+
+                lossRevenueChangeElement.classList.remove(
+                    "negative",
+                    "same"
+                );
+
+                lossRevenueChangeElement.classList.add(
+                    "positive"
+                );
+
+
+            } else {
+
+                lossRevenueChangeElement.innerHTML = `
+                    <i class="bi bi-dash"></i>
+                    0%
+                `;
+
+                lossRevenueChangeElement.classList.remove(
+                    "negative",
+                    "positive"
+                );
+
+                lossRevenueChangeElement.classList.add(
+                    "same"
+                );
+            }
+
+        } catch (error) {
+
+            console.error(
+                "Error loading lost revenue:",
+                error
+            );
+
+            lossRevenueElement.textContent =
+                "₱0.00";
+
+
+            lossRevenueChangeElement.innerHTML = `
+                <i class="bi bi-dash"></i>
+                0%
+            `;
+
+
+            lossRevenueChangeElement.classList.remove(
+                "negative",
+                "positive"
+            );
+
+            lossRevenueChangeElement.classList.add(
+                "same"
+            );
+        }
+    }
+    // lost profit
+    async function loadLossProfit() {
+        const lossProfitElement =
+            document.getElementById("net-revenue-value");
+
+        const lossProfitChangeElement =
+            document.getElementById("net-revenue-change");
+
+        if (!lossProfitElement || !lossProfitChangeElement) {
+            console.error(
+                "Loss Profit elements not found."
+            );
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                "../backend/revenue/get_lost_profit.php",
+                {
+                    method: "GET",
+                    cache: "no-store"
+                }
+            );
+
+            console.log(
+                "Loss Profit HTTP Status:",
+                response.status
+            );
+
+            if (!response.ok) {
+                throw new Error(
+                    `HTTP error: ${response.status}`
+                );
+            }
+            const responseText =
+                await response.text();
+
+            console.log(
+                "Loss Profit Raw Response:",
+                responseText
+            );
+
+            let data;
+
+            try {
+
+                data = JSON.parse(responseText);
+
+            } catch (error) {
+
+                console.error(
+                    "Invalid JSON from get_loss_profit.php:",
+                    responseText
+                );
+
+                throw new Error(
+                    "Backend did not return valid JSON."
+                );
+            }
+
+            console.log(
+                "Loss Profit API Response:",
+                data
+            );
+
+            if (!data.success) {
+
+                throw new Error(
+                    data.message ||
+                    "Failed to load loss profit."
+                );
+            }
+
+            const lostProfit =
+                Number(data.lost_profit) || 0;
+
+            lossProfitElement.textContent =
+                "₱" +
+                lostProfit.toLocaleString(
+                    "en-PH",
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                );
+            const change =
+                Number(data.change) || 0;
+
+            const direction =
+                String(
+                    data.direction || "same"
+                ).toLowerCase();
+
+            if (direction === "up") {
+
+                lossProfitChangeElement.innerHTML = `
+                    <i class="bi bi-arrow-up"></i>
+                    ${Math.abs(change).toFixed(2)}%
+                `;
+
+                lossProfitChangeElement.classList.remove(
+                    "positive",
+                    "same"
+                );
+
+                lossProfitChangeElement.classList.add(
+                    "negative"
+                );
+
+            } else if (direction === "down") {
+
+                lossProfitChangeElement.innerHTML = `
+                    <i class="bi bi-arrow-down"></i>
+                    ${Math.abs(change).toFixed(2)}%
+                `;
+
+                lossProfitChangeElement.classList.remove(
+                    "negative",
+                    "same"
+                );
+
+                lossProfitChangeElement.classList.add(
+                    "positive"
+                );
+
+            } else {
+
+                lossProfitChangeElement.innerHTML = `
+                    <i class="bi bi-dash"></i>
+                    0.00%
+                `;
+
+                lossProfitChangeElement.classList.remove(
+                    "negative",
+                    "positive"
+                );
+
+                lossProfitChangeElement.classList.add(
+                    "same"
+                );
+            }
+
+            console.log(
+                "Current Lost Profit:",
+                data.lost_profit
+            );
+
+            console.log(
+                "Previous Lost Profit:",
+                data.previous_lost_profit
+            );
+
+            console.log(
+                "Difference:",
+                data.difference
+            );
+
+            console.log(
+                "Change:",
+                data.change
+            );
+
+            console.log(
+                "Direction:",
+                data.direction
+            );
+
+            console.log(
+                "Current Lost Revenue:",
+                data.current_lost_revenue
+            );
+
+            console.log(
+                "Previous Lost Revenue:",
+                data.previous_lost_revenue
+            );
+
+            console.log(
+                "Current Cost:",
+                data.current_cost
+            );
+
+            console.log(
+                "Previous Cost:",
+                data.previous_cost
+            );
+
+            console.log(
+                "Current Cancelled Count:",
+                data.current_cancelled_count
+            );
+
+        } catch (error) {
+
+            console.error(
+                "Error loading loss profit:",
+                error
+            );
+
+            lossProfitElement.textContent =
+                "₱0.00";
+
+            lossProfitChangeElement.innerHTML = `
+                <i class="bi bi-dash"></i>
+                0.00%
+            `;
+
+            lossProfitChangeElement.classList.remove(
+                "negative",
+                "positive"
+            );
+
+            lossProfitChangeElement.classList.add(
+                "same"
+            );
+        }
+    }
+    document.addEventListener("DOMContentLoaded",() => {
+        loadLossProfit();
+        loadInventoryUsage();
+        loadMostRequestedPrediction();
+        loadLossRevenue();
+        loadNetRevenue();
+        loadRevenuePrediction();
+        loadRevenueChart();
+        loadTotalOrders();
+        loadRevenue();
+    });
     // most requested package
     async function loadInventoryUsage() {
         try {
@@ -7168,7 +8349,6 @@ if (!isset($_SESSION["user_id"])) {
             console.error(err);
         }
     }
-    loadInventoryUsage();
     // prediction of the most requested coffin or services
     async function loadMostRequestedPrediction() {
         try {
@@ -7189,8 +8369,6 @@ if (!isset($_SESSION["user_id"])) {
             console.error("Most Requested Error:", err);
         }
     }
-
-    loadMostRequestedPrediction();
 // customer preferences
 const pendingBtn = document.getElementById("pending-btn");
 const productsBtn = document.getElementById("products-onsite-btn");
@@ -7377,29 +8555,65 @@ async function loadPendingOrders() {
 async function loadLifeplanOrders() {
     const preNeedContainer = document.getElementById("pending-preneed-order-container");
 
+    if (!preNeedContainer) {
+        return;
+    }
     preNeedContainer.innerHTML = "<p>Loading...</p>";
     try {
-        const response = await fetch("../backend/preferences/get_customer_lifeplan.php");
-        if (!response.ok) {
-            throw new Error(`HTTP Error: ${response.status}`);
+        const url = "../backend/preferences/get_customer_lifeplan.php";
+        const response = await fetch(url, {
+            method: "GET",
+            cache: "no-cache"
+        });
+        const rawText = await response.text();
+        let result;
+        try {
+            result = JSON.parse(rawText);
+        } catch (jsonError) {
+            preNeedContainer.innerHTML = `
+                <p style="color:red;">
+                    PHP did not return valid JSON.
+                </p>
+            `;
+            return;
         }
-        const result = await response.json();
-        console.log("API Response:", result);
-        if (!result.success || !result.data || result.data.length === 0) {
+        if (!result.success) {
             preNeedContainer.innerHTML = `
                 <div class="no-pending-orders">
-                    <i class="fa-solid fa-wallet"></i>
-                    <h3>No Pending Orders</h3>
-                    <p>There are currently no pending payment requests.</p>
+                    <h3>Backend Error</h3>
+                    <p>${result.message ?? "Unknown error"}</p>
                 </div>
             `;
             return;
         }
+        if (!Array.isArray(result.data)) {
+            preNeedContainer.innerHTML = `
+                <div class="no-pending-orders">
+                    <h3>Invalid Data</h3>
+                    <p>The backend did not return an array.</p>
+                </div>
+            `;
+            return;
+        }
+        if (result.data.length === 0) {
+            preNeedContainer.innerHTML = `
+                <div class="no-pending-orders">
+                    <i class="fa-solid fa-wallet"></i>
+                    <h3>No Pending Orders</h3>
+                    <p>
+                        The API returned zero pending lifeplan orders.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
         preNeedContainer.innerHTML = "";
-        result.data.forEach(order => {
+        result.data.forEach((order, index) => {
             const profileImage = order.profile_img
                 ? `../assets/img/uploads/profile/${order.profile_img}`
                 : "../assets/img/profile.png";
+
             const createdDate = order.created_at
                 ? new Date(order.created_at).toLocaleDateString()
                 : "N/A";
@@ -7407,15 +8621,21 @@ async function loadLifeplanOrders() {
                 <div class="customer-preference">
                     <div class="customer-row-details"
                         data-type="preneed"
-                        data-order-id="${order.id}"
-                        data-request-no="${order.lifeplan_no}">
-                        <img src="${profileImage}"
+                        data-order-id="${order.id ?? ""}"
+                        data-request-no="${order.lifeplan_no ?? ""}">
+                        <img
+                            src="${profileImage}"
                             alt="Profile"
-                            onerror="this.src='../assets/img/profile.png'">
+                            onerror="this.src='../assets/img/profile.png'"
+                        >
                         <div class="customer-details">
-                            <h3>${order.name ?? "Unknown Customer"}</h3>
+                            <h3>
+                                ${order.name ?? "Unknown Customer"}
+                            </h3>
                             <p class="item-name">
-                                ${order.quantity ?? 0} × ${order.item_name}
+                                ${order.quantity ?? 0}
+                                ×
+                                ${order.item_name ?? "Unknown Item"}
                             </p>
                             <p class="purchase-type">
                                 ${order.purchase_type ?? "Unknown"} Service
@@ -7423,21 +8643,21 @@ async function loadLifeplanOrders() {
                             <p class="request-no">
                                 #${order.lifeplan_no ?? "N/A"}
                             </p>
-                            <p class="date">${createdDate}</p>
+                            <p class="date">
+                                ${createdDate}
+                            </p>
+
                         </div>
                     </div>
                     <div class="preference-command">
                         <span class="status pending">
-                            ${order.status}
+                            ${order.status ?? "Confirmed"}
                         </span>
                     </div>
                 </div>
             `;
         });
-
     } catch (error) {
-        console.error("Error loading orders:", error);
-
         preNeedContainer.innerHTML = `
             <p style="color:red;">
                 Failed to load orders.
@@ -7534,7 +8754,7 @@ async function loadPreferenceDetails(orderId, requestNo) {
         document.getElementById("view-date-of-death").textContent = order.date_of_death || "N/A";
         document.getElementById("view-interment-date").textContent = order.interment_date || "N/A";
         // price details
-        document.getElementById("services-price").value = order.retail_price || 0;
+        document.getElementById("services-price").value = order.selling_price || 0;
         document.getElementById("downpayment-price").value = order.downpayment || 0;
     } catch (error) {
         console.error(error);
@@ -7591,7 +8811,7 @@ async function loadPreferenceLifeplan(orderId, requestNo) {
         document.getElementById("planholder-payment-option").textContent = order.payment_option ?? "N/A";
         document.getElementById("planholder-term-payment").textContent = order.payment_term ?? "N/A";
 
-        document.getElementById("planholder-services-price").value = order.retail_price ?? 0;
+        document.getElementById("planholder-services-price").value = order.selling_price ?? 0;
 
         console.log("Selected:", selectedOrder);
 
@@ -7619,7 +8839,7 @@ document.getElementById("preneed-view").addEventListener("click", async () => {
     } catch (error) {
         console.error("Fetch error:", error);
     }
-    document.getElementById("planholder-services-price").value = selectedOrder.retail_price || 0;
+    document.getElementById("planholder-services-price").value = selectedOrder.selling_price || 0;
     document.getElementById("planholder-service-discount").value = 0;
     const taxInput = document.getElementById("planholder-service-tax");
     if (selectedOrder.tax_type === "inclusive") {
@@ -7784,42 +9004,97 @@ document.getElementById("preneed-decline").addEventListener("click", async () =>
         });
     }
 });
+
 // update pre need modal total
 function updateLifeplanModalTotal() {
-    const price = Number(document.getElementById("planholder-services-price").value) || 0;
-    const discountPercent = Number(document.getElementById("planholder-service-discount").value) || 0;
-    let taxPercent = 0;
-    if (selectedOrder && selectedOrder.tax_type !== "inclusive") {
-        taxPercent = Number(document.getElementById("planholder-service-tax").value) || 0;
-    }
-    const discountAmount = price * (discountPercent / 100);
-    const taxAmount = price * (taxPercent / 100);
-    const total = price + taxAmount - discountAmount;
-    const balance = total;
+
+    const priceEl = document.getElementById("planholder-services-price");
+    const discountEl = document.getElementById("planholder-service-discount");
+    const taxEl = document.getElementById("planholder-service-tax");
+    const downpaymentEl = document.getElementById("planholder-downpayment");
+
     const modalTotal = document.getElementById("planholder-modal-total");
     const taxModal = document.getElementById("planholder-tax-modal");
     const discountModal = document.getElementById("planholder-discount-modal");
     const modalBalance = document.getElementById("planholder-modal-balance");
-    if (modalTotal) {
-        modalTotal.textContent = total.toLocaleString();
+
+    console.log("=== UPDATE LIFEPLAN TOTAL ===");
+
+    console.log("priceEl:", priceEl);
+    console.log("discountEl:", discountEl);
+    console.log("taxEl:", taxEl);
+    console.log("downpaymentEl:", downpaymentEl);
+
+    if (!priceEl || !discountEl || !taxEl || !modalTotal ||
+        !taxModal || !discountModal || !modalBalance) {
+
+        console.error("One or more Lifeplan modal elements were not found.");
+        return;
     }
-    if (taxModal) {
-        taxModal.textContent = taxAmount.toLocaleString();
+
+    const price = parseFloat(priceEl.value) || 0;
+    const discountPercent = parseFloat(discountEl.value) || 0;
+    const downpayment = downpaymentEl
+        ? parseFloat(downpaymentEl.value) || 0
+        : 0;
+
+    let taxPercent = 0;
+    const taxType = selectedOrder?.tax_type
+        ? String(selectedOrder.tax_type).trim().toLowerCase()
+        : "";
+
+    console.log("Tax type:", taxType);
+
+    if (taxType !== "inclusive" && taxType !== "included") {
+        taxPercent = parseFloat(taxEl.value) || 0;
     }
-    if (discountModal) {
-        discountModal.textContent = discountAmount.toLocaleString();
-    }
-    if (modalBalance) {
-        modalBalance.textContent = balance.toLocaleString();
-    }
-    document.getElementById("preneed-subtotal").textContent = price.toLocaleString();
-    document.getElementById("preneed-discount").textContent = discountAmount.toLocaleString();
-    document.getElementById("preneed-remaining-balance").textContent = balance.toLocaleString();
-    const taxEl = document.getElementById("preneed-preference-tax");
-    if (taxEl) {
-        taxEl.nextElementSibling.textContent =
-            taxAmount.toLocaleString();
-    }
+
+    const discountAmount =
+        price * (discountPercent / 100);
+
+    const taxAmount =
+        price * (taxPercent / 100);
+
+    const total =
+        price + taxAmount - discountAmount;
+
+    const balance =
+        Math.max(total - downpayment, 0);
+
+    console.log({
+        price,
+        discountPercent,
+        discountAmount,
+        taxPercent,
+        taxAmount,
+        downpayment,
+        total,
+        balance
+    });
+
+    modalTotal.textContent =
+        total.toLocaleString("en-PH", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+    taxModal.textContent =
+        taxAmount.toLocaleString("en-PH", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+    discountModal.textContent =
+        discountAmount.toLocaleString("en-PH", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+    modalBalance.textContent =
+        balance.toLocaleString("en-PH", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
 }
 // 
 document.addEventListener("click", e => {
@@ -7869,7 +9144,7 @@ document.getElementById("view").addEventListener("click", async () => {
         console.error("Fetch error:", error);
     }
 
-    document.getElementById("services-price").value = selectedOrder.retail_price || 0;
+    document.getElementById("services-price").value = selectedOrder.selling_price || 0;
     document.getElementById("downpayment-price").value = selectedOrder.downpayment || 0;
     document.getElementById("service-discount").value = 0;
 
@@ -7885,7 +9160,7 @@ document.getElementById("view").addEventListener("click", async () => {
 
     updateModalTotal();
 });
-
+// approve button
 document.getElementById("approve").addEventListener("click", async () => {
     if (!selectedOrder) {
         Swal.fire({
@@ -7966,6 +9241,7 @@ document.getElementById("approve").addEventListener("click", async () => {
         });
     }
 });
+// decline button
 document.getElementById("decline").addEventListener("click", async () => {
     if (!selectedOrder) {
         Swal.fire({
@@ -8052,50 +9328,75 @@ modal.addEventListener("click", (e) => {
     }
 });
 function updateModalTotal() {
-    const price = Number(document.getElementById("services-price").value || 0);
-    const downpaymentPrice = Number(document.getElementById("downpayment-price").value || 0);
-    const discountPercent = Number(document.getElementById("service-discount").value || 0);
+
+    const price =
+        Number(document.getElementById("services-price").value || 0);
+
+    const downpaymentPrice =
+        Number(document.getElementById("downpayment-price").value || 0);
+
+    const discountPercent =
+        Number(document.getElementById("service-discount").value || 0);
 
     let taxPercent = 0;
 
     if (selectedOrder && selectedOrder.tax_type !== "inclusive") {
-        taxPercent = Number(document.getElementById("service-tax").value || 0);
+        taxPercent =
+            Number(document.getElementById("service-tax").value || 0);
     }
 
-    const discountAmount = price * (discountPercent / 100);
-    const taxAmount = price * (taxPercent / 100);
-    const remainingBal = price + taxAmount - discountAmount;
-    const balance = remainingBal - downpaymentPrice;
+    const discountAmount =
+        price * (discountPercent / 100);
 
-    // Modal Summary
-    const modalTotal = document.getElementById("modal-total");
-    const taxModal = document.getElementById("tax-modal");
-    const discountModal = document.getElementById("discount-modal");
-    const downpaymentModal = document.getElementById("downpayment-modal");
-    const modalBalance = document.getElementById("modal-balance");
+    const taxAmount =
+        price * (taxPercent / 100);
+
+    // Total after tax and discount
+    const remainingBal =
+        price + taxAmount - discountAmount;
+
+    // Remaining balance after downpayment
+    const balance =
+        remainingBal - downpaymentPrice;
+
+
+    const modalTotal =
+        document.getElementById("modal-total");
+
+    const taxModal =
+        document.getElementById("tax-modal");
+
+    const discountModal =
+        document.getElementById("discount-modal");
+    const downpaymentModal =
+        document.getElementById("downpayment-modal");
+
+    const modalBalance =
+        document.getElementById("modal-balance");
+
+
     if (modalTotal) {
-        modalTotal.textContent = remainingBal.toLocaleString();
+        modalTotal.textContent =
+            remainingBal.toLocaleString();
     }
+
     if (taxModal) {
-        taxModal.textContent = taxAmount.toLocaleString();
+        taxModal.textContent =
+            taxAmount.toLocaleString();
     }
+
     if (discountModal) {
-        discountModal.textContent = discountAmount.toLocaleString();
+        discountModal.textContent =
+            discountAmount.toLocaleString();
     }
     if (downpaymentModal) {
-        downpaymentModal.textContent = downpaymentPrice.toLocaleString();
-    }
-    if (modalBalance) {
-        modalBalance.textContent = balance.toLocaleString();
+        downpaymentModal.textContent =
+            downpaymentPrice.toLocaleString();
     }
 
-    document.getElementById("subtotal").textContent = price.toLocaleString();
-    document.getElementById("discount").textContent = discountAmount.toLocaleString();
-    document.getElementById("remaining-balance").textContent = balance.toLocaleString();
-    const taxEl = document.getElementById("preference-tax");
-    if (taxEl) {
-        taxEl.nextElementSibling.textContent =
-            taxAmount.toLocaleString();
+    if (modalBalance) {
+        modalBalance.textContent =
+            balance.toLocaleString();
     }
 }
 
@@ -8232,50 +9533,91 @@ let selectedCoffin = null;
 
 async function loadStandardCoffins() {
     const container = document.getElementById("walk-in-products-at-need");
+
     try {
         const response = await fetch("../backend/coffins/get_all_coffin.php");
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
         const result = await response.json();
+
         if (!result.success || !result.data?.length) {
-            container.innerHTML = "<p>No standard coffins available.</p>";
+            container.innerHTML = "No standard coffins available.";
             return;
         }
+
         coffinCache = result.data;
-        container.innerHTML = result.data.map(coffin => `
-            <div class="product-card">
-                <div class="product-card-details">
-                    <div class="product-card-img">
-                        <img src="${coffin.image}" alt="${coffin.item_name}">
-                    </div>
-                    <div class="product-details">
-                        <div class="product-header">
-                            <h2>${coffin.item_name}</h2>
-                            <span class="product-badge">
-                                ${coffin.source.charAt(0).toUpperCase() + coffin.source.slice(1)} • ${coffin.coffin_type.charAt(0).toUpperCase() + coffin.coffin_type.slice(1)}
-                            </span>
+
+        container.innerHTML = result.data.map(coffin => {
+
+            const sellingPrice = Number(coffin.selling_price) || 0;
+            const downpayment = Number(coffin.downpayment) || 0;
+
+            return `
+                <div class="product-card">
+                    <div class="product-card-details">
+
+                        <div class="product-card-img">
+                            <img src="${coffin.image}" alt="${coffin.item_name}">
                         </div>
-                        <div class="product-pricing">
-                            <div class="price-item">
-                                <span class="label">Selling Price</span>
-                                <h3>₱ ${Number(coffin.retail_price).toLocaleString()}</h3>
+
+                        <div class="product-details">
+
+                            <div class="product-header">
+                                <h2>${coffin.item_name}</h2>
+
+                                <span class="product-badge">
+                                    ${coffin.source.charAt(0).toUpperCase() + coffin.source.slice(1)}
+                                    •
+                                    ${coffin.coffin_type.charAt(0).toUpperCase() + coffin.coffin_type.slice(1)}
+                                </span>
                             </div>
-                            <div class="price-item">
-                                <span class="label">Downpayment</span>
-                                <h3>₱ ${Number(coffin.downpayment).toLocaleString()}</h3>
+
+                            <div class="product-pricing">
+
+                                <div class="price-item">
+                                    <span class="label">Selling Price</span>
+                                    <h3>
+                                        ₱ ${sellingPrice.toLocaleString(undefined, {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}
+                                    </h3>
+                                </div>
+
+                                <div class="price-item">
+                                    <span class="label">Downpayment</span>
+                                    <h3>
+                                        ₱ ${downpayment.toLocaleString(undefined, {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}
+                                    </h3>
+                                </div>
+
                             </div>
                         </div>
-                    </div>
-                    <div class="casket-btn">
-                        <button class="buy-btn buy-now-btn"
-                                data-id="${coffin.unique_key}">
-                            Buy Now
-                        </button>
+
+                        <div class="casket-btn">
+                            <button
+                                class="buy-btn buy-now-btn"
+                                data-id="${coffin.unique_key}"
+                            >
+                                Buy Now
+                            </button>
+                        </div>
+
                     </div>
                 </div>
-            </div>
-        `).join("");
+            `;
+
+        }).join("");
 
     } catch (error) {
         console.error("Error loading coffins:", error);
+        container.innerHTML = "Failed to load coffins.";
     }
 }
 document.addEventListener("click", (e) => {
@@ -8287,9 +9629,9 @@ document.addEventListener("click", (e) => {
     if (!item) return;
     selectedCoffin = item;
     document.getElementById("confirm-coffin-name").textContent = item.item_name;
-    document.getElementById("confirm-coffin-price").textContent = "₱ " + Number(item.retail_price).toLocaleString();
+    document.getElementById("confirm-coffin-price").textContent = "₱ " + Number(item.selling_price).toLocaleString();
     document.getElementById("confirm-coffin-image").src = item.image;
-    document.getElementById("retailSelling").value = "₱ " + Number(item.retail_price).toLocaleString();
+    document.getElementById("retailSelling").value = "₱ " + Number(item.selling_price).toLocaleString();
     document.getElementById("partialPayment").value = "₱ " + Number(item.downpayment).toLocaleString();
     const termSelect = document.getElementById("atNeedTerm");
     termSelect.innerHTML = "";
@@ -8301,7 +9643,7 @@ document.addEventListener("click", (e) => {
             </option>
         `;
     }
-    const retailPrice = parseFloat(item.retail_price) || 0;
+    const retailPrice = parseFloat(item.selling_price) || 0;
     const downpayment = parseFloat(item.downpayment) || 0;
     if (months > 0) {
         const balance = retailPrice - downpayment;
@@ -8351,7 +9693,12 @@ agreeCheckbox.addEventListener("change", () => {
 });
 document.getElementById("submitRequirements").addEventListener("click", async () => {
     if (!selectedCoffin) {
-        alert("No coffin selected.");
+        Swal.fire({
+            title: "No coffin Selected",
+            text: "Please select coffin first.",
+            icon: "warning",
+            confirmButtonText: "OK"
+        });
         return;
     }
     const beneficiaryLastName = document.getElementById("beneficiary-last-name").value.trim();
@@ -8468,6 +9815,13 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     formData.append("floral", document.getElementById("floral").value);
     formData.append("onsite_floral_setup", document.getElementById("onsite-floral-setup").value);
     formData.append("chapel", document.getElementById("chapel").value);
+    const paymentOption = document.getElementById("atneed-payment-option").value;
+    formData.append("payment_option", paymentOption);
+    if (paymentOption === "Installment") {
+        formData.append("payment_term", document.getElementById("atNeedTerm").value);
+    } else {
+        formData.append("payment_term", "-");
+    }
     formData.append("gov_id_number", beneficiaryGovIdNumber);
     formData.append("signature", signatureFile);
     formData.append("signature_date", document.getElementById("signature-date").value);
@@ -8517,6 +9871,7 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             document.getElementById("floral").value = "";
             document.getElementById("onsite-floral-setup").value = "";
             document.getElementById("chapel").value = "";
+            document.getElementById("atneed-payment-option").value = "";
             document.getElementById("gov-id-number").value = "";
             document.getElementById("applicant-signature").value = "";
             document.getElementById("relationship").value = "";
@@ -8525,6 +9880,9 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             selectedCoffin = null;
             document.querySelector(".products-onsite-container").style.display = "none";
             document.querySelector(".orders-approve-container").style.display="block";
+
+            loadApproveOrders();
+            loadApproveLifeplanOrders();
         });
     } catch (error) {
         console.error("Submit error:", error);
@@ -8620,7 +9978,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <div class="product-pricing">
                                 <div class="price-item">
                                     <span class="label">Selling Price</span>
-                                    <h3>₱ ${Number(coffin.retail_price).toLocaleString()}</h3>
+                                    <h3>₱ ${Number(coffin.selling_price).toLocaleString()}</h3>
                                 </div>
                             </div>
                         </div>
@@ -8661,9 +10019,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!item) return;
         lpSelectedCoffin = item;
         document.getElementById("lp-confirm-coffin-name").textContent = item.item_name;
-        document.getElementById("lp-confirm-coffin-price").textContent = "₱ " + Number(item.retail_price).toLocaleString();
+        document.getElementById("lp-confirm-coffin-price").textContent = "₱ " + Number(item.selling_price).toLocaleString();
         document.getElementById("lp-confirm-coffin-image").src = item.image;
-        document.getElementById("lp-retailSelling").value = "₱ " + Number(item.retail_price).toLocaleString();
+        document.getElementById("lp-retailSelling").value = "₱ " + Number(item.selling_price).toLocaleString();
         // Duration (months)
         const months = parseInt(item.lifeplan_max_months) || 0;
         document.getElementById("lp-preNeedTerm").innerHTML = `
@@ -8672,7 +10030,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </option>
         `;
         // Compute balance
-        const retailPrice = parseFloat(item.retail_price) || 0;
+        const retailPrice = parseFloat(item.selling_price) || 0;
         const balance = retailPrice;
 
         const monthly = months > 0 ? balance / months : 0;
@@ -8945,11 +10303,11 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("lp_plan_type", lpSelectedCoffin.coffin_type);
         formData.append("lp_payment_option", lppaymentOption);
         formData.append("lp_payment_term", lppaymentTerm.value);
-        formData.append("lp_retail_price", lpSelectedCoffin.retail_price);
+        formData.append("lp_retail_price", lpSelectedCoffin.selling_price);
         formData.append("lp_lifeplan_max_months", lpSelectedCoffin.lifeplan_max_months);
         let paymentAmount = 0;
         if (lppaymentOption === "spot-cash") {
-            paymentAmount = lpSelectedCoffin.retail_price;
+            paymentAmount = lpSelectedCoffin.selling_price;
         } else {
             paymentAmount = lpinstallmentInput.value;
         }
@@ -9012,7 +10370,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("lp-applicant-signature").value = "";
                 document.getElementById("lp-file-signature-name").textContent = "No file selected";
                 document.getElementById("lp-signature-date").value = "";
-
+                loadApproveOrders();
+                loadApproveLifeplanOrders();
                 lpSelectedCoffin = null;
                 document.getElementById("walk-in-products-pre-need").classList.remove("active");
                 setTimeout(() => {
@@ -9117,7 +10476,14 @@ async function loadApproveOrders() {
                 <div class="approve-order-card">
                     <div class="approve-card-details">
                         <div class="card-details-image">
-                            <img src="../assets/img/uploads/profile/${order.profile_img}" alt="">
+                            <img
+                                src="${
+                                    order.profile_img && order.profile_img !== "profile.png"
+                                        ? `../assets/img/uploads/profile/${order.profile_img}`
+                                        : "../assets/img/profile.png"
+                                }"
+                                alt="" onerror="this.src='../assets/img/profile.png'"
+                            >
                         </div>
                         <div class="approve-customer-dtls">
                             <div class="approve-header">
@@ -9186,61 +10552,150 @@ async function loadApproveOrders() {
 }
 loadApproveOrders();
 async function loadApprovedOrderDetails(serviceRequestNo) {
-    const response = await fetch(
-        `../backend/orders/get_approved_order_details.php?service_request_no=${encodeURIComponent(serviceRequestNo)}`
-    );
-    const result = await response.json();
-    if (!result.success) return;
-    const order = result.data;
-    document.getElementById("customerName").value = order.name;
-    document.getElementById("customerContact").value = order.phone_no;
-    document.getElementById("customerEmail").value = order.email;
-    document.getElementById("customerAddress").value = order.selected_address ?? "No Address";
-    document.getElementById("serviceRequestNo").value = order.service_request_no;
-    document.getElementById("packageName").value = order.item_name;
-    document.getElementById("purchaseType").value = order.purchase_type;
-    document.getElementById("serviceType").value = order.service_type === "burial" ? "Burial Service"
-                                                : order.service_type === "complete" ? "Complete Funeral Service"
-                                                : order.service_type === "memorial" ? "Memoral Service"
-                                                : order.service_type === "viewing" ? "Viewing and Wake Service"
-                                                : order.service_type;
-    document.getElementById("relationshipApprove").value = order.relationship;
-    document.getElementById("transportationApprove").value = order.transportation;
-    document.getElementById("floralApprove").value = order.floral;
-    document.getElementById("floralSetup").value = order.floral_setup;
-    document.getElementById("chapelApprove").value = order.chapel;
-    document.getElementById("orderStatus").value = order.status;
-    document.getElementById("createdAt").value = order.created_at;
-    totalAmountInput.value = `₱${Number(order.total_payable).toFixed(2)}`;
-    downpaymentInput.value = `₱${Number(order.downpayment).toFixed(2)}`;
-    partialPaymentInput.value = `₱${Number(order.partial_payment).toFixed(2)}`;
-    remainingBalanceInput.value = `₱${Number(order.remaining_balance).toFixed(2)}`;
+    console.log("Service Request No:", serviceRequestNo);
 
-    document.getElementById("beneficiaryName").value =
-        `${order.beneficiary_firstname} ${order.beneficiary_middlename} ${order.beneficiary_lastname}`.replace(/\s+/g, " ").trim();
+    if (!serviceRequestNo) {
+        console.error("No service request number was provided.");
+        return;
+    }
 
-    document.getElementById("customerRelationship").value = order.relationship;
-    document.getElementById("beneficiaryCondition").value = order.condition;
-    document.getElementById("beneficiaryLocation").value = order.location;
-    document.getElementById("beneficiaryDateNeed").value = order.date_need;
-    document.getElementById("beneficiaryIntermentDate").value = order.interment_date;
-    originalApprovedOrder = {
-        total_payable: parseFloat(order.total_payable) || 0,
-        remaining_balance: parseFloat(order.remaining_balance) || 0,
-        partial_payment: parseFloat(order.partial_payment) || 0,
+    try {
+        const url = `../backend/orders/get_approved_order_details.php?service_request_no=${encodeURIComponent(serviceRequestNo)}`;
 
-        condition: (order.condition || "").trim(),
-        location: (order.location || "").trim(),
-        date_need: order.date_need || "",
-        interment_date: order.interment_date || ""
-    };
-    const remaining = parseFloat(order.remaining_balance) || 0;
-    if (remaining <= 0) {
-        partialPaymentInput.disabled = true;
-        document.querySelector(".update-service-btn").disabled = true;
-    } else {
-        partialPaymentInput.disabled = false;
-        document.querySelector(".update-service-btn").disabled = false;
+        console.log("Fetching:", url);
+
+        const response = await fetch(url);
+
+        console.log("HTTP Status:", response.status);
+        console.log("Response OK:", response.ok);
+
+        const text = await response.text();
+
+        console.log("Raw PHP Response:", text);
+
+        let result;
+
+        try {
+            result = JSON.parse(text);
+        } catch (jsonError) {
+            console.error("PHP did not return valid JSON:", jsonError);
+            return;
+        }
+
+        console.log("Parsed Result:", result);
+
+        if (!result.success) {
+            console.error("Backend error:", result.message);
+            return;
+        }
+
+        const order = result.data;
+
+        console.log("Order Data:", order);
+
+        document.getElementById("customerName").value =
+            order.customer_name ?? "";
+
+        document.getElementById("customerContact").value =
+            order.phone_no ?? "";
+
+        document.getElementById("customerEmail").value =
+            order.email ?? "";
+
+        document.getElementById("customerAddress").value =
+            order.selected_address ?? "No Address";
+
+        document.getElementById("serviceRequestNo").value =
+            order.service_request_no ?? "";
+
+        document.getElementById("packageName").value =
+            order.item_name ?? "";
+
+        document.getElementById("purchaseType").value =
+            order.purchase_type ?? "";
+
+        document.getElementById("serviceType").value =
+            order.service_type === "burial"
+                ? "Burial Service"
+                : order.service_type === "complete"
+                ? "Complete Funeral Service"
+                : order.service_type === "memorial"
+                ? "Memorial Service"
+                : order.service_type === "viewing"
+                ? "Viewing and Wake Service"
+                : order.service_type ?? "";
+
+        document.getElementById("relationshipApprove").value =
+            order.relationship ?? "";
+
+        document.getElementById("transportationApprove").value =
+            order.transportation ?? "";
+
+        document.getElementById("floralApprove").value =
+            order.floral ?? "";
+
+        document.getElementById("floralSetup").value =
+            order.floral_setup ?? "";
+
+        document.getElementById("chapelApprove").value =
+            order.chapel ?? "";
+
+        document.getElementById("orderStatus").value =
+            order.status ?? "";
+
+        document.getElementById("createdAt").value =
+            order.created_at ?? "";
+
+        document.getElementById("totalAmount").value =
+            `₱${Number(order.total_payable || 0).toFixed(2)}`;
+
+        document.getElementById("downpayment").value =
+            `₱${Number(order.downpayment || 0).toFixed(2)}`;
+
+        document.getElementById("partialPaymentApprove").value =
+            `₱${Number(order.partial_payment || 0).toFixed(2)}`;
+
+        document.getElementById("remainingBalance").value =
+            `₱${Number(order.remaining_balance || 0).toFixed(2)}`;
+
+        const beneficiaryName = [
+            order.beneficiary_firstname,
+            order.beneficiary_middlename,
+            order.beneficiary_lastname
+        ]
+            .filter(Boolean)
+            .join(" ");
+
+        document.getElementById("beneficiaryName").value = beneficiaryName;
+        document.getElementById("customerRelationship").value = order.relationship ?? "";
+        document.getElementById("beneficiaryCondition").value = order.condition ?? "";
+        document.getElementById("beneficiaryLocation").value = order.location ?? "";
+        document.getElementById("beneficiaryDateNeed").value = order.date_need ?? "";
+        document.getElementById("beneficiaryIntermentDate").value = order.interment_date ?? "";
+
+        originalApprovedOrder = {
+            total_payable: parseFloat(order.total_payable) || 0,
+            remaining_balance: parseFloat(order.remaining_balance) || 0,
+            partial_payment: parseFloat(order.partial_payment) || 0,
+
+            condition: (order.condition || "").trim(),
+            location: (order.location || "").trim(),
+            date_need: order.date_need || "",
+            interment_date: order.interment_date || ""
+        };
+        const remaining = parseFloat(order.remaining_balance) || 0;
+        const partialInput = document.getElementById("partialPaymentApprove");
+        const updateButton = document.querySelector(".update-service-btn");
+        if (remaining <= 0) {
+            partialInput.disabled = true;
+            updateButton.disabled = true;
+        } else {
+            partialInput.disabled = false;
+            updateButton.disabled = false;
+        }
+
+    } catch (error) {
+        console.error("loadApprovedOrderDetails() failed:", error);
     }
 }
 document.querySelector(".cancel-service-btn").addEventListener("click", async () => {
@@ -9405,9 +10860,11 @@ async function loadApproveLifeplanOrders() {
             const approveCard = `
                 <div class="approve-order-card">
                     <div class="approve-card-details">
-                        <div class="card-details-image">
-                            <img src="../assets/img/uploads/profile/${order.profile_img}" alt="">
-                        </div>
+                        <img
+                            src="../assets/img/uploads/profile/${order.profile_img}"
+                            alt=""
+                            onerror="this.src='../assets/img/profile.png'"
+                        >
                         <div class="approve-customer-dtls">
                             <div class="approve-header">
                                 <h3>${order.name}</h3>
@@ -9496,8 +10953,6 @@ async function loadApprovedLifeplanDetails(lifeplanNo) {
 
     document.getElementById("preneed-customerRelationship").value = order.relationship;
     document.getElementById("preneedPlanholderAddress").value = order.residential_address;
-
-    // Save original values ONLY
     originalApprovedLifeplan = {
         total_payable: parseFloat(cleanAmount(preneedTotalAmount.value)) || 0,
         partial_payment: parseFloat(cleanAmount(preneedPartialPayment.value)) || 0,
@@ -9513,7 +10968,6 @@ async function loadApprovedLifeplanDetails(lifeplanNo) {
     }
 }
 
-// preneed cancel package
 document.querySelector(".preneed-cancel-service-btn").addEventListener("click", async () => {
     if (!selectedLifeplanNo) {
         Swal.fire({
@@ -9882,6 +11336,7 @@ document.querySelector(".confirm-arrangement-btn").addEventListener("click", asy
         arrangementModal.classList.remove("active");
         if (selectedArrangementType === "atneed") {
             loadApproveOrders();
+            loadSchedules();
         } else {
             loadApproveLifeplanOrders();
         }
@@ -9934,30 +11389,43 @@ function updateBorrowSummary(){
 }
 // pending 
 document.addEventListener("DOMContentLoaded", () => {
+
     const atNeedBtn = document.getElementById("payment-at-need-btn");
     const preNeedBtn = document.getElementById("payment-pre-need-btn");
+
     const atNeedContainer = document.getElementById("payment-atneed-container");
     const preNeedContainer = document.getElementById("payment-preneed-container");
+
     const atNeedList = document.getElementById("payment-atneed-list");
     const preNeedList = document.getElementById("payment-preneed-list");
+
     const paymentModal = document.getElementById("paymentPendingModal");
     const closeModalBtn = document.getElementById("closePaymentModal");
+
     loadPayments("atneed");
     loadPayments("preneed");
-    atNeedBtn.addEventListener("click", function(e){
+
+    atNeedBtn.addEventListener("click", function (e) {
+
         e.preventDefault();
+
         atNeedBtn.classList.add("active");
         preNeedBtn.classList.remove("active");
+
         atNeedContainer.classList.add("active");
         preNeedContainer.classList.remove("active");
     });
-    preNeedBtn.addEventListener("click", function(e){
+    preNeedBtn.addEventListener("click", function (e) {
+
         e.preventDefault();
+
         preNeedBtn.classList.add("active");
         atNeedBtn.classList.remove("active");
+
         preNeedContainer.classList.add("active");
         atNeedContainer.classList.remove("active");
     });
+
     closeModalBtn.addEventListener("click", () => {
         paymentModal.classList.remove("active");
     });
@@ -9965,17 +11433,25 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target === paymentModal) {
             paymentModal.classList.remove("active");
         }
-    });
-    async function loadPayments(type){
-        const container = type === "atneed"
-            ? atNeedList
-            : preNeedList;
 
-        try{
+    });
+    async function loadPayments(type) {
+        const container = type === "atneed" ? atNeedList : preNeedList;
+        try {
             const response = await fetch(`../backend/payment/get_payments.php?type=${type}`);
             const result = await response.json();
             container.innerHTML = "";
-            if(!result.success || result.data.length === 0){
+            if (!result.success) {
+                container.innerHTML = `
+                    <div class="no-payment-found">
+                        <i class="fa-solid fa-wallet"></i>
+                        <h3>Unable to Load Payments</h3>
+                        <p>${result.message || "Something went wrong."}</p>
+                    </div>
+                `;
+                return;
+            }
+            if (!result.data || result.data.length === 0) {
                 container.innerHTML = `
                     <div class="no-payment-found">
                         <i class="fa-solid fa-wallet"></i>
@@ -9986,76 +11462,107 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
             result.data.forEach(payment => {
-                const customerName = type === "atneed"
-                    ? `${payment.beneficiary_firstname} ${payment.beneficiary_middlename ?? ""} ${payment.beneficiary_lastname}`
-                    : `${payment.planholder_firstname} ${payment.planholder_middlename ?? ""} ${payment.planholder_lastname}`;
-                const requestNo = type === "atneed"
-                    ? payment.service_request_no
-                    : payment.lifeplan_no;
+                console.log("Payment record:", payment);
+                let customerName = "-";
+                let requestNo = "-";
+                if (type === "atneed") {
+                    customerName =
+                        `${payment.beneficiary_firstname ?? ""}
+                         ${payment.beneficiary_middlename ?? ""}
+                         ${payment.beneficiary_lastname ?? ""}`
+                        .replace(/\s+/g, " ")
+                        .trim();
+                    requestNo = payment.service_request_no || "-";
+                }
+                else {
+                    customerName =
+                        `${payment.planholder_firstname ?? ""}
+                         ${payment.planholder_middlename ?? ""}
+                         ${payment.planholder_lastname ?? ""}`
+                        .replace(/\s+/g, " ")
+                        .trim();
+                    requestNo = payment.lifeplan_no || "-";
+                }
                 const card = document.createElement("div");
                 card.className = "payment-card";
                 card.innerHTML = `
                     <div class="payment-card-img">
-                        <img src="../assets/img/profile.png">
+                        <img src="../assets/img/profile.png" alt="Profile">
                     </div>
                     <div class="payment-card-details">
-                        <h4>${customerName.replace(/\s+/g," ").trim()}</h4>
+                        <h4>
+                            ${customerName || "-"}
+                        </h4>
                         <div class="payment-info">
-                            <span class="label">${type === "atneed" ? "SRN" : "LPN"}</span>
-                            <span class="value">${requestNo}</span>
+                            <span class="label">
+                                ${type === "atneed" ? "SRN" : "LPN"}
+                            </span>
+                            <span class="value">
+                                ${requestNo}
+                            </span>
                         </div>
                         <div class="payment-info">
-                            <span class="label">Reference No.</span>
-                            <span class="value">${payment.reference_number}</span>
+                            <span class="label">
+                                Reference No.
+                            </span>
+                            <span class="value">
+                                ${payment.reference_number || "-"}
+                            </span>
                         </div>
                     </div>
                 `;
-                card.onclick = () => openPaymentModal(payment, type);
+                card.addEventListener("click", () => {
+                    openPaymentModal(payment, type);
+                });
                 container.appendChild(card);
             });
-        }catch(error){
-            console.error(error);
+        } catch (error) {
+            container.innerHTML = `
+                <div class="no-payment-found">
+                    <i class="fa-solid fa-wallet"></i>
+                    <h3>Error Loading Payments</h3>
+                    <p>Please try again.</p>
+                </div>
+            `;
         }
     }
 });
-function openPaymentModal(payment, type) {
 
-    // Set payment proof image
+function openPaymentModal(payment, type) {
     const proofImage = document.getElementById("paymentProofImage");
     const noImage = document.getElementById("paymentNoImage");
-
     if (
         payment.file_path &&
         payment.file_path !== "-" &&
         payment.file_path.trim() !== ""
     ) {
-        proofImage.src = `../backend/uploads/receipts/${payment.file_path}`;
+        proofImage.src = `../backend/${payment.file_path}`;
         proofImage.style.display = "block";
         noImage.style.display = "none";
+
     } else {
         proofImage.style.display = "none";
         noImage.style.display = "block";
-    }
 
-    document.getElementById("paymentCustomer").textContent =
-        type === "atneed"
-            ? `${payment.beneficiary_firstname} ${payment.beneficiary_middlename ?? ""} ${payment.beneficiary_lastname}`.replace(/\s+/g, " ").trim()
-            : `${payment.planholder_firstname} ${payment.planholder_middlename ?? ""} ${payment.planholder_lastname}`.replace(/\s+/g, " ").trim();
-    document.getElementById("paymentRequestNo").textContent = type === "atneed" ? payment.service_request_no : payment.lifeplan_no;
+    }
+    document.getElementById("paymentCustomer").textContent = payment.performed_by || "-";
+    let requestNo = "-";
+    if (type === "atneed") {
+        requestNo = payment.service_request_no || "-";
+
+    } else {
+        requestNo = payment.lifeplan_no || "-";
+
+    }
+    document.getElementById("paymentRequestNo").textContent = requestNo;
     document.getElementById("paymentReference").textContent = payment.reference_number || "-";
-    document.getElementById("paymentAmount").textContent =
-        `₱${Number(payment.amount).toLocaleString(undefined, {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        })}`;
+    document.getElementById("paymentAmount").textContent = `₱${Number(payment.amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     document.getElementById("paymentOrigin").textContent = payment.origin ? (payment.origin === "On Site" ? "Cash" : "Online") : "-";
     document.getElementById("paymentPerformedBy").textContent = payment.performed_by || "-";
     document.getElementById("paymentStatus").textContent = payment.status || "-";
     document.getElementById("paymentDate").textContent = payment.created_at || "-";
-
     const modal = document.getElementById("paymentPendingModal");
     modal.classList.add("active");
-
 }
 // access key
 document.addEventListener("DOMContentLoaded", () => {
@@ -10141,7 +11648,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
-// schedule 
+// schedule management
 const schedulePendingBtn = document.getElementById("pendingScheduleBtn");
 const scheduleCompletedBtn = document.getElementById("completedScheduleBtn");
 const schedulePendingContainer = document.getElementById("pendingScheduleContainer");
@@ -10193,18 +11700,18 @@ async function loadSchedules() {
             modalSchedule.classList.remove("hidden");
             modalSchedule.classList.add("active");
             modalScheduleNo.textContent = schedule.arrangement_no;
-            modalCustomer.textContent = schedule.performed_by;
+            modalCustomer.textContent = schedule.customer_name;
             modalDeceased.textContent = schedule.deceased_name;
-            modalService.textContent = schedule.service_type;
+            modalService.textContent = schedule.purchase_type;
             modalDate.textContent = schedule.arrangement_date;
             modalTime.textContent = new Date().toLocaleTimeString("en-US", {hour: "numeric",minute: "2-digit",hour12: true});
-            modalLocation.textContent = schedule.location;
+            modalLocation.textContent =  schedule.location ?? "-";
         };
         row.innerHTML = `
             <td>${schedule.arrangement_no}</td>
-            <td>${schedule.performed_by}</td>
+            <td>${schedule.customer_name}</td>
             <td>${schedule.deceased_name}</td>
-            <td>${schedule.service_type}</td>
+            <td>${schedule.purchase_type}</td>
             <td>${schedule.arrangement_date}</td>
             <td>${new Date().toLocaleDateString()}</td>
             <td>
@@ -10297,6 +11804,62 @@ new Chart(ctx, {
     }
 });
 // data management
+const dataTabs = document.querySelectorAll(".data-tab");
+const dataSections = document.querySelectorAll(".data-section");
+const dataSearchInput = document.getElementById("dataSearchInput");
+dataTabs.forEach(tab => {
+    tab.addEventListener("click", function () {
+        dataTabs.forEach(item => {
+            item.classList.remove("active");
+        });
+        this.classList.add("active");
+        const target = this.dataset.target;
+        dataSections.forEach(section => {
+            section.classList.remove("active");
+        });
+        const selectedSection = document.querySelector(`.data-section[data-section="${target}"]`);
+        if (selectedSection) {
+            selectedSection.classList.add("active");
+        }
+        dataSearchInput.value = "";
+        clearTableSearch();
+    });
+
+});
+dataSearchInput.addEventListener("input", function () {
+    const searchValue = this.value.trim().toLowerCase();
+    const activeSection = document.querySelector(".data-section.active");
+    if (!activeSection) {
+        return;
+    }
+    const tbody = activeSection.querySelector("tbody");
+    if (!tbody) {
+        return;
+    }
+    const rows = tbody.querySelectorAll("tr");
+    rows.forEach(row => {
+        const rowText = row.textContent.toLowerCase();
+        if (rowText.includes(searchValue)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+});
+function clearTableSearch() {
+    const activeSection = document.querySelector(".data-section.active");
+    if (!activeSection) {
+        return;
+    }
+    const tbody = activeSection.querySelector("tbody");
+    if (!tbody) {
+        return;
+    }
+    const rows = tbody.querySelectorAll("tr");
+    rows.forEach(row => {
+        row.style.display = "";
+    });
+}
 document.addEventListener("DOMContentLoaded", () => {
     const tabs = document.querySelectorAll(".data-tab");
     const sections = document.querySelectorAll(".data-section");
@@ -10311,14 +11874,15 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
-// products records
 async function loadProductsRecords() {
     try {
-        const response = await fetch("../backend/data_management/get_products_records.php");
+        const response = await fetch(
+            "../backend/data_management/get_products_records.php"
+        );
         const result = await response.json();
         const tbody = document.getElementById("productsRecordsBody");
         tbody.innerHTML = "";
-        if (!result.success || result.data.length === 0) {
+        if (!result.success || !result.data || result.data.length === 0) {
             tbody.innerHTML = `
                 <tr>
                     <td colspan="8" class="text-center">
@@ -10335,27 +11899,1030 @@ async function loadProductsRecords() {
                     <td>${product.item_name}</td>
                     <td>${product.type}</td>
                     <td>${product.description}</td>
-                    <td>₱${Number(product.retail_price).toLocaleString()}</td>
+                    <td>
+                        ₱${Number(product.retail_price).toLocaleString()}
+                    </td>
                     <td>${product.stock}</td>
                     <td>${product.origin}</td>
                     <td>
-                        <button class="view-btn" data-id="${product.product_id}">
-                            View
-                        </button>
-                        <button class="edit-btn" data-id="${product.product_id}">
-                            Edit
-                        </button>
+                        <div class="action-buttons">
+
+                            <button
+                                type="button"
+                                class="view-btn"
+                                id="products-view-button"
+                                data-id="${product.product_id}">
+                                <i class="bi bi-eye"></i> 
+                                <span>View</span>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="edit-btn"
+                                id="products-edit-button"
+                                data-id="${product.product_id}">
+                                Edit
+                            </button>
+
+                            <button
+                                type="button"
+                                class="delete-btn"
+                                id="products-delete-button"
+                                data-id="${product.product_id}"
+                                data-origin="${product.origin}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+
+                        </div>
                     </td>
                 </tr>
             `;
         });
-
     } catch (error) {
         console.error("Error loading products:", error);
     }
 }
 document.addEventListener("DOMContentLoaded", () => {
     loadProductsRecords();
+});
+document.addEventListener("click", async (e) => {
+    const btn = e.target.closest("#products-view-button");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    try {
+        const response = await fetch(
+            `../backend/data_management/get_product_view.php?id=${id}`
+        );
+        const result = await response.json();
+        if (!result.success) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: result.message
+            });
+            return;
+        }
+        const p = result.data;
+        document.getElementById("viewProductName").textContent = p.item_name || "-";
+        document.getElementById("viewProductSize").textContent = p.size || "-";
+        document.getElementById("viewProductOrigin").textContent = p.origin || "-";
+        document.getElementById("viewProductTax").textContent = p.tax_type || "-";
+        document.getElementById("viewProductCost").textContent = "₱" + Number(p.cost_price || 0).toLocaleString();
+        document.getElementById("viewProductRetail").textContent = "₱" + Number(p.retail_price || 0).toLocaleString();
+        document.getElementById("viewProductStatus").textContent = p.status || "-";
+        document.getElementById("viewProductColor").textContent = p.color || "-";
+        document.getElementById("viewProductDescription").textContent = p.details || "-";
+        document.getElementById("viewProductUpdated").textContent = p.updated_at || "-";
+
+        const viewImage = document.getElementById("viewProductImage");
+        if (p.image) {
+            viewImage.src = `../backend/${p.image}`;
+        } else {
+            viewImage.src = "../assets/img/no-image.jpg";
+        }
+        document.getElementById("viewProductModal").style.display = "flex";
+    } catch (error) {
+        console.error("View product error:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Something Went Wrong",
+            text: "Unable to load product information."
+        });
+    }
+});
+const viewProductModal = document.getElementById("viewProductModal");
+function closeViewProductModal() {
+    viewProductModal.style.display = "none";
+}
+document.getElementById("closeViewProduct").addEventListener("click", closeViewProductModal);
+document.getElementById("closeViewProduct2").addEventListener("click", closeViewProductModal);
+viewProductModal.addEventListener("click", (e) => {
+    if (e.target === viewProductModal) {
+        closeViewProductModal();
+    }
+});
+document.addEventListener("keydown", (e) => {
+    if (
+        e.key === "Escape" &&
+        viewProductModal.style.display === "flex"
+    ) {
+        closeViewProductModal();
+    }
+});
+document.addEventListener("click", async (e) => {
+    const btn = e.target.closest("#products-edit-button");
+    if (!btn) return;
+    const id = btn.dataset.id;
+    try {
+        const response = await fetch(
+            `../backend/data_management/get_product_view.php?id=${id}`
+        );
+        const result = await response.json();
+        console.log("Product data:", result);
+        if (!result.success) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: result.message
+            });
+            return;
+        }
+        const p = result.data;
+        document.getElementById("editProductId").value = p.id || "";
+        document.getElementById("editProductName").value = p.item_name || "";
+        document.getElementById("editProductType").value = p.coffin_type || "";
+        document.getElementById("editProductSize").value = p.size || "";
+        document.getElementById("editProductColor").value = p.color || "";
+        const origin = (p.origin || "").toLowerCase();
+        document.getElementById("editProductOrigin").value = origin;
+        document.getElementById("editProductOriginHidden").value = origin;
+        document.getElementById("editProductTax").value = (p.tax_type || "").toLowerCase();
+        document.getElementById("editProductCost").value = p.cost_price ?? 0;
+        document.getElementById("editProductRetail").value = p.retail_price ?? 0;
+        document.getElementById("editProductStock").value = p.stock ?? 0;
+        document.getElementById("editProductStatus").value = p.status || "Available";
+        document.getElementById("editProductDescription").value = p.details || "";
+        const preview = document.getElementById("editProductPreview");
+        if (p.image) {
+            preview.src = `../backend/${p.image}`;
+        } else {
+            preview.src = "../assets/img/no-image.jpg";
+        }
+        document.getElementById("editProductImage").value = "";
+        document.getElementById("editProductModal").style.display = "flex";
+    } catch (error) {
+        console.error("Load product for editing error:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Something Went Wrong",
+            text: "Failed to load product."
+        });
+    }
+});
+document.getElementById("editProductImage").addEventListener("change", function () {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            document.getElementById("editProductPreview").src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+document.getElementById("editProductForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const id = document.getElementById("editProductId").value.trim();
+        const name = document.getElementById("editProductName").value.trim();
+        const type = document.getElementById("editProductType").value.trim();
+        const size = document.getElementById("editProductSize").value.trim();
+        const color = document.getElementById("editProductColor").value.trim();
+        const origin = document.getElementById("editProductOrigin").value.trim();
+        const taxType = document.getElementById("editProductTax").value.trim();
+        const costPrice = document.getElementById("editProductCost").value;
+        const retailPrice = document.getElementById("editProductRetail").value;
+        const stock = document.getElementById("editProductStock").value;
+        const status = document.getElementById("editProductStatus").value;
+        const details = document.getElementById("editProductDescription").value.trim();
+        const imageInput = document.getElementById("editProductImage");
+        if (!id) {
+            Swal.fire({
+                icon: "error",
+                title: "Invalid Product",
+                text: "Product ID is missing."
+            });
+            return;
+        }
+        if (!name) {
+            Swal.fire({
+                icon: "warning",
+                title: "Product Name Required",
+                text: "Please enter a product name."
+            });
+            return;
+        }
+        if (!type) {
+            Swal.fire({
+                icon: "warning",
+                title: "Coffin Type Required",
+                text: "Please enter the coffin type."
+            });
+            return;
+        }
+        if (!size) {
+            Swal.fire({
+                icon: "warning",
+                title: "Size Required",
+                text: "Please enter the coffin size."
+            });
+            return;
+        }
+        if (!origin) {
+            Swal.fire({
+                icon: "warning",
+                title: "Origin Required",
+                text: "Product origin is missing."
+            });
+            return;
+        }
+        const formData = new FormData();
+        formData.append("product_id", id);
+        formData.append("item_name", name);
+        formData.append("coffin_type", type);
+        formData.append("size", size);
+        formData.append("color", color);
+        formData.append("origin", origin);
+        formData.append("tax_type", taxType);
+        formData.append("cost_price", costPrice);
+        formData.append("retail_price", retailPrice);
+        formData.append("stock", stock);
+        formData.append("status", status);
+        formData.append("details", details);
+        if (imageInput.files.length > 0) {
+            formData.append(
+                "image",
+                imageInput.files[0]
+            );
+        }
+        console.log("Sending update:");
+        for (const [key, value] of formData.entries()) {
+            console.log(key,value instanceof File? value.name: value
+            );
+        }
+        try {
+            const response = await fetch(
+                "../backend/materials/update_products.php",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+            const text = await response.text();
+            console.log("Raw PHP response:", text);
+            let result;
+            try {
+                result = JSON.parse(text);
+            } catch (jsonError) {
+                console.error(
+                    "Invalid JSON from PHP:",
+                    jsonError
+                );
+                console.error(
+                    "PHP response:",
+                    text
+                );
+                Swal.fire({
+                    icon: "error",
+                    title: "Server Error",
+                    html: `
+                        <p>The server returned an invalid response.</p>
+                        <pre style="text-align:left; white-space:pre-wrap;">${text}</pre>
+                    `
+                });
+                return;
+            }
+            console.log("Update response:", result);
+            if (result.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Updated!",
+                    text: result.message,
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    document.getElementById("editProductModal").style.display = "none";
+                    loadProductsRecords();
+                });
+                return;
+            }
+            Swal.fire({
+                icon: "error",
+                title: "Update Failed",
+                text: result.error
+                    ? `${result.message}\n${result.error}`
+                    : result.message
+            });
+        } catch (error) {
+            console.error(
+                "Update product error:",
+                error
+            );
+            Swal.fire({
+                icon: "error",
+                title: "Something Went Wrong",
+                text: "Unable to connect to the server."
+            });
+        }
+    });
+function closeEditProductModal() {
+    document.getElementById("editProductModal").style.display = "none";
+}
+document.getElementById("closeEditProduct").addEventListener("click",closeEditProductModal);
+document.getElementById("closeEditProduct2").addEventListener("click",closeEditProductModal);
+document.getElementById("editProductModal").addEventListener("click", function (e) {
+    if (e.target === this) {
+        closeEditProductModal();
+    }
+});
+document.addEventListener("keydown", function (e) {
+    if (
+        e.key === "Escape" &&
+        document.getElementById("editProductModal").style.display === "flex"
+    ) {
+        closeEditProductModal();
+    }
+});
+// delete products
+document.addEventListener("click", function (e) {
+    const deleteButton = e.target.closest("#products-delete-button");
+    if (!deleteButton) {
+        return;
+    }
+    const id = deleteButton.dataset.id;
+    const origin = deleteButton.dataset.origin;
+    const name = deleteButton.dataset.name;
+    Swal.fire({
+        title: "Delete Coffin?",
+        text: `Are you sure you want to delete "${name}"?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Delete",
+        cancelButtonText: "Cancel",
+        reverseButtons: true
+    }).then(async (result) => {
+        if (!result.isConfirmed) {
+            return;
+        }
+        const formData = new FormData();
+        formData.append("product_id", id);
+        formData.append("origin", origin);
+        try {
+            const response = await fetch(
+                "../backend/materials/delete_products.php",
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+            const data = await response.json();
+            console.log("Delete response:", data);
+            if (data.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Deleted!",
+                    text: data.message,
+                    confirmButtonText: "OK"
+                }).then(() => {
+
+                    loadProductsRecords();
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Delete Failed",
+                    text: data.error
+                        ? `${data.message}\n\n${data.error}`
+                        : data.message,
+                    confirmButtonText: "OK"
+                });
+            }
+        } catch (error) {
+            console.error("Delete product error:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Something Went Wrong",
+                text: "Unable to delete the coffin.",
+                confirmButtonText: "OK"
+            });
+        }
+    });
+});
+// materials record
+function loadMaterialRecords() {
+    console.log("loadMaterialRecords called");
+    fetch("../backend/materials/get_materials.php")
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.getElementById("materialsRecordsBody");
+            tbody.innerHTML = "";
+            if (!data.success || data.materials.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align:center;">
+                            No material records found.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            data.materials.forEach(material => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${material.id}</td>
+                        <td>${material.material_name}</td>
+                        <td>${material.material_type}</td>
+                        <td>${material.details ?? "-"}</td>
+                        <td>₱${Number(material.cost).toLocaleString()}</td>
+                        <td>${material.current_stock}</td>
+                        <td>${material.unit}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button
+                                    type="button"
+                                    class="edit-btn materials-edit-button"
+                                    data-id="${material.id}"
+                                    data-category="${material.material_category}"
+                                    data-name="${material.material_name}"
+                                    data-type="${material.material_type}"
+                                    data-unit="${material.unit}"
+                                    data-stock="${material.current_stock}"
+                                    data-cost="${material.cost}"
+                                    data-details="${material.details ?? ""}">
+                                    Edit
+                                </button>
+                                <button
+                                    type="button"
+                                    class="delete-btn materials-delete-button"
+                                    data-id="${material.id}"
+                                    data-category="${material.material_category}"
+                                    data-name="${material.material_name}">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(error => {
+            console.error("Error loading materials:", error);
+
+            document.getElementById("materialsRecordsBody").innerHTML = `
+                <tr>
+                    <td colspan="8" style="text-align:center;color:red;">
+                        Failed to load material records.
+                    </td>
+                </tr>
+            `;
+        });
+}
+document.addEventListener("DOMContentLoaded", () => {
+    loadMaterialRecords();
+});
+// edit modal materials
+document.addEventListener("click", function (e) {
+    const editButton = e.target.closest(".materials-edit-button");
+    if (!editButton) {
+        return;
+    }
+    const id = editButton.dataset.id;
+    const category = editButton.dataset.category;
+    const name = editButton.dataset.name;
+    const type = editButton.dataset.type;
+    const unit = editButton.dataset.unit;
+    const stock = editButton.dataset.stock;
+    const cost = editButton.dataset.cost;
+    const details = editButton.dataset.details;
+    
+    document.getElementById("editMaterialId").value = id;
+    document.getElementById("editMaterialCategory").value = category;
+    document.getElementById("editMaterialCategoryDisplay").value = category;
+    document.getElementById("editMaterialName").value = name;
+    document.getElementById("editMaterialType").value = type;
+    document.getElementById("editMaterialUnit").value = unit === "-" ? "" : unit;
+    document.getElementById("editMaterialStock").value = stock;
+    document.getElementById("editMaterialCost").value = cost;
+    document.getElementById("editMaterialDescription").value = details;
+    document.getElementById("editMaterialModal").classList.add("active");
+});
+const editMaterialModal = document.getElementById("editMaterialModal");
+document.getElementById("closeEditMaterial").addEventListener("click", function () {
+    editMaterialModal.classList.remove("active");
+});
+document.getElementById("closeEditMaterial2").addEventListener("click", function () {
+    editMaterialModal.classList.remove("active");
+});
+editMaterialModal.addEventListener("click", function (e) {
+    if (e.target === editMaterialModal) {
+        editMaterialModal.classList.remove("active");
+    }
+});
+document.getElementById("editMaterialForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch("../backend/materials/update_materials.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: "success",
+                title: "Updated!",
+                text: data.message,
+                confirmButtonText: "OK"
+            }).then(() => {
+                document.getElementById("editMaterialModal").classList.remove("active");
+                loadMaterialRecords();
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Update Failed",
+                text: data.message,
+                confirmButtonText: "OK"
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: "error",
+            title: "Something Went Wrong",
+            text: "Something went wrong while updating the material.",
+            confirmButtonText: "OK"
+        });
+    });
+});
+document.addEventListener("click", function (e) {
+    const deleteButton = e.target.closest(".materials-delete-button");
+    if (!deleteButton) {
+        return;
+    }
+    const id = deleteButton.dataset.id;
+    const category = deleteButton.dataset.category;
+    const name = deleteButton.dataset.name;
+    Swal.fire({
+        title: "Delete Material?",
+        text: `Are you sure you want to delete "${name}"?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Yes, Delete",
+        cancelButtonText: "Cancel",
+        reverseButtons: true
+    }).then((result) => {
+        if (!result.isConfirmed) {
+            return;
+        }
+        const formData = new FormData();
+        formData.append("material_id", id);
+        formData.append("material_category", category);
+        fetch("../backend/materials/delete_materials.php", {
+            method: "POST",
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: "success",
+                    title: "Deleted!",
+                    text: data.message,
+                    confirmButtonText: "OK"
+                }).then(() => {
+                    loadMaterialRecords();
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Delete Failed",
+                    text: data.message,
+                    confirmButtonText: "OK"
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: "error",
+                title: "Something Went Wrong",
+                text: "Unable to delete the material.",
+                confirmButtonText: "OK"
+            });
+
+        });
+
+    });
+
+});
+// deceased table 
+async function loadDeceasedRecords() {
+    const tbody = document.getElementById("deceasedRecordsBody");
+    if (!tbody) {
+        console.error("deceasedRecordsBody not found.");
+        return;
+    }
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="5" style="text-align: center;">
+                Loading deceased records...
+            </td>
+        </tr>
+    `;
+    try {
+        const response = await fetch(
+            "../backend/data_management/get_deceased_records.php"
+        );
+        const text = await response.text();
+        console.log("Raw deceased records response:", text);
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (error) {
+            console.error("Invalid JSON response:", error);
+            console.error("PHP Response:", text);
+
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; color: red;">
+                        Failed to load deceased records.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        if (!result.success) {
+            console.error(result.message);
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center;">
+                        ${result.message || "No deceased records found."}
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        const records = result.data || [];
+        if (records.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center;">
+                        No deceased records found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        tbody.innerHTML = "";
+        records.forEach(record => {
+            const deceasedName = [ record.deceased_firstname, record.deceased_middlename, record.deceased_lastname].filter(name => name && name.trim() !== "").join(" ");
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>
+                    ${escapeHTML(record.id ?? "-")}
+                </td>
+                <td>
+                    ${escapeHTML(deceasedName || "-")}
+                </td>
+                <td>
+                    ${formatDate(record.date_of_death)}
+                </td>
+                <td>
+                    ${escapeHTML(record.age ?? "-")}
+                </td>
+                <td>
+                    <div class="action-buttons">
+                        <button
+                            type="button"
+                            class=" edit-btn edit-deceased-btn"
+                            data-id="${escapeHTML(record.id ?? "")}">
+                            <span>Edit</span>
+                        </button>
+                        <button
+                            type="button"
+                            class="delete-btn delete-deceased-button"
+                            data-id="${escapeHTML(record.id ?? "")}">
+                            <i class="bi bi-trash3"></i>
+                        </button>
+                    </div>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+        console.log(
+            `Loaded ${records.length} deceased record(s).`
+        );
+    } catch (error) {
+        console.error(
+            "loadDeceasedRecords() failed:",
+            error
+        );
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style="text-align: center; color: red;">
+                    Unable to load deceased records.
+                </td>
+            </tr>
+        `;
+    }
+}
+function formatDate(dateValue) {
+    if (!dateValue) {
+        return "-";
+    }
+    const date = new Date(dateValue);
+    if (isNaN(date.getTime())) {
+        return escapeHTML(dateValue);
+    }
+    return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
+}
+function escapeHTML(value) {
+    if (value === null || value === undefined) {
+        return "";
+    }
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+document.addEventListener("click", function (event) {
+    const button = event.target.closest(".view-deceased-btn");
+    if (!button) {
+        return;
+    }
+    const deceasedId = button.dataset.id;
+    console.log(
+        "Selected deceased ID:",
+        deceasedId
+    );
+    loadDeceasedDetails(deceasedId);
+});
+document.addEventListener("DOMContentLoaded", function () {
+    loadDeceasedRecords();
+});
+document.addEventListener("click", async function (event) {
+    const button = event.target.closest(".edit-deceased-btn");
+    if (!button) {
+        return;
+    }
+    const deceasedId = button.dataset.id;
+    if (!deceasedId) {
+        console.error(
+            "No deceased record ID found."
+        );
+        return;
+    }
+    const modal = document.getElementById("editDeceasedModal");
+    if (!modal) {
+        console.error(
+            "editDeceasedModal not found."
+        );
+        return;
+    }
+    modal.classList.add("active");
+    const form = document.getElementById("editDeceasedForm");
+    if (form) {
+        form.reset();
+    }
+    try {
+        const url = "../backend/deceased/get_deceased_records.php?id=" + encodeURIComponent(deceasedId);
+        console.log("Fetching:",url);
+        const response = await fetch(url);
+        const text = await response.text();
+        console.log( "Get deceased response:", text );
+        if (!response.ok) {
+            console.error( "HTTP Error:", response.status );
+            alert( "Unable to load deceased record. HTTP " + response.status );
+            modal.classList.remove("active");
+            return;
+        }
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (error) {
+            console.error("Invalid JSON response:",text);
+            alert(
+                "Server returned an invalid response."
+            );
+            modal.classList.remove("active");
+            return;
+        }
+        if (!result.success) {
+            console.error(result.message);
+            alert(result.message || "Unable to load deceased information.");
+            modal.classList.remove("active");
+            return;
+        }
+        const record = result.data;
+        document.getElementById("editDeceasedId").value = deceasedId;
+        document.getElementById("editFirstName").value = record.deceased_firstname ?? "";
+        document.getElementById("editMiddleName").value = record.deceased_middlename ?? "";
+        document.getElementById("editLastName").value = record.deceased_lastname ?? "";
+
+
+        document.getElementById(
+            "editGender"
+        ).value =
+            record.gender ?? "";
+
+
+        document.getElementById(
+            "editBirthDate"
+        ).value =
+            record.birth_date ?? "";
+
+
+        document.getElementById(
+            "editAge"
+        ).value =
+            record.age ?? "";
+        document.getElementById(
+            "editDateOfDeath"
+        ).value =
+            record.date_of_death ?? "";
+        document.getElementById(
+            "editDateNeed"
+        ).value =
+            record.date_need ?? "";
+
+
+        document.getElementById(
+            "editIntermentDate"
+        ).value =
+            record.interment_date ?? "";
+        document.getElementById(
+            "editServicePackage"
+        ).value =
+            record.service_type ?? "";
+        document.getElementById(
+            "editWakeLocation"
+        ).value =
+            record.wake_location ?? "";
+        document.getElementById(
+            "editCemetery"
+        ).value =
+            record.cemetery ?? "";
+        document.getElementById(
+            "editLocation"
+        ).value =
+            record.location ?? "";
+        document.getElementById(
+            "editPerformedBy"
+        ).value =
+            record.performed_by ?? "";
+        const residentialAddress =
+            document.getElementById(
+                "editResidentialAddress"
+            );
+
+        if (residentialAddress) {
+
+            residentialAddress.value =
+                record.residential_address ?? "";
+        }
+        const remarks =
+            document.getElementById(
+                "editRemarks"
+            );
+
+        if (remarks) {
+
+            remarks.value =
+                record.condition ?? "";
+        }
+        console.log(
+            "Edit deceased modal populated."
+        );
+    } catch (error) {
+        console.error(
+            "Error loading deceased record:",
+            error
+        );
+        alert(
+            "An error occurred while loading the deceased record."
+        );
+        modal.classList.remove("active");
+    }
+});
+document.addEventListener("submit", async function (event) {
+    const form = event.target.closest("#editDeceasedForm");
+    if (!form) {
+        return;
+    }
+    event.preventDefault();
+    const deceasedId = document.getElementById("editDeceasedId")?.value;
+
+    if (!deceasedId) {
+        Swal.fire({
+            icon: "error",
+            title: "Invalid Record",
+            text: "Invalid deceased record ID.",
+            confirmButtonText: "OK"
+        });
+        return;
+    }
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Saving...";
+    }
+    try {
+        const formData = new FormData();
+        formData.append("id",deceasedId);
+        formData.append("deceased_firstname",document.getElementById("editFirstName")?.value.trim() || "");
+        formData.append("deceased_middlename",document.getElementById("editMiddleName")?.value.trim() || "");
+        formData.append("deceased_lastname",document.getElementById("editLastName")?.value.trim() || "");
+        formData.append("gender",document.getElementById("editGender")?.value || "");
+        formData.append("age",document.getElementById("editAge")?.value || "");
+        formData.append("birth_date",document.getElementById("editBirthDate")?.value || "");
+        formData.append("date_of_death",document.getElementById("editDateOfDeath")?.value || "");
+        formData.append("date_need",document.getElementById("editDateNeed")?.value || "");
+        formData.append("interment_date",document.getElementById("editIntermentDate")?.value || "");
+        formData.append("location",document.getElementById("editLocation")?.value.trim() || "");
+        formData.append("residential_address",document.getElementById("editResidentialAddress")?.value.trim() || "");
+        formData.append("wake_location",document.getElementById("editWakeLocation")?.value.trim() || "");
+        formData.append("cemetery",document.getElementById("editCemetery")?.value.trim() || "");
+        formData.append("performed_by",document.getElementById("editPerformedBy")?.value.trim() || "");
+        formData.append("remarks",document.getElementById("editRemarks")?.value.trim() || "");
+        for (const [key, value] of formData.entries()) {
+            console.log(key + ":", value);
+        }
+        const response = await fetch(
+            "../backend/deceased/update_deceased_record.php",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+        const text = await response.text();
+        if (!response.ok) {
+            Swal.fire({
+                icon: "error",
+                title: "Update Failed",
+                text:
+                    "Update failed. HTTP status: " +
+                    response.status,
+                confirmButtonText: "OK"
+            });
+            return;
+        }
+        let result;
+        try {
+            result = JSON.parse(text);
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Server Error",
+                text:
+                    "The server returned an invalid response.",
+                confirmButtonText: "OK"
+            });
+            return;
+        }
+        if (!result.success) {
+            console.error(
+                "PHP update error:",
+                result
+            );
+            Swal.fire({
+                icon: "error",
+                title: "Update Failed",
+                text:
+                    result.message ||
+                    "Failed to update deceased record.",
+                confirmButtonText: "OK"
+            });
+            return;
+        }
+        const modal = document.getElementById("editDeceasedModal");
+        if (modal) {
+            modal.classList.remove("active");
+        }
+        if (typeof loadDeceasedRecords === "function") {
+            await loadDeceasedRecords();
+        }
+        Swal.fire({
+            icon: "success",
+            title: "Updated Successfully",
+            text:
+                result.message ||
+                "Deceased record updated successfully.",
+            confirmButtonText: "OK"
+        });
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text:
+                "An error occurred while updating the deceased record.",
+            confirmButtonText: "OK"
+        });
+    } finally {
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = "Save Changes";
+        }
+    }
+
+});
+
+document.getElementById("closeEditDeceased").addEventListener("click", function () {
+    document.getElementById("editDeceasedModal").classList.remove("active");
+});
+document.getElementById("cancelEditDeceased").addEventListener("click", function () {
+    document.getElementById("editDeceasedModal").classList.remove("active");
 });
 </script>
 </html>

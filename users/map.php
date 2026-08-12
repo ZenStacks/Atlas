@@ -87,24 +87,29 @@
         <div class="footer">
             <div class="footer-content">
                 <div class="services">
-                    <h3>Our Services</h3>
-                    <p>Funeral Planning</p>
-                    <p>Coffin Selection</p>
-                    <p>Funeral Arrangements</p>
-                    <p>Chapel Hire</p>
+                    <h3>Products</h3>
+                    <a href="package.php"><p>Plans</p></a>
                 </div>
                 <div class="about-us">
                     <h3>About Us</h3>
-                    <p>Process</p>
-                    <p>Why Us?</p>
-                    <p>FAQ</p>
-                    <p>Payments</p>
-                    <p>Terms of Use</p>
-                    <p>Privacy Policy</p>
+                    <a href="process.html"><p>Process</p></a>
+                    <a href="why_us.php"><p>Why Us?</p></a>
+                </div>
+                <div class="legal">
+                    <h3>Legal</h3>
+                    <a href="terms_of_use.html"><p>Terms of use</p></a>
+                    <a href="privacy_policy.html"><p>Privacy Policy</p></a>
+                </div>
+                <div class="resources">
+                    <h3>Resources</h3>
+                    <a href="profile.php?tab=profile-information-section"><p>Manage Account</p></a>
+                    <a href="contact_us.php"><p>Contact Us</p></a>
+                    <a href="payment.php"><p>Payment</p></a>
+                    <a href="faq.html"><p>FAQ</p></a>
                 </div>
                 <div class="locations">
                     <h3>Our Location</h3>
-                    <a href="../admin/map.php"><p>Brgy. Naslo, Maasin, Iloilo Philippines, 5030</p></a>
+                    <a href="../admin/map.php"><p>Brgy. Naslo, Maasin, Iloilo Philippines</p></a>
                 </div>
             </div>
         </div>

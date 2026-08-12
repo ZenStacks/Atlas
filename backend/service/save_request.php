@@ -22,8 +22,10 @@ try {
     $beneficiary_lastname = trim($_POST["beneficiary_lastname"] ?? "");
     $beneficiary_firstname = trim($_POST["beneficiary_firstname"] ?? "");
     $beneficiary_middlename = trim($_POST["beneficiary_middlename"] ?? "");
+    $email_address = trim($_POST["email_address"] ?? "");
+    $contact_number = trim($_POST["contact_number"] ?? "");
     $beneficiary_age = $_POST["beneficiary_age"] ?? 0;
-    $beneficiary_gender = trim($_POST["beneficiary_gender"] ?? "");
+    $beneficiary_gender = trim($_POST["gender"] ?? "");
     $beneficiary_birthdate = $_POST["beneficiary_birthdate"] ?? "";
     $date_need = $_POST["date_need"] ?? null;
     $date_of_death = $_POST["date_of_death"] ?? null;
@@ -38,6 +40,8 @@ try {
     $floral = $_POST["floral"] ?? "";
     $floral_setup = trim($_POST["floral_setup"] ?? "");
     $chapel = $_POST["chapel"] ?? "";
+    $payment_option = trim($_POST["payment_option"] ?? "" );
+    $payment_term = trim($_POST["payment_term"] ?? "" );
     $gov_id_number = trim($_POST["gov_id_number"] ?? "");
     $signature_date = $_POST["signature_date"] ?? null;
     $signature_file = "";
@@ -142,14 +146,14 @@ try {
 
     $checkStmt->close();
     $stmt = $conn->prepare("INSERT INTO service_requests (service_request_no, user_id, performed_by, customer_name, coffin_id, coffin_source, quantity, relationship,
-            beneficiary_lastname, beneficiary_firstname, beneficiary_middlename, gender, age, birth_date, date_need, date_of_death, `condition`, location, residential_address, service_type, wake_location,
-            interment_date, cemetery, transportation, floral, floral_setup, chapel, gov_id_number, gov_id, signature_file, signature_date, status, lastname_hash, firstname_hash, middlename_hash, gov_id_number_hash)
-            VALUES (?, ?, 'customer',?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)");
+            beneficiary_lastname, beneficiary_firstname, beneficiary_middlename, email, phone_no, gender, age, birth_date, date_need, date_of_death, `condition`, location, residential_address, service_type, wake_location,
+            interment_date, cemetery, transportation, floral, floral_setup, chapel, payment_option, payment_term, gov_id_number, gov_id, signature_file, signature_date, status, lastname_hash, firstname_hash, middlename_hash, gov_id_number_hash)
+            VALUES (?, ?, 'customer',?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?, ?)");
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }
     $stmt->bind_param(
-        "sisisisssssissssssssssssssssssssss",
+        "sisisisssssssissssssssssssssssssssssss",
         $serviceRequestNo,
         $user_id,
         $customer_name,
@@ -160,6 +164,8 @@ try {
         $beneficiary_lastname,
         $beneficiary_firstname,
         $beneficiary_middlename,
+        $email_address,
+        $contact_number,
         $beneficiary_gender,
         $beneficiary_age,
         $beneficiary_birthdate,
@@ -176,8 +182,10 @@ try {
         $floral,
         $floral_setup,
         $chapel,
-        $gov_id_number,
+        $payment_option,
+        $payment_term,
         $gov_id_file,
+        $gov_id_number,
         $signature_file,
         $signature_date,
         $lastname_hash,

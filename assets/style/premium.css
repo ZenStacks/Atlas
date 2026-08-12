@@ -783,7 +783,8 @@ a{
     background-color: #e8e8e8;
     border: 1px solid #969696;
 }
-#file-name {
+#file-name,
+#file-gov-id-name {
     margin-left: 10px;
     font-size: 14px;
     color: #666;

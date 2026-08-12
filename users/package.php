@@ -340,8 +340,8 @@
                 </div>
                 <div class="about-us">
                     <h3>About Us</h3>
-                    <p>Process</p>
-                    <p>Why Us?</p>
+                    <a href="process.html"><p>Process</p></a>
+                    <a href="why_us.php"><p>Why Us?</p></a>
                 </div>
                 <div class="legal">
                     <h3>Legal</h3>

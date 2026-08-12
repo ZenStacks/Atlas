@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,7 +13,7 @@
 </head>
 <body>
     <div class="whole-page-container">
-        <div class="outside-container">
+        <div class="outside-container">logout-btn
             <div class="navigation-container">
                 <div class="home-navigation">
                     <i class="bi bi-house-door-fill"></i><a href="../index.php">Home</a>
@@ -22,7 +25,17 @@
                         <a href="#" class="nav-item" data-tab="notifications">Notifications</a>
                         <a href="#" class="nav-item" data-tab="service-preferences">Service Preferences</a>
                         <a href="#" class="nav-item" data-tab="my-preferences">My Preferences</a>
-                        <li class="logout"><i class="bi bi-box-arrow-left"></i><a href="#logout" id="logout-btn">Logout</a></li>
+                        <?php if (isset($_SESSION['customer_id'])): ?>
+                            <li class="logout">
+                                <i class="bi bi-box-arrow-left"></i>
+                                <a href="#" id="logout-btn">Logout</a>
+                            </li>
+                        <?php else: ?>
+                            <li class="login">
+                                <i class="bi bi-box-arrow-in-right"></i>
+                                <a href="../login.php">Login</a>
+                            </li>
+                        <?php endif; ?>
                     </ul>
                 </div>
             </div>
@@ -164,7 +177,6 @@
                         </div>
                         <div class="settings-details hidden">
                             <h2>Manage Notifications</h2>
-
                             <div class="notification-setting">
                                 <div class="notification-info">
                                     <h3>Email Notifications</h3>
@@ -175,29 +187,6 @@
                                     <span class="slider"></span>
                                 </label>
                             </div>
-
-                            <div class="notification-setting">
-                                <div class="notification-info">
-                                    <h3>SMS Notifications</h3>
-                                    <p>Receive text message alerts regarding your arrangements.</p>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="sms-notifications">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
-                            <div class="notification-setting">
-                                <div class="notification-info">
-                                    <h3>Service Updates</h3>
-                                    <p>Receive updates regarding ongoing funeral arrangements.</p>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox" id="service-updates">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-
                             <button class="save-notification-btn">
                                 <i class="bi bi-bell-fill"></i>
                                 Save Preferences
@@ -211,7 +200,7 @@
                                     <p>Add an extra layer of security to your account.</p>
                                 </div>
                                 <label class="switch">
-                                    <input type="checkbox" id="two-factor-auth">
+                                    <input type="checkbox" id="two-factor-auth" <?= !empty($customer['two_factor_auth']) ? 'checked' : '' ?>>
                                     <span class="slider"></span>
                                 </label>
                             </div>
@@ -235,7 +224,7 @@
                                     <span class="slider"></span>
                                 </label>
                             </div>
-                            <button class="save-privacy-btn">
+                            <button class="save-privacy-btn" id="save-security-settings">
                                 <i class="bi bi-shield-lock-fill"></i>
                                 Save Security Settings
                             </button>
@@ -253,7 +242,7 @@
                         <button class="mark-all-read">
                             Mark all as read
                         </button>
-                        <button class="delete-notif">
+                        <button class="delete-notif" id="delete-notifications">
                             Delete notifications
                         </button>
                     </div>
@@ -317,12 +306,98 @@
             </div>
             <div id="my-preferences" class="tab-content">
                 <div class="user-preferences">
-
                     <div class="service-header">
                         <h2>My Preferences</h2>
                         <p>Your submitted funeral service arrangements.</p>
                     </div>
                     <div class="preferences-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tfa-modal" id="tfaModal">
+        <div class="tfa-modal-content">
+            <button type="button"
+                    class="tfa-close-btn"
+                    id="closeTfaModal">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div id="panelEmailVerify" class="tfa-panel">
+                <div class="email-verification-wrapper">
+                    <div class="tfa-panel-icon">
+                        <i class="bi bi-envelope-check"></i>
+                    </div>
+                    <h2>Verify Your Email</h2>
+                    <p class="tfa-panel-description">
+                        Enter your registered email address to verify
+                        that you own this account before enabling
+                        two-factor authentication.
+                    </p>
+                    <label for="tfaVerificationEmail">
+                        Registered Email Address
+                    </label>
+                    <input
+                        type="email"
+                        id="tfaVerificationEmail"
+                        placeholder="Enter your registered email"
+                        autocomplete="email"
+                    >
+                    <small id="tfaEmailError" class="tfa-error"></small>
+                    <button
+                        type="button"
+                        id="btnVerifyEmailForTfa"
+                        class="tfa-btn-primary"
+                    >
+                        <span>Continue</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="panelOtp" class="tfa-panel">
+                <div class="email-verification-wrapper">
+                    <div class="tfa-panel-icon">
+                        <i class="bi bi-shield-lock"></i>
+                    </div>
+                    <h2>Enter Verification Code</h2>
+                    <p class="tfa-panel-description">
+                        We sent a 6-digit verification code to your
+                        registered email address.
+                    </p>
+                    <div class="otp-input-wrap">
+                        <input type="text"
+                            class="otp-cell"
+                            maxlength="1"
+                            inputmode="numeric">
+                        <input type="text"
+                            class="otp-cell"
+                            maxlength="1"
+                            inputmode="numeric">
+                        <input type="text"
+                            class="otp-cell"
+                            maxlength="1"
+                            inputmode="numeric">
+                        <input type="text"
+                            class="otp-cell"
+                            maxlength="1"
+                            inputmode="numeric">
+                        <input type="text"
+                            class="otp-cell"
+                            maxlength="1"
+                            inputmode="numeric">
+                        <input type="text"
+                            class="otp-cell"
+                            maxlength="1"
+                            inputmode="numeric">
+                    </div>
+                    <input type="hidden" id="compiledOtpValue">
+                    <small id="tfaOtpError" class="tfa-error"></small>
+                    <button
+                        type="button"
+                        id="btnSubmitOtpCheck"
+                        class="tfa-btn-primary"
+                        style="width:100%; margin-top:20px;">
+                        Verify Token Code
+                    </button>
                 </div>
             </div>
         </div>
@@ -470,8 +545,6 @@ async function loadProfile() {
         document.getElementById("auto-logout").checked = user.auto_logout == 1;
         // manage notifications
         document.getElementById("email-notifications").checked = user.email_notifications == 1;
-        document.getElementById("sms-notifications").checked = user.sms_notifications == 1;
-        document.getElementById("service-updates").checked = user.service_updates == 1;
         originalProfile = {
             name: user.name || "",
             email: user.email || "",
@@ -658,15 +731,10 @@ document.querySelector(".change-password-form")
     }
 });
 // manage notifications
-document.querySelector(".save-notification-btn")
-.addEventListener("click", async () => {
+document.querySelector(".save-notification-btn").addEventListener("click", async () => {
     const emailNotifications = document.getElementById("email-notifications").checked ? 1 : 0;
-    const smsNotifications = document.getElementById("sms-notifications").checked ? 1 : 0;
-    const serviceUpdates = document.getElementById("service-updates").checked ? 1 : 0;
     const formData = new FormData();
     formData.append("email_notifications", emailNotifications);
-    formData.append("sms_notifications", smsNotifications);
-    formData.append("service_updates", serviceUpdates);
     try {
         const response = await fetch(
             "../backend/users/update_notification.php",
@@ -699,71 +767,351 @@ document.querySelector(".save-notification-btn")
     }
 });
 // privacy and security
-document.querySelector(".save-privacy-btn")
-.addEventListener("click", async () => {
-    const twoFactorAuth = document.getElementById("two-factor-auth").checked ? 1 : 0;
+document.addEventListener("DOMContentLoaded", function () {
+    const twoFactorCheckbox = document.getElementById("two-factor-auth");
+    const tfaModal = document.getElementById("tfaModal");
+    const closeTfaModal = document.getElementById("closeTfaModal");
+    const emailInput = document.getElementById("tfaVerificationEmail");
+    const emailError = document.getElementById("tfaEmailError");
+    const panelEmailVerify = document.getElementById("panelEmailVerify");
+    const panelOtp = document.getElementById("panelOtp");
+    const otpCells = document.querySelectorAll(".otp-cell");
+    const otpError = document.getElementById("tfaOtpError");
+    const verifyEmailBtn = document.getElementById("btnVerifyEmailForTfa");
+    const submitOtpBtn = document.getElementById("btnSubmitOtpCheck");
+
+    if (!twoFactorCheckbox) {
+        console.error("TFA checkbox not found.");
+        return;
+    }
+    let originalTwoFactorState = twoFactorCheckbox.checked ? 1 : 0;
+    let verificationPurpose = null;
+    async function loadTfaState() {
+        try {
+            const response = await fetch(
+                "../backend/users/get_customer.php?t=" + Date.now(),
+                {
+                    credentials: "include",
+                    cache: "no-store"
+                }
+            );
+            const result = await response.json();
+            if (
+                result.status === "success" &&
+                result.data
+            ) {
+                const state = Number(result.data.two_factor_auth) === 1 ? 1 : 0;
+                originalTwoFactorState = state;
+                twoFactorCheckbox.checked = state === 1;
+                console.log(
+                    "TFA database state:",
+                    originalTwoFactorState
+                );
+            }
+        } catch (error) {
+            console.error("Failed to load TFA state:",error);
+        }
+    }
+    loadTfaState();
+    function clearOtp() {
+        otpCells.forEach(cell => {
+            cell.value = "";
+        });
+        if (otpError) {
+            otpError.textContent = "";
+        }
+    }
+    function getOtp() {
+        let otp = "";
+        otpCells.forEach(cell => {
+            otp += cell.value;
+        });
+        return otp;
+    }
+    function openTfaModal(purpose) {
+        if (!tfaModal) {
+            console.error("TFA modal not found.");
+            return;
+        }
+        verificationPurpose = purpose;
+        console.log("Opening TFA verification:",verificationPurpose);
+        panelEmailVerify?.classList.add("active");
+        panelOtp?.classList.remove("active");
+        emailInput.value = "";
+        emailError.textContent = "";
+        clearOtp();
+        tfaModal.classList.add("show");
+        setTimeout(() => {
+            emailInput?.focus();
+        }, 150);
+    }
+    function closeTfaModalHandler() {
+        if (!tfaModal) return;
+        if ( document.activeElement && tfaModal.contains(document.activeElement) ) {
+            document.activeElement.blur();
+        }
+        tfaModal.classList.remove("show");
+        emailInput.value = "";
+        emailError.textContent = "";
+        clearOtp();
+        twoFactorCheckbox.checked = originalTwoFactorState === 1;
+        verificationPurpose = null;
+    }
+    closeTfaModal?.addEventListener("click",closeTfaModalHandler);
+    twoFactorCheckbox.addEventListener("change", function () {
+        const requestedState = this.checked ? 1 : 0;
+            if (requestedState === 1 && originalTwoFactorState === 0) {
+                this.checked = false;
+                openTfaModal("enable");
+                return;
+            }
+            if (requestedState === 0 && originalTwoFactorState === 1) {
+                this.checked = true;
+                openTfaModal("disable");
+                return;
+            }
+        }
+    );
+    verifyEmailBtn?.addEventListener("click", async function () {
+        const email = emailInput.value.trim();
+        emailError.textContent = "";
+        if (!email) {
+            emailError.textContent = "Please enter your registered email address.";
+            emailInput.focus();
+            return;
+        }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            emailError.textContent = "Please enter a valid email address.";
+            emailInput.focus();
+            return;
+        }
+        try {
+            Swal.fire({
+                title: "Verifying Email...",
+                text: "Please wait.",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            const formData = new FormData();
+            formData.append("action","verify_email");
+            formData.append("email",email);
+            formData.append("purpose",verificationPurpose);
+            const response = await fetch("../backend/users/customer_tfa.php",{method: "POST",body: formData,credentials: "include"});
+            const responseText = await response.text();
+            let result;
+
+            try {
+                result = JSON.parse(responseText);
+            } catch (error) {
+                throw new Error("Server returned an invalid response.");
+            }
+            if (result.status !== "success") {
+                Swal.close();
+                emailError.textContent = result.message || "Email verification failed.";
+                emailInput.focus();
+                return;
+            }
+            Swal.close();
+            panelEmailVerify?.classList.remove("active");
+            panelOtp?.classList.add("active");
+            clearOtp();
+            setTimeout(() => {
+                otpCells[0]?.focus();
+            }, 100);
+            Swal.fire({
+                icon: "success",
+                title: "Email Verified",
+                text: "A 6-digit verification code has been sent to your email.",
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: true
+            });
+        } catch (error) {
+            console.error("Email verification error:",error);
+            Swal.close();
+            Swal.fire({
+                icon: "error",
+                title: "Verification Error",
+                text: error.message || "Unable to verify your email.",
+                confirmButtonColor: "#3b82f6"
+            });
+        }
+    });
+    otpCells.forEach((cell, index) => {
+        cell.addEventListener("input",function () {
+        this.value = this.value.replace(/\D/g, "");
+        if (otpError) {
+            otpError.textContent = "";
+        }
+        if (
+            this.value &&
+            index < otpCells.length - 1
+        ) {
+            otpCells[index + 1].focus();
+        }
+    });
+    cell.addEventListener("keydown",function (event) {
+        if (event.key === "Backspace" && !this.value && index > 0) {
+            otpCells[index - 1].focus();
+        }
+    });
+    cell.addEventListener("paste",function (event) {
+        event.preventDefault();
+        const pasted = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+        pasted.split("").forEach((digit, i) => {
+            if (otpCells[i]) {
+                otpCells[i].value = digit;
+            }
+        });
+        if (pasted.length === 6) {
+            otpCells[5]?.focus();
+        }
+    });
+});
+submitOtpBtn?.addEventListener("click",async function () {
+
+        const otp = getOtp();
+        if (otpError) {
+            otpError.textContent = "";
+        }
+        if (!/^\d{6}$/.test(otp)) {
+            otpError.textContent = "Please enter the complete 6-digit verification code.";
+            return;
+        }
+        try {
+            Swal.fire({
+                title: "Verifying Code...",
+                text: "Please wait.",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            const formData = new FormData();
+            formData.append("action","verify_otp");
+            formData.append("otp", otp);
+            formData.append("purpose",verificationPurpose);
+            const response = await fetch("../backend/users/customer_tfa.php",{method: "POST",body: formData,credentials: "include"});
+            const responseText = await response.text();
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch (error) {
+                throw new Error("Server returned an invalid response.");
+            }
+            if (result.status !== "success") {
+                Swal.close();
+                otpError.textContent = result.message || "Incorrect verification code. Please try again.";
+                otpCells.forEach(cell => {cell.value = "";});
+                twoFactorCheckbox.checked = originalTwoFactorState === 1;
+                otpCells[0]?.focus();
+                return;
+            }
+            Swal.close();
+            if (verificationPurpose === "enable") {
+                originalTwoFactorState = 1;
+                twoFactorCheckbox.checked = true;
+            } else if (
+                verificationPurpose === "disable"
+            ) {
+                originalTwoFactorState = 0;
+                twoFactorCheckbox.checked = false;
+            }
+            if (document.activeElement && tfaModal.contains(document.activeElement)) {
+                document.activeElement.blur();
+            }
+            tfaModal.classList.remove("show");
+            Swal.fire({
+                icon: "success",
+                title:
+                    verificationPurpose === "enable"
+                        ? "Two-Factor Authentication Enabled"
+                        : "Two-Factor Authentication Disabled",
+                text:
+                    result.message ||
+                    (
+                        verificationPurpose === "enable"
+                            ? "Your account is now protected with two-factor authentication."
+                            : "Two-factor authentication has been disabled."
+                    ),
+                confirmButtonColor: "#3b82f6"
+            });
+            verificationPurpose = null;
+        } catch (error) {
+            Swal.close();
+            twoFactorCheckbox.checked = originalTwoFactorState === 1;
+            Swal.fire({
+                icon: "error",
+                title: "Verification Error",
+                text:
+                    error.message ||
+                    "Unable to verify the security code.",
+                confirmButtonColor: "#3b82f6"
+            });
+        }
+    });
+});
+// auto logout 
+document.getElementById("save-security-settings").addEventListener("click", function () {
     const loginAlerts = document.getElementById("login-alerts").checked ? 1 : 0;
     const autoLogout = document.getElementById("auto-logout").checked ? 1 : 0;
     const formData = new FormData();
-    formData.append("two_factor_auth", twoFactorAuth);
     formData.append("login_alerts", loginAlerts);
     formData.append("auto_logout", autoLogout);
-    try {
-        const response = await fetch(
-            "../backend/users/update_security.php",
-            {
-                method: "POST",
-                body: formData
-            }
-        );
-        const result = await response.json();
-        if(result.status === "success"){
+    fetch("../backend/users/update_security.php", {
+        method: "POST",
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "success") {
             Swal.fire({
                 icon: "success",
-                title: "Settings Saved",
-                text: result.message
+                title: "Updated!",
+                text: data.message,
+                confirmButtonText: "OK"
             });
-        }else{
+        } else {
             Swal.fire({
                 icon: "error",
-                title: "Error",
-                text: result.message
+                title: "Update Failed",
+                text: data.message,
+                confirmButtonText: "OK"
             });
         }
-    } catch(error){
+    })
+    .catch(error => {
+        console.error("Error:", error);
         Swal.fire({
             icon: "error",
-            title: "Error",
-            text: "Failed to save security settings."
+            title: "Something went wrong",
+            text: "Unable to update your security settings.",
+            confirmButtonText: "OK"
         });
-    }
+
+    });
+
 });
 // notifications
 async function loadNotifications() {
-
     try {
-
         const response = await fetch(
             "../backend/users/get_notifications.php"
         );
-
         const result = await response.json();
-
         if (result.status !== "success") {
             return;
         }
-
         const container = document.getElementById("notification-list");
-
         if (!container) return;
 
         container.innerHTML = "";
-
-        result.data.forEach(notification => {
-
-            const unreadClass =
-                notification.is_read == 0 ? "unread" : "";
-
+        result.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach(notification => {
+            const unreadClass = notification.is_read == 0 ? "unread" : "";
             let icon = "bi-bell-fill";
             let iconClass = "";
 
@@ -786,16 +1134,12 @@ async function loadNotifications() {
                     <div class="notification-content">
                         <h3>${notification.title}</h3>
                         <p>${notification.message}</p>
-                        <span class="time">
-                            ${notification.created_at}
-                        </span>
+                        <span class="time">${notification.created_at}</span>
                     </div>
 
-                    ${
-                        notification.is_read == 0
+                    ${notification.is_read == 0
                         ? '<div class="notification-status"></div>'
-                        : ''
-                    }
+                        : ''}
                 </div>
             `;
         });
@@ -811,7 +1155,53 @@ async function loadNotifications() {
         });
     }
 }
-
+document.getElementById("delete-notifications").addEventListener("click", function () {
+    Swal.fire({
+        icon: "warning",
+        title: "Delete notifications?",
+        text: "All of your notifications will be permanently deleted.",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete them",
+        cancelButtonText: "Cancel"
+    }).then((result) => {
+        if (!result.isConfirmed) {
+            return;
+        }
+        fetch("../backend/users/delete_notifications.php", {
+            method: "POST"
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                document.getElementById("notification-list").innerHTML = "";
+                Swal.fire({
+                    icon: "success",
+                    title: "Deleted!",
+                    text: data.message,
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true
+                });
+            } else {
+                Swal.fire({
+                    icon: "error",
+                    title: "Delete Failed",
+                    text: data.message
+                });
+            }
+        })
+        .catch(error => {
+            Swal.fire({
+                icon: "error",
+                title: "Something went wrong",
+                text: "Unable to delete your notifications.",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        });
+    });
+});
 document.addEventListener("DOMContentLoaded", () => {
 
     loadNotifications();
@@ -833,27 +1223,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 );
 
                 const result = await response.json();
-
                 if(result.status === "success"){
-
                     await loadNotifications();
-
-                    Swal.fire({
-                        icon: "success",
-                        title: "Success",
-                        text: "All notifications marked as read."
-                    });
-
                 }else{
-
                     Swal.fire({
                         icon: "error",
                         title: "Error",
                         text: result.message || "Failed to update notifications."
                     });
-
                 }
-
             } catch(error){
                 Swal.fire({
                     icon: "error",
@@ -1085,16 +1463,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 // my preferences
-function goToPayment(orderId) {
-    window.location.href = `payment.php?order_id=${orderId}`;
-}
 document.addEventListener("DOMContentLoaded", () => {
     loadPreferences();
-
-    // Reload every 5 seconds
     setInterval(loadPreferences, 5000);
 });
-
 async function loadPreferences() {
     const container = document.querySelector(".preferences-list");
     if (!container) return;
@@ -1111,84 +1483,181 @@ async function loadPreferences() {
         const result = await res.json();
 
         if (!result.success || !result.data?.length) {
-            container.innerHTML = `<p>No preferences yet.</p>`;
+            container.innerHTML = `
+                <div class="preferences-empty">
+                    <div class="empty-icon">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <h3>No Preferences Yet</h3>
+                    <p>
+                        Your selected services and products will appear here once
+                        you avail a service.
+                    </p>
+                </div>
+            `;
             return;
         }
-
         const html = result.data.map(order => {
+
             const price = Number(order.price || 0);
             const downpayment = Number(order.downpayment || 0);
             const discount = Number(order.discount || 0);
-            const downpaymentFormatted = downpayment.toLocaleString();
+            const remainingBalance = Number(order.remaining_balance || 0);
+            const isApproved = String(order.status || "").toLowerCase() === "approved";
+            const downpaymentFormatted = downpayment.toLocaleString("en-PH");
+            const approvedFinancialInfo = isApproved
+                ? `
+                    ${renderInfoRow(
+                        "Price",
+                        "₱" + price.toLocaleString("en-PH")
+                    )}
 
-            const isApproved = order.status === "approved";
+                    ${renderInfoRow(
+                        "Discount",
+                        "₱" + discount.toLocaleString("en-PH")
+                    )}
 
-            const remainingText = isApproved
-                ? "₱" + Number(order.remaining_balance || 0).toLocaleString()
-                : "Pending Approval";
-
-            const discountText = isApproved
-                ? "₱" + discount.toLocaleString()
-                : "Pending Approval";
-
-            const priceText = isApproved
-                ? "₱" + price.toLocaleString()
-                : "Pending Approval";
-
-            const canPay =
-                order.status === "confirmed" ||
-                (order.status === "approved" &&
-                    Number(order.remaining_balance || 0) > 0);
+                    ${renderInfoRow(
+                        "Remaining Balance",
+                        "₱" + remainingBalance.toLocaleString("en-PH")
+                    )}
+                `
+                : "";
+            const paymentButton =
+                isApproved && remainingBalance > 0
+                    ? `
+                        <button
+                            class="pay-btn"
+                            onclick="goToPayment(${order.id})">
+                            Proceed to Payment
+                        </button>
+                    `
+                    : "";
 
             return `
-            <div class="preference-card">
-                <div class="card-top">
-                    <h3>${order.item_name}</h3>
-                    <span class="status ${order.status}">${order.status}</span>
-                </div>
-                <div class="card-body">
-                    ${renderInfoRow("Qty", "x" + order.quantity)}
-                    ${renderInfoRow("Coffin Type", order.coffin_type)}
-                    ${renderInfoRow("Downpayment", "₱" + downpaymentFormatted)}
-                    ${renderInfoRow("Price", priceText)}
-                    ${renderInfoRow("Discount", discountText)}
-                    ${renderInfoRow("Remaining Balance", remainingText)}
-                    ${renderInfoRow("Source", order.coffin_source)}
-                    ${renderInfoRow("Service Request No.", order.service_request_no)}
-                    ${renderInfoRow("Date Submitted", order.created_at)}
-                    <div class="info-row">
-                        <span>Action</span>
-                        <div class="button">
-                            <button onclick="prepareMessageForAdmin('${order.item_name}')">
-                                Message Admin
-                            </button>
-                            <button
-                                ${!canPay ? "disabled" : ""}
-                                class="${!canPay ? "disabled-btn" : "pay-btn"}"
-                                onclick="${canPay ? `goToPayment(${order.id})` : ""}">
-                                Proceed to Payment
-                            </button>
+                <div class="preference-card">
+
+                    <div class="card-top">
+                        <h3>
+                            ${escapeHtml(order.item_name || "Service")}
+                        </h3>
+
+                        <span class="status ${escapeHtml(order.status || "")}">
+                            ${escapeHtml(order.status || "Pending")}
+                        </span>
+                    </div>
+
+                    <div class="card-body">
+
+                        ${renderInfoRow(
+                            "Qty",
+                            "x" + Number(order.quantity || 0)
+                        )}
+
+                        ${renderInfoRow(
+                            "Coffin Type",
+                            order.coffin_type || "N/A"
+                        )}
+
+                        ${renderInfoRow(
+                            "Downpayment",
+                            "₱" + downpaymentFormatted
+                        )}
+
+                        ${approvedFinancialInfo}
+
+                        ${renderInfoRow(
+                            "Source",
+                            order.coffin_source || "N/A"
+                        )}
+
+                        ${renderInfoRow(
+                            "Service Request No.",
+                            order.service_request_no || "N/A"
+                        )}
+
+                        ${renderInfoRow(
+                            "Date Submitted",
+                            order.created_at || "N/A"
+                        )}
+
+                        <div class="info-row">
+                            <span>Action</span>
+
+                            <div class="button">
+
+                                <button
+                                    type="button"
+                                    onclick="prepareMessageForAdmin('${escapeHtml(order.item_name || "")}')">
+                                    Message Admin
+                                </button>
+
+                                ${paymentButton}
+
+                            </div>
                         </div>
+
                     </div>
                 </div>
-            </div>`;
+            `;
+
         }).join("");
 
         container.innerHTML = html;
 
+
+
     } catch (err) {
-        container.innerHTML = `<p>Error loading your preferences. Please try again later.</p>`;
+
+        console.error("Preferences error:", err);
+
+        container.innerHTML = `
+            <div class="preferences-error">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <h3>Error Loading Preferences</h3>
+                <p>${escapeHtml(err.message)}</p>
+            </div>
+        `;
     }
 }
+function goToPayment(orderId) {
+    if (!orderId) {
+        Swal.fire({
+            icon: "error",
+            title: "Missing Order",
+            text: "Order ID is not available."
+        });
+        return;
+    }
+    window.location.href = `payment.php?order_id=${encodeURIComponent(orderId)}`;
+}
+function escapeHtml(value) {
 
-function renderInfoRow(label, value) {
-    return `
-    <div class="info-row">
-        <span>${label}</span>
-        <strong>${value}</strong>
-    </div>`;
+    if (
+        value === null ||
+        value === undefined
+    ) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
+
+function renderInfoRow(label, value) {
+
+    return `
+        <div class="info-row">
+            <span>${escapeHtml(label)}</span>
+            <strong>${escapeHtml(value)}</strong>
+        </div>
+    `;
+}
 function prepareMessageForAdmin(itemName) {
     const message = `Hi! I'm interested in purchasing: ${itemName}. Can you provide more details?`;
     localStorage.setItem("admin_chat_intent", message);

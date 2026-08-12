@@ -279,12 +279,16 @@ document.querySelectorAll(".chat-choice").forEach(choice => {
             appendMessageUI("Hello! Please select one of the options below.", "admin");
             showBotChoices();
         } else {
-            if(chatTitle) chatTitle.textContent = "Admin Support";
-            if(chatStatus) {
+            if (chatTitle) chatTitle.textContent = "Admin Support";
+
+            if (chatStatus) {
                 chatStatus.className = "status";
-                chatStatus.innerHTML = `<i class="bi bi-circle-fill"></i> Checking status...`;
+                chatStatus.innerHTML =
+                    `<i class="bi bi-circle-fill"></i> Checking status...`;
             }
-            
+            lastId = 0;
+            displayedMessageIds.clear();
+
             loadMessages();
         }
     });
@@ -356,17 +360,23 @@ function switchToAdmin() {
     currentChatMode = "admin";
     document.querySelectorAll(".chat-choice").forEach(choice => {
         choice.classList.remove("active");
-        if(choice.dataset.chat === "admin"){
+
+        if (choice.dataset.chat === "admin") {
             choice.classList.add("active");
         }
     });
     document.getElementById("chat-title").textContent = "Admin Support";
     const statusContainer = document.getElementById("chat-status");
-    if(statusContainer) {
+    if (statusContainer) {
         statusContainer.className = "status";
-        statusContainer.innerHTML = `<i class="bi bi-circle-fill"></i> Checking status...`;
+        statusContainer.innerHTML =
+            `<i class="bi bi-circle-fill"></i> Checking status...`;
     }
+
     chatBody.innerHTML = "";
+    lastId = 0;
+    displayedMessageIds.clear();
+
     loadMessages();
 }
 </script>

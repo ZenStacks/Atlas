@@ -106,8 +106,8 @@
                 </div>
                 <div class="about-us">
                     <h3>About Us</h3>
-                    <p>Process</p>
-                    <p>Why Us?</p>
+                    <a href="process.html"><p>Process</p></a>
+                    <a href="why_us.php"><p>Why Us?</p></a>
                 </div>
                 <div class="legal">
                     <h3>Legal</h3>
@@ -131,7 +131,6 @@
 </body>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-
     const receiptInput = document.getElementById("receipt");
     const fileName = document.getElementById("file-name");
     const uploadBtn = document.getElementById("upload-btn");
@@ -139,22 +138,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const amountInput = document.getElementById("reference-amount");
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get("order_id");
-
-    console.log("Paying for order:", orderId);
-
     let selectedFile = null;
-
     receiptInput.addEventListener("change", function () {
         if (this.files.length > 0) {
             selectedFile = this.files[0];
             fileName.textContent = selectedFile.name;
         } else {
+
             selectedFile = null;
             fileName.textContent = "No file selected";
         }
     });
-
     uploadBtn.addEventListener("click", async function () {
+        const referenceNumber = referenceInput.value.trim();
+        const amount = amountInput.value.trim();
         if (!selectedFile) {
             Swal.fire({
                 icon: "warning",
@@ -177,6 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 title: "Reference Number Required",
                 text: "Please enter the reference number."
             });
+            referenceInput.focus();
             return;
         }
         if (!amount) {
@@ -185,21 +183,47 @@ document.addEventListener("DOMContentLoaded", () => {
                 title: "Amount Required",
                 text: "Please enter the payment amount."
             });
+            amountInput.focus();
+            return;
+        }
+        const numericAmount = Number(amount);
+        if (isNaN(numericAmount) || numericAmount <= 0) {
+            Swal.fire({
+                icon: "warning",
+                title: "Invalid Amount",
+                text: "Please enter a valid payment amount."
+            });
+            amountInput.focus();
             return;
         }
         const formData = new FormData();
+
         formData.append("receipt", selectedFile);
         formData.append("reference_num", referenceNumber);
-        formData.append("amount", amount);
+        formData.append("amount", numericAmount);
         formData.append("order_id", orderId);
         try {
-            const response = await fetch("../backend/payment/upload_receipt.php", {
-                method: "POST",
-                body: formData
+            Swal.fire({
+                title: "Submitting Payment...",
+                text: "Please wait while your receipt is being uploaded.",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
             });
+            const response = await fetch(
+                "../backend/payment/upload_receipt.php",
+                {
+                    method: "POST",
+                    body: formData,
+                    credentials: "include"
+                }
+            );
             const result = await response.json();
+            Swal.close();
             if (result.success) {
-                Swal.fire({
+                await Swal.fire({
                     icon: "success",
                     title: "Upload Successful",
                     text: "Your payment receipt has been submitted for verification.",
@@ -214,11 +238,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 Swal.fire({
                     icon: "error",
                     title: "Upload Failed",
-                    text: result.message
+                    text: result.message || "Unable to submit payment receipt."
                 });
             }
-        }  catch (err) {
-            console.error(err);
+        } catch (err) {
+            Swal.close();
             Swal.fire({
                 icon: "error",
                 title: "Upload Failed",
@@ -226,8 +250,10 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
         }
+
     });
 
 });
 </script>
+
 </html>

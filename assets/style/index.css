@@ -22,6 +22,7 @@
     top: 0;
     background-color: rgb(255, 255, 255);
     border: 1px solid rgba(159, 159, 159, 0.3);
+    z-index: 9999;
 }
 .header .logo {
     display: flex;
@@ -264,24 +265,30 @@ button:hover{
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgb(244, 240, 230);
+    background-color: rgb(230, 239, 244);
     width: 80%;
     height: 650px;
     border-radius: 15px;
     margin: 50px auto;
 }
+
 .review-container {
+    width: 90%;
+    max-width: 1300px;
+    height: 500px;
+    background: #ffffff;
+    border: 2px solid #2c4054;
+    border-radius: 16px;
+    padding: 30px 40px;
+    box-sizing: border-box;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.review-header{
+    display: flex;
+    flex-direction: space-evenly;
     justify-content: center;
-    align-items: flex-start;
-    flex-direction: row;
-    color: white;
-    text-align: center;
-    background-color: rgb(255, 255, 255);
-    border-radius: 15px;
-    width: 85%;
-    height: 75%;
-    border: 2px solid rgba(200, 0, 0, 0.3);
 }
 .review-title{
     display: flex;
@@ -327,12 +334,109 @@ button:hover{
 }
 .review-button button {
     padding: 10px 10px;
-    border: 2px solid #f28c28;
+    border: 2px solid #2c3e50;
     background: white;
-    color: #f28c28;
+    color: #2c3e50;
     border-radius: 30px;
     cursor: pointer;
 }
+.homepage-reviews-wrapper{
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    display: block;
+}
+.homepage-reviews-track{
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    width: max-content;
+    animation: homepageReviewsScroll 30s linear infinite;
+    flex-direction: row;
+}
+.homepage-reviews-track:hover {
+    animation-play-state: paused;
+}
+
+@keyframes homepageReviewsScroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+.homepage-review-card {
+    width: 300px;
+    min-width: 300px;
+    height: 180px;
+    background: #ffffff;
+    border: 1px solid #d9e0e6;
+    border-radius: 15px;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    display: flex;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    margin-top: 90px;
+}
+.homepage-review-card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+}
+
+.homepage-review-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e7f0f7;
+    color: #24405d;
+    font-weight: 700;
+}
+.homepage-review-name {
+    margin: 0;
+    font-size: 15px;
+    color: #243b53;
+}
+.homepage-review-verified {
+    font-size: 11px;
+    color: #7b8794;
+}
+.homepage-review-stars {
+    display: flex;
+    gap: 2px;
+    margin: 10px 0;
+    justify-content: center;
+}
+.homepage-review-stars i {
+    color: #f5b700;
+    font-size: 14px;
+}
+.homepage-review-text {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #52606d;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    line-height: 1.5;
+    margin: 10px 0 0;
+}
+.homepage-review-date {
+    font-size: 11px;
+    display: flex;
+    justify-content: center;
+    color: #9aa5b1;
+}
+/* location */
 .location-section {
     display: flex;
     justify-content: center;
@@ -532,7 +636,7 @@ button:hover{
     top: 23%;
     right: 0;
     width: 90px;
-    height: 70%;
+    height: 65%;
     background-color: white;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     z-index: 1000;

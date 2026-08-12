@@ -178,10 +178,10 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-section">
-                        <h3>Beneficiary Information</h3>
+                        <h3>Deceased Information</h3>
                         <div class="first-modal">
                             <div class="input-row">
-                                <label for="relationship">Relationship of the Applicant to the Beneficiary</label>
+                                <label for="relationship">Relationship of the Applicant to the Deceased</label>
                                 <select id="relationship" name="relationship">
                                     <option value="">Select Relationship</option>
                                     <option value="self">Self</option>
@@ -204,15 +204,15 @@
                                 <input type="date" id="date-need" name="date_need">
                             </div>
                             <div class="input-row">
-                                <label for="beneficiary-condition">Current Medical Condition of the Beneficiary</label>
+                                <label for="beneficiary-condition">Current Medical Condition of the Deceased</label>
                                 <input type="text" id="beneficiary-condition" name="beneficiary_condition" placeholder="e.g., Critical Condition, Terminal Illness, Hospice Care">
                             </div>
                             <div class="input-row">
-                                <label for="beneficiary-location">Current Location of the Beneficiary (Hospital, Residence, Care Facility, etc.)</label>
+                                <label for="beneficiary-location">Current Location of the Deceased (Hospital, Residence, Care Facility, etc.)</label>
                                 <input type="text" id="beneficiary-location" name="beneficiary_location" placeholder="Enter current location">
                             </div>
                             <div class="input-row">
-                                <label>Last Name of the Beneficiary</label>
+                                <label>Last Name of the Deceased</label>
                                 <input type="text"  id="beneficiary-last-name" name="beneficiary_last_name" placeholder="e.g., Dela Cruz" required>
                             </div>
                             <div class="input-row">
@@ -236,7 +236,7 @@
                                 <input type="text" id="beneficiary-age" name="beneficiary_age" placeholder="e.g., 75" required>
                             </div>
                             <div class="input-row">
-                                <label>Birth Date of Beneficiary</label>
+                                <label>Birth Date of Deceased</label>
                                 <input type="date" id="beneficiary-birthdate" name="beneficiary_birthdate" required>
                             </div>
                             <div class="input-row">
@@ -311,6 +311,19 @@
                         </div>
                     </div>
                     <div class="form-section">
+                        <h3>Payment Preferences</h3>
+                        <div class="third-modal">
+                            <div class="input-row">
+                                <label for="payment-option">Payment Option</label>
+                                <select id="payment-option" name="payment_option">
+                                    <option value="">Select Option</option>
+                                    <option value="Installment">Installment</option>
+                                    <option value="Spot Cash">Full Payment</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-section">
                         <h3>Declaration and Signature</h3>
 
                         <div class="input-row">
@@ -323,11 +336,11 @@
                             </p>
                         </div>
                         <div class="input-row">
-                            <label>Beneficiary Government Id Number</label>
+                            <label>Deceased Government Id Number</label>
                             <input type="text" id="gov-id-number" placeholder="e.g., 1234-5678-9012" required>
                         </div>
                         <div class="input-row">
-                            <label>Beneficiary Government ID (Upload Image)</label>
+                            <label>Deceased Government ID (Upload Image)</label>
                             <input type="file" id="beneficiary-gov-id" name="beneficiary_gov_id" accept="image/*" class="file-input">
                             <label for="beneficiary-gov-id" class="file-upload-btn">Choose Government ID File</label>
                             <span id="file-gov-id-name">No file selected</span>
@@ -783,7 +796,13 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     formData.append("gov_id", beneficiaryGovId);
     formData.append("signature", signatureFile);
     formData.append("signature_date", document.getElementById("signature-date").value);
-
+    const paymentOption = document.getElementById("payment-option").value;
+    formData.append("payment_option", paymentOption);
+    if (paymentOption === "Installment") {
+        formData.append("payment_term", document.getElementById("atNeedTerm").value);
+    } else {
+        formData.append("payment_term", "-");
+    }
     try {
         const response = await fetch("../backend/service/save_request.php", {
             method: "POST",
@@ -834,6 +853,7 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             document.getElementById("relationship").value = "";
             document.getElementById("otherRelationship").value = "";
             document.getElementById("signature-date").value = "";
+            document.getElementById("payment-option").value = "";
             document.querySelector(".requirements-modal").classList.remove("active");
             selectedCoffin = null;
             window.location.href = "profile.php?tab=service-preferences";

@@ -15,7 +15,6 @@ try {
     $equipment = json_decode($_POST["equipment"] ?? "[]", true);
     $arrangement_no = "AR-" . date("YmdHis");
     $created_by = $_SESSION["user_id"];
-    // check if an arrangement already exists
     $check = $conn->prepare("SELECT id FROM service_arrangements WHERE service_request_no = ? ");
     $check->bind_param("s", $service_request_no);
     $check->execute();
@@ -23,7 +22,6 @@ try {
     if ($result->num_rows > 0) {
         throw new Exception("An arrangement has already been created for this service request.");
     }
-    // create arrangement
     $stmt = $conn->prepare("INSERT INTO service_arrangements (arrangement_no, service_request_no, arrangement_date, status, created_by)
         VALUES(?, ?, CURDATE(), 'Pending', ?)");
     $stmt->bind_param(
@@ -35,7 +33,6 @@ try {
     if (!$stmt->execute()) {
         throw new Exception($stmt->error);
     }
-    // Save borrowed equipment
     if (!empty($equipment)) {
         $equipStmt = $conn->prepare("INSERT INTO arrangement_equipment (arrangement_no, equipment_id, quantity) VALUES (?, ?, ?)");
         $stockStmt = $conn->prepare("UPDATE equipment_materials SET current_stock = current_stock - ? WHERE id = ? AND current_stock >= ? ");
@@ -45,7 +42,6 @@ try {
             if ($quantity <= 0) {
                 continue;
             }
-            // save borrowed equipment
             $equipStmt->bind_param(
                 "sii",
                 $arrangement_no,
@@ -55,7 +51,6 @@ try {
             if (!$equipStmt->execute()) {
                 throw new Exception($equipStmt->error);
             }
-            // Deduct stock in equipment_materials table
             $stockStmt->bind_param(
                 "iii",
                 $quantity,
@@ -70,13 +65,11 @@ try {
             }
         }
     }
-    // Update service request status
     $updateService = $conn->prepare("UPDATE service_requests SET status = 'In Progress' WHERE service_request_no = ? ");
     $updateService->bind_param("s", $service_request_no);
     if (!$updateService->execute()) {
         throw new Exception($updateService->error);
     }
-    // approved order udpate status in progress
     $updateApprovedOrder = $conn->prepare("UPDATE approved_orders SET status ='In Progress' WHERE service_request_no = ?");
     $updateApprovedOrder->bind_param("s", $service_request_no);
     if(!$updateApprovedOrder->execute()){

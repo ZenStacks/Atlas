@@ -84,7 +84,7 @@ try {
     }
 
     $sql = "INSERT INTO imported_coffins (item_name, color, size, initial_stock, current_stock,
-    cost, downpayment, retail_price, atneed_max_months, lifeplan_max_months, supplier, coffin_type, tax, details, origin, image, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+    cost, downpayment, retail_price, atneed_max_months, lifeplan_max_months, supplier, coffin_type, tax, details, origin, image, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Available', NOW())";
     
     $stmt = $conn->prepare($sql);
     if (!$stmt) {

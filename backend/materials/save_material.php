@@ -38,9 +38,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 break;
             case "new-equipment-materials":
                 $material_category = "equipment_materials";
-                $stmt = $conn->prepare("INSERT INTO equipment_materials(equipment_type, item_name, unit, unit_multiplier,stock, current_stock, details)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("sssiiis", $material_type, $item_name, $unit, $unit_multiplier, $converted_quantity, $converted_quantity, $notes);
+                $stmt = $conn->prepare("INSERT INTO equipment_materials(equipment_type, item_name, unit, unit_multiplier,stock, current_stock, cost_per_unit details)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssiiids", $material_type, $item_name, $unit, $unit_multiplier, $converted_quantity, $converted_quantity, $cost,$notes);
                 break;
             case "new-interior-materials":
                 $material_category = "interior_lining_materials";
