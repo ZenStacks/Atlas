@@ -11,6 +11,9 @@ try {
     $totalPayable = floatval($_POST["total_payable"]);
     $partialPayment = floatval($_POST["partial_payment"]);
     $remainingBalance = $totalPayable - $partialPayment;
+    $date_of_death = $_POST["date_of_death"];
+    $date_need = $_POST["date_need"];
+    $interment_date = $_POST["interment_date"];
     if ($remainingBalance < 0) {
         $remainingBalance = 0;
     }
@@ -67,10 +70,13 @@ try {
     if (!$stmt->execute()) {
         throw new Exception($stmt->error);
     }
-    $stmt = $conn->prepare("UPDATE lifeplan_request SET residential_address = ? WHERE lifeplan_no = ?");
+    $stmt = $conn->prepare("UPDATE lifeplan_request SET residential_address = ?, date_of_death = ?, date_need = ?, interment_date = ? WHERE lifeplan_no = ?");
     $stmt->bind_param(
-        "ss",
+        "sssss",
         $residentialAddress,
+        $date_of_death,
+        $date_need,
+        $interment_date,
         $lifeplanNo
     );
     if (!$stmt->execute()) {

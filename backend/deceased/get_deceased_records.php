@@ -94,16 +94,26 @@ try {
         exit;
     }
     $record = $result->fetch_assoc();
-    $record["deceased_firstname"] = !empty($record["beneficiary_firstname"])
-            ? decryptData($record["beneficiary_firstname"]) : "";
-    $record["deceased_middlename"] = !empty($record["beneficiary_middlename"])
-            ? decryptData($record["beneficiary_middlename"]) : "";
-    $record["deceased_lastname"] = !empty($record["beneficiary_lastname"])
-            ? decryptData($record["beneficiary_lastname"]) : "";
-    $record["location"] = !empty($record["location"])
-            ? decryptData($record["location"]) : "";
-    $record["residential_address"] =
-        !empty($record["residential_address"]) ? decryptData( $record["residential_address"] ) : "";
+    function decryptIfNeeded($value){
+        if ($value === null || $value === "") {
+            return "";
+        }
+
+        try {
+            $decrypted = decryptData($value);
+
+            if ($decrypted !== false && $decrypted !== null && $decrypted !== "") {
+                return $decrypted;
+            }
+
+        } catch (Throwable $e) {}
+        return $value;
+    }
+    $record["deceased_firstname"] = decryptIfNeeded($record["beneficiary_firstname"] ?? "");
+    $record["deceased_middlename"] = decryptIfNeeded($record["beneficiary_middlename"] ?? "");
+    $record["deceased_lastname"] = decryptIfNeeded($record["beneficiary_lastname"] ?? "");
+    $record["location"] = decryptIfNeeded($record["location"] ?? "");
+    $record["residential_address"] = decryptIfNeeded($record["residential_address"] ?? "");
     echo json_encode([
         "success" => true,
         "data" => $record
@@ -118,3 +128,4 @@ try {
             $e->getMessage()
     ]);
 }
+?>

@@ -234,7 +234,7 @@ session_start();
                 <a href="../index.php" class="cta-primary">
                     View Our Services
                 </a>
-                <a href="contact.php" class="cta-secondary">
+                <a href="contact_us.php" class="cta-secondary">
                     Contact Us
                 </a>
             </div>

@@ -14,9 +14,7 @@ $id = isset($_POST["material_id"]) ? (int) $_POST["material_id"] : 0;
 $category = trim($_POST["material_category"] ?? "");
 $name = trim($_POST["material_name"] ?? "");
 $type = trim($_POST["material_type"] ?? "");
-$unit = trim($_POST["unit"] ?? "");
 $cost = isset($_POST["cost"]) ? (float) $_POST["cost"] : 0;
-$stock = isset($_POST["current_stock"]) ? (int) $_POST["current_stock"] : 0;
 $details = trim($_POST["details"] ?? "");
 if ($id <= 0) {
     echo json_encode([
@@ -62,26 +60,22 @@ if ($stock < 0) {
 try {
     switch ($category) {
         case "Coffin":
-            $stmt = $conn->prepare(" UPDATE coffin_materials SET material_type = ?, material_name = ?, unit = ?, current_stock = ?, cost_per_unit = ?, details = ? WHERE id = ? ");
+            $stmt = $conn->prepare(" UPDATE coffin_materials SET material_type = ?, material_name = ?, cost_per_unit = ?, details = ? WHERE id = ? ");
             $stmt->bind_param(
-                "sssidsi",
+                "ssdsi",
                 $type,
                 $name,
-                $unit,
-                $stock,
                 $cost,
                 $details,
                 $id
             );
             break;
         case "Equipment":
-            $stmt = $conn->prepare(" UPDATE equipment_materials SET equipment_type = ?, item_name = ?, unit = ?, current_stock = ?, cost_per_unit = ?, details = ? WHERE id = ? ");
+            $stmt = $conn->prepare(" UPDATE equipment_materials SET equipment_type = ?, item_name = ?, cost_per_unit = ?, details = ? WHERE id = ? ");
             $stmt->bind_param(
-                "sssiisi",
+                "ssisi",
                 $type,
                 $name,
-                $unit,
-                $stock,
                 $cost,
                 $details,
                 $id
@@ -99,13 +93,11 @@ try {
             );
             break;
         case "Interior Lining":
-            $stmt = $conn->prepare(" UPDATE interior_lining_materials SET interior_type = ?, item_name = ?, unit = ?, current_stock = ?, cost_per_unit = ?, details = ? WHERE id = ? ");
+            $stmt = $conn->prepare(" UPDATE interior_lining_materials SET interior_type = ?, item_name = ?, cost_per_unit = ?, details = ? WHERE id = ? ");
             $tmt->bind_param(
-                "sssidsi",
+                "sssdsi",
                 $type,
                 $name,
-                $unit,
-                $stock,
                 $cost,
                 $details,
                 $id

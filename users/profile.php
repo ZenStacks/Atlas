@@ -22,7 +22,6 @@ session_start();
                     <ul>
                         <a href="#" class="nav-item" data-tab="profile-information-section">Profile Info</a>
                         <a href="#" class="nav-item" data-tab="account-settings">Account Settings</a>
-                        <a href="#" class="nav-item" data-tab="notifications">Notifications</a>
                         <a href="#" class="nav-item" data-tab="service-preferences">Service Preferences</a>
                         <a href="#" class="nav-item" data-tab="my-preferences">My Preferences</a>
                         <?php if (isset($_SESSION['customer_id'])): ?>
@@ -229,24 +228,6 @@ session_start();
                                 Save Security Settings
                             </button>
                         </div>
-                    </div>
-                </div>
-            </div>
-            <!-- Notifications -->
-            <div id="notifications" class="tab-content">
-                <div class="notifications-container">
-                    <div class="notifications-header">
-                        <div class="notifications-title">
-                            <h2>Notifications</h2>
-                        </div>
-                        <button class="mark-all-read">
-                            Mark all as read
-                        </button>
-                        <button class="delete-notif" id="delete-notifications">
-                            Delete notifications
-                        </button>
-                    </div>
-                    <div class="notification-scroll" id="notification-list">
                     </div>
                 </div>
             </div>
@@ -485,15 +466,6 @@ settingItems.forEach(item => {
         if (sections[title]) {
             sections[title].classList.remove("hidden");
         }
-    });
-});
-// Notificaations
-document.querySelector(".mark-all-read").addEventListener("click", () => {
-    document.querySelectorAll(".notification-card").forEach(card => {
-        card.classList.remove("unread");
-
-        const dot = card.querySelector(".notification-status");
-        if (dot) dot.remove();
     });
 });
 // profile connection
@@ -1096,155 +1068,7 @@ document.getElementById("save-security-settings").addEventListener("click", func
     });
 
 });
-// notifications
-async function loadNotifications() {
-    try {
-        const response = await fetch(
-            "../backend/users/get_notifications.php"
-        );
-        const result = await response.json();
-        if (result.status !== "success") {
-            return;
-        }
-        const container = document.getElementById("notification-list");
-        if (!container) return;
 
-        container.innerHTML = "";
-        result.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach(notification => {
-            const unreadClass = notification.is_read == 0 ? "unread" : "";
-            let icon = "bi-bell-fill";
-            let iconClass = "";
-
-            if (notification.type === "success") {
-                icon = "bi-check-circle-fill";
-                iconClass = "success";
-            }
-
-            if (notification.type === "warning") {
-                icon = "bi-exclamation-triangle-fill";
-                iconClass = "warning";
-            }
-
-            container.innerHTML += `
-                <div class="notification-card ${unreadClass}">
-                    <div class="notification-icon ${iconClass}">
-                        <i class="bi ${icon}"></i>
-                    </div>
-
-                    <div class="notification-content">
-                        <h3>${notification.title}</h3>
-                        <p>${notification.message}</p>
-                        <span class="time">${notification.created_at}</span>
-                    </div>
-
-                    ${notification.is_read == 0
-                        ? '<div class="notification-status"></div>'
-                        : ''}
-                </div>
-            `;
-        });
-
-    } catch(error) {
-        Swal.fire({
-            icon: 'error',
-            title: 'Something went wrong',
-            text: 'We encountered an issue. Please try again or refresh the page.',
-            showConfirmButton: false,
-            timer: 3000,
-            timerProgressBar: true
-        });
-    }
-}
-document.getElementById("delete-notifications").addEventListener("click", function () {
-    Swal.fire({
-        icon: "warning",
-        title: "Delete notifications?",
-        text: "All of your notifications will be permanently deleted.",
-        showCancelButton: true,
-        confirmButtonText: "Yes, delete them",
-        cancelButtonText: "Cancel"
-    }).then((result) => {
-        if (!result.isConfirmed) {
-            return;
-        }
-        fetch("../backend/users/delete_notifications.php", {
-            method: "POST"
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === "success") {
-                document.getElementById("notification-list").innerHTML = "";
-                Swal.fire({
-                    icon: "success",
-                    title: "Deleted!",
-                    text: data.message,
-                    showConfirmButton: false,
-                    timer: 1500,
-                    timerProgressBar: true
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Delete Failed",
-                    text: data.message
-                });
-            }
-        })
-        .catch(error => {
-            Swal.fire({
-                icon: "error",
-                title: "Something went wrong",
-                text: "Unable to delete your notifications.",
-                showConfirmButton: false,
-                timer: 3000,
-                timerProgressBar: true
-            });
-        });
-    });
-});
-document.addEventListener("DOMContentLoaded", () => {
-
-    loadNotifications();
-
-    const markAllBtn =
-        document.querySelector(".mark-all-read");
-
-    if(markAllBtn){
-
-        markAllBtn.addEventListener("click", async () => {
-
-            try {
-
-                const response = await fetch(
-                    "../backend/users/mark_notifications_read.php",
-                    {
-                        method: "POST"
-                    }
-                );
-
-                const result = await response.json();
-                if(result.status === "success"){
-                    await loadNotifications();
-                }else{
-                    Swal.fire({
-                        icon: "error",
-                        title: "Error",
-                        text: result.message || "Failed to update notifications."
-                    });
-                }
-            } catch(error){
-                Swal.fire({
-                    icon: "error",
-                    title: "Error",
-                    text: "Something went wrong."
-                });
-            }
-
-        });
-
-    }
-
-});
 // logout
 document.getElementById("logout-btn").addEventListener("click", function(e){
 

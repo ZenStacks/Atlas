@@ -1,9 +1,6 @@
 <?php
-
 require_once __DIR__ . '/../conn.php';
-
 header("Content-Type: application/json; charset=UTF-8");
-
 try {
 
     $totalAtNeedStmt = $conn->query("
@@ -31,7 +28,6 @@ try {
             COALESCE(partial_payment, 0) > 0
         )
     ");
-
     if (!$totalAtNeedStmt) {
         throw new Exception(
             "Total At-Need revenue query failed: " .
@@ -39,10 +35,7 @@ try {
         );
     }
 
-    $totalAtNeed =
-        (float) $totalAtNeedStmt
-            ->fetch_assoc()['revenue'];
-
+    $totalAtNeed = (float) $totalAtNeedStmt->fetch_assoc()['revenue'];
     $totalLifeplanStmt = $conn->query("
         SELECT
             COALESCE(
@@ -64,13 +57,9 @@ try {
         );
     }
 
-    $totalLifeplan =
-        (float) $totalLifeplanStmt
-            ->fetch_assoc()['revenue'];
+    $totalLifeplan =(float) $totalLifeplanStmt->fetch_assoc()['revenue'];
 
-    $totalRevenue =
-        $totalAtNeed +
-        $totalLifeplan;
+    $totalRevenue = $totalAtNeed + $totalLifeplan;
     $currentAtNeedStmt = $conn->query("
         SELECT
             COALESCE(
@@ -107,10 +96,7 @@ try {
         );
     }
 
-    $currentAtNeed =
-        (float) $currentAtNeedStmt
-            ->fetch_assoc()['revenue'];
-
+    $currentAtNeed = (float) $currentAtNeedStmt->fetch_assoc()['revenue'];
     $currentLifeplanStmt = $conn->query("
         SELECT
             COALESCE(
@@ -135,14 +121,8 @@ try {
         );
     }
 
-    $currentLifeplan =
-        (float) $currentLifeplanStmt
-            ->fetch_assoc()['revenue'];
-
-    $currentRevenue =
-        $currentAtNeed +
-        $currentLifeplan;
-
+    $currentLifeplan = (float) $currentLifeplanStmt->fetch_assoc()['revenue'];
+    $currentRevenue = $currentAtNeed + $currentLifeplan;
     $previousAtNeedStmt = $conn->query("
         SELECT
             COALESCE(
@@ -182,10 +162,7 @@ try {
         );
     }
 
-    $previousAtNeed =
-        (float) $previousAtNeedStmt
-            ->fetch_assoc()['revenue'];
-
+    $previousAtNeed = (float) $previousAtNeedStmt->fetch_assoc()['revenue'];
     $previousLifeplanStmt = $conn->query("
         SELECT
             COALESCE(
@@ -213,81 +190,37 @@ try {
         );
     }
 
-    $previousLifeplan =
-        (float) $previousLifeplanStmt
-            ->fetch_assoc()['revenue'];
-
-    $previousRevenue =
-        $previousAtNeed +
-        $previousLifeplan;
-
+    $previousLifeplan = (float) $previousLifeplanStmt->fetch_assoc()['revenue'];
+    $previousRevenue = $previousAtNeed + $previousLifeplan;
     $percentageChange = 0;
-
     if ($previousRevenue > 0) {
-
-        $percentageChange =
-            (
-                ($currentRevenue - $previousRevenue)
-                /
-                $previousRevenue
-            ) * 100;
+        $percentageChange =(($currentRevenue - $previousRevenue) / $previousRevenue) * 100;
     }
-
     $direction = "same";
-
     if ($percentageChange > 0) {
-
         $direction = "up";
-
     } elseif ($percentageChange < 0) {
-
         $direction = "down";
     }
-
     echo json_encode([
-
         "success" => true,
-        "revenue" =>
-            round($totalRevenue, 2),
-
-        "current_revenue" =>
-            round($currentRevenue, 2),
-
-        "previous_revenue" =>
-            round($previousRevenue, 2),
-
-        "change" =>
-            round($percentageChange, 2),
-        "direction" =>
-            $direction,
-
-        "atneed_revenue" =>
-            round($totalAtNeed, 2),
-
-        "lifeplan_revenue" =>
-            round($totalLifeplan, 2),
-
-        "current_atneed_revenue" =>
-            round($currentAtNeed, 2),
-
-        "current_lifeplan_revenue" =>
-            round($currentLifeplan, 2),
-
-        "previous_atneed_revenue" =>
-            round($previousAtNeed, 2),
-
-        "previous_lifeplan_revenue" =>
-            round($previousLifeplan, 2)
+        "revenue" => round($totalRevenue, 2),
+        "current_revenue" => round($currentRevenue, 2),
+        "previous_revenue" => round($previousRevenue, 2),
+        "change" => round($percentageChange, 2),
+        "direction" => $direction,
+        "atneed_revenue" => round($totalAtNeed, 2),
+        "lifeplan_revenue" => round($totalLifeplan, 2),
+        "current_atneed_revenue" => round($currentAtNeed, 2),
+        "current_lifeplan_revenue" => round($currentLifeplan, 2),
+        "previous_atneed_revenue" => round($previousAtNeed, 2),
+        "previous_lifeplan_revenue" => round($previousLifeplan, 2)
     ]);
 
 } catch (Exception $e) {
-
     echo json_encode([
-
         "success" => false,
-
-        "message" =>
-            $e->getMessage()
+        "message" => $e->getMessage()
     ]);
 }
 ?>

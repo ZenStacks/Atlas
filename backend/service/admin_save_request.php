@@ -40,7 +40,10 @@ try {
     $floral_setup = trim($_POST["onsite_floral_setup"] ?? "");
     $chapel = $_POST["chapel"] ?? "";
     $payment_option = trim($_POST["payment_option"] ?? "" );
+    $retail_price = (float) preg_replace('/[^0-9.]/','',$_POST["retail_price"] ?? '0');
     $payment_term = trim($_POST["payment_term"] ?? "" );
+    $term_payment = (float) preg_replace('/[^0-9.]/','',$_POST["term_payment"] ?? '0');
+    $downpayment = (float) preg_replace('/[^0-9.]/','',$_POST["downpayment"] ?? '0');
     $gov_id_number = trim($_POST["gov_id_number"] ?? "");
     $signature_date = $_POST["signature_date"] ?? null;
     $signature_file = "";
@@ -138,13 +141,13 @@ try {
     $checkStmt->close();
     $stmt = $conn->prepare("INSERT INTO service_requests (service_request_no, user_id, performed_by, customer_name, coffin_id, coffin_source, quantity, relationship,
             beneficiary_lastname, beneficiary_firstname, beneficiary_middlename, email, phone_no, gender, age, birth_date, date_need, date_of_death, `condition`, location, residential_address, service_type, wake_location,
-            interment_date, cemetery, transportation, floral, floral_setup, chapel, payment_option, payment_term, gov_id_number, gov_id, signature_file, signature_date, status, lastname_hash, firstname_hash, middlename_hash, gov_id_number_hash)
-            VALUES (?, ?, 'admin',?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '-', ?, ?, 'confirmed', ?, ?, ?, ?)");
+            interment_date, cemetery, transportation, floral, floral_setup, chapel, payment_option, retail_price, payment_term, term_payment, downpayment, gov_id_number, gov_id, signature_file, signature_date, status, lastname_hash, firstname_hash, middlename_hash, gov_id_number_hash)
+            VALUES (?, ?, 'admin',?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '-', ?, ?, 'confirmed', ?, ?, ?, ?)");
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }
     $stmt->bind_param(
-        "sisisisssssssisssssssssssssssssssssss",
+        "sisisisssssssisssssssssssssssdsddsssssss",
         $serviceRequestNo,
         $user_id,
         $customer_name,
@@ -174,7 +177,10 @@ try {
         $floral_setup,
         $chapel,
         $payment_option,
+        $retail_price,
         $payment_term,
+        $term_payment,
+        $downpayment,
         $gov_id_number,
         $signature_file,
         $signature_date,

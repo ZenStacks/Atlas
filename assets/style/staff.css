@@ -809,9 +809,6 @@ input[type="text"][readonly] {
 .close-otp:hover{
     transform:rotate(90deg);
 }
-.modal-body{
-    padding:28px;
-}
 .detail-card{
     display:grid;
     grid-template-columns:repeat(2,1fr);

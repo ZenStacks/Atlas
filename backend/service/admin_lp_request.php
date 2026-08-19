@@ -35,9 +35,9 @@ try {
     $lp_planholder_email = trim($_POST["lp_planholder_email"] ?? "");
     $lp_planholder_address = trim($_POST["lp_planholder_address"] ?? "");
     
-    $lp_retail_price = $_POST["lp_retail_price"] ?? 0;
+    $lp_retail_price = (float) preg_replace('/[^0-9.]/','',$_POST["lp_retail_price"] ?? '0');
     $lp_lifeplan_max_months = $_POST["lp_lifeplan_max_months"] ?? 0;
-    $lp_term_payment = $_POST["lp_term_payment"]?? 0;
+    $lp_term_payment = (float) preg_replace('/[^0-9.]/','',$_POST["lp_term_payment"]?? '0');
     // lifeplan details
     $lp_plan_type = trim($_POST["lp_plan_type"] ?? "");
     $lp_payment_option = trim($_POST["lp_payment_option"] ?? "");
@@ -139,7 +139,7 @@ try {
         payment_term, retail_price, lifeplan_max_months, term_payment, funeral_service, prefered_cemetery, 
         religious_affiliation, special_instruction, gov_id_number, gov_id, applicant_signature, date_signed, status, lastname_hash, firstname_hash, middlename_hash, 
         gov_id_number_hash, applicant_name_hash, applicant_contact_no_hash, applicant_email_hash, contact_number_hash, email_address_hash, address_hash)
-        VALUES (?, ?, 'admin', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '-', ?, ?, ?, 'confirmed', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        VALUES (?, ?, 'admin', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '-', ?, ?, 'Confirmed', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }

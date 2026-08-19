@@ -6,7 +6,7 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../conn.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $query = "SELECT name, profile, contact_no, email, department FROM employer WHERE status = 'Active' OR status = 'available' ORDER BY name ASC";
+    $query = "SELECT name, profile, contact_no, email, status, department FROM employer WHERE status = 'Available' ORDER BY name ASC";
     $stmt = $conn->prepare($query);
     if ($stmt->execute()) {
         $result = $stmt->get_result();

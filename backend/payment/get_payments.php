@@ -57,11 +57,10 @@ try {
 
     elseif ($type === "preneed") {
 
-        $sql = "
+    $sql = "
             SELECT
                 lp.id,
                 lp.user_id,
-                lp.lifeplan_request_id,
                 lp.approved_lifeplan_id,
                 lp.reference_number,
                 lp.amount,
@@ -72,7 +71,7 @@ try {
                 lp.file_path,
                 lp.created_at,
 
-                lr.id AS lifeplan_request_id_from_request,
+                lr.id AS lifeplan_request_id,
                 lr.lifeplan_no,
 
                 lr.planholder_firstname,
@@ -81,8 +80,8 @@ try {
 
             FROM lifeplan_payments lp
 
-            LEFT JOIN lifeplan_requests lr
-                ON lp.lifeplan_request_id = lr.id
+            LEFT JOIN lifeplan_request lr
+                ON lp.approved_lifeplan_id = lr.id
 
             WHERE lp.status = 'Pending'
 

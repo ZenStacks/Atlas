@@ -1,17 +1,12 @@
 <?php
-
 ini_set('session.cookie_path', '/');
 ini_set('session.cookie_httponly', 1);
-
 session_start();
-
 require_once __DIR__ . '/../backend/conn.php';
-
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php');
     exit;
 }
-
 $userId = (int)$_SESSION['user_id'];
 $username = $_SESSION['username'] ?? '';
 ?>
@@ -30,7 +25,6 @@ $username = $_SESSION['username'] ?? '';
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="whole-page-container">
@@ -42,10 +36,10 @@ $username = $_SESSION['username'] ?? '';
             </div>
             <div class="info-card">
                 <ul>
-                    <!-- <li><i class="bi bi-question-circle"></i>Help &amp; Support</li>
-                    <a href=""><li><i class="bi bi-file-earmark-text"></i>Terms and Conditions</li></a>
-                    <a href="../users/privacy_policy.php"><li><i class="bi bi-shield-lock"></i>Privacy Policy</li></a> -->
-                    <a href="../backend/admin/adminLogout.php"><li class="logout" style="color: red;"><i class="bi bi-box-arrow-right"></i> Logout</li></a>
+                    <a href="help_and_support.php"><li><i class="bi bi-question-circle"></i>Help &amp; Support</li></a>
+                    <a href="terms_and_condition.php"><li><i class="bi bi-file-earmark-text"></i>Terms and Conditions</li></a>
+                    <a href="privacy_policy.php"><li><i class="bi bi-shield-lock"></i>Privacy Policy</li></a>
+                    <a href="../backend/admin/adminLogout.php" id="adminLogout"><li class="logout" style="color: red;"><i class="bi bi-box-arrow-right"></i>Logout</li></a>
                 </ul>
             </div>
         </div>
@@ -58,7 +52,7 @@ $username = $_SESSION['username'] ?? '';
                             Analytics
                             <i class="bi bi-caret-right-fill caret-icon"></i>
                         </li>
-                        <!-- <li class="category-item"><i class="bi bi-bar-chart"></i> Reports</li> -->
+                        <li class="category-item"><i class="bi bi-bar-chart"></i> Reports</li>
                         <!-- settings -->
                         <li class="category-title">
                             Settings &amp; privacy
@@ -73,12 +67,7 @@ $username = $_SESSION['username'] ?? '';
                         </li>
                         <li class="category-item"><i class="bi bi-chat-dots"></i> Chat</li>
                         <li class="category-item"><i class="bi bi-telephone"></i> Contacts</li>
-                        <!-- <li class="category-item notification-menu" id="notificationMenu">
-                            <i class="bi bi-bell"></i>
-                            Notifications
-                            <span class="notification-badge" id="notificationBadge"></span>
-                        </li> -->
-
+                        <!-- Management -->
                         <li class="category-title">
                             Management
                             <i class="bi bi-caret-right-fill caret-icon"></i>
@@ -226,8 +215,8 @@ $username = $_SESSION['username'] ?? '';
                         </div>
                     </div>
                 </div>
-                <!-- tago ka sakin -->
-                <!-- <div class="last-container">
+                <!-- done -->
+                <div class="last-container">
                     <div class="overall">
                         <div class="overall-chart-card transactions-card">
                             <h3>Recent Funeral Transactions</h3>
@@ -236,55 +225,29 @@ $username = $_SESSION['username'] ?? '';
                                     <tr>
                                         <th>Service No.</th>
                                         <th>Customer</th>
+                                        <th>Beneficiary</th>
                                         <th>Service</th>
-                                        <th>Status</th>
                                         <th>Amount</th>
+                                        <th>Remaining Balance</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody id="recentTransactionsBody">
                                     <tr>
-                                        <td>SR-20260701</td>
-                                        <td>Juan Dela Cruz</td>
-                                        <td>Burial Service</td>
-                                        <td>
-                                            <span class="status completed">
-                                                Completed
-                                            </span>
+                                        <td colspan="7" style="text-align:center;">
+                                            Loading transactions...
                                         </td>
-                                        <td>₱35,000</td>
-                                    </tr>
-                                    <tr>
-                                        <td>SR-20260702</td>
-                                        <td>Ana Santos</td>
-                                        <td>Complete Funeral</td>
-                                        <td>
-                                            <span class="status pending">
-                                                Pending
-                                            </span>
-                                        </td>
-                                        <td>₱65,000</td>
-                                    </tr>
-                                    <tr>
-                                        <td>SR-20260703</td>
-                                        <td>Mark Lopez</td>
-                                        <td>Viewing</td>
-                                        <td>
-                                            <span class="status completed">
-                                                Completed
-                                            </span>
-                                        </td>
-                                        <td>₱18,000</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="view-all">
-                                <a href="#">View All →</a>
+                                <a href="transactions.php">View All →</a>
                             </div>
                         </div>
                     </div>
-                </div> -->
+                </div>
                 <!-- REPORTS tago ka sakin --> 
-                <!-- <div class="reports-container hidden" id="reports-container">
+                <div class="reports-container hidden" id="reports-container">
                     <h2>Funeral Service Report</h2>
                     <div class="report-toolbar">
                         <div class="report-filter-date">
@@ -334,9 +297,10 @@ $username = $_SESSION['username'] ?? '';
                             <div class="report-icon blue">
                                 <i class="bi bi-people-fill"></i>
                             </div>
+
                             <div class="report-details">
                                 <p>Total Funeral Services</p>
-                                <h2>45</h2>
+                                <h2 id="totalFuneralServices">0</h2>
                             </div>
                         </div>
                         <div class="report-card">
@@ -345,7 +309,7 @@ $username = $_SESSION['username'] ?? '';
                             </div>
                             <div class="report-details">
                                 <p>Completed Services</p>
-                                <h2>38</h2>
+                                <h2 id="completedServices">0</h2>
                             </div>
                         </div>
                         <div class="report-card">
@@ -354,7 +318,7 @@ $username = $_SESSION['username'] ?? '';
                             </div>
                             <div class="report-details">
                                 <p>Pending Services</p>
-                                <h2>5</h2>
+                                <h2 id="pendingServices">0</h2>
                             </div>
                         </div>
                         <div class="report-card">
@@ -364,7 +328,7 @@ $username = $_SESSION['username'] ?? '';
 
                             <div class="report-details">
                                 <p>Cancelled Services</p>
-                                <h2>2</h2>
+                                <h2 id="cancelledServices">0</h2>
                             </div>
                         </div>
                         <div class="report-card">
@@ -373,7 +337,7 @@ $username = $_SESSION['username'] ?? '';
                             </div>
                             <div class="report-details">
                                 <p>Total Revenue</p>
-                                <h2>₱1,245,000.00</h2>
+                                <h2 id="totalRevenue">₱0.00</h2>
                             </div>
                         </div>
                         <div class="report-card">
@@ -382,10 +346,11 @@ $username = $_SESSION['username'] ?? '';
                             </div>
                             <div class="report-details">
                                 <p>Payments Received</p>
-                                <h2>₱950,000.00</h2>
+                                <h2 id="paymentsReceived">₱0.00</h2>
                             </div>
                         </div>
                     </div>
+                    <!-- charts -->
                     <div class="report-charts">
                         <div class="chart-card">
                             <h3>Service Breakdown</h3>
@@ -397,108 +362,39 @@ $username = $_SESSION['username'] ?? '';
                                 <div class="report-chart-container">
                                     <canvas id="paymentMethodChart"></canvas>
                                 </div>
-                                <div class="payment-legend">
-                                    <div class="legend-item">
-                                        <span class="legend-color cash"></span>
-                                        <span>Cash</span>
-                                        <span>-</span>
-                                        <strong>20 (50%)</strong>
-                                    </div>
-                                    <div class="legend-item">
-                                        <span class="legend-color online"></span>
-                                        <span>Online Transaction</span>
-                                        <span>-</span>
-                                        <strong>20 (50%)</strong>
-                                    </div>
-                                </div>
+                                <div class="payment-legend" id="paymentLegend"></div>
                             </div>
                         </div>
                     </div>
                     <div class="bottom-report-grid">
                         <div class="chart-card transactions-card">
                             <h3>Recent Funeral Transactions</h3>
-                            <table class="report-table">
-                                <thead>
-                                    <tr>
-                                        <th>Service No.</th>
-                                        <th>Customer</th>
-                                        <th>Service</th>
-                                        <th>Status</th>
-                                        <th>Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recentTransactionsBody">
-                                    <tr>
-                                        <td>SR-20260701</td>
-                                        <td>Juan Dela Cruz</td>
-                                        <td>Burial Service</td>
-                                        <td>
-                                            <span class="status completed">
-                                                Completed
-                                            </span>
-                                        </td>
-                                        <td>₱35,000</td>
-                                    </tr>
-                                    <tr>
-                                        <td>SR-20260702</td>
-                                        <td>Ana Santos</td>
-                                        <td>Complete Funeral</td>
-                                        <td>
-                                            <span class="status pending">
-                                                Pending
-                                            </span>
-                                        </td>
-                                        <td>₱65,000</td>
-                                    </tr>
-                                    <tr>
-                                        <td>SR-20260703</td>
-                                        <td>Mark Lopez</td>
-                                        <td>Viewing</td>
-                                        <td>
-                                            <span class="status completed">
-                                                Completed
-                                            </span>
-                                        </td>
-                                        <td>₱18,000</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div class="view-all">
-                                <a href="#">View All →</a>
+                            <div class="recent-transactions-table-wrapper">
+                                <table class="report-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Service No.</th>
+                                            <th>Customer</th>
+                                            <th>Service</th>
+                                            <th>Amount</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="reportRecentTransactionsBody">
+                                        <tr>
+                                            <td colspan="5" style="text-align:center;">
+                                                Loading transactions...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
-                        </div>
-                        <div class="chart-card pending-card">
-                            <h3>Pending Payments</h3>
-                            <table class="report-table">
-                                <thead>
-                                    <tr>
-                                        <th>Customer</th>
-                                        <th>Service No.</th>
-                                        <th>Balance</th>
-                                        <th>Due Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="pendingPaymentsBody">
-                                    <tr>
-                                        <td>Ana Santos</td>
-                                        <td>SR-20260702</td>
-                                        <td>₱25,000</td>
-                                        <td>July 30, 2026</td>
-                                    </tr>
-                                    <tr>
-                                        <td>John Reyes</td>
-                                        <td>SR-20260708</td>
-                                        <td>₱18,500</td>
-                                        <td>August 2, 2026</td>
-                                    </tr>
-                                </tbody>
-                            </table>
                             <div class="view-all">
-                                <a href="#">View All →</a>
+                                <a href="transactions.php">View All →</a>
                             </div>
                         </div>
                     </div>
-                </div> -->
+                </div>
                 <!-- account and security  -->
                 <div class="account-security-container" id="account-security-container">
                     <h2>Account & Security</h2>
@@ -674,13 +570,13 @@ $username = $_SESSION['username'] ?? '';
                 <div class="data-management-container" id="data-management-container">
                     <h2>Data Management</h2>
                     <div class="data-tabs">
-                        <button class="data-tab active">Deceased Records</button>
-                        <button class="data-tab">Products Records</button>
-                        <button class="data-tab">Material Records</button>
+                        <button class="data-tab active" data-target="deceased">Deceased Records</button>
+                        <button class="data-tab" data-target="products">Products Records</button>
+                        <button class="data-tab" data-target="materials">Material Records</button>
                         <input type="text" placeholder="Search records..." id="dataSearchInput">
                     </div>
                     <!-- Deceased Table -->
-                    <div class="data-section active">
+                    <div class="data-section active" data-section="deceased">
                         <h2>Deceased Records</h2>
                         <div class="table-wrapper">
                             <table class="deceased-table">
@@ -699,7 +595,7 @@ $username = $_SESSION['username'] ?? '';
                         </div>
                     </div>
                     <!-- products table -->
-                    <div class="data-section">
+                    <div class="data-section" data-section="products">
                         <h2>Products Records</h2>
                         <div class="table-wrapper">
                             <table class="products-table">
@@ -721,7 +617,7 @@ $username = $_SESSION['username'] ?? '';
                         </div>
                     </div>
                     <!-- Materials Table -->
-                    <div class="data-section">
+                    <div class="data-section" data-section="materials">
                         <h2>Material Records</h2>
                         <div class="table-wrapper">
                             <table class="edit-materials-table">
@@ -754,7 +650,7 @@ $username = $_SESSION['username'] ?? '';
                                 <h2>Product Details</h2>
                                 <button class="close-modal" id="closeViewProduct">&times;</button>
                             </div>
-                            <div class="modal-body">
+                            <div class="products-modal-body">
                                 <div class="product-image-section">
                                     <img id="viewProductImage"
                                         src="../assets/img/no-image.jpg"
@@ -803,7 +699,7 @@ $username = $_SESSION['username'] ?? '';
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal-footer">
+                            <div class="products-modal-footer">
                                 <button class="close-btn" id="closeViewProduct2">Close</button>
                             </div>
                         </div>
@@ -820,7 +716,7 @@ $username = $_SESSION['username'] ?? '';
                             <form id="editProductForm" enctype="multipart/form-data">
                                 <input type="hidden" id="editProductId" name="product_id">
                                 <input type="hidden" id="editProductOriginHidden" name="origin">
-                                <div class="modal-body">
+                                <div class="products-modal-body">
                                     <div class="product-image-section">
                                         <img id="editProductPreview"
                                             src="../assets/img/no-image.jpg"
@@ -885,7 +781,7 @@ $username = $_SESSION['username'] ?? '';
                                         </div>
                                     </div>
                                 </div>
-                                <div class="modal-footer">
+                                <div class="products-modal-footer">
                                     <button type="button" class="data-edit-close-btn" id="closeEditProduct2">Cancel</button>
                                     <button type="submit" class="data-edit-save-btn">Save Changes</button>
                                 </div>
@@ -909,76 +805,39 @@ $username = $_SESSION['username'] ?? '';
                                         <div class="edit-form-grid">
                                             <div class="form-field">
                                                 <label>Material Name</label>
-                                                <input
-                                                    type="text"
-                                                    id="editMaterialName"
-                                                    name="material_name"
-                                                    required>
+                                                <input type="text" id="editMaterialName" name="material_name" required>
                                             </div>
                                             <div class="form-field">
                                                 <label>Material Type</label>
-                                                <input
-                                                    type="text"
-                                                    id="editMaterialType"
-                                                    name="material_type"
-                                                    required>
+                                                <input type="text" id="editMaterialType" name="material_type" readonly>
                                             </div>
                                             <div class="form-field">
                                                 <label>Unit</label>
-                                                <input
-                                                    type="text"
-                                                    id="editMaterialUnit"
-                                                    name="unit"
-                                                    required>
+                                                <input type="text" id="editMaterialUnit" name="unit" readonly>
                                             </div>
                                             <div class="form-field">
                                                 <label>Cost</label>
-                                                <input
-                                                    type="number"
-                                                    id="editMaterialCost"
-                                                    name="cost"
-                                                    min="0"
-                                                    step="0.01"
-                                                    required>
+                                                <input type="number" id="editMaterialCost" name="cost" min="0" step="0.01"
+                                                   required>
                                             </div>
                                             <div class="form-field">
                                                 <label>Current Stock</label>
-                                                <input
-                                                    type="number"
-                                                    id="editMaterialStock"
-                                                    name="current_stock"
-                                                    min="0"
-                                                    required>
+                                                <input type="number" id="editMaterialStock" name="current_stock" min="0" readonly>
                                             </div>
                                             <div class="form-field">
                                                 <label>Material Category</label>
-                                                <input
-                                                    type="text"
-                                                    id="editMaterialCategoryDisplay"
-                                                    readonly>
+                                                <input type="text" id="editMaterialCategoryDisplay" readonly>
                                             </div>
                                             <div class="form-field full-width">
                                                 <label>Description</label>
-                                                <textarea
-                                                    id="editMaterialDescription"
-                                                    name="details"
-                                                    rows="4"></textarea>
+                                                <textarea id="editMaterialDescription" name="details" rows="4"></textarea>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button
-                                        type="button"
-                                        class="data-edit-close-btn"
-                                        id="closeEditMaterial2">
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        class="data-edit-save-btn">
-                                        Save Changes
-                                    </button>
+                                    <button type="button" class="data-edit-close-btn" id="closeEditMaterial2"> Cancel </button>
+                                    <button type="submit" class="data-edit-save-btn"> Save Changes </button>
                                 </div>
                             </form>
                         </div>
@@ -992,18 +851,10 @@ $username = $_SESSION['username'] ?? '';
                                 <h2>Edit Deceased Record</h2>
                                 <p>Update the deceased record information.</p>
                             </div>
-                            <button
-                                type="button"
-                                class="close-edit-deceased"
-                                id="closeEditDeceased">
-                                &times;
-                            </button>
+                            <button type="button" class="close-edit-deceased" id="closeEditDeceased">&times;</button>
                         </div>
                         <form id="editDeceasedForm">
-                            <input
-                                type="hidden"
-                                id="editDeceasedId"
-                                name="id">
+                            <input type="hidden" id="editDeceasedId" name="id">
                             <div class="edit-deceased-section">
                                 <div class="edit-deceased-section-title">
                                     <i class="bi bi-person"></i>
@@ -1011,76 +862,32 @@ $username = $_SESSION['username'] ?? '';
                                 </div>
                                 <div class="edit-deceased-grid">
                                     <div class="edit-deceased-field">
-                                        <label for="editFirstName">
-                                            First Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="editFirstName"
-                                            name="deceased_firstname"
-                                            placeholder="Enter first name"
-                                            required
-                                        >
+                                        <label for="editFirstName">First Name</label>
+                                        <input type="text" id="editFirstName" name="deceased_firstname" placeholder="Enter first name" required >
                                     </div>
                                     <div class="edit-deceased-field">
-                                        <label for="editMiddleName">
-                                            Middle Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="editMiddleName"
-                                            name="deceased_middlename"
-                                            placeholder="Enter middle name"
-                                        >
+                                        <label for="editMiddleName">Middle Name</label>
+                                        <input type="text" id="editMiddleName" name="deceased_middlename" placeholder="Enter middle name" >
                                     </div>
                                     <div class="edit-deceased-field">
-                                        <label for="editLastName">
-                                            Last Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="editLastName"
-                                            name="deceased_lastname"
-                                            placeholder="Enter last name"
-                                            required>
+                                        <label for="editLastName">Last Name</label>
+                                        <input type="text" id="editLastName" name="deceased_lastname" placeholder="Enter last name" required>
                                     </div>
                                     <div class="edit-deceased-field">
-                                        <label for="editGender">
-                                            Gender
-                                        </label>
+                                        <label for="editGender">Gender</label>
                                         <select id="editGender" name="gender">
-                                            <option value="">
-                                                Select gender
-                                            </option>
-                                            <option value="Male">
-                                                Male
-                                            </option>
-                                            <option value="Female">
-                                                Female
-                                            </option>
+                                            <option value="">Select gender</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
                                         </select>
                                     </div>
                                     <div class="edit-deceased-field">
-                                        <label for="editBirthDate">
-                                            Birth Date
-                                        </label>
-                                        <input
-                                            type="date"
-                                            id="editBirthDate"
-                                            name="birth_date"
-                                        >
+                                        <label for="editBirthDate">Birth Date</label>
+                                        <input type="date" id="editBirthDate" name="birth_date" >
                                     </div>
                                     <div class="edit-deceased-field">
-                                        <label for="editAge">
-                                            Age
-                                        </label>
-                                        <input
-                                            type="number"
-                                            id="editAge"
-                                            name="age"
-                                            min="0"
-                                            placeholder="Enter age"
-                                        >
+                                        <label for="editAge">Age</label>
+                                        <input type="number" id="editAge" name="age" min="0" placeholder="Enter age" >
                                     </div>
                                 </div>
                             </div>
@@ -1091,34 +898,16 @@ $username = $_SESSION['username'] ?? '';
                                 </div>
                                 <div class="edit-deceased-grid">
                                     <div class="edit-deceased-field">
-                                        <label for="editDateOfDeath">
-                                            Date of Death
-                                        </label>
-                                        <input
-                                            type="date"
-                                            id="editDateOfDeath"
-                                            name="date_of_death"
-                                        >
+                                        <label for="editDateOfDeath">Date of Death</label>
+                                        <input type="date" id="editDateOfDeath" name="date_of_death" >
                                     </div>
                                     <div class="edit-deceased-field">
-                                        <label for="editDateNeed">
-                                            Date Needed
-                                        </label>
-                                        <input
-                                            type="date"
-                                            id="editDateNeed"
-                                            name="date_need"
-                                        >
+                                        <label for="editDateNeed">Date Needed</label>
+                                        <input type="date" id="editDateNeed" name="date_need" >
                                     </div>
                                     <div class="edit-deceased-field">
-                                        <label for="editIntermentDate">
-                                            Interment Date
-                                        </label>
-                                        <input
-                                            type="date"
-                                            id="editIntermentDate"
-                                            name="interment_date"
-                                        >
+                                        <label for="editIntermentDate">Interment Date</label>
+                                        <input type="date" id="editIntermentDate" name="interment_date" >
                                     </div>
                                 </div>
                             </div>
@@ -1129,55 +918,24 @@ $username = $_SESSION['username'] ?? '';
                                 </div>
                                 <div class="edit-deceased-grid">
                                     <div class="edit-deceased-field">
-                                        <label for="editServicePackage">
-                                            Service Package
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="editServicePackage"
-                                            name="service_package"
-                                            placeholder="Enter service package">
+                                        <label for="editServicePackage">Service Package</label>
+                                        <input type="text" id="editServicePackage" name="service_package" placeholder="Enter service package" readonly>
                                     </div>
                                     <div class="edit-deceased-field">
-                                        <label for="editWakeLocation">
-                                            Wake Location
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="editWakeLocation"
-                                            name="wake_location"
-                                            placeholder="Enter wake location"
-                                        >
+                                        <label for="editWakeLocation">Wake Location</label>
+                                        <input type="text" id="editWakeLocation" name="wake_location" placeholder="Enter wake location" >
                                     </div>
                                     <div class="edit-deceased-field">
-                                        <label for="editCemetery">
-                                            Cemetery
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="editCemetery"
-                                            name="cemetery"
-                                            placeholder="Enter cemetery">
+                                        <label for="editCemetery">Cemetery</label>
+                                        <input type="text" id="editCemetery" name="cemetery" placeholder="Enter cemetery">
                                     </div>
                                     <div class="edit-deceased-field">
-                                        <label for="editLocation">
-                                            Location
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="editLocation"
-                                            name="location"
-                                            placeholder="Enter location">
+                                        <label for="editLocation">Location</label>
+                                        <input type="text" id="editLocation" name="location" placeholder="Enter location">
                                     </div>
                                     <div class="edit-deceased-field edit-deceased-full">
-                                        <label for="editPerformedBy">
-                                            Performed By
-                                        </label>
-                                        <input
-                                            type="text"
-                                            id="editPerformedBy"
-                                            name="performed_by"
-                                            placeholder="Enter performed by">
+                                        <label for="editPerformedBy">Performed By</label>
+                                        <input type="text" id="editPerformedBy" name="performed_by" placeholder="Enter performed by" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -1187,29 +945,13 @@ $username = $_SESSION['username'] ?? '';
                                     <span>Remarks</span>
                                 </div>
                                 <div class="edit-deceased-field">
-                                    <textarea
-                                        id="editRemarks"
-                                        name="remarks"
-                                        rows="4"
-                                        placeholder="Enter remarks..."
-                                    ></textarea>
+                                    <textarea id="editRemarks" name="remarks" rows="4" placeholder="Enter remarks..." ></textarea>
                                 </div>
                             </div>
                         </form>
                         <div class="edit-deceased-modal-footer">
-                            <button
-                                type="button"
-                                class="cancel-edit-deceased"
-                                id="cancelEditDeceased">
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                form="editDeceasedForm"
-                                class="save-edit-deceased">
-                                <i class="bi bi-check-lg"></i>
-                                Save Changes
-                            </button>
+                            <button type="button" class="cancel-edit-deceased" id="cancelEditDeceased"> Cancel </button>
+                            <button type="submit" form="editDeceasedForm" class="save-edit-deceased"> <i class="bi bi-check-lg"></i> Save Changes </button>
                         </div>
                     </div>
                 </div>
@@ -1274,19 +1016,6 @@ $username = $_SESSION['username'] ?? '';
                         <div class="contacts-grid" id="contacts-grid"></div>
                     </div>
                 </div>
-                <!-- <div class="notif-container" id="notif-container">
-                    <h2>Notifications</h2>
-                    <div class="notification-header">
-                        <button type="button" id="mark-all-read" class="mark-all-btn">
-                            Mark all as read
-                        </button>
-                    </div>
-                    <div id="notification-list">
-                        <div class="notification-loading">
-                            Loading notifications...
-                        </div>
-                    </div>
-                </div> -->
                 <!-- Preferences of a customer -->
                 <div class="preference-container" id="preference-container">
                     <h2>Preferences</h2>
@@ -1302,7 +1031,7 @@ $username = $_SESSION['username'] ?? '';
                             </button>
                             <button id="orders-approve-btn">
                                 <img src="../assets/img/Orders.png" alt="">
-                                <span>Orders to Approve</span>
+                                <span>Service to begin</span>
                             </button>
                             <button id="payment-pending-btn">
                                 <img src="../assets/img/payment.png" alt="">
@@ -1475,16 +1204,16 @@ $username = $_SESSION['username'] ?? '';
                                                         <label for="transportation">Transportation Services Required</label>
                                                         <select id="transportation" name="transportation">
                                                             <option value="">Select Option</option>
-                                                            <option value="yes">Yes</option>
-                                                            <option value="no">No</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
                                                         </select>
                                                     </div>
                                                     <div class="onsite-row">
                                                         <label for="floral">Floral Arrangements Required</label>
                                                         <select id="floral" name="floral">
                                                             <option value="">Select Option</option>
-                                                            <option value="yes">Yes</option>
-                                                            <option value="no">No</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
                                                         </select>
                                                     </div>
                                                     <div class="onsite-row">
@@ -1495,8 +1224,8 @@ $username = $_SESSION['username'] ?? '';
                                                         <label for="chapel">Chapel Services Required</label>
                                                         <select id="chapel" name="chapel">
                                                             <option value="">Select Option</option>
-                                                            <option value="yes">Yes</option>
-                                                            <option value="no">No</option>
+                                                            <option value="Yes">Yes</option>
+                                                            <option value="No">No</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -1628,10 +1357,10 @@ $username = $_SESSION['username'] ?? '';
                                                         <label>Civil Status:</label>
                                                         <select id="lp-plan-holder-civil-status" name="lp_plan_holder_civil_status" required>
                                                             <option value="">Select Civil Status</option>
-                                                            <option value="single">Single</option>
-                                                            <option value="married">Married</option>
-                                                            <option value="divorced">Divorced</option>
-                                                            <option value="widowed">Widowed</option>
+                                                            <option value="Single">Single</option>
+                                                            <option value="Married">Married</option>
+                                                            <option value="Divorced">Divorced</option>
+                                                            <option value="Widowed">Widowed</option>
                                                         </select>
                                                     </div>
                                                     <div class="onsite-row">
@@ -1660,28 +1389,34 @@ $username = $_SESSION['username'] ?? '';
                                                         <label for="lp-payment-option">Payment Option</label>
                                                         <select id="lp-payment-option" name="lp_payment_option">
                                                             <option value="">Select Payment Option</option>
-                                                            <option value="spot-cash">Full Payment</option>
-                                                            <option value="installment">Installment</option>
+                                                            <option value="Spot Cash">Full Payment</option>
+                                                            <option value="Installment">Installment</option>
                                                         </select>
                                                     </div>
                                                     <div class="onsite-row" id="lp-payment-term-row">
                                                         <label for="lp-interment-date">Preferred Payment Term</label>
                                                         <select id="lp-payment-term" name="lp_payment_term">
                                                             <option value="">Select Payment Term</option>
-                                                            <option value="monthly">Monthly</option>
-                                                            <option value="quarterly">Quarterly</option>
-                                                            <option value="semi-annual">Semi-Annual</option>
-                                                            <option value="annual">Annual</option>
+                                                            <option value="Monthly">Monthly</option>
+                                                            <option value="Quarterly">Quarterly</option>
+                                                            <option value="Semi-Annual">Semi-Annual</option>
+                                                            <option value="Annual">Annual</option>
                                                         </select>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="form-section">
-                                                <h3>Additional Preferences <strong style="font-style: italic; font-weight: 500;"> (Optional)</strong></h3>
+                                                <h3>Additional Preferences</h3>
                                                 <div class="fourth-modal">
                                                     <div class="onsite-row">
-                                                        <label>Preferred Funeral Service</label>
-                                                        <input type="text" id="lp-funeral-service" name="lp_funeral_service" placeholder="e.g., Premium Services" required>
+                                                        <label for="lp-funeral-service">Type of Service Required</label>
+                                                        <select id="lp-funeral-service" name="lp_funeral_service">
+                                                            <option value="">Select Service Type</option>
+                                                            <option value="burial">Burial Service</option>
+                                                            <option value="memorial">Memorial Service</option>
+                                                            <option value="viewing">Viewing and Wake Service</option>
+                                                            <option value="complete">Complete Funeral Service Package</option>
+                                                        </select>
                                                     </div>
                                                     <div class="onsite-row">
                                                         <label>Preferred Memorial Park/Cemetery</label>
@@ -1692,7 +1427,7 @@ $username = $_SESSION['username'] ?? '';
                                                         <input type="text" id="lp-religious-affiliation" name="lp_religious_affiliation" placeholder="e.g., Roman Catholic" required>
                                                     </div>
                                                     <div class="onsite-row">
-                                                        <label>Special Instructions</label>
+                                                        <label>Special Instructions <strong style="font-style: italic; font-weight: 600;">(Optional)</strong></label>
                                                         <textarea id="lp-special-instructions" name="lp_special_instructions" placeholder="e.g., Preferred funeral traditions, music, floral arrangements, burial preferences, or other important notes." required></textarea>
                                                     </div>
                                                 </div>
@@ -2186,6 +1921,21 @@ $username = $_SESSION['username'] ?? '';
                                                 <div class="approve-row">
                                                     <label>Residential Address</label>
                                                     <input type="text" id="preneedPlanholderAddress">
+                                                </div>
+                                            </div>
+                                            <div class="approve-section">
+                                                <h3>Service Schedule</h3>
+                                                <div class="approve-row">
+                                                    <label>Date of Death</label>
+                                                    <input type="date" id="preneedDateOfDeath">
+                                                </div>
+                                                <div class="approve-row">
+                                                    <label>Date Need</label>
+                                                    <input type="date" id="preneedDateNeed">
+                                                </div>
+                                                <div class="approve-row">
+                                                    <label>Interment Date</label>
+                                                    <input type="date" id="preneedIntermentDate">
                                                 </div>
                                             </div>
                                         </div>
@@ -3645,31 +3395,29 @@ $username = $_SESSION['username'] ?? '';
 
     //sidebar items
     const dashboardTitle = allSidebarItems[0];//dashboard title
-    // const reportsItem = allSidebarItems[1];//reports
-    const settingsTitle = allSidebarItems[1];//settings and privacy title
-    const accountItem = allSidebarItems[2];//account security
-    const accessKey = allSidebarItems[3];
-    const communicationTitle = allSidebarItems[4];//title 
-    const chatItem = allSidebarItems[5];//chat
-    const contactsItem = allSidebarItems[6]; //contacts
-    // const notificationsItem = allSidebarItems[7];//notifications
-    const manageTitle = allSidebarItems[7];//management title
-    const preferenceItem = allSidebarItems[8];//preference
-    const scheduleItem = allSidebarItems[9];//schedule
-    const inventoryItem = allSidebarItems[10];// data management
-    const dataManagementItem = allSidebarItems[11];//inventory and supplies
-    const staffManagementItem = allSidebarItems[12];//staff management
+    const reportsItem = allSidebarItems[1];//reports
+    const settingsTitle = allSidebarItems[2];//settings and privacy title
+    const accountItem = allSidebarItems[3];//account security
+    const accessKey = allSidebarItems[4];
+    const communicationTitle = allSidebarItems[5];//title 
+    const chatItem = allSidebarItems[6];//chat
+    const contactsItem = allSidebarItems[7]; //contacts
+    const manageTitle = allSidebarItems[8];//management title
+    const preferenceItem = allSidebarItems[9];//preference
+    const scheduleItem = allSidebarItems[10];//schedule
+    const inventoryItem = allSidebarItems[11];// data management
+    const dataManagementItem = allSidebarItems[12];//inventory and supplies
+    const staffManagementItem = allSidebarItems[13];//staff management
 
     const firstTotalCards = document.getElementById("first-total-card");
     const secondTotalCards = document.getElementById("second-total-card");
     const dashboardContent = document.querySelector('.content-row'); 
-    // const reportsContainer = document.getElementById('reports-container');
+    const reportsContainer = document.getElementById('reports-container');
     const accountSecurityContainer = document.getElementById('account-security-container');
     const accessKeyContainer = document.getElementById('admin-access-key-container');
     const dataManagementContainer = document.getElementById('data-management-container');
     const chatContainer = document.getElementById('chat-section');
     const contactsContainer = document.getElementById('contacts-container');
-    // const notifContainer = document.getElementById('notif-container');
     const preferenceContainer = document.getElementById('preference-container');
     const scheduleContainer = document.getElementById('schedule-container');
     const inventoryContainer = document.getElementById('inventory-container');
@@ -3682,26 +3430,25 @@ $username = $_SESSION['username'] ?? '';
         firstTotalCards.style.display = 'none';
         secondTotalCards.style.display = 'none';
         dashboardContent.style.display = 'none';
-        // reportsContainer.style.display = 'none';
+        reportsContainer.style.display = 'none';
         accountSecurityContainer.style.display='none';
         accessKeyContainer.style.display='none';
         dataManagementContainer.style.display='none';
         chatContainer.style.display = 'none';
         contactsContainer.style.display = 'none';
-        // notifContainer.style.display = 'none';
         preferenceContainer.style.display ='none';
         scheduleContainer.style.display = 'none';
         inventoryContainer.style.display ='none';
         staffContainer.style.display='none';
         bottomContainer.style.display = 'none';
-        // lastContainer.style.display = 'none';
+        lastContainer.style.display = 'none';
     }
     hideAll();
         firstTotalCards.style.display = 'flex';
         secondTotalCards.style.display = 'flex';
         dashboardContent.style.display = 'flex';
         bottomContainer.style.display = 'flex';
-        // lastContainer.style.display = 'flex';
+        lastContainer.style.display = 'flex';
 
     //dashboard 
     dashboardTitle.addEventListener('click', ()=>{
@@ -3710,13 +3457,13 @@ $username = $_SESSION['username'] ?? '';
         secondTotalCards.style.display = 'flex';
         dashboardContent.style.display = 'flex';
         bottomContainer.style.display = 'flex';
-        // lastContainer.style.display = 'flex';
+        lastContainer.style.display = 'flex';
     });
     // report click
-    // reportsItem.addEventListener('click', () => {
-    //     hideAll();
-    //     reportsContainer.style.display = 'flex';
-    // });
+    reportsItem.addEventListener('click', () => {
+        hideAll();
+        reportsContainer.style.display = 'flex';
+    });
     accountItem.addEventListener('click', ()=>{
         hideAll();
         accountSecurityContainer.style.display ='block';
@@ -3738,11 +3485,6 @@ $username = $_SESSION['username'] ?? '';
         hideAll();
         contactsContainer.style.display = 'block';
     });
-    //notif click
-    // notificationsItem.addEventListener('click', () => {
-    //     hideAll();
-    //     notifContainer.style.display = 'block';
-    // });
     preferenceItem.addEventListener('click', ()=>{
         hideAll();
         preferenceContainer.style.display='block';
@@ -4784,10 +4526,7 @@ $username = $_SESSION['username'] ?? '';
         if (!Array.isArray(data) || data.length === 0) {
             auditTableBody.innerHTML = `
                 <tr>
-                    <td colspan="6"
-                        style="text-align:center;">
-                        No audit logs found.
-                    </td>
+                    <td colspan="6" style="text-align:center;">No audit logs found.</td>
                 </tr>
             `;
             return;
@@ -4797,44 +4536,18 @@ $username = $_SESSION['username'] ?? '';
             const badgeClass = getBadgeClass(log.action);
             row.innerHTML = `
                 <td class="user-cell">
-                    <img
-                        src="../assets/img/profile.png"
-                        alt="Profile"
-                    >
-
-                    ${escapeHtml(
-                        log.username || "N/A"
-                    )}
+                    <img src="../assets/img/profile.png" alt="Profile">
+                    ${escapeHtml(log.username || "N/A")}
                 </td>
-                <td>
-                    ${escapeHtml(
-                        log.roles ||
-                        log.role ||
-                        "N/A"
-                    )}
-                </td>
+                <td>${escapeHtml(log.roles || log.role || "N/A")}</td>
                 <td>
                     <span class="viewbadge ${badgeClass}">
-                        ${escapeHtml(
-                            log.action || "N/A"
-                        )}
+                        ${escapeHtml(log.action || "N/A")}
                     </span>
                 </td>
-                <td>
-                    ${escapeHtml(
-                        log.created_at || "N/A"
-                    )}
-                </td>
-                <td>
-                    ${escapeHtml(
-                        log.ip_address || "N/A"
-                    )}
-                </td>
-                <td>
-                    ${escapeHtml(
-                        log.details || "N/A"
-                    )}
-                </td>
+                <td>${escapeHtml(log.created_at || "N/A")}</td>
+                <td>${escapeHtml(log.ip_address || "N/A")}</td>
+                <td>${escapeHtml(log.details || "N/A")}</td>
             `;
             auditTableBody.appendChild(row);
         });
@@ -4854,36 +4567,18 @@ $username = $_SESSION['username'] ?? '';
             if (selectedDays !== "all") {
                 const logDate = new Date(log.created_at);
                 const now = new Date();
-                const diff =
-                    (
-                        now.getTime() -
-                        logDate.getTime()
-                    ) /
-                    (1000 * 60 * 60 * 24);
-                matchesDate =
-                    diff >= 0 &&
-                    diff <=
-                    parseInt(selectedDays);
+                const diff = (now.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24);
+                matchesDate = diff >= 0 && diff <= parseInt(selectedDays);
             }
-            const matchesSearch =
-                !search ||
+            const matchesSearch = !search ||
                 [
                     log.username,
                     log.roles || log.role,
                     log.action,
                     log.details,
                     log.ip_address
-                ].some(value =>
-                    String(value || "")
-                        .toLowerCase()
-                        .includes(search)
-                );
-            return (
-                matchesRole &&
-                matchesAction &&
-                matchesDate &&
-                matchesSearch
-            );
+                ].some(value =>String(value || "").toLowerCase().includes(search));
+            return (matchesRole && matchesAction && matchesDate && matchesSearch);
         });
         renderAuditTable(filtered);
     }
@@ -4919,7 +4614,7 @@ $username = $_SESSION['username'] ?? '';
     if (auditDateFilter) {
         auditDateFilter.addEventListener("change",applyAuditFilters);
     }
-    // INVENTORY
+    // INVENTORY (done)
     function changeQty(id, change) {
     const input = document.getElementById(id);
         if (!input) return;
@@ -5087,7 +4782,7 @@ $username = $_SESSION['username'] ?? '';
                 }
             });
         }
-        // open modals new-coffin
+        // open modals new-coffin (done)
         const saveNewCoffinBtn = document.querySelector(".btn-save-new-coffin");
         let coffinEnums = {};
         let allMaterials = [];
@@ -7396,11 +7091,29 @@ $username = $_SESSION['username'] ?? '';
             method: "POST",
             credentials: "same-origin"
         })
-        .then(response => response.json())
+        .then(async response => {
+
+            const raw = await response.text();
+
+            if (!response.ok) {
+                throw new Error(
+                    "HTTP " + response.status + ": " + raw
+                );
+            }
+
+            try {
+                return JSON.parse(raw);
+            } catch (error) {
+                console.error("INVALID JSON RECEIVED:", raw);
+                throw error;
+            }
+        })
         .then(data => {
+
             if (data.status === "logout") {
                 window.location.href = "../login.php";
             }
+
         })
         .catch(error => {
             console.error("Activity update failed:", error);
@@ -8064,7 +7777,7 @@ $username = $_SESSION['username'] ?? '';
             );
         }
     }
-    // lost profit
+    // lost profit (not done)
     async function loadLossProfit() {
         const lossProfitElement =
             document.getElementById("net-revenue-value");
@@ -8369,6 +8082,99 @@ $username = $_SESSION['username'] ?? '';
             console.error("Most Requested Error:", err);
         }
     }
+    // last container 
+    async function loadRecentTransactions() {
+        const tbody =document.getElementById("recentTransactionsBody");
+        if (!tbody) {
+            return;
+        }
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" style="text-align:center;">
+                    Loading transactions...
+                </td>
+            </tr>
+        `;
+        try {
+            const response = await fetch("../backend/reports/get_recent_transactions.php");
+            const result = await response.json();
+            if (!result.data || result.data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align:center;">
+                            No recent transactions found.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            tbody.innerHTML = result.data
+                .slice(0, 3)
+                .map(transaction => {
+                    const amount = Number(transaction.amount || 0).toLocaleString("en-PH",{minimumFractionDigits: 2,maximumFractionDigits: 2});
+                    const remainingBalance = Number(transaction.remaining_balance || 0).toLocaleString("en-PH",{minimumFractionDigits: 2,maximumFractionDigits: 2});
+                    const status = transaction.status || "Pending";
+                    const statusClass = status.toLowerCase().replace(/\s+/g, "-");
+                    return `
+                        <tr>
+                            <td>
+                                ${escapeHtml(
+                                    transaction.service_no
+                                )}
+                            </td>
+                            <td>
+                                ${escapeHtml(
+                                    transaction.customer
+                                )}
+                            </td>
+                            <td>
+                                ${escapeHtml(
+                                    transaction.beneficiary
+                                )}
+                            </td>
+                            <td>
+                                ${escapeHtml(
+                                    transaction.service
+                                )}
+                            </td>
+                            <td>
+                                ₱${amount}
+                            </td>
+                            <td>
+                                ₱${remainingBalance}
+                            </td>
+                            <td>
+                                <span class="status ${statusClass}">${escapeHtml(status)}</span>
+                            </td>
+                        </tr>
+                    `;
+                })
+                .join("");
+        } catch (error) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" style=" text-align:center; color:#dc3545; " >
+                        Failed to load transactions.
+                    </td>
+                </tr>
+            `;
+        }
+    }
+    function escapeHtml(value) {
+        if (value === null || value === undefined) {
+            return "";
+        }
+        return String(value)
+            .replace(/&/g,"&amp;")
+            .replace(/</g,"&lt;")
+            .replace(/>/g,"&gt;")
+            .replace(/"/g,"&quot;")
+            .replace(/'/g,"&#039;");
+
+    }
+    document.addEventListener("DOMContentLoaded",function () {
+        loadRecentTransactions();
+    });
 // customer preferences
 const pendingBtn = document.getElementById("pending-btn");
 const productsBtn = document.getElementById("products-onsite-btn");
@@ -8481,7 +8287,7 @@ preNeedBtn.addEventListener("click", () => {
     thirdPreferencesAtneed.classList.remove("active");
     thirdPreferencesPreneed.classList.add("active");
 });
-//at need
+//at need done
 async function loadPendingOrders() {
     const atNeedContainer = document.getElementById("pending-atneed-order-container");
     atNeedContainer.innerHTML = "<p>Loading...</p>";
@@ -8555,9 +8361,6 @@ async function loadPendingOrders() {
 async function loadLifeplanOrders() {
     const preNeedContainer = document.getElementById("pending-preneed-order-container");
 
-    if (!preNeedContainer) {
-        return;
-    }
     preNeedContainer.innerHTML = "<p>Loading...</p>";
     try {
         const url = "../backend/preferences/get_customer_lifeplan.php";
@@ -8703,7 +8506,7 @@ document.addEventListener("click", e => {
         loadPreferenceLifeplan(orderId, requestNo);
     }
 });
-// at need
+// at need pending orders
 let selectedOrder = null;
 async function loadPreferenceDetails(orderId, requestNo) {
 
@@ -8760,7 +8563,7 @@ async function loadPreferenceDetails(orderId, requestNo) {
         console.error(error);
     }
 }
-//pre need
+//pre need pending orders section
 async function loadPreferenceLifeplan(orderId, requestNo) {
     try {
         const response = await fetch(
@@ -8819,6 +8622,7 @@ async function loadPreferenceLifeplan(orderId, requestNo) {
         console.error(err);
     }
 }
+// preneed viewing information in pending section
 document.getElementById("preneed-view").addEventListener("click", async () => {
     if (!selectedOrder) {
         Swal.fire({
@@ -8851,6 +8655,7 @@ document.getElementById("preneed-view").addEventListener("click", async () => {
     }
     updateLifeplanModalTotal();
 });
+// preneed approving orders in pending section
 document.getElementById("preneed-approve").addEventListener("click", async () => {
     if (!selectedOrder) {
         Swal.fire({
@@ -8860,12 +8665,21 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
         });
         return;
     }
-
     try {
+        Swal.fire({
+            title: "Approving Lifeplan...",
+            text: "Please wait while the order is being approved.",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            showConfirmButton: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
         const price = Number(document.getElementById("planholder-services-price").value || 0);
         const discountPercent = Number(document.getElementById("planholder-service-discount").value || 0);
-
         let taxPercent = 0;
+
         if (selectedOrder.tax_type !== "inclusive") {
             taxPercent = Number(document.getElementById("planholder-service-tax").value || 0);
         }
@@ -8876,6 +8690,7 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
         const balance = remainingBal;
 
         const formData = new FormData();
+
         formData.append("order_id", selectedOrder.id);
         formData.append("service_price", price);
         formData.append("retail_price", price);
@@ -8884,15 +8699,12 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
         formData.append("total_payable", remainingBal);
         formData.append("remaining_balance", balance);
 
-        const response = await fetch(
-            "../backend/preferences/approve_lifeplan.php",
-            {
-                method: "POST",
-                body: formData
-            }
-        );
-
+        const response = await fetch("../backend/preferences/approve_lifeplan.php",{
+            method: "POST",
+            body: formData
+        });
         const result = await response.json();
+        Swal.close();
 
         if (result.success) {
             Swal.fire({
@@ -8900,9 +8712,6 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
                 title: "Order Approved",
                 text: result.message
             });
-            loadPendingOrders();
-            loadApproveOrders();
-            loadApproveLifeplanOrders();
             selectedOrder = null;
 
             document.getElementById("preneed-customer-name").textContent = "";
@@ -8913,7 +8722,11 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
             document.getElementById("planholder-service-discount").value = "0";
             document.getElementById("preneed-service-details-body").innerHTML = "";
 
-            loadLifeplanOrders();
+            await loadLifeplanOrders();
+            await loadPendingOrders();
+            await loadApproveOrders();
+            await loadApproveLifeplanOrders();
+
         } else {
             Swal.fire({
                 icon: "error",
@@ -8922,7 +8735,7 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
             });
         }
     } catch (error) {
-        console.error(error);
+        Swal.close();
         Swal.fire({
             icon: "error",
             title: "Error",
@@ -8940,7 +8753,6 @@ document.getElementById("preneed-decline").addEventListener("click", async () =>
         });
         return;
     }
-
     const { value: reason } = await Swal.fire({
         title: "Decline Order",
         input: "textarea",
@@ -8984,7 +8796,7 @@ document.getElementById("preneed-decline").addEventListener("click", async () =>
             document.getElementById("preneed-customer-address").textContent = "-";
             document.getElementById("preneed-service-details-body").innerHTML = "";
 
-            loadLifeplanOrders();
+            await loadLifeplanOrders();
 
         } else {
             Swal.fire({
@@ -9018,59 +8830,21 @@ function updateLifeplanModalTotal() {
     const discountModal = document.getElementById("planholder-discount-modal");
     const modalBalance = document.getElementById("planholder-modal-balance");
 
-    console.log("=== UPDATE LIFEPLAN TOTAL ===");
-
-    console.log("priceEl:", priceEl);
-    console.log("discountEl:", discountEl);
-    console.log("taxEl:", taxEl);
-    console.log("downpaymentEl:", downpaymentEl);
-
-    if (!priceEl || !discountEl || !taxEl || !modalTotal ||
-        !taxModal || !discountModal || !modalBalance) {
-
-        console.error("One or more Lifeplan modal elements were not found.");
-        return;
-    }
-
     const price = parseFloat(priceEl.value) || 0;
     const discountPercent = parseFloat(discountEl.value) || 0;
-    const downpayment = downpaymentEl
-        ? parseFloat(downpaymentEl.value) || 0
-        : 0;
+    const downpayment = downpaymentEl ? parseFloat(downpaymentEl.value) || 0 : 0;
 
     let taxPercent = 0;
-    const taxType = selectedOrder?.tax_type
-        ? String(selectedOrder.tax_type).trim().toLowerCase()
-        : "";
-
-    console.log("Tax type:", taxType);
+    const taxType = selectedOrder?.tax_type ? String(selectedOrder.tax_type).trim().toLowerCase() : "";
 
     if (taxType !== "inclusive" && taxType !== "included") {
         taxPercent = parseFloat(taxEl.value) || 0;
     }
 
-    const discountAmount =
-        price * (discountPercent / 100);
-
-    const taxAmount =
-        price * (taxPercent / 100);
-
-    const total =
-        price + taxAmount - discountAmount;
-
-    const balance =
-        Math.max(total - downpayment, 0);
-
-    console.log({
-        price,
-        discountPercent,
-        discountAmount,
-        taxPercent,
-        taxAmount,
-        downpayment,
-        total,
-        balance
-    });
+    const discountAmount = price * (discountPercent / 100);
+    const taxAmount = price * (taxPercent / 100);
+    const total = price + taxAmount - discountAmount;
+    const balance = Math.max(total - downpayment, 0);
 
     modalTotal.textContent =
         total.toLocaleString("en-PH", {
@@ -9096,24 +8870,17 @@ function updateLifeplanModalTotal() {
             maximumFractionDigits: 2
         });
 }
-// 
+// done
 document.addEventListener("click", e => {
     const row = e.target.closest(".customer-row-details");
     if (!row) return;
 
-    console.log("Clicked:", row.dataset);
-
-    document.querySelectorAll(".customer-row-details")
-        .forEach(item => item.classList.remove("selected"));
-
+    document.querySelectorAll(".customer-row-details").forEach(item => item.classList.remove("selected"));
     row.classList.add("selected");
 
     const orderId = row.dataset.orderId;
     const requestNo = row.dataset.requestNo;
     const type = row.dataset.type;
-
-    console.log(type);
-
     if (type === "atneed") {
         loadPreferenceDetails(orderId, requestNo);
     } else if (type === "preneed") {
@@ -9160,7 +8927,7 @@ document.getElementById("view").addEventListener("click", async () => {
 
     updateModalTotal();
 });
-// approve button
+// atneed approve button done
 document.getElementById("approve").addEventListener("click", async () => {
     if (!selectedOrder) {
         Swal.fire({
@@ -9170,6 +8937,16 @@ document.getElementById("approve").addEventListener("click", async () => {
         });
         return;
     }
+    Swal.fire({
+        title: "Approving Order...",
+        text: "Please wait while the order is being approved.",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
 
     try {
         const price = Number(document.getElementById("services-price").value || 0);
@@ -9180,68 +8957,83 @@ document.getElementById("approve").addEventListener("click", async () => {
         if (selectedOrder.tax_type !== "inclusive") {
             taxPercent = Number(document.getElementById("service-tax").value || 0);
         }
-
         const taxAmount = price * (taxPercent / 100);
         const discountAmount = price * (discountPercent / 100);
-        const remainingBal = price + taxAmount - discountAmount;
-        const balance = remainingBal - downpaymentInput;
+        const totalPayable = price + taxAmount - discountAmount;
+        const remainingBalance = totalPayable - downpaymentInput;
 
         const formData = new FormData();
-        formData.append("order_id", selectedOrder.id);
-        formData.append("service_price", price);
-        formData.append("retail_price", price);
-        formData.append("downpayment", downpaymentInput);
-        formData.append("discount", discountAmount);
-        formData.append("tax", taxAmount);
-        formData.append("total_payable", remainingBal);
-        formData.append("remaining_balance", balance);
+        formData.append("order_id",selectedOrder.id);
+        formData.append("service_price",price);
+        formData.append("retail_price",price);
+        formData.append("downpayment",downpaymentInput);
+        formData.append("discount",discountAmount);
+        formData.append("tax",taxAmount);
+        formData.append("total_payable",totalPayable);
+        formData.append("remaining_balance",remainingBalance);
+        for (const [key, value] of formData.entries()) {
+            console.log(key, "=", value);
+        }
+        const response = await fetch("../backend/preferences/approve_order.php",{
+            method: "POST",
+            body: formData
+        });
 
-        const response = await fetch(
-            "../backend/preferences/approve_order.php",
-            {
-                method: "POST",
-                body: formData
-            }
-        );
-
-        const result = await response.json();
-
-        if (result.success) {
+        const responseText = await response.text();
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (jsonError) {
+            Swal.close();
             Swal.fire({
-                icon: "success",
-                title: "Order Approved",
-                text: result.message
+                icon: "error",
+                title: "Server Error",
+                html: `
+                    <p>The server returned an invalid response.</p>
+                    <hr>
+                    <pre style="
+                        text-align:left;
+                        white-space:pre-wrap;
+                        max-height:300px;
+                        overflow:auto;
+                    ">${responseText}</pre>
+                `
             });
-
-            selectedOrder = null;
-
-            document.getElementById("customer-name").textContent = "-";
-            document.getElementById("customer-contact").textContent = "-";
-            document.getElementById("customer-email").textContent = "-";
-            document.getElementById("customer-address").textContent = "-";
-            document.getElementById("downpayment-price").value = "0";
-            document.getElementById("services-price").value = "0";
-            document.getElementById("service-discount").value = "0";
-            document.getElementById("service-details-body").innerHTML = "";
-
-            loadPendingOrders();
-        } else {
+            return;
+        }
+        if (!response.ok || !result.success) {
+            Swal.close();
             Swal.fire({
                 icon: "error",
                 title: "Approval Failed",
-                text: result.message
+                text: result.message || "Unknown server error."
             });
+            return;
         }
+        await Swal.fire({
+            icon: "success",
+            title: "Order Approved",
+            text: result.message,
+            confirmButtonText: "OK"
+        });
+
+        selectedOrder = null;
+        document.getElementById("customer-name").textContent = "-";
+        document.getElementById("customer-contact").textContent = "-";
+        document.getElementById("customer-email").textContent = "-";
+        document.getElementById("customer-address").textContent = "-";
+        document.getElementById("service-details-body").innerHTML = "";
+        await loadPendingOrders();
     } catch (error) {
-        console.error(error);
+        Swal.close();
         Swal.fire({
             icon: "error",
             title: "Error",
-            text: "Failed to approve order."
+            text: error.message || "Failed to approve order."
         });
     }
 });
-// decline button
+// atneed decline button  done
 document.getElementById("decline").addEventListener("click", async () => {
     if (!selectedOrder) {
         Swal.fire({
@@ -9251,7 +9043,6 @@ document.getElementById("decline").addEventListener("click", async () => {
         });
         return;
     }
-
     const { value: reason } = await Swal.fire({
         title: "Decline Order",
         input: "textarea",
@@ -9271,11 +9062,19 @@ document.getElementById("decline").addEventListener("click", async () => {
     });
 
     if (!reason) return;
-
+    Swal.fire({
+        title: "Declining Order...",
+        text: "Please wait while we process the rejection and notify the customer.",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
     try {
         const formData = new FormData();
-        formData.append("order_id", selectedOrder.id);
-        formData.append("rejection_reason", reason);
+        formData.append("order_id",selectedOrder.id);
+        formData.append("rejection_reason",reason);
 
         const response = await fetch(
             "../backend/preferences/reject_order.php",
@@ -9284,40 +9083,37 @@ document.getElementById("decline").addEventListener("click", async () => {
                 body: formData
             }
         );
-
         const result = await response.json();
-
         if (result.success) {
             Swal.fire({
                 icon: "success",
                 title: "Order Declined",
-                text: result.message
+                text: result.message,
+                confirmButtonText: "OK"
             });
 
             selectedOrder = null;
-
             document.getElementById("customer-name").textContent = "";
             document.getElementById("customer-contact").textContent = "";
             document.getElementById("customer-email").textContent = "";
             document.getElementById("customer-address").textContent = "";
             document.getElementById("service-details-body").innerHTML = "";
+            await loadPendingOrders();
 
-            loadPendingOrders();
+
         } else {
             Swal.fire({
                 icon: "error",
                 title: "Failed",
-                text: result.message
+                text: result.message ||
+                    "Failed to decline the order."
             });
         }
-
     } catch (error) {
-        console.error(error);
-
         Swal.fire({
             icon: "error",
             title: "Error",
-            text: "Something went wrong."
+            text: "Something went wrong while declining the order."
         });
     }
 });
@@ -9328,75 +9124,37 @@ modal.addEventListener("click", (e) => {
     }
 });
 function updateModalTotal() {
-
-    const price =
-        Number(document.getElementById("services-price").value || 0);
-
-    const downpaymentPrice =
-        Number(document.getElementById("downpayment-price").value || 0);
-
-    const discountPercent =
-        Number(document.getElementById("service-discount").value || 0);
+    const price = Number(document.getElementById("services-price").value || 0);
+    const downpaymentPrice = Number(document.getElementById("downpayment-price").value || 0);
+    const discountPercent = Number(document.getElementById("service-discount").value || 0);
 
     let taxPercent = 0;
-
     if (selectedOrder && selectedOrder.tax_type !== "inclusive") {
-        taxPercent =
-            Number(document.getElementById("service-tax").value || 0);
+        taxPercent = Number(document.getElementById("service-tax").value || 0);
     }
-
-    const discountAmount =
-        price * (discountPercent / 100);
-
-    const taxAmount =
-        price * (taxPercent / 100);
-
-    // Total after tax and discount
-    const remainingBal =
-        price + taxAmount - discountAmount;
-
-    // Remaining balance after downpayment
-    const balance =
-        remainingBal - downpaymentPrice;
-
-
-    const modalTotal =
-        document.getElementById("modal-total");
-
-    const taxModal =
-        document.getElementById("tax-modal");
-
-    const discountModal =
-        document.getElementById("discount-modal");
-    const downpaymentModal =
-        document.getElementById("downpayment-modal");
-
-    const modalBalance =
-        document.getElementById("modal-balance");
-
-
+    const discountAmount = price * (discountPercent / 100);
+    const taxAmount = price * (taxPercent / 100);
+    const remainingBal = price + taxAmount - discountAmount;
+    const balance = remainingBal - downpaymentPrice;
+    const modalTotal = document.getElementById("modal-total");
+    const taxModal = document.getElementById("tax-modal");
+    const discountModal = document.getElementById("discount-modal");
+    const downpaymentModal = document.getElementById("downpayment-modal");
+    const modalBalance = document.getElementById("modal-balance");
     if (modalTotal) {
-        modalTotal.textContent =
-            remainingBal.toLocaleString();
+        modalTotal.textContent = remainingBal.toLocaleString();
     }
-
     if (taxModal) {
-        taxModal.textContent =
-            taxAmount.toLocaleString();
+        taxModal.textContent = taxAmount.toLocaleString();
     }
-
     if (discountModal) {
-        discountModal.textContent =
-            discountAmount.toLocaleString();
+        discountModal.textContent = discountAmount.toLocaleString();
     }
     if (downpaymentModal) {
-        downpaymentModal.textContent =
-            downpaymentPrice.toLocaleString();
+        downpaymentModal.textContent = downpaymentPrice.toLocaleString();
     }
-
     if (modalBalance) {
-        modalBalance.textContent =
-            balance.toLocaleString();
+        modalBalance.textContent = balance.toLocaleString();
     }
 }
 
@@ -9620,6 +9378,7 @@ async function loadStandardCoffins() {
         container.innerHTML = "Failed to load coffins.";
     }
 }
+// submit done in at need service
 document.addEventListener("click", (e) => {
     if (!e.target.classList.contains("buy-now-btn")) return;
     const clickedKey = e.target.dataset.id;
@@ -9712,6 +9471,7 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     const beneficiaryGovIdNumber = document.getElementById("gov-id-number").value.trim();
     const signatureFile = document.getElementById("applicant-signature").files[0];
     const relationshipSelect = document.getElementById("relationship").value;
+    const anPaymentOption = document.getElementById("atneed-payment-option").value;
     const otherRelationship = document.getElementById("otherRelationship").value.trim();
     const relationship = relationshipSelect === "other" ? otherRelationship : relationshipSelect;
     if (!relationship) {
@@ -9719,6 +9479,16 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             icon: "warning",
             title: "Incomplete Information",
             text: "Please provide the relationship of the applicant to the beneficiary.",
+            showConfirmButton: false,
+            timer: 2000
+        });
+        return;
+    }
+    if(!anPaymentOption){
+        Swal.fire({
+            icon: "warning",
+            title: "Incomplete Information",
+            text: "Please provide the payment option.",
             showConfirmButton: false,
             timer: 2000
         });
@@ -9819,8 +9589,14 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     formData.append("payment_option", paymentOption);
     if (paymentOption === "Installment") {
         formData.append("payment_term", document.getElementById("atNeedTerm").value);
+        formData.append("term_payment", document.getElementById("monthlyPayment").value);
+        formData.append("retail_price", document.getElementById("retailSelling").value);
+        formData.append("downpayment", document.getElementById("partialPayment").value);
     } else {
         formData.append("payment_term", "-");
+        formData.append("retail_price", document.getElementById("retailSelling").value);
+        formData.append("term_payment", "0");
+        formData.append("downpayment", "0");
     }
     formData.append("gov_id_number", beneficiaryGovIdNumber);
     formData.append("signature", signatureFile);
@@ -10134,16 +9910,16 @@ document.addEventListener("DOMContentLoaded", () => {
     lppaymentTerm.addEventListener("change", function () {
         let amount = 0;
         switch (this.value) {
-            case "monthly":
+            case "Monthly":
                 amount = document.getElementById("lp-monthlyPayment").value;
                 break;
-            case "quarterly":
+            case "Quarterly":
                 amount = document.getElementById("lp-quarterlyPayment").value;
                 break;
-            case "semi-annual":
+            case "Semi-Annual":
                 amount = document.getElementById("lp-semiAnnualPayment").value;
                 break;
-            case "annual":
+            case "Annual":
                 amount = document.getElementById("lp-annualPayment").value;
                 break;
         }
@@ -10155,10 +9931,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const lppaymentTermRow = document.getElementById("lp-payment-term-row");
     const lppaymentTerms = document.getElementById("lp-payment-term");
     function togglePaymentTerm() {
-        if (lppaymentOption.value === "spot-cash") {
+        if (lppaymentOption.value === "Spot Cash") {
             lppaymentTermRow.style.display = "none";
             lppaymentTerms.value = "";
-        } else if (lppaymentOption.value === "installment") {
+        } else if (lppaymentOption.value === "Installment") {
             lppaymentTermRow.style.display = "block";
         } else {
             lppaymentTermRow.style.display = "none";
@@ -10223,6 +9999,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 icon: "warning",
                 title: "Incomplete Information",
                 text: "Please fill in all required fields for the applicant.",
+                showConfirmButton: false,
+                timer: 2000
+            });
+            return;
+        }
+        if(!lpfuneralService || !lpmemorialPark || !lpreligiousAffiliation){
+            Swal.fire({
+                icon: "warning",
+                title: "Incomplete Information",
+                text: "Please fill in all required fields for the additional preferences.",
+                showConfirmButton: false,
+                timer: 2000
+            });
+            return;
+        }
+        if(!lppaymentTerm || (lppaymentOption === "Installment" && !lppaymentOption)){
+            Swal.fire({
+                icon: "warning",
+                title: "Incomplete Information",
+                text: "Please fill in all required fields for the payment preferences.",
                 showConfirmButton: false,
                 timer: 2000
             });
@@ -10302,16 +10098,21 @@ document.addEventListener("DOMContentLoaded", () => {
         // Life Plan Details
         formData.append("lp_plan_type", lpSelectedCoffin.coffin_type);
         formData.append("lp_payment_option", lppaymentOption);
-        formData.append("lp_payment_term", lppaymentTerm.value);
-        formData.append("lp_retail_price", lpSelectedCoffin.selling_price);
-        formData.append("lp_lifeplan_max_months", lpSelectedCoffin.lifeplan_max_months);
         let paymentAmount = 0;
-        if (lppaymentOption === "spot-cash") {
-            paymentAmount = lpSelectedCoffin.selling_price;
-        } else {
+        if (lppaymentOption === "Installment") {
             paymentAmount = lpinstallmentInput.value;
+            formData.append("lp_payment_term", document.getElementById("lp-payment-term").value);
+            formData.append("lp_retail_price", document.getElementById("lp-retailSelling").value);
+            formData.append("lp_lifeplan_max_months", document.getElementById("lp-preNeedTerm").value);
+            formData.append("lp_term_payment", paymentAmount);
+
+        } else {
+            paymentAmount = 0;
+            formData.append("lp_term_payment", paymentAmount);
+            formData.append("lp_payment_term", "-");
+            formData.append("lp_retail_price", document.getElementById("lp-retailSelling").value);
+            formData.append("lp_lifeplan_max_months", "0");
         }
-        formData.append("lp_term_payment", paymentAmount);
         // Additional Preferences
         formData.append("lp_funeral_service", lpfuneralService || "-");
         formData.append("lp_memorial_park", lpmemorialPark || "-");
@@ -10370,18 +10171,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("lp-applicant-signature").value = "";
                 document.getElementById("lp-file-signature-name").textContent = "No file selected";
                 document.getElementById("lp-signature-date").value = "";
-                loadApproveOrders();
-                loadApproveLifeplanOrders();
                 lpSelectedCoffin = null;
                 document.getElementById("walk-in-products-pre-need").classList.remove("active");
+                loadApproveOrders();
+                loadApproveLifeplanOrders();
                 setTimeout(() => {
                     hideAllContainers();
 
-                    ordersContainer.classList.remove("hidden");
-                    ordersContainer.classList.add("active-container");
+                    pendingContainer.classList.remove("hidden");
+                    pendingContainer.classList.add("active-container");
 
                     removeActiveButtons();
-                    ordersBtn.classList.add("active");
+                    ordersBtn.classList.add("hidden");
                 }, 2000);
             } else {
                 Swal.fire({
@@ -10454,20 +10255,17 @@ function updateRemainingBalance() {
     const remaining = total - downpayment - partial;;
     remainingBalanceInput.value = "₱" + remaining.toFixed(2);
 }
-//AT NEED SECTION
+//AT NEED SECTION orders to begin
 let selectedServiceRequestNo = null;
 let originalApprovedOrder = {};
 async function loadApproveOrders() {
     try {
         const response = await fetch("../backend/orders/get_approved_orders.php");
         const result = await response.json();
-        console.log(result);
-
         if (!result.success) {
             console.error(result.message);
             return;
         }
-
         const atneedApprove = document.querySelector("#approve-atneed-container .approve-atneed-order-container");
         atneedApprove.innerHTML = "";
 
@@ -10505,7 +10303,7 @@ async function loadApproveOrders() {
                                         : order.service_type
                                     }
                                 </p>
-                                <p>${order.item_name}</p>
+                                <p style="text-transform: capitalize;">${order.item_name}</p>
                                 <p>Approved: ${new Date(order.approved_at).toLocaleDateString("en-US", {
                                     year: "numeric",
                                     month: "long",
@@ -10551,119 +10349,86 @@ async function loadApproveOrders() {
     });
 }
 loadApproveOrders();
+// at need approved order (done)
 async function loadApprovedOrderDetails(serviceRequestNo) {
-    console.log("Service Request No:", serviceRequestNo);
-
     if (!serviceRequestNo) {
         console.error("No service request number was provided.");
         return;
     }
-
     try {
         const url = `../backend/orders/get_approved_order_details.php?service_request_no=${encodeURIComponent(serviceRequestNo)}`;
-
-        console.log("Fetching:", url);
-
-        const response = await fetch(url);
-
-        console.log("HTTP Status:", response.status);
-        console.log("Response OK:", response.ok);
-
+        const response = await fetch(url, {
+            method: "GET",
+            cache: "no-cache"
+        });
         const text = await response.text();
-
-        console.log("Raw PHP Response:", text);
-
         let result;
-
         try {
             result = JSON.parse(text);
         } catch (jsonError) {
-            console.error("PHP did not return valid JSON:", jsonError);
             return;
         }
-
-        console.log("Parsed Result:", result);
-
         if (!result.success) {
-            console.error("Backend error:", result.message);
+            Swal.fire({
+                icon: "error",
+                title: "Unable to Load Order",
+                text: result.message || "Order could not be loaded."
+            });
             return;
         }
-
         const order = result.data;
+        document.getElementById("customerName").value = order.customer_name ?? "";
+        document.getElementById("customerContact").value = order.phone_no ?? "";
+        document.getElementById("customerEmail").value = order.email ?? "";
+        document.getElementById("customerAddress").value = order.residential_address ?? "No Address";
+        document.getElementById("serviceRequestNo").value = order.service_request_no ?? "";
+        document.getElementById("packageName").value = order.item_name ?? "";
+        document.getElementById("purchaseType").value = order.purchase_type ?? "";
+        let serviceType = "";
+        switch (order.service_type) {
+            case "burial":
+                serviceType = "Burial Service";
+                break;
 
-        console.log("Order Data:", order);
+            case "complete":
+                serviceType = "Complete Funeral Service";
+                break;
 
-        document.getElementById("customerName").value =
-            order.customer_name ?? "";
+            case "memorial":
+                serviceType = "Memorial Service";
+                break;
 
-        document.getElementById("customerContact").value =
-            order.phone_no ?? "";
+            case "viewing":
+                serviceType = "Viewing and Wake Service";
+                break;
 
-        document.getElementById("customerEmail").value =
-            order.email ?? "";
-
-        document.getElementById("customerAddress").value =
-            order.selected_address ?? "No Address";
-
-        document.getElementById("serviceRequestNo").value =
-            order.service_request_no ?? "";
-
-        document.getElementById("packageName").value =
-            order.item_name ?? "";
-
-        document.getElementById("purchaseType").value =
-            order.purchase_type ?? "";
-
-        document.getElementById("serviceType").value =
-            order.service_type === "burial"
-                ? "Burial Service"
-                : order.service_type === "complete"
-                ? "Complete Funeral Service"
-                : order.service_type === "memorial"
-                ? "Memorial Service"
-                : order.service_type === "viewing"
-                ? "Viewing and Wake Service"
-                : order.service_type ?? "";
-
-        document.getElementById("relationshipApprove").value =
-            order.relationship ?? "";
-
-        document.getElementById("transportationApprove").value =
-            order.transportation ?? "";
-
-        document.getElementById("floralApprove").value =
-            order.floral ?? "";
-
-        document.getElementById("floralSetup").value =
-            order.floral_setup ?? "";
-
-        document.getElementById("chapelApprove").value =
-            order.chapel ?? "";
-
-        document.getElementById("orderStatus").value =
-            order.status ?? "";
-
-        document.getElementById("createdAt").value =
-            order.created_at ?? "";
-
-        document.getElementById("totalAmount").value =
-            `₱${Number(order.total_payable || 0).toFixed(2)}`;
-
-        document.getElementById("downpayment").value =
-            `₱${Number(order.downpayment || 0).toFixed(2)}`;
-
-        document.getElementById("partialPaymentApprove").value =
-            `₱${Number(order.partial_payment || 0).toFixed(2)}`;
-
-        document.getElementById("remainingBalance").value =
-            `₱${Number(order.remaining_balance || 0).toFixed(2)}`;
+            default:
+                serviceType = order.service_type ?? "";
+        }
+        document.getElementById("serviceType").value = serviceType;
+        document.getElementById("relationshipApprove").value = order.relationship ?? "";
+        document.getElementById("transportationApprove").value = order.transportation ?? "";
+        document.getElementById("floralApprove").value = order.floral ?? "";
+        document.getElementById("floralSetup").value = order.floral_setup ?? "";
+        document.getElementById("chapelApprove").value = order.chapel ?? "";
+        document.getElementById("orderStatus").value = order.status ?? "";
+        document.getElementById("createdAt").value = order.created_at ?? "";
+        document.getElementById("totalAmount").value = `₱${Number(order.total_payable || 0).toFixed(2)}`;
+        document.getElementById("downpayment").value = `₱${Number(order.downpayment || 0).toFixed(2)}`;
+        document.getElementById("partialPaymentApprove").value = `₱${Number(order.partial_payment || 0).toFixed(2)}`;
+        document.getElementById("remainingBalance").value = `₱${Number(order.remaining_balance || 0).toFixed(2)}`;
 
         const beneficiaryName = [
             order.beneficiary_firstname,
             order.beneficiary_middlename,
             order.beneficiary_lastname
         ]
-            .filter(Boolean)
+            .filter(
+                value =>
+                    value !== null &&
+                    value !== undefined &&
+                    String(value).trim() !== ""
+            )
             .join(" ");
 
         document.getElementById("beneficiaryName").value = beneficiaryName;
@@ -10677,7 +10442,6 @@ async function loadApprovedOrderDetails(serviceRequestNo) {
             total_payable: parseFloat(order.total_payable) || 0,
             remaining_balance: parseFloat(order.remaining_balance) || 0,
             partial_payment: parseFloat(order.partial_payment) || 0,
-
             condition: (order.condition || "").trim(),
             location: (order.location || "").trim(),
             date_need: order.date_need || "",
@@ -10687,15 +10451,26 @@ async function loadApprovedOrderDetails(serviceRequestNo) {
         const partialInput = document.getElementById("partialPaymentApprove");
         const updateButton = document.querySelector(".update-service-btn");
         if (remaining <= 0) {
-            partialInput.disabled = true;
-            updateButton.disabled = true;
+            if (partialInput) {
+                partialInput.disabled = true;
+            }
+            if (updateButton) {
+                updateButton.disabled = true;
+            }
         } else {
-            partialInput.disabled = false;
-            updateButton.disabled = false;
+            if (partialInput) {
+                partialInput.disabled = false;
+            }
+            if (updateButton) {
+                updateButton.disabled = false;
+            }
         }
-
     } catch (error) {
-        console.error("loadApprovedOrderDetails() failed:", error);
+        Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to load approved order details."
+        });
     }
 }
 document.querySelector(".cancel-service-btn").addEventListener("click", async () => {
@@ -10733,7 +10508,6 @@ document.querySelector(".cancel-service-btn").addEventListener("click", async ()
         body: `service_request_no=${encodeURIComponent(selectedServiceRequestNo)}`
     });
     const text = await response.text();
-    console.log(text);
     const result = JSON.parse(text);
     if (result.success) {
         await Swal.fire({
@@ -10842,7 +10616,7 @@ document.querySelector(".update-service-btn").addEventListener("click", async ()
         });
     } 
 });
-// PRE NEED SECTION OR LIFEPLAN
+// PRE NEED SECTION OR LIFEPLAN (checking)
 let selectedLifeplanNo = null;
 let originalApprovedLifeplan = {};
 async function loadApproveLifeplanOrders() {
@@ -10856,6 +10630,21 @@ async function loadApproveLifeplanOrders() {
         }
         const preneedApprove = document.querySelector("#approve-preneed-container .approve-preneed-order-container");
         preneedApprove.innerHTML = "";
+
+        if (!Array.isArray(result.data) || result.data.length === 0) {
+            preneedApprove.innerHTML = `
+                <div class="no-lifeplan-arrangement">
+                    <i class="bi bi-wallet2"></i>
+                    <h3>No Lifeplan Arrangement</h3>
+                    <p>
+                        There are currently no approved lifeplan arrangements.
+                    </p>
+                </div>
+            `;
+
+            return;
+        }
+
         result.data.forEach(order => {
             const approveCard = `
                 <div class="approve-order-card">
@@ -10927,21 +10716,19 @@ async function loadApprovedLifeplanDetails(lifeplanNo) {
     if (!result.success) return;
 
     const order = result.data;
-
     document.getElementById("preneed-customerName").value = order.name;
     document.getElementById("preneed-customerContact").value = order.phone_no;
     document.getElementById("preneed-customerEmail").value = order.email;
-
     document.getElementById("preneed-serviceRequestNo").value = order.lifeplan_no;
     document.getElementById("preneed-packageName").value = order.item_name;
     document.getElementById("preneed-purchaseType").value = order.purchase_type;
-
     document.getElementById("preneed-serviceType").value = order.funeral_service;
     document.getElementById("preneed-relationshipApprove").value = order.relationship;
-
     document.getElementById("preneed-orderStatus").value = order.status;
     document.getElementById("preneed-createdAt").value = order.created_at;
-
+    document.getElementById("preneedDateOfDeath").value = order.date_of_death;
+    document.getElementById("preneedDateNeed").value = order.date_need;
+    document.getElementById("preneedIntermentDate").value = order.interment_date;
     preneedTotalAmount.value = `₱${Number(order.total_payable).toFixed(2)}`;
     preneedPartialPayment.value = `₱${Number(order.partial_payment).toFixed(2)}`;
     preneedRemainingBalance.value = `₱${Number(order.remaining_balance).toFixed(2)}`;
@@ -10967,7 +10754,6 @@ async function loadApprovedLifeplanDetails(lifeplanNo) {
         document.querySelector(".preneed-update-service-btn").disabled = false;
     }
 }
-
 document.querySelector(".preneed-cancel-service-btn").addEventListener("click", async () => {
     if (!selectedLifeplanNo) {
         Swal.fire({
@@ -11042,13 +10828,19 @@ document.querySelector(".preneed-update-service-btn").addEventListener("click", 
     const currentApprovedLifeplan = {
         total_payable: parseFloat(cleanAmount(preneedTotalAmount.value)) || 0,
         partial_payment: parseFloat(cleanAmount(preneedPartialPayment.value)) || 0,
-        residential_address: document.getElementById("preneedPlanholderAddress").value.trim()
+        residential_address: document.getElementById("preneedPlanholderAddress").value.trim(),
+        date_of_death: document.getElementById("preneedDateOfDeath").value,
+        date_need: document.getElementById("preneedDateNeed").value,
+        interment_date: document.getElementById("preneedIntermentDate").value
     };
 
     const hasChanges =
         currentApprovedLifeplan.total_payable !== originalApprovedLifeplan.total_payable ||
         currentApprovedLifeplan.partial_payment !== originalApprovedLifeplan.partial_payment ||
-        currentApprovedLifeplan.residential_address !== originalApprovedLifeplan.residential_address;
+        currentApprovedLifeplan.residential_address !== originalApprovedLifeplan.residential_address ||
+        currentApprovedLifeplan.date_of_death !== originalApprovedLifeplan.date_of_death ||
+        currentApprovedLifeplan.date_of_death !== originalApprovedLifeplan.date_need ||
+        currentApprovedLifeplan.date_of_death !== originalApprovedLifeplan.interment_date;
 
     if (!hasChanges) {
         Swal.fire({
@@ -11081,6 +10873,10 @@ document.querySelector(".preneed-update-service-btn").addEventListener("click", 
     formData.append("total_payable", cleanAmount(preneedTotalAmount.value));
     formData.append("partial_payment", cleanAmount(preneedPartialPayment.value));
     formData.append("residential_address", document.getElementById("preneedPlanholderAddress").value);
+    formData.append("date_of_death", document.getElementById("preneedDateOfDeath").value);
+    formData.append("date_need", document.getElementById("preneedDateNeed").value);
+    formData.append("interment_date", document.getElementById("preneedIntermentDate").value);
+
     const response = await fetch(
         "../backend/orders/update_approved_lifeplan.php",
         {
@@ -11117,7 +10913,7 @@ document.querySelectorAll(".view-details-btn").forEach(btn => {
         approveModal.classList.add("active");
     });
 });
-// begin service
+// at need begin service
 let selectedArrangementType = null;
 const arrangementModal = document.getElementById("begin-arrangement-modal");
 document.querySelector(".begin-serving-btn").addEventListener("click", () => {
@@ -11130,22 +10926,93 @@ document.querySelector(".begin-serving-btn").addEventListener("click", () => {
         return;
     }
     selectedArrangementType = "atneed";
-    arrangementModal.classList.add("active");
+    arrangementModal.classList.add("hidden");
     loadArrangementDetails(selectedServiceRequestNo);
     loadEquipment();
 });
-document.querySelector(".preneed-begin-serving-btn").addEventListener("click", () => {
+// pre need
+document.querySelector(".preneed-begin-serving-btn").addEventListener("click", async () => {
     if (!selectedLifeplanNo) {
         Swal.fire({
             icon: "warning",
-            title: "No Life Plan Selected"
+            title: "No Life Plan Selected",
+            text: "Please select an approved life plan first."
         });
         return;
     }
-    selectedArrangementType = "preneed";
-    arrangementModal.classList.add("active");
-    loadLifeplanArrangementDetails(selectedLifeplanNo);
-    loadEquipment();
+    Swal.fire({
+        title: "Checking Service Dates...",
+        text: "Please wait while we verify the service schedule.",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    try {
+        const response = await fetch(`../backend/orders/get_approved_lifeplans.php?lifeplan_no=${encodeURIComponent(selectedLifeplanNo)}`,{
+            method: "GET",
+            cache: "no-store"
+        });
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(
+                result.message || "Unable to check service dates."
+            );
+        }
+        const orders = result.data || [];
+        const order = orders.find(item => String(item.lifeplan_no).trim() === String(selectedLifeplanNo).trim());
+
+        if (!order) {
+            throw new Error("Selected life plan was not found.");
+        }
+        const dateOfDeath = order.date_of_death;
+        const dateNeed = order.date_need;
+        const intermentDate = order.interment_date;
+        const missingDates = [];
+        if (dateOfDeath === null || dateOfDeath === undefined || String(dateOfDeath).trim() === "") {
+            missingDates.push("Date of Death");
+        }
+        if (dateNeed === null || dateNeed === undefined || String(dateNeed).trim() === "") {
+            missingDates.push("Date Need");
+        }
+        if (intermentDate === null || intermentDate === undefined || String(intermentDate).trim() === "") {
+            missingDates.push("Interment Date");
+        }
+        if (missingDates.length > 0) {
+            Swal.close();
+            Swal.fire({
+                icon: "warning",
+                title: "Service Dates Required",
+                html: `
+                    <p> You cannot begin the service arrangement yet. </p>
+                    <p> Please update the following date${missingDates.length > 1 ? "s" : ""}: </p>
+                    <ul style=" text-align:left; margin:15px auto; max-width:280px; line-height:1.8; "> 
+                        ${missingDates.map(date => `<li>${date}</li>`).join("")}
+                    </ul>
+                    <p style=" font-weight:600; margin-top:15px; ">Please update the date${missingDates.length > 1 ? "s" : ""} to begin the service. </p>
+                `,
+                confirmButtonText: "OK"
+            });
+            return;
+        }
+        Swal.close();
+        selectedArrangementType = "preneed";
+        arrangementModal.classList.add("active");
+        await loadApproveLifeplanOrders();
+        await Promise.all([
+            loadLifeplanArrangementDetails(order),
+            loadEquipment()
+        ]);
+    } catch (error) {
+        Swal.close();
+        Swal.fire({
+            icon: "error",
+            title: "Unable to Check Service Dates",
+            text: error.message || "Something went wrong while checking the service dates.",
+            confirmButtonText: "OK"
+        });
+    }
 });
 document.querySelector(".cancel-arrangement-btn").addEventListener("click", () => {
     arrangementModal.classList.remove("active");
@@ -11168,16 +11035,10 @@ async function loadArrangementDetails(serviceRequestNo) {
     document.getElementById("arrangementPackage").value = order.item_name;
     document.getElementById("arrangementDate").value = new Date().toISOString().split("T")[0];
 }
-async function loadLifeplanArrangementDetails(lifeplanNo) {
-    const response = await fetch(
-        `../backend/orders/get_approved_lifeplan_details.php?lifeplan_no=${encodeURIComponent(lifeplanNo)}`
-    );
-    const result = await response.json();
-    if (!result.success) return;
-    const order = result.data;
-    document.getElementById("arrangementRequestNo").value = order.lifeplan_no;
-    document.getElementById("arrangementCustomer").value = order.name;
-    document.getElementById("arrangementPackage").value = order.item_name;
+function loadLifeplanArrangementDetails(order) {
+    document.getElementById("arrangementRequestNo").value = order.lifeplan_no || "";
+    document.getElementById("arrangementCustomer").value = order.name || "";
+    document.getElementById("arrangementPackage").value = order.item_name || "";
     document.getElementById("arrangementDate").value = new Date().toISOString().split("T")[0];
 }
 function formatCategory(type) {
@@ -11387,7 +11248,9 @@ function updateBorrowSummary(){
         </div>
     `;
 }
-// pending 
+// pending (done)
+let selectedPayment = null;
+let selectedPaymentType = null;
 document.addEventListener("DOMContentLoaded", () => {
 
     const atNeedBtn = document.getElementById("payment-at-need-btn");
@@ -11418,7 +11281,6 @@ document.addEventListener("DOMContentLoaded", () => {
     preNeedBtn.addEventListener("click", function (e) {
 
         e.preventDefault();
-
         preNeedBtn.classList.add("active");
         atNeedBtn.classList.remove("active");
 
@@ -11526,9 +11388,85 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
         }
     }
+    // update payment (done)
+    const approvePaymentBtn = document.querySelector(".approve-payment-btn");
+    approvePaymentBtn.addEventListener("click", async () => {
+        if (!selectedPayment || !selectedPaymentType) {
+            Swal.fire({
+                icon: "warning",
+                title: "No Payment Selected",
+                text: "Please select a payment first."
+            });
+            return;
+        }
+        const confirm = await Swal.fire({
+            icon: "question",
+            title: "Approve Payment?",
+            text: "Are you sure you want to approve this payment?",
+            showCancelButton: true,
+            confirmButtonText: "Yes, Approve",
+            cancelButtonText: "Cancel"
+        });
+
+        if (!confirm.isConfirmed) {
+            return;
+        }
+        try {
+            Swal.fire({
+                title: "Approving Payment...",
+                text: "Please wait while the payment is being approved.",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            approvePaymentBtn.disabled = true;
+            const formData = new FormData();
+            formData.append("payment_id", selectedPayment.id);
+            formData.append("type", selectedPaymentType);
+            const response = await fetch("../backend/payment/approve_payment.php",{
+                method: "POST",
+                body: formData
+            });
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+            const result = await response.json();
+            if (!result.success) {
+                throw new Error(
+                    result.message || "Unable to approve payment."
+                );
+            }
+            const approvedType = selectedPaymentType;
+            document.getElementById("paymentPendingModal").classList.remove("active");
+
+            selectedPayment = null;
+            selectedPaymentType = null;
+            await loadPayments(approvedType);
+            Swal.fire({
+                icon: "success",
+                title: "Payment Approved",
+                text: "The payment has been approved successfully.",
+                timer: 1500,
+                showConfirmButton: false
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Approval Failed",
+                text: error.message || "Unable to approve payment."
+            });
+        } finally {
+            approvePaymentBtn.disabled = false;
+        }
+    });
 });
 
 function openPaymentModal(payment, type) {
+    selectedPayment = payment;
+    selectedPaymentType = type;
+
     const proofImage = document.getElementById("paymentProofImage");
     const noImage = document.getElementById("paymentNoImage");
     if (
@@ -11549,10 +11487,8 @@ function openPaymentModal(payment, type) {
     let requestNo = "-";
     if (type === "atneed") {
         requestNo = payment.service_request_no || "-";
-
     } else {
         requestNo = payment.lifeplan_no || "-";
-
     }
     document.getElementById("paymentRequestNo").textContent = requestNo;
     document.getElementById("paymentReference").textContent = payment.reference_number || "-";
@@ -11564,7 +11500,7 @@ function openPaymentModal(payment, type) {
     const modal = document.getElementById("paymentPendingModal");
     modal.classList.add("active");
 }
-// access key
+// access key (done)
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("changeAdminKeyForm");
     form.addEventListener("submit", async function (e) {
@@ -11648,15 +11584,27 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
-// schedule management
+// schedule management (done)
 const schedulePendingBtn = document.getElementById("pendingScheduleBtn");
 const scheduleCompletedBtn = document.getElementById("completedScheduleBtn");
 const schedulePendingContainer = document.getElementById("pendingScheduleContainer");
 const scheduleCompletedContainer = document.getElementById("completedScheduleContainer");
+const modalSchedule = document.getElementById("scheduleModal");
+const closeScheduleModal = document.getElementById("closeScheduleModal");
+const markComplete = document.getElementById("markComplete");
+const modalScheduleNo = document.getElementById("modalScheduleNo");
+const modalCustomer = document.getElementById("modalCustomer");
+const modalDeceased = document.getElementById("modalDeceased");
+const modalService = document.getElementById("modalService");
+const modalDate = document.getElementById("modalDate");
+const modalTime = document.getElementById("modalTime");
+const modalLocation = document.getElementById("modalLocation");
+
+let selectedSchedule = null;
+let scheduleClockInterval = null;
 schedulePendingBtn.onclick = () => {
     schedulePendingBtn.classList.add("active");
     scheduleCompletedBtn.classList.remove("active");
-
     schedulePendingContainer.classList.add("active");
     scheduleCompletedContainer.classList.remove("active");
 };
@@ -11666,69 +11614,265 @@ scheduleCompletedBtn.onclick = () => {
     scheduleCompletedContainer.classList.add("active");
     schedulePendingContainer.classList.remove("active");
 };
-const modalSchedule = document.getElementById("scheduleModal");
-document.querySelectorAll(".schedule-row").forEach(row => {
-    row.addEventListener("click", () => {
-        modalSchedule.classList.remove("hidden");
-        modalSchedule.classList.add("active");
-        
-    });
-});
-document.getElementById("closeScheduleModal").onclick = () => {
+function updateCurrentTime() {
+    const now = new Date();
+    modalTime.textContent =
+        now.toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true
+        });
+}
+function startScheduleClock() {
+    clearInterval(scheduleClockInterval);
+    updateCurrentTime();
+    scheduleClockInterval =
+        setInterval(() => {
+            if (modalSchedule.classList.contains("active")) {
+                updateCurrentTime();
+            }
+        }, 1000);
+}
+function stopScheduleClock() {
+    clearInterval(scheduleClockInterval);
+    scheduleClockInterval = null;
+}
+closeScheduleModal.onclick = () => {
     modalSchedule.classList.remove("active");
     modalSchedule.classList.add("hidden");
+    stopScheduleClock();
+    selectedSchedule = null;
 };
-const modalScheduleNo = document.getElementById("modalScheduleNo");
-const modalCustomer = document.getElementById("modalCustomer");
-const modalDeceased = document.getElementById("modalDeceased");
-const modalService = document.getElementById("modalService");
-const modalDate = document.getElementById("modalDate");
-const modalTime = document.getElementById("modalTime");
-const modalLocation = document.getElementById("modalLocation");
-async function loadSchedules() {
-    const response = await fetch("../backend/schedule/get_schedule.php");
-    const result = await response.json();
-    if (!result.success) return;
-    const pendingList = document.getElementById("pendingScheduleList");
-    const completedList = document.getElementById("completedScheduleList");
-    pendingList.innerHTML = "";
-    completedList.innerHTML = "";
-    result.data.forEach(schedule => {
-        const row = document.createElement("tr");
-        row.className = "schedule-row";
-        row.onclick = () => {
-            modalSchedule.classList.remove("hidden");
-            modalSchedule.classList.add("active");
-            modalScheduleNo.textContent = schedule.arrangement_no;
-            modalCustomer.textContent = schedule.customer_name;
-            modalDeceased.textContent = schedule.deceased_name;
-            modalService.textContent = schedule.purchase_type;
-            modalDate.textContent = schedule.arrangement_date;
-            modalTime.textContent = new Date().toLocaleTimeString("en-US", {hour: "numeric",minute: "2-digit",hour12: true});
-            modalLocation.textContent =  schedule.location ?? "-";
-        };
-        row.innerHTML = `
-            <td>${schedule.arrangement_no}</td>
-            <td>${schedule.customer_name}</td>
-            <td>${schedule.deceased_name}</td>
-            <td>${schedule.purchase_type}</td>
-            <td>${schedule.arrangement_date}</td>
-            <td>${new Date().toLocaleDateString()}</td>
-            <td>
-                <span class="${schedule.status === "Pending" ? "pending-badge" : "completed-badge"}">
-                    ${schedule.status}
-                </span>
-            </td>
-        `;
-        if (schedule.status === "Pending") {
-            pendingList.appendChild(row);
-        } else {
-            completedList.appendChild(row);
-        }
-    });
+function updateCompleteButton(status) {
+    const normalizedStatus = String(status || "").trim().toLowerCase();
+    if (normalizedStatus === "pending") {
+        markComplete.textContent = "▶ Start Schedule";
+        markComplete.disabled = false;
+        markComplete.classList.remove("disabled");
+        markComplete.removeAttribute("aria-disabled");
+        return;
+    }
+
+    if (normalizedStatus === "in progress") {
+        markComplete.textContent = "✔ Mark as Complete";
+        markComplete.disabled = false;
+        markComplete.classList.remove("disabled");
+        markComplete.removeAttribute("aria-disabled");
+        return;
+    }
+    if (normalizedStatus === "completed") {
+        markComplete.textContent = "Completed";
+        markComplete.disabled = true;
+        markComplete.classList.add("disabled");
+        markComplete.setAttribute("aria-disabled", "true");
+        return;
+    }
+    markComplete.textContent = "▶ Start Schedule";
+    markComplete.disabled = false;
+    markComplete.classList.remove("disabled");
+    markComplete.removeAttribute("aria-disabled");
 }
+function openScheduleModal(schedule) {
+    selectedSchedule = schedule;
+    modalSchedule.classList.remove("hidden");
+    modalSchedule.classList.add("active");
+    modalScheduleNo.textContent = schedule.arrangement_no || "-";
+    modalCustomer.textContent = schedule.customer_name || "-";
+    modalDeceased.textContent = schedule.deceased_name || "-";
+    modalService.textContent = schedule.purchase_type || "-";
+    modalDate.textContent = schedule.arrangement_date || "-";
+    modalLocation.textContent = schedule.location || "-";
+
+    startScheduleClock();
+    updateCompleteButton(schedule.status);
+}
+async function loadSchedules() {
+    try {
+        const response = await fetch("../backend/schedule/get_schedule.php",{
+            method: "GET",
+            cache: "no-store"
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const responseText = await response.text();
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (jsonError) {
+            throw new Error("Server returned invalid JSON.");
+        }
+        if (!result.success) {
+            throw new Error(result.message || "Failed to load schedules.");
+        }
+        const pendingList = document.getElementById("pendingScheduleList");
+        const completedList = document.getElementById("completedScheduleList");
+        pendingList.innerHTML = "";
+        completedList.innerHTML = "";
+        if (!Array.isArray(result.data)) {
+            return;
+        }
+        result.data.forEach(schedule => {
+            const row = document.createElement("tr");
+            row.className = "schedule-row";
+            const status = String(schedule.status || "").trim();
+            const normalizedStatus = status.toLowerCase();
+            let statusClass;
+            if (normalizedStatus === "pending") {
+                statusClass = "pending-badge";
+            } else if (normalizedStatus === "in progress") {
+                statusClass = "in-progress-badge";
+            } else if (normalizedStatus === "completed") {
+                statusClass = "completed-badge";
+            } else {
+                statusClass = "completed-badge";
+            }
+            row.onclick = () => {
+                openScheduleModal(schedule);
+            };
+            row.innerHTML = `
+                <td>${schedule.arrangement_no || "-"}</td>
+                <td>${schedule.customer_name || "-"}</td>
+                <td>${schedule.deceased_name || "-"}</td>
+                <td>${schedule.purchase_type || "-"}</td>
+                <td>${schedule.arrangement_date || "-"}</td>
+                <td>${new Date().toLocaleDateString()}</td>
+                <td>
+                    <span class="${statusClass}">${status || "-"}</span>
+                </td>
+
+            `;
+            if (normalizedStatus === "completed") {
+                completedList.appendChild(row);
+            } else {
+                pendingList.appendChild(row);
+            }
+        });
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "Unable to Load Schedules",
+            text: error.message || "Something went wrong while loading schedules.",
+            confirmButtonText: "OK"
+        });
+    }
+}
+
+markComplete.onclick = async () => {
+    if (!selectedSchedule) {
+        return;
+    }
+    const currentStatus = String(selectedSchedule.status || "").trim().toLowerCase();
+
+    let nextStatus = "";
+    if (currentStatus === "pending") {
+        nextStatus = "In Progress";
+    } else if (currentStatus === "in progress") {
+        nextStatus = "Completed";
+    } else if (currentStatus === "completed") {
+        return;
+    } else {
+        return;
+    }
+    let confirmationTitle = "";
+    let confirmationText = "";
+    let confirmButtonText = "";
+
+    if (nextStatus === "In Progress") {
+        confirmationTitle = "Start Schedule?";
+        confirmationText = "Are you sure you want to start this schedule?";
+        confirmButtonText = "Yes, Start Schedule";
+    } else {
+        confirmationTitle = "Complete Schedule?";
+        confirmationText = "Are you sure you want to mark this schedule as completed?";
+        confirmButtonText = "Yes, Complete";
+    }
+    const confirmation = await Swal.fire({
+        icon: "question",
+        title: confirmationTitle,
+        text: confirmationText,
+        showCancelButton: true,
+        confirmButtonText: confirmButtonText,
+        cancelButtonText: "Cancel",
+        reverseButtons: true
+    });
+    if (!confirmation.isConfirmed) {
+        return;
+    }
+    markComplete.disabled = true;
+    markComplete.textContent = nextStatus === "In Progress" ? "Starting..." : "Completing...";
+    try {
+        const response = await fetch("../backend/schedule/update_schedule_status.php",{
+            method: "POST",
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded; charset=UTF-8"
+            },
+            body: new URLSearchParams({
+                id: selectedSchedule.id,
+                status: nextStatus,
+                schedule_type: selectedSchedule.schedule_type,
+                arrangement_no: selectedSchedule.arrangement_no,
+                request_no: selectedSchedule.request_no
+            })
+        });
+
+        const responseText = await response.text();
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (jsonError) {
+            throw new Error(`Server returned invalid JSON. HTTP ${response.status}`);
+        }
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || `HTTP ${response.status}: Failed to update schedule.`);
+        }
+        selectedSchedule.status = nextStatus;
+        if (nextStatus === "In Progress") {
+            await Swal.fire({
+                icon: "success",
+                title: "Schedule Started",
+                text: "The schedule is now in progress.",
+                confirmButtonText: "OK",
+                timer: 1500,
+                timerProgressBar: true
+            });
+        } else {
+            await Swal.fire({
+                icon: "success",
+                title: "Schedule Completed",
+                text: "The schedule has been successfully completed.",
+                confirmButtonText: "OK",
+                timer: 2000,
+                timerProgressBar: true
+            });
+        }
+        await loadSchedules();
+        modalSchedule.classList.remove("active");
+        modalSchedule.classList.add("hidden");
+
+        stopScheduleClock();
+        selectedSchedule = null;
+        if (nextStatus === "Completed") {
+            scheduleCompletedBtn.click();
+        } else {
+            schedulePendingBtn.click();
+        }
+    } catch (error) {
+        if (selectedSchedule) {
+            updateCompleteButton(selectedSchedule.status);
+        }
+        Swal.fire({
+            icon: "error",
+            title: "Unable to Update Schedule",
+            text: error.message || "Failed to update schedule status.",
+            confirmButtonText: "OK"
+        });
+    }
+};
 loadSchedules();
-// search function in each container of the preferences
+// search function in each container of the preferences (done)
 // pending orders
 const search = document.getElementById("preferenceSearch");
 search.addEventListener("input", function () {
@@ -11769,82 +11913,508 @@ function enableSearch(inputId, cardSelector) {
         });
     });
 }
-// reports chart
-new Chart(document.getElementById("serviceChart"),{
-    type:"bar",
-    data:{
-        labels:["Burial","Complete","Viewing","Memorial"],
-        datasets:[{
-            data:[20,12,8,5]
-        }]
+document.addEventListener("DOMContentLoaded", () => {
+    loadServiceBreakdown();
+    loadPaymentMethodChart();
+    loadTotalFuneralServices();
+    loadCompletedServices();
+    loadPendingServices();
+    loadCancelledServices();
+    loadTotalRevenue();
+    loadPaymentsReceived();
+
+    loadFuneralReport();
+
+    const fromDate = document.getElementById("fromDate");
+    const toDate = document.getElementById("toDate");
+    const serviceType = document.getElementById("report-serviceType");
+    const reportStatus = document.getElementById("report-status");
+
+    if (fromDate && toDate && serviceType && reportStatus) {
+
+        fromDate.addEventListener("change", loadFuneralReport);
+        toDate.addEventListener("change", loadFuneralReport);
+        serviceType.addEventListener("change", loadFuneralReport);
+        reportStatus.addEventListener("change", loadFuneralReport);
+
     }
 });
-const ctx = document.getElementById("paymentMethodChart");
+// funeral service count (done)
+async function loadTotalFuneralServices() {
+    try {
+        const response = await fetch("../backend/reports/get_total_funeral_services.php");
+        const result = await response.json();
+        const element = document.getElementById("totalFuneralServices");
+        if (element) {
+            element.textContent = result.total;
+        }
+    } catch (error) {
+    }
+}
+// completed funeral service (done)
+async function loadCompletedServices() {
+    try {
+        const response = await fetch("../backend/reports/get_completed_services.php");
+        const result = await response.json();
+        const element = document.querySelector("#completedServices");
+        element.innerText = result.total;
+    } catch (error) {
+    }
+}
+// pending funeral service count
+async function loadPendingServices() {
+    try {
+        const response = await fetch("../backend/reports/get_pending_services.php");
+        const result = await response.json();
+        const element = document.getElementById("pendingServices");
+        element.textContent = result.total;
 
-new Chart(ctx, {
-    type: "pie",
-    data: {
-        labels: ["Cash", "Online Transaction"],
-        datasets: [{
-            data: [20, 20],
-            backgroundColor: [
-                "#2f80ed",
-                "#27ae60"
-            ],
-            borderWidth: 0
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false
+    } catch (error) {
+    }
+}
+// cancelled funeral service count (done)
+async function loadCancelledServices() {
+    try {
+        const response = await fetch("../backend/reports/get_cancelled_services.php");
+        const result = await response.json();
+        const element = document.getElementById("cancelledServices");
+        element.textContent = result.total;
+    } catch (error) {
+    }
+}
+// reports revenue count (done)
+async function loadTotalRevenue() {
+    try {
+        const response = await fetch("../backend/revenue/get_revenue.php");
+        const result = await response.json();
+        const element = document.getElementById("totalRevenue");
+        const revenue = Number(result.revenue) || 0;
+        element.textContent = revenue.toLocaleString(
+            "en-PH",
+            {
+                style: "currency",
+                currency: "PHP",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
             }
-        }
+        );
+    } catch (error) {
+    }
+}
+// reports count received payment (done)
+async function loadPaymentsReceived() {
+    try {
+        const response = await fetch("../backend/reports/get_payments_received.php");
+        const result = await response.json();
+        const element = document.getElementById("paymentsReceived");
+        const total = Number(result.total) || 0;
+        element.textContent = total.toLocaleString(
+            "en-PH",
+            {
+                style: "currency",
+                currency: "PHP",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            }
+        );
+    } catch (error) {
+    }
+}
+// done
+document.addEventListener("DOMContentLoaded", () => {
+    const serviceCanvas = document.getElementById("serviceChart");
+    const paymentCanvas = document.getElementById("paymentMethodChart");
+    if (serviceCanvas) {
+        loadServiceBreakdown();
+    }
+    if (paymentCanvas) {
+        loadPaymentMethodChart();
     }
 });
-// data management
-const dataTabs = document.querySelectorAll(".data-tab");
-const dataSections = document.querySelectorAll(".data-section");
-const dataSearchInput = document.getElementById("dataSearchInput");
-dataTabs.forEach(tab => {
-    tab.addEventListener("click", function () {
-        dataTabs.forEach(item => {
-            item.classList.remove("active");
-        });
-        this.classList.add("active");
-        const target = this.dataset.target;
-        dataSections.forEach(section => {
-            section.classList.remove("active");
-        });
-        const selectedSection = document.querySelector(`.data-section[data-section="${target}"]`);
-        if (selectedSection) {
-            selectedSection.classList.add("active");
+// reports service chart (done)
+let serviceChartInstance = null;
+async function loadServiceBreakdown() {
+    try {
+        const canvas = document.getElementById("serviceChart");
+        if (!canvas) {
+            return;
         }
-        dataSearchInput.value = "";
-        clearTableSearch();
-    });
-
-});
-dataSearchInput.addEventListener("input", function () {
-    const searchValue = this.value.trim().toLowerCase();
-    const activeSection = document.querySelector(".data-section.active");
-    if (!activeSection) {
-        return;
+        const response = await fetch(
+            "../backend/reports/get_service_breakdown.php"
+        );
+        const result = await response.json();
+        if (!result.success) {
+            console.error(result.message);
+            return;
+        }
+        if (serviceChartInstance) {
+            serviceChartInstance.destroy();
+        }
+        serviceChartInstance = new Chart(canvas, {
+            type: "bar",
+            data: {
+                labels: result.labels,
+                datasets: [{
+                    label: "Number of Requests",
+                    data: result.data,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
     }
-    const tbody = activeSection.querySelector("tbody");
+}
+// reports payment chart (done)
+let paymentMethodChartInstance = null;
+async function loadPaymentMethodChart() {
+    try {
+        const canvas = document.getElementById("paymentMethodChart");
+        const response = await fetch(
+            "../backend/reports/get_payment_method.php"
+        );
+        const result = await response.json();
+        if (!result.labels || result.labels.length === 0) {
+            const legend = document.getElementById("paymentLegend");
+            if (legend) {
+                legend.innerHTML = `
+                    <div class="legend-item">
+                        <span>No payment data available</span>
+                    </div>
+                `;
+            }
+            return;
+        }
+        if (paymentMethodChartInstance) {
+            paymentMethodChartInstance.destroy();
+        }
+        const colors = [
+            "#2f80ed",
+            "#27ae60",
+            "#f2994a",
+            "#9b51e0",
+            "#eb5757",
+            "#56ccf2",
+            "#f2c94c"
+        ];
+        paymentMethodChartInstance = new Chart(canvas, {
+            type: "pie",
+            data: {
+                labels: result.labels,
+                datasets: [{
+                    data: result.data,
+                    backgroundColor: result.labels.map(
+                        (_, index) => colors[index % colors.length]
+                    ),
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        const legend = document.getElementById("paymentLegend");
+        if (legend) {
+            const total = result.data.reduce((sum, value) => sum + Number(value),0);
+            legend.innerHTML = "";
+            result.labels.forEach((label, index) => {
+                const value = Number(result.data[index]);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                const item = document.createElement("div");
+                item.className = "legend-item";
+                item.innerHTML = `
+                    <span 
+                        class="legend-color"
+                        style="background-color: ${colors[index % colors.length]}">
+                    </span>
+                    <span>${label}</span>
+                    <span>-</span>
+                    <strong>
+                        ${value} (${percentage}%)
+                    </strong>
+                `;
+                legend.appendChild(item);
+            });
+        }
+    } catch (error) {
+    }
+}
+// funeral transaction 
+async function loadReportsRecentTransactions() {
+    const tbody = document.getElementById("reportRecentTransactionsBody");
     if (!tbody) {
         return;
     }
-    const rows = tbody.querySelectorAll("tr");
-    rows.forEach(row => {
-        const rowText = row.textContent.toLowerCase();
-        if (rowText.includes(searchValue)) {
-            row.style.display = "";
-        } else {
-            row.style.display = "none";
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="5" style="text-align:center;">
+                Loading transactions...
+            </td>
+        </tr>
+    `;
+    try {
+        const response = await fetch("../backend/reports/get_recent_transactions.php",{
+            method: "GET",
+            cache: "no-store"
+        });
+        if (!response.ok) {
+            throw new Error("HTTP error: " + response.status);
         }
+        const result = await response.json();
+        if (!result.success || !Array.isArray(result.data) || result.data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center;">
+                        No recent transactions found.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        const recentTransactions = result.data.slice(0, 3);
+        tbody.innerHTML = recentTransactions.map(transaction => {
+                const amount = Number(transaction.amount || 0).toLocaleString("en-PH",{minimumFractionDigits: 2,maximumFractionDigits: 2});
+                const status =transaction.status || "Pending";
+                const statusClass =status.toLowerCase().trim().replace(/\s+/g, "-");
+                return `
+                    <tr>
+                        <td>${escapeHtml(transaction.service_no || "-")}</td>
+                        <td>${escapeHtml(transaction.customer || "-")}</td>
+                        <td>${escapeHtml(transaction.service || "-")}</td>
+                        <td>₱${amount}</td>
+                        <td><span class="status ${statusClass}">${escapeHtml(status)}</span></td>
+                    </tr>
+                `;}).join("");
+    } catch (error) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" style=" text-align:center; color:#dc3545;">
+                    Failed to load transactions.
+                </td>
+            </tr>
+        `;
+    }
+}
+function escapeHtml(value) {
+    if (value === null || value === undefined) {
+        return "";
+    }
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+document.addEventListener("DOMContentLoaded",function () {
+    loadReportsRecentTransactions();
+});
+// funeral reports 
+async function loadFuneralReport() {
+    try {
+        const fromDate = document.getElementById("fromDate");
+        const toDate = document.getElementById("toDate");
+        const serviceType = document.getElementById("report-serviceType");
+        const reportStatus = document.getElementById("report-status");
+        const params = new URLSearchParams();
+
+        if (fromDate && fromDate.value) {
+            params.append("from_date", fromDate.value);
+        }
+        if (toDate && toDate.value) {
+            params.append("to_date", toDate.value);
+        }
+        if (serviceType && serviceType.value) {
+            params.append("service_type", serviceType.value);
+        }
+        if (reportStatus && reportStatus.value) {
+            params.append("status", reportStatus.value);
+        }
+        const response = await fetch(
+            `../backend/reports/get_funeral_reports.php?${params.toString()}`,
+            {
+                method: "GET",
+                cache: "no-store"
+            }
+        );
+        if (!response.ok) {
+            throw new Error(
+                `HTTP Error: ${response.status}`
+            );
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(
+                result.message || "Failed to load report."
+            );
+        }
+
+        document.getElementById("totalFuneralServices").textContent = result.summary.total_services ?? 0;
+        document.getElementById("completedServices").textContent = result.summary.completed ?? 0;
+        document.getElementById("pendingServices").textContent = result.summary.pending ?? 0;
+        document.getElementById("cancelledServices").textContent = result.summary.cancelled ?? 0;
+        document.getElementById("totalRevenue").textContent =
+            "₱" +
+            Number(result.summary.total_revenue ?? 0)
+                .toLocaleString("en-PH", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+        document.getElementById("paymentsReceived").textContent =
+            "₱" +
+            Number(result.summary.payments_received ?? 0)
+                .toLocaleString("en-PH", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+        const tbody = document.getElementById("reportRecentTransactionsBody");
+        if (tbody) {
+            tbody.innerHTML = "";
+            if (!result.transactions || result.transactions.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align:center;">
+                            No transactions found.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                result.transactions.forEach(transaction => {
+                    const row = document.createElement("tr");
+                    const status = transaction.status || "Pending";
+                    const statusClass = status.toLowerCase().replace(/\s+/g, "-");
+                    row.innerHTML = `
+                        <td>
+                            ${escapeHtml(transaction.service_no || "-")}
+                        </td>
+                        <td>
+                            ${escapeHtml(transaction.customer || "-")}
+                        </td>
+                        <td>
+                            ${escapeHtml(transaction.service || "-")}
+                        </td>
+                        <td>
+                            ₱${Number(transaction.amount || 0).toLocaleString("en-PH", {minimumFractionDigits: 2,maximumFractionDigits: 2})}
+                        </td>
+                        <td>
+                            <span class="status ${statusClass}">
+                                ${escapeHtml(status)}
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+        }
+        if (result.service_breakdown) {
+            loadServiceBreakdown();
+        }
+
+        if (result.payment_methods) {
+            loadPaymentMethodChart();
+        }
+
+    } catch (error) {
+        Swal.fire({
+            icon: "error",
+            title: "Report Error",
+            text: error.message ||
+                "Unable to load funeral report."
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const fromDate = document.getElementById("fromDate");
+    const toDate = document.getElementById("toDate");
+    const serviceType = document.getElementById("report-serviceType");
+    const reportStatus = document.getElementById("report-status");
+    if (fromDate) {
+        fromDate.addEventListener("change",loadFuneralReport);
+    }
+    if (toDate) {
+        toDate.addEventListener("change",loadFuneralReport);
+    }
+    if (serviceType) {
+        serviceType.addEventListener("change",loadFuneralReport);
+    }
+
+
+    if (reportStatus) {
+        reportStatus.addEventListener("change",loadFuneralReport);
+    }
+
+
+    // LOAD INITIAL REPORT
+    loadFuneralReport();
+
+});
+// data management done
+document.addEventListener("DOMContentLoaded", function () {
+    const dataTabs = document.querySelectorAll(".data-tab");
+    const dataSections = document.querySelectorAll(".data-section");
+    const dataSearchInput = document.getElementById("dataSearchInput");
+    dataTabs.forEach((tab, index) => {
+        tab.addEventListener("click", function () {
+            dataTabs.forEach(btn => {
+                btn.classList.remove("active");
+            });
+            dataSections.forEach(section => {
+                section.classList.remove("active");
+            });
+            this.classList.add("active");
+            if (dataSections[index]) {
+                dataSections[index].classList.add("active");
+            }
+            if (dataSearchInput) {
+                dataSearchInput.value = "";
+            }
+            clearTableSearch();
+        });
+
     });
+    if (dataSearchInput) {
+        dataSearchInput.addEventListener("input", function () {
+            const searchValue = this.value.trim().toLowerCase();
+            const activeSection = document.querySelector(".data-section.active");
+            if (!activeSection) {
+                return;
+            }
+            const tbody = activeSection.querySelector("tbody");
+            if (!tbody) {
+                return;
+            }
+            const rows = tbody.querySelectorAll("tr");
+            rows.forEach(row => {
+                const rowText = row.textContent.toLowerCase();
+                if (rowText.includes(searchValue)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        });
+    }
 });
 function clearTableSearch() {
     const activeSection = document.querySelector(".data-section.active");
@@ -11860,20 +12430,7 @@ function clearTableSearch() {
         row.style.display = "";
     });
 }
-document.addEventListener("DOMContentLoaded", () => {
-    const tabs = document.querySelectorAll(".data-tab");
-    const sections = document.querySelectorAll(".data-section");
-
-    tabs.forEach((tab, index) => {
-        tab.addEventListener("click", () => {
-            tabs.forEach(btn => btn.classList.remove("active"));
-            sections.forEach(section => section.classList.remove("active"));
-
-            tab.classList.add("active");
-            sections[index].classList.add("active");
-        });
-    });
-});
+// load products done
 async function loadProductsRecords() {
     try {
         const response = await fetch(
@@ -11945,6 +12502,7 @@ async function loadProductsRecords() {
 document.addEventListener("DOMContentLoaded", () => {
     loadProductsRecords();
 });
+// product view done 
 document.addEventListener("click", async (e) => {
     const btn = e.target.closest("#products-view-button");
     if (!btn) return;
@@ -12009,6 +12567,7 @@ document.addEventListener("keydown", (e) => {
         closeViewProductModal();
     }
 });
+// products edit button done
 document.addEventListener("click", async (e) => {
     const btn = e.target.closest("#products-edit-button");
     if (!btn) return;
@@ -12059,6 +12618,7 @@ document.addEventListener("click", async (e) => {
         });
     }
 });
+// edit products image done
 document.getElementById("editProductImage").addEventListener("change", function () {
         const file = this.files[0];
         if (!file) return;
@@ -12068,6 +12628,7 @@ document.getElementById("editProductImage").addEventListener("change", function 
         };
         reader.readAsDataURL(file);
     });
+// edit products done
 document.getElementById("editProductForm").addEventListener("submit", async function (e) {
         e.preventDefault();
         const id = document.getElementById("editProductId").value.trim();
@@ -12229,7 +12790,7 @@ document.addEventListener("keydown", function (e) {
         closeEditProductModal();
     }
 });
-// delete products
+// delete products done
 document.addEventListener("click", function (e) {
     const deleteButton = e.target.closest("#products-delete-button");
     if (!deleteButton) {
@@ -12294,9 +12855,8 @@ document.addEventListener("click", function (e) {
         }
     });
 });
-// materials record
+// materials record done
 function loadMaterialRecords() {
-    console.log("loadMaterialRecords called");
     fetch("../backend/materials/get_materials.php")
         .then(response => response.json())
         .then(data => {
@@ -12352,8 +12912,6 @@ function loadMaterialRecords() {
             });
         })
         .catch(error => {
-            console.error("Error loading materials:", error);
-
             document.getElementById("materialsRecordsBody").innerHTML = `
                 <tr>
                     <td colspan="8" style="text-align:center;color:red;">
@@ -12377,8 +12935,8 @@ document.addEventListener("click", function (e) {
     const name = editButton.dataset.name;
     const type = editButton.dataset.type;
     const unit = editButton.dataset.unit;
-    const stock = editButton.dataset.stock;
     const cost = editButton.dataset.cost;
+    const stock = editButton.dataset.stock;
     const details = editButton.dataset.details;
     
     document.getElementById("editMaterialId").value = id;
@@ -12387,8 +12945,8 @@ document.addEventListener("click", function (e) {
     document.getElementById("editMaterialName").value = name;
     document.getElementById("editMaterialType").value = type;
     document.getElementById("editMaterialUnit").value = unit === "-" ? "" : unit;
-    document.getElementById("editMaterialStock").value = stock;
     document.getElementById("editMaterialCost").value = cost;
+    document.getElementById("editMaterialStock").value = stock;
     document.getElementById("editMaterialDescription").value = details;
     document.getElementById("editMaterialModal").classList.add("active");
 });
@@ -12501,7 +13059,7 @@ document.addEventListener("click", function (e) {
     });
 
 });
-// deceased table 
+// deceased table done
 async function loadDeceasedRecords() {
     const tbody = document.getElementById("deceasedRecordsBody");
     if (!tbody) {
@@ -12520,7 +13078,6 @@ async function loadDeceasedRecords() {
             "../backend/data_management/get_deceased_records.php"
         );
         const text = await response.text();
-        console.log("Raw deceased records response:", text);
         let result;
         try {
             result = JSON.parse(text);
@@ -12564,18 +13121,10 @@ async function loadDeceasedRecords() {
             const deceasedName = [ record.deceased_firstname, record.deceased_middlename, record.deceased_lastname].filter(name => name && name.trim() !== "").join(" ");
             const row = document.createElement("tr");
             row.innerHTML = `
-                <td>
-                    ${escapeHTML(record.id ?? "-")}
-                </td>
-                <td>
-                    ${escapeHTML(deceasedName || "-")}
-                </td>
-                <td>
-                    ${formatDate(record.date_of_death)}
-                </td>
-                <td>
-                    ${escapeHTML(record.age ?? "-")}
-                </td>
+                <td>${escapeHTML(record.id ?? "-")}</td>
+                <td>${escapeHTML(deceasedName || "-")}</td>
+                <td>${formatDate(record.date_of_death)}</td>
+                <td>${escapeHTML(record.age ?? "-")}</td>
                 <td>
                     <div class="action-buttons">
                         <button
@@ -12707,92 +13256,36 @@ document.addEventListener("click", async function (event) {
         }
         const record = result.data;
         document.getElementById("editDeceasedId").value = deceasedId;
-        document.getElementById("editFirstName").value = record.deceased_firstname ?? "";
-        document.getElementById("editMiddleName").value = record.deceased_middlename ?? "";
-        document.getElementById("editLastName").value = record.deceased_lastname ?? "";
-
-
-        document.getElementById(
-            "editGender"
-        ).value =
-            record.gender ?? "";
-
-
-        document.getElementById(
-            "editBirthDate"
-        ).value =
-            record.birth_date ?? "";
-
-
-        document.getElementById(
-            "editAge"
-        ).value =
-            record.age ?? "";
-        document.getElementById(
-            "editDateOfDeath"
-        ).value =
-            record.date_of_death ?? "";
-        document.getElementById(
-            "editDateNeed"
-        ).value =
-            record.date_need ?? "";
-
-
-        document.getElementById(
-            "editIntermentDate"
-        ).value =
-            record.interment_date ?? "";
-        document.getElementById(
-            "editServicePackage"
-        ).value =
-            record.service_type ?? "";
-        document.getElementById(
-            "editWakeLocation"
-        ).value =
-            record.wake_location ?? "";
-        document.getElementById(
-            "editCemetery"
-        ).value =
-            record.cemetery ?? "";
-        document.getElementById(
-            "editLocation"
-        ).value =
-            record.location ?? "";
-        document.getElementById(
-            "editPerformedBy"
-        ).value =
-            record.performed_by ?? "";
-        const residentialAddress =
-            document.getElementById(
-                "editResidentialAddress"
-            );
+        document.getElementById("editFirstName").value = record.deceased_firstname ?? "-";
+        document.getElementById("editMiddleName").value = record.deceased_middlename ?? "-";
+        document.getElementById("editLastName").value = record.deceased_lastname ?? "-";
+        document.getElementById("editGender").value = record.gender ?? "-";
+        document.getElementById("editBirthDate").value = record.birth_date ?? "-";
+        document.getElementById("editAge").value = record.age ?? "-";
+        document.getElementById("editDateOfDeath").value = record.date_of_death ?? "-";
+        document.getElementById("editDateNeed").value = record.date_need ?? "-";
+        document.getElementById("editIntermentDate").value = record.interment_date ?? "-";
+        document.getElementById("editServicePackage").value = record.service_type === "complete" ? "Complete Funeral Service Package" :
+                                                              record.service_type ===  "burial" ? "Burial Service" : 
+                                                              record.service_type === "memorial" ? "Memorial Service" :
+                                                              record.service_type ===  "viewing" ? "Viewing and Wake Service" :
+                                                              record.service_type ?? "-";
+        document.getElementById("editWakeLocation").value = record.wake_location ?? "-";
+        document.getElementById("editCemetery").value = record.cemetery ?? "-";
+        document.getElementById("editLocation").value = record.location ?? "-";
+        document.getElementById("editPerformedBy").value = record.performed_by ?? "-";
+        const residentialAddress =document.getElementById("editResidentialAddress");
 
         if (residentialAddress) {
-
-            residentialAddress.value =
-                record.residential_address ?? "";
+            residentialAddress.value = record.residential_address ?? "";
         }
-        const remarks =
-            document.getElementById(
-                "editRemarks"
-            );
-
+        const remarks =document.getElementById("editRemarks");
         if (remarks) {
-
-            remarks.value =
-                record.condition ?? "";
+            remarks.value =record.condition ?? "";
         }
-        console.log(
-            "Edit deceased modal populated."
-        );
     } catch (error) {
-        console.error(
-            "Error loading deceased record:",
-            error
-        );
-        alert(
-            "An error occurred while loading the deceased record."
-        );
+        
+        alert("An error occurred while loading the deceased record.");
         modal.classList.remove("active");
     }
 });
@@ -12834,7 +13327,6 @@ document.addEventListener("submit", async function (event) {
         formData.append("residential_address",document.getElementById("editResidentialAddress")?.value.trim() || "");
         formData.append("wake_location",document.getElementById("editWakeLocation")?.value.trim() || "");
         formData.append("cemetery",document.getElementById("editCemetery")?.value.trim() || "");
-        formData.append("performed_by",document.getElementById("editPerformedBy")?.value.trim() || "");
         formData.append("remarks",document.getElementById("editRemarks")?.value.trim() || "");
         for (const [key, value] of formData.entries()) {
             console.log(key + ":", value);
@@ -12923,6 +13415,24 @@ document.getElementById("closeEditDeceased").addEventListener("click", function 
 });
 document.getElementById("cancelEditDeceased").addEventListener("click", function () {
     document.getElementById("editDeceasedModal").classList.remove("active");
+});
+// logout
+document.getElementById("adminLogout").addEventListener("click", function (e) {
+    e.preventDefault();
+    const logoutUrl = this.href;
+    Swal.fire({
+        title: "Logging out...",
+        text: "Please wait while we securely end your session.",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    setTimeout(() => {
+        window.location.href = logoutUrl;
+    }, 500);
 });
 </script>
 </html>

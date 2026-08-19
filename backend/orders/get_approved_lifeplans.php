@@ -47,6 +47,9 @@ try {
             lp.funeral_service,
             lp.quantity,
             lp.coffin_source,
+            lp.date_of_death,
+            lp.date_need,
+            lp.interment_date,
 
             lp.applicant_name AS name,
 

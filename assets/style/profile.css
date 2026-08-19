@@ -255,7 +255,8 @@ body{
 .location-icon:hover {
     color: #3498db;
 }
-.save-btn {
+.save-btn,
+.save-password-btn {
     background: #2c3e50;
     color: white;
     border: none;
