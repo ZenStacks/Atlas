@@ -7,7 +7,6 @@ header("Content-Type: application/json; charset=utf-8");
 try {
 
     $sql = "
-
         SELECT
             CONCAT('local_', c.id) AS unique_key,
             c.id,
@@ -27,8 +26,7 @@ try {
             f.flower_type,
             COALESCE(f.cost, 0) AS flower_cost,
             (
-                COALESCE(c.retail_price, 0)
-                +
+                COALESCE(c.retail_price, 0) +
                 COALESCE(f.cost, 0)
             ) AS selling_price
 
@@ -43,6 +41,8 @@ try {
                 LOWER(TRIM(c.coffin_type)) = 'premium'
                 AND f.flower_type = 'premium-setup'
             )
+
+        WHERE c.status = 'Available'
 
         UNION ALL
 
@@ -65,11 +65,12 @@ try {
             f.flower_type,
             COALESCE(f.cost, 0) AS flower_cost,
             (
-                COALESCE(ic.retail_price, 0)
-                +
+                COALESCE(ic.retail_price, 0) +
                 COALESCE(f.cost, 0)
             ) AS selling_price
+
         FROM imported_coffins ic
+
         LEFT JOIN flowers f
             ON (
                 LOWER(TRIM(ic.coffin_type)) = 'standard'
@@ -79,6 +80,9 @@ try {
                 LOWER(TRIM(ic.coffin_type)) = 'premium'
                 AND f.flower_type = 'premium-setup'
             )
+
+        WHERE ic.status = 'Available'
+
         ORDER BY coffin_type ASC, item_name ASC
     ";
     $result = $conn->query($sql);

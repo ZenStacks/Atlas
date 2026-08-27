@@ -16,7 +16,7 @@ if ($actionType === "profile") {
         exit;
     }
     $username = $_SESSION["username"];
-    $stmt = $conn->prepare("SELECT id, name, profile, age, gender, contact_no, username, email, address, ip_address, staff_id, department, type, status, two_factor_auth FROM employer WHERE username = ?");
+    $stmt = $conn->prepare("SELECT * FROM employer WHERE username = ?");
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -50,7 +50,8 @@ if ($actionType === "profile") {
             "staff_id" => $user["staff_id"],
             "status" => $user["status"],
             "two_factor_auth" => $user["two_factor_auth"],
-            "profile" => $user["profile"]
+            "profile" => $user["profile"],
+            "is_default" => $user["is_default"]
         ]
     ]);
     exit;

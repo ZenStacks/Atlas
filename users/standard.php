@@ -260,10 +260,8 @@
                                 <label for="service-type">Type of Service Required</label>
                                 <select id="service-type" name="service_type">
                                     <option value="">Select Service Type</option>
-                                    <option value="burial">Burial Service</option>
-                                    <option value="memorial">Memorial Service</option>
-                                    <option value="viewing">Viewing and Wake Service</option>
-                                    <option value="complete">Complete Funeral Service Package</option>
+                                    <option value="Burial Service">Burial Service</option>
+                                    <option value="Complete Funeral Service">Complete Funeral Service Package</option>
                                 </select>
                             </div>
                             <div class="input-row">
@@ -564,7 +562,7 @@ async function loadStandardCoffins() {
                         <div class="product-pricing">
                             <div class="price-item">
                                 <span class="label">Selling Price</span>
-                                <h3>₱ ${Number(coffin.retail_price).toLocaleString()}</h3>
+                                <h3>₱ ${Number(coffin.selling_price).toLocaleString()}</h3>
                             </div>
                             <div class="price-item">
                                 <span class="label">Downpayment</span>
@@ -595,9 +593,9 @@ document.addEventListener("click", (e) => {
     if (!item) return;
     selectedCoffin = item;
     document.getElementById("confirm-coffin-name").textContent = item.item_name;
-    document.getElementById("confirm-coffin-price").textContent = "₱ " + Number(item.retail_price).toLocaleString();
+    document.getElementById("confirm-coffin-price").textContent = "₱ " + Number(item.selling_price).toLocaleString();
     document.getElementById("confirm-coffin-image").src = item.image;
-    document.getElementById("retailSelling").value = "₱ " + Number(item.retail_price).toLocaleString();
+    document.getElementById("retailSelling").value = "₱ " + Number(item.selling_price).toLocaleString();
     document.getElementById("partialPayment").value = "₱ " + Number(item.downpayment).toLocaleString();
     const termSelect = document.getElementById("atNeedTerm");
     termSelect.innerHTML = "";
@@ -609,7 +607,7 @@ document.addEventListener("click", (e) => {
             </option>
         `;
     }
-    const retailPrice = parseFloat(item.retail_price) || 0;
+    const retailPrice = parseFloat(item.selling_price) || 0;
     const downpayment = parseFloat(item.downpayment) || 0;
     if (months > 0) {
         const balance = retailPrice - downpayment;
@@ -800,8 +798,14 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     formData.append("payment_option", paymentOption);
     if (paymentOption === "Installment") {
         formData.append("payment_term", document.getElementById("atNeedTerm").value);
+        formData.append("retail_price", document.getElementById("retailSelling").value);
+        formData.append("term_payment", document.getElementById("monthlyPayment").value);
+        formData.append("partial_payment", document.getElementById("partialPayment").value);
     } else {
         formData.append("payment_term", "-");
+        formData.append("term_payment", "-");
+        formData.append("partial_payment", "-");
+        formData.append("retail_price", document.getElementById("retailSelling").value);
     }
     try {
         const response = await fetch("../backend/service/save_request.php", {
@@ -819,6 +823,8 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             });
             return;
         }
+        const pendingChannel = new BroadcastChannel("atlas_pending_orders");
+        pendingChannel.postMessage("new_pending_order");
         Swal.fire({
             icon: "success",
             title: "Request Submitted!",
@@ -859,7 +865,6 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             window.location.href = "profile.php?tab=service-preferences";
         });
     } catch (error) {
-        console.error("Submit error:", error);
         Swal.fire({
             icon: "error",
             title: "Something went wrong!",

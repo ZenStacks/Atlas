@@ -11,10 +11,10 @@ header('Content-Type: application/json');
 
 try {
     require_once __DIR__ . '/../conn.php';
-    include '../audit_helper.php';
-    require '../../vendor/phpmailer/phpmailer/src/Exception.php';
-    require '../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
-    require '../../vendor/phpmailer/phpmailer/src/SMTP.php';
+    require_once __DIR__ . '/../audit_helper.php';
+    require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/Exception.php';
+    require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+    require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/SMTP.php';
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         throw new Exception("Invalid request method.");
     }
@@ -75,66 +75,50 @@ try {
 
             $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
             $dotenv->load();
-
+            $smtpUser = $_ENV['SMTP_USER'];
             $mail = new PHPMailer(true);
 
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'alfonsosomo@gmail.com';
+            $mail->Username = $smtpUser;
             $mail->Password = $_ENV['SMTP_PASS'];
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
 
-            $mail->setFrom(
-                'alfonsosomo@gmail.com',
-                'Alfonso Somo Security'
-            );
-
+            $mail->setFrom($smtpUser, 'Alfonso Somo Security');
             $mail->addAddress($user['email']);
-
             $mail->isHTML(true);
 
             $mail->Subject = "New Login Alert";
-
             $mail->Body = "
                 <h2>Login Alert</h2>
-
                 <p>Your administrator account has logged in successfully.</p>
-
                 <table cellpadding='6'>
                     <tr>
                         <td><strong>Staff ID:</strong></td>
                         <td>{$user['staff_id']}</td>
                     </tr>
-
                     <tr>
                         <td><strong>Username:</strong></td>
                         <td>{$user['username']}</td>
                     </tr>
-
                     <tr>
                         <td><strong>IP Address:</strong></td>
                         <td>{$ip_address}</td>
                     </tr>
-
                     <tr>
                         <td><strong>Date & Time:</strong></td>
                         <td>" . date("F d, Y h:i A") . "</td>
                     </tr>
                 </table>
-
                 <br>
-
                 <p>If this wasn't you, please secure your account immediately.</p>
             ";
-
             $mail->send();
-
         } catch (Throwable $e) {
         }
     }
-
     echo json_encode([
         "status" => "success",
         "message" => "Login successful.",
@@ -147,16 +131,12 @@ try {
             "type" => $user['type']
         ]
     ]);
-
     $stmt->close();
     $conn->close();
-
 } catch (Throwable $e) {
-
     echo json_encode([
         "status" => "error",
         "message" => $e->getMessage()
     ]);
-
 }
 ?>

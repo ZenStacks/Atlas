@@ -71,15 +71,16 @@ function sendApprovalEmail($customerEmail,$customerName,$serviceRequestNo,$servi
     }
     $mail = new PHPMailer(true);
     try {
+        $smtp_user = $_ENV["SMTP_USER"];
         $mail->isSMTP();
         $mail->Host = "smtp.gmail.com";
         $mail->SMTPAuth = true;
-        $mail->Username = "alfonsosomo@gmail.com";
+        $mail->Username = $smtp_user;
         $mail->Password = $_ENV["SMTP_PASS"];
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
 
         $mail->Port = 587;
-        $mail->setFrom("alfonsosomo@gmail.com","Alfonso Somo Funeral Services");
+        $mail->setFrom($smtp_user,"Alfonso Somo Funeral Services");
         $mail->addAddress($customerEmail, $customerName);
 
         $formattedServicePrice = number_format((float)$servicePrice,2);
@@ -244,7 +245,7 @@ function sendApprovalEmail($customerEmail,$customerName,$serviceRequestNo,$servi
 
             "Should you have any questions regarding your Funeral Service Package, " .
             "please feel free to contact us at +63 919 273 4055, email us at " .
-            "alfonsosomo@gmail.com, or chat with us by visiting our website. " .
+            "{$smtp_user}, or chat with us by visiting our website. " .
             "Thank you for choosing Alfonso Somo Funeral Services.\n\n" .
 
             "We sincerely appreciate your trust and confidence in our services.\n\n" .

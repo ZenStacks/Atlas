@@ -37,15 +37,17 @@ function sendPaymentApprovalEmail($customerEmail, $customerName, $paymentAmount,
     }
     $mail = new PHPMailer(true);
     try {
+        $smtp_USER = $_ENV["SMTP_USER"];
+
         $mail->isSMTP();
         $mail->Host = "smtp.gmail.com";
         $mail->SMTPAuth = true;
-        $mail->Username = "alfonsosomo@gmail.com";
+        $mail->Username = $smtp_USER;
         $mail->Password = $_ENV["SMTP_PASS"];
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
-        $mail->setFrom("alfonsosomo@gmail.com", "Alfonso Somo Funeral Services");
-        $mail->addAddress($customerEmail,$customerName);
+        $mail->setFrom($smtp_USER, "Alfonso Somo Funeral Services");
+        $mail->addAddress($customerEmail, $customerName);
 
         $formattedPayment = number_format((float)$paymentAmount,2);
         $formattedPartial = number_format((float)$partialPayment,2);
@@ -154,7 +156,7 @@ function sendPaymentApprovalEmail($customerEmail, $customerName, $paymentAmount,
                     a call at
                     <strong>+6399999999999</strong>,
                     email us at
-                    <strong>alfonsosomo@gmail.com</strong>,
+                    <strong>{$smtp_USER}</strong>,
                     or chat with us by visiting our website.
                 </p>
                 <p>
@@ -211,7 +213,7 @@ function sendPaymentApprovalEmail($customerEmail, $customerName, $paymentAmount,
             "Should you have questions about your Funeral " .
             "Service Package, please give us a call at " .
             "+6399999999999, email us at " .
-            "alfonsosomo@gmail.com, or chat with us by " .
+            "{$smtp_USER}, or chat with us by " .
             "visiting our website.\n\n" .
 
             "We sincerely appreciate your trust and " .

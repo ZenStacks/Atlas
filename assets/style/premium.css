@@ -1091,3 +1091,616 @@ hr{
 .swal2-container {
     z-index: 20000 !important;
 }
+@media (max-width: 360px){
+    .whole-page-container{
+        width: 100% !important;
+        overflow: hidden;
+    }
+    .content {
+        margin-top: 0 !important;
+        padding: 0 15px;
+        width: 100%;
+    }
+    .header{
+        height: auto;
+        min-height: 45px;
+        position: fixed;
+        flex-direction: row;
+        align-items: center;
+        padding: 8px 12px;
+    }
+    .header .logo img {
+        width: 30px !important;
+        height: 30px !important;
+    }
+    h1{
+        font-size: 18px;
+    }
+    .navigation {
+        position: fixed;
+        top: auto;
+        bottom: 15px;
+        left: 60%;
+        right: auto;
+        transform: translateX(-50%);
+        width: auto;
+        height: auto;
+        min-height: 25px;
+        background-color: white;
+        border-radius: 30px;
+        border: 1px solid rgb(44, 62, 80);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        z-index: 1000;
+    }
+    .navigation-content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        height: auto;
+        margin-top: 0;
+        padding: 8px 15px;
+        cursor: pointer;
+    }
+    .navigation-icon {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .navigation-icon i {
+        color: rgb(44, 62, 80);
+        font-size: 18px;
+        cursor: pointer;
+    }
+    .nav-label {
+        display: none;
+    }
+    .content{
+        width: 100%;
+        margin-top: 10px !important;
+    }
+    .premium-details{
+        flex-direction: column;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .premium-pic img{
+        width: 300px;
+        height: 300px;
+        margin: auto;
+    }
+    h2{
+        font-size: 24px !important;
+    }
+    .premium-text{
+        width: 90%;
+        text-align: center;
+        margin-top: 0;
+    }
+    .premium-text p{
+        font-size: 16px;
+    }
+    .premium-button{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+    }
+    .premium-button button{
+        font-size: 13px !important;
+        padding: 8px;
+    }
+    .premium-inclusions{
+        width: 90%;
+    }
+    .inclusions{
+        width: 90%;
+    }
+    .inclusions h2{
+        font-size: 12px !important;
+        text-align: center;
+    }
+    .inclusions p{
+        font-size: 12px !important;
+    }
+    .inclusions h3{
+        font-size: 12px !important;
+    }
+    .inclusions i{
+        font-size: 12px !important;
+    }
+    .first-inclusions{
+        width: 20% !important;
+    }
+    .first-inclusions h2{
+        font-size: 16px !important;
+        padding: 0;
+    }
+    .second-inclusions{
+        width: 69% !important;
+    }
+    .contact-page{
+        display: none;
+    }
+    .shortcuts-detail h2{
+        font-size: 16px !important;
+    }
+    .shortcuts-detail p{
+        font-size: 12px !important;
+        padding: 5px;
+        text-align: center;
+    }
+    .shortcuts-detail i{
+        font-size: 12px !important;
+        padding: 8px;
+        margin-right: 0;
+    }
+    .premium-coffin{
+        width: 90% !important;
+    }
+    .coffin{
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        justify-items: center;
+        width: 100%;
+        margin-left: 0 !important;
+    }
+    .product-card{
+        width: 110px !important;
+    }
+    .product-card-img img{
+        width: 130px;
+        height: 90px;
+    }
+    .product-header{
+        width: 130px;
+        text-align: center;
+    }
+    .product-header h2{
+        font-size: 10px !important;
+    }
+    .product-badge{
+        font-size: 11px !important;
+    }
+    .product-pricing{
+        height: 30px !important;
+    }
+    .price-item{
+        gap: 8px !important;
+    }
+    .price-item .label,
+    .price-item h3{
+        font-size: 11px !important;
+    }
+    .buy-btn{
+        width: 100px !important;
+        font-size: 11px !important;
+    }
+    .buy-confirmation{
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+    .buy-confirmation.active{
+        display: flex;
+    }
+    .confirmation-box{
+        width: 100%;
+        max-width: 100%;
+        height: 95vh;
+        max-height: 95vh;
+        padding: 12px;
+        margin: 0;
+        border-radius: 15px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+    .casket-nav{
+        gap: 6px;
+        margin-bottom: 10px;
+        flex-shrink: 0;
+    }
+
+    .casket-nav i{
+        font-size: 20px;
+    }
+    .casket-nav span{
+        font-size: 13px;
+    }
+    .agreement-container{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        flex: 1;
+    }
+    .agreement-details{
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0;
+        max-height: none;
+        padding: 15px;
+        box-sizing: border-box;
+        overflow: visible;
+        flex-shrink: 0;
+    }
+    .agreement-details h2{
+        font-size: 18px !important;
+        margin-bottom: 10px;
+    }
+    .benefits-list{
+        padding-left: 18px;
+        margin-bottom: 15px;
+    }
+    .benefits-list li{
+        font-size: 12px !important;
+        line-height: 1.4;
+        margin-bottom: 7px;
+    }
+    .terms-content p{
+        font-size: 12px !important;
+        line-height: 1.4;
+        margin-bottom: 10px;
+    }
+    .casket-details{
+        width: 100% !important;
+        height: auto !important;
+        min-height: 0;
+        max-height: none;
+        box-sizing: border-box;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+    .casket-image{
+        flex-direction: column-reverse;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        padding: 15px;
+        box-sizing: border-box;
+    }
+    .casket-text{
+        width: 100%;
+        text-align: center;
+    }
+    .casket-text h2{
+        font-size: 19px !important;
+        margin-bottom: 5px;
+    }
+    .casket-text p{
+        font-size: 17px;
+    }
+    .casket-image img{
+        width: 160px;
+        height: 110px;
+        object-fit: cover;
+        margin: 0;
+        border-radius: 10px;
+    }
+    .casket-contract{
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 12px;
+        width: 100%;
+        box-sizing: border-box;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .contract-details,
+    .contract-details:first-child,
+    .contract-details:nth-child(2){
+        width: 100%;
+        grid-column: auto;
+        margin-bottom: 5px;
+    }
+    .contract-details h2{
+        font-size: 15px !important;
+        margin-bottom: 7px;
+    }
+    .contract-details label,
+    .contract-price-container label{
+        font-size: 12px;
+    }
+    .contract-details input,
+    .contract-details select{
+        width: 100%;
+        height: 38px;
+        padding: 8px;
+        font-size: 12px;
+        box-sizing: border-box;
+    }
+    .contract-price-container{
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .radio-button{
+        display: flex;
+        align-items: flex-start;
+        gap: 7px;
+        padding: 7px 5px;
+    }
+    .radio-button input{
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+    }
+    .radio-button label{
+        font-size: 11px;
+        line-height: 1.4;
+    }
+    .bottom-container{
+        flex-direction: column;
+        gap: 5px;
+        width: 100%;
+        flex-shrink: 0;
+        padding-top: 8px;
+    }
+    .notice{
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+    .notice p{
+        font-size: 10px;
+        padding: 5px;
+    }
+    .casket-button{
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+    }
+    .casket-button button{
+        flex: 1;
+        padding: 9px 8px;
+        font-size: 12px;
+        margin: 0;
+        border-radius: 8px;
+    }
+    .ending-container{
+        width: 90% !important;
+        flex-direction: column;
+    }
+    .ending-details{
+        width: 90% !important;
+        margin: auto;
+    }
+    .ending-button button{
+        font-size: 13px !important;
+        padding: 8px;
+    }
+    .footer{
+        width: 90% !important;
+        height: auto;
+        margin-bottom: 70px !important;
+    }
+    .footer-content{
+        flex-direction: column;
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+        .requirements-modal {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    /* MAIN MODAL */
+    .details-modal {
+        width: 100%;
+        max-width: 100%;
+        height: 96vh;
+        max-height: 96vh;
+        border-radius: 12px;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    /* =====================================================
+       MODAL HEADER
+    ===================================================== */
+
+    .modal-header {
+        padding: 14px 15px;
+        flex-shrink: 0;
+    }
+
+    .modal-header h2 {
+        font-size: 18px !important;
+        line-height: 1.3;
+        margin: 0;
+    }
+
+    .modal-header p {
+        font-size: 11px;
+        line-height: 1.4;
+        margin-top: 5px;
+    }
+
+    /* =====================================================
+       MODAL BODY
+    ===================================================== */
+
+    .modal-body {
+        padding: 12px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        flex: 1;
+        min-height: 0;
+        box-sizing: border-box;
+    }
+
+    /* scrollbar */
+    .modal-body::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background: #bdbdbd;
+        border-radius: 10px;
+    }
+
+    /* =====================================================
+       FORM SECTIONS
+    ===================================================== */
+
+    .form-section {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 12px;
+        border-radius: 10px;
+        box-sizing: border-box;
+    }
+
+    .form-section h3 {
+        font-size: 15px !important;
+        margin-bottom: 14px;
+        line-height: 1.3;
+    }
+
+    /* =====================================================
+       INPUT ROW
+    ===================================================== */
+
+    .input-row {
+        width: 100%;
+        margin-bottom: 12px;
+        box-sizing: border-box;
+    }
+
+    .input-row label {
+        display: block;
+        width: 100%;
+        font-size: 11px;
+        line-height: 1.35;
+        margin-bottom: 5px;
+        box-sizing: border-box;
+    }
+
+    /* INPUTS + SELECT */
+    .input-row input,
+    .input-row select,
+    .input-row textarea {
+        width: 100%;
+        max-width: 100%;
+        height: 40px;
+        padding: 0 10px;
+        font-size: 11px;
+        border-radius: 7px;
+        box-sizing: border-box;
+    }
+
+    .input-row textarea {
+        height: 80px;
+        padding: 10px;
+    }
+
+    /* DATE INPUT */
+    .input-row input[type="date"] {
+        font-size: 10px;
+    }
+
+    /* SELECT */
+    .input-row select {
+        background-color: white;
+    }
+
+    .input-row input::placeholder {
+        font-size: 10px;
+    }
+    .others-relation {
+        width: 100%;
+        margin-top: 6px;
+        box-sizing: border-box;
+    }
+    .declaration-text {
+        font-size: 11px !important;
+        line-height: 1.5;
+        text-align: justify;
+        color: #444;
+    }
+    .file-upload-btn {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        min-height: 35px;
+        padding: 8px 10px;
+        box-sizing: border-box;
+        font-size: 11px;
+        text-align: center;
+        border-radius: 7px;
+        color: white;
+    }
+    #file-name,
+    #file-gov-id-name {
+        display: block;
+        width: 100%;
+        margin: 6px 0 0 0;
+        font-size: 10px;
+        color: #666;
+        word-break: break-word;
+    }
+    .modal-actions {
+        padding: 10px 12px;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        box-sizing: border-box;
+    }
+    .modal-ps {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    .modal-ps p {
+        font-size: 9px;
+        line-height: 1.3;
+        margin: 0;
+    }
+    .modal-button {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        gap: 8px;
+    }
+    .cancel-btn,
+    .submit-btn {
+        flex: 1;
+        min-width: 0;
+        width: 50%;
+        height: 40px;
+        margin: 0;
+        padding: 5px 8px;
+        font-size: 12px;
+        border-radius: 7px;
+    }
+}

@@ -136,7 +136,7 @@ try {
         gender, civil_status, occupation, contact_number, email_address, residential_address, plan_type, payment_option, 
         payment_term, retail_price, lifeplan_max_months, term_payment, funeral_service, prefered_cemetery, 
         religious_affiliation, special_instruction, gov_id_number, gov_id, applicant_signature, date_signed, status)
-        VALUES (?, ?, 'customer', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+        VALUES (?, ?, 'customer', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'ppartialPaymentending')");
 
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);

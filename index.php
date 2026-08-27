@@ -1,34 +1,20 @@
 <?php
 session_start();
 require_once __DIR__ . '/backend/conn.php';
-
 $name = "Guest";
 $image = "assets/img/profile.png";
-
 if (isset($_SESSION['customer_id'])) {
-
     $customerId = (int) $_SESSION['customer_id'];
-
-    $stmt = $conn->prepare("
-        SELECT name, profile_img
-        FROM customers
-        WHERE id = ?
-        LIMIT 1
-    ");
-
+    $stmt = $conn->prepare("SELECT name, profile_img FROM customers WHERE id = ? LIMIT 1");
     $stmt->bind_param("i", $customerId);
     $stmt->execute();
-
     $result = $stmt->get_result();
-
     if ($row = $result->fetch_assoc()) {
         $name = $row['name'];
-
         if (!empty($row['profile_img'])) {
             $image = "assets/img/uploads/profile/" . $row['profile_img'];
         }
     }
-
     $stmt->close();
 }
 ?>

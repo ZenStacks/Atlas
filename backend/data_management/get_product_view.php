@@ -6,7 +6,6 @@ try {
 
     $id = $_GET['id'] ?? 0;
 
-    // Check Local Coffins first
     $stmt = $conn->prepare("
         SELECT
             id,
@@ -16,7 +15,6 @@ try {
             color,
             details,
             image,
-            tax_type,
             cost_price,
             retail_price,
             stock,
@@ -83,3 +81,4 @@ try {
     ]);
 
 }
+?>

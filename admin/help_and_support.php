@@ -318,600 +318,255 @@ if (!isset($_SESSION["user_id"])) {
             <div class="support-icon">
                 <i class="bi bi-headset"></i>
             </div>
-            <h5>
-                Contact Support
-            </h5>
-            <p>
-                Need additional assistance? Contact the
-                system administrator or technical support team.
-            </p>
-            <button
-                class="support-link"
-                onclick="scrollToSection('contactSection')"
-            >
-                Contact Support
-                <i class="bi bi-arrow-right"></i>
-            </button>
+            <h5>Contact Support</h5>
+            <p>Need additional assistance? Contact the system administrator or technical support team.</p>
+            <button class="support-link" onclick="scrollToSection('contactSection')">Contact Support<i class="bi bi-arrow-right"></i></button>
         </div>
     </div>
-    <div
-        class="section-card"
-        id="faqSection"
-    >
-
+    <div class="section-card" id="faqSection" >
         <div class="section-title">
-
-            <h4>
-                Frequently Asked Questions
-            </h4>
-
-            <span>
-                Common questions
-            </span>
-
+            <h4>Frequently Asked Questions</h4>
+            <span>Common questions/span>
         </div>
-
-
         <div id="faqList">
-
             <div class="faq-item">
-
                 <button class="faq-question">
-
                     How do I approve a lifeplan order?
-
                     <i class="bi bi-chevron-down"></i>
-
                 </button>
-
                 <div class="faq-answer">
-
                     Open the Pre-Need or Lifeplan Orders section.
                     Select the pending lifeplan order, review the
                     customer and payment details, then select the
                     approval option. Make sure all required
                     information is correct before confirming the
                     approval.
-
                 </div>
-
             </div>
-
-
             <div class="faq-item">
-
                 <button class="faq-question">
-
                     How do I manage customer information?
-
                     <i class="bi bi-chevron-down"></i>
-
                 </button>
-
                 <div class="faq-answer">
-
                     Open the Customers section from the admin
                     navigation menu. From there, you can view
                     customer information and perform the available
                     customer management actions.
-
                 </div>
-
             </div>
-
-
             <div class="faq-item">
-
                 <button class="faq-question">
-
                     How can I check inventory stock?
-
                     <i class="bi bi-chevron-down"></i>
-
                 </button>
-
                 <div class="faq-answer">
-
                     Go to the Inventory section. The inventory
                     dashboard displays the available items,
                     current stock quantities, categories, and
                     other inventory information.
-
                 </div>
-
             </div>
-
-
             <div class="faq-item">
-
                 <button class="faq-question">
-
                     What should I do if an order has incorrect information?
-
                     <i class="bi bi-chevron-down"></i>
-
                 </button>
-
                 <div class="faq-answer">
-
                     Do not approve the order until the information
                     has been reviewed. Verify the customer details,
                     service information, payment information, and
                     other relevant data. If the information cannot
                     be corrected through the system, contact the
                     system administrator.
-
                 </div>
-
             </div>
-
-
             <div class="faq-item">
-
                 <button class="faq-question">
-
                     Why is an email notification not being received?
-
                     <i class="bi bi-chevron-down"></i>
-
                 </button>
-
                 <div class="faq-answer">
-
                     Verify that the customer's email address is
                     correct. Also check the customer's spam or junk
                     folder. If the problem continues, contact the
                     system administrator or technical support.
-
                 </div>
-
             </div>
-
-
             <div class="faq-item">
-
                 <button class="faq-question">
-
                     What should I do if the system shows an error?
-
                     <i class="bi bi-chevron-down"></i>
-
                 </button>
-
                 <div class="faq-answer">
-
                     Take note of the error message and the action
                     that caused it. Avoid repeatedly submitting the
                     same transaction if you are unsure whether it
                     was completed. Report the error to the system
                     administrator with the relevant details.
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-    <div
-        class="section-card"
-        id="guideSection"
-    >
-
+    <div class="section-card" id="guideSection" >
         <div class="section-title">
-
-            <h4>
-                Admin Guides
-            </h4>
-
-            <span>
-                System modules
-            </span>
-
+            <h4>Admin Guides</h4>
+            <span>System modules</span>
         </div>
-
-
         <div class="guide-grid">
-
-            <div
-                class="guide-item"
-                onclick="showGuide('Dashboard')"
-            >
-
+            <div class="guide-item" onclick="showGuide('Dashboard')" >
                 <div class="guide-icon">
                     <i class="bi bi-grid"></i>
                 </div>
-
                 <div>
-
-                    <h6>
-                        Dashboard
-                    </h6>
-
-                    <p>
-                        Overview and system statistics
-                    </p>
-
+                    <h6>Dashboard</h6>
+                    <p>Overview and system statistics</p>
                 </div>
-
             </div>
-
-
-            <div
-                class="guide-item"
-                onclick="showGuide('Customers')"
-            >
-
+            <div class="guide-item" onclick="showGuide('Customers')" >
                 <div class="guide-icon">
                     <i class="bi bi-people"></i>
                 </div>
-
                 <div>
-
-                    <h6>
-                        Customers
-                    </h6>
-
-                    <p>
-                        Manage customer records
-                    </p>
-
+                    <h6>Customers</h6>
+                    <p>Manage customer records</p>
                 </div>
-
             </div>
-
-
-            <div
-                class="guide-item"
-                onclick="showGuide('Lifeplan Orders')"
-            >
-
+            <div class="guide-item" onclick="showGuide('Lifeplan Orders')" >
                 <div class="guide-icon">
                     <i class="bi bi-file-earmark-text"></i>
                 </div>
-
                 <div>
-
-                    <h6>
-                        Lifeplan Orders
-                    </h6>
-
-                    <p>
-                        Review and approve pre-need orders
-                    </p>
-
+                    <h6>Lifeplan Orders</h6>
+                    <p>Review and approve pre-need orders</p>
                 </div>
-
             </div>
-
-
-            <div
-                class="guide-item"
-                onclick="showGuide('At-Need Services')"
-            >
-
+            <div class="guide-item" onclick="showGuide('At-Need Services')" >
                 <div class="guide-icon">
                     <i class="bi bi-flower1"></i>
                 </div>
-
                 <div>
-
-                    <h6>
-                        At-Need Services
-                    </h6>
-
-                    <p>
-                        Manage funeral service requests
-                    </p>
-
+                    <h6>At-Need Services</h6>
+                    <p>Manage funeral service requests</p>
                 </div>
-
             </div>
-
-
-            <div
-                class="guide-item"
-                onclick="showGuide('Inventory')"
-            >
-
+            <div class="guide-item" onclick="showGuide('Inventory')" >
                 <div class="guide-icon">
                     <i class="bi bi-box-seam"></i>
                 </div>
-
                 <div>
-
-                    <h6>
-                        Inventory
-                    </h6>
-
-                    <p>
-                        Monitor stock and materials
-                    </p>
-
+                    <h6>Inventory</h6>
+                    <p>Monitor stock and materials</p>
                 </div>
-
             </div>
-
-
-            <div
-                class="guide-item"
-                onclick="showGuide('Payments')"
-            >
-
+            <div class="guide-item" onclick="showGuide('Payments')" >
                 <div class="guide-icon">
                     <i class="bi bi-credit-card"></i>
                 </div>
-
                 <div>
-
-                    <h6>
-                        Payments
-                    </h6>
-
-                    <p>
-                        Review payment information
-                    </p>
-
+                    <h6>Payments</h6>
+                    <p>Review payment information</p>
                 </div>
-
             </div>
-
-
-            <div
-                class="guide-item"
-                onclick="showGuide('Schedules')"
-            >
-
-                <div class="guide-icon">
-                    <i class="bi bi-calendar-event"></i>
-                </div>
-
+            <div class="guide-item" onclick="showGuide('Schedules')">
+                <div class="guide-icon"><i class="bi bi-calendar-event"></i></div>
                 <div>
-
-                    <h6>
-                        Schedules
-                    </h6>
-
-                    <p>
-                        Manage service schedules
-                    </p>
-
+                    <h6>Schedules</h6>
+                    <p>Manage service schedules</p>
                 </div>
-
             </div>
-
-
-            <div
-                class="guide-item"
-                onclick="showGuide('Staff Management')"
-            >
-
-                <div class="guide-icon">
-                    <i class="bi bi-person-badge"></i>
-                </div>
-
+            <div class="guide-item" onclick="showGuide('Staff Management')">
+                <div class="guide-icon"><i class="bi bi-person-badge"></i></div>
                 <div>
-
-                    <h6>
-                        Staff Management
-                    </h6>
-
-                    <p>
-                        Manage staff and assigned tasks
-                    </p>
-
+                    <h6>Staff Management</h6>
+                    <p>Manage staff and assigned tasks</p>
                 </div>
-
             </div>
-
         </div>
-
     </div>
-    <div
-        class="section-card"
-        id="contactSection"
-    >
-
+    <div class="section-card" id="contactSection">
         <div class="section-title">
-
-            <h4>
-                Contact Support
-            </h4>
-
-            <span>
-                Need additional assistance?
-            </span>
-
+            <h4>Contact Support</h4>
+            <span>Need additional assistance?</span>
         </div>
-
-
         <div class="contact-support">
-
             <div class="contact-box">
-
                 <i class="bi bi-envelope"></i>
-
-                <h6>
-                    Email Support
-                </h6>
-
-                <p>
-                    alfonsosomo@gmail.com
-                </p>
-
+                <h6>Email Support</h6>
+                <p>alfonsosomo@gmail.com</p>
             </div>
-
-
             <div class="contact-box">
-
                 <i class="bi bi-headset"></i>
-
-                <h6>
-                    Technical Support
-                </h6>
-
-                <p>
-                    Contact the system administrator
-                    for technical issues.
-                </p>
-
+                <h6>Technical Support</h6>
+                <p>Contact the system administrator for technical issues.</p>
             </div>
-
-
             <div class="contact-box">
-
                 <i class="bi bi-clock"></i>
-
-                <h6>
-                    Support Hours
-                </h6>
-
-                <p>
-                    Contact the administrator during
-                    regular business hours.
-                </p>
-
+                <h6>Support Hours</h6>
+                <p>Contact the administrator during regular business hours.</p>
             </div>
-
-
             <div class="contact-box">
-
                 <i class="bi bi-shield-check"></i>
-
-                <h6>
-                    System Security
-                </h6>
-
-                <p>
-                    Do not share your admin credentials
-                    with other users.
-                </p>
-
+                <h6>System Security</h6>
+                <p>Do not share your admin credentials with other users.</p>
             </div>
-
         </div>
-
     </div>
-
 </div>
-
-
 <script>
-
-    document
-        .querySelectorAll(".faq-question")
-        .forEach(button => {
-
+    document.querySelectorAll(".faq-question").forEach(button => {
             button.addEventListener("click", () => {
-
-                const item =
-                    button.closest(".faq-item");
-
+                const item = button.closest(".faq-item");
                 item.classList.toggle("active");
-
             });
-
         });
-
-    const helpSearch =
-        document.getElementById("helpSearch");
-
-
+    const helpSearch = document.getElementById("helpSearch");
     helpSearch.addEventListener("input", function () {
-
-        const search =
-            this.value
-                .toLowerCase()
-                .trim();
-
-
-        const faqItems =
-            document.querySelectorAll(".faq-item");
-
-
+        const search = this.value.toLowerCase().trim();
+        const faqItems = document.querySelectorAll(".faq-item");
         faqItems.forEach(item => {
-
-            const text =
-                item.textContent.toLowerCase();
-
-
-            if (
-                search === "" ||
-                text.includes(search)
-            ) {
-
+            const text = item.textContent.toLowerCase();
+            if (search === "" || text.includes(search)) {
                 item.style.display = "";
-
             } else {
-
                 item.style.display = "none";
-
             }
-
         });
-
     });
-
     function scrollToSection(id) {
-
-        const section =
-            document.getElementById(id);
-
+        const section = document.getElementById(id);
         if (!section) {
             return;
         }
-
-        section.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
+        section.scrollIntoView({behavior: "smooth",block: "start"});
     }
     function showGuide(module) {
         const guides = {
-
             "Dashboard":
                 "The Dashboard provides an overview of important system information, statistics, and recent activities.",
-
             "Customers":
                 "Use the Customers module to view and manage customer records and their associated information.",
-
             "Lifeplan Orders":
                 "Use the Lifeplan Orders module to review pending pre-need requests, verify details, and approve eligible lifeplan orders.",
-
             "At-Need Services":
                 "Use the At-Need Services module to manage funeral service requests and related arrangements.",
-
             "Inventory":
                 "Use Inventory to monitor available stock, materials, equipment, and other items used by the funeral service.",
-
             "Payments":
                 "Use Payments to review submitted payment information and monitor payment-related records.",
-
             "Schedules":
                 "Use Schedules to review upcoming services, assigned arrangements, and completed schedules.",
-
             "Staff Management":
                 "Use Staff Management to manage staff information and monitor assigned tasks."
         };
 
-
         Swal.fire({
-
             title: module,
-
-            text:
-                guides[module] ||
-                "Guide information is currently unavailable.",
-
+            text: guides[module] || "Guide information is currently unavailable.",
             icon: "info",
-
             confirmButtonText: "Got it",
-
             confirmButtonColor: "#333"
-
         });
-
     }
 </script>
 </body>

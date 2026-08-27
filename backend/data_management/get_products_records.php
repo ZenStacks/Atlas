@@ -13,6 +13,7 @@ try {
             details AS description,
             retail_price,
             stock,
+            status,
             'Local' AS origin
         FROM coffins
 
@@ -25,6 +26,7 @@ try {
             details AS description,
             retail_price,
             current_stock AS stock,
+            status,
             'Imported' AS origin
         FROM imported_coffins
 

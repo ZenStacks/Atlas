@@ -244,7 +244,11 @@
                         <div class="fourth-modal">
                             <div class="input-row">
                                 <label>Preferred Funeral Service</label>
-                                <input type="text" id="funeral-service" name="funeral_service" placeholder="Enter Preferred Funeral Service" required>
+                                <select id="funeral-service">
+                                    <option value="">Select Service Type</option>
+                                    <option value="Burial Service">Burial Service</option>
+                                    <option value="Complete Funeral Service">Complete Funeral Service Package</option>
+                                </select>
                             </div>
                             <div class="input-row">
                                 <label>Preferred Memorial Park/Cemetery</label>
@@ -510,29 +514,23 @@ document.addEventListener("DOMContentLoaded", () => {
             container.innerHTML = result.data.map(coffin => `
                 <div class="product-card">
                     <div class="product-card-details">
-
                         <div class="product-card-img">
                             <img src="${coffin.image}" alt="${coffin.item_name}">
                         </div>
-
                         <div class="product-details">
                             <div class="product-header">
                                 <h2>${coffin.item_name}</h2>
-
                                 <span class="product-badge">
                                     ${coffin.source.charAt(0).toUpperCase() + coffin.source.slice(1)}
                                 </span>
                             </div>
-
                             <div class="product-pricing">
-
                                 <div class="price-item">
                                     <span class="label">Selling Price</span>
-                                    <h3>₱ ${Number(coffin.retail_price).toLocaleString()}</h3>
+                                    <h3>₱ ${Number(coffin.selling_price).toLocaleString()}</h3>
                                 </div>
                             </div>
                         </div>
-
                         <div class="casket-btn">
                             <button
                                 class="buy-btn buy-now-btn"
@@ -540,7 +538,6 @@ document.addEventListener("DOMContentLoaded", () => {
                                 Avail Now
                             </button>
                         </div>
-
                     </div>
                 </div>
             `).join("");
@@ -577,7 +574,7 @@ document.addEventListener("DOMContentLoaded", () => {
                             <div class="product-pricing">
                                 <div class="price-item">
                                     <span class="label">Selling Price</span>
-                                    <h3>₱ ${Number(coffin.retail_price).toLocaleString()}</h3>
+                                    <h3>₱ ${Number(coffin.selling_price).toLocaleString()}</h3>
                                 </div>
                             </div>
                         </div>
@@ -619,9 +616,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!item) return;
         selectedCoffin = item;
         document.getElementById("confirm-coffin-name").textContent = item.item_name;
-        document.getElementById("confirm-coffin-price").textContent = "₱ " + Number(item.retail_price).toLocaleString();
+        document.getElementById("confirm-coffin-price").textContent = "₱ " + Number(item.selling_price).toLocaleString();
         document.getElementById("confirm-coffin-image").src = item.image;
-        document.getElementById("retailSelling").value = "₱ " + Number(item.retail_price).toLocaleString();
+        document.getElementById("retailSelling").value = "₱ " + Number(item.selling_price).toLocaleString();
         // Duration (months)
         const months = parseInt(item.lifeplan_max_months) || 0;
         document.getElementById("preNeedTerm").innerHTML = `
@@ -630,7 +627,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </option>
         `;
         // Compute balance
-        const retailPrice = parseFloat(item.retail_price) || 0;
+        const retailPrice = parseFloat(item.selling_price) || 0;
         const balance = retailPrice;
 
         const monthly = months > 0 ? balance / months : 0;
@@ -914,7 +911,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("plan_type", selectedCoffin.coffin_type);
         formData.append("payment_option", paymentOption);
         formData.append("payment_term", paymentTerm.value);
-        formData.append("retail_price", selectedCoffin.retail_price);
+        formData.append("retail_price", selectedCoffin.selling_price);
         formData.append("lifeplan_max_months", selectedCoffin.lifeplan_max_months);
         formData.append("term_payment", installmentInput.value);
         // Additional Preferences
@@ -938,6 +935,8 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log(result);
 
             if (result.success) {
+                const pendingChannel = new BroadcastChannel("atlas_pending_orders");
+                pendingChannel.postMessage("new_pending_order");
                 Swal.fire({
                     icon: "success",
                     title: "Transaction Submitted",

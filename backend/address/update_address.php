@@ -1,9 +1,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../conn.php';
-
 header("Content-Type: application/json");
-
 if (!isset($_SESSION['customer_id'])) {
     echo json_encode([
         "status" => "error",
@@ -11,7 +9,6 @@ if (!isset($_SESSION['customer_id'])) {
     ]);
     exit;
 }
-
 $user_id = $_SESSION['customer_id'];
 $address = $_POST['address'] ?? '';
 $instruction = $_POST['instruction'] ?? '';

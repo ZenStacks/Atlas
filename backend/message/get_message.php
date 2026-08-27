@@ -31,7 +31,7 @@ if ($customer_id > 0) {
         SELECT m.*, c.name AS customer_name, c.profile_img
         FROM messages m 
         JOIN customers c ON m.customer_id = c.id    
-        WHERE m.id > ? AND m.customer_id = ? 
+        WHERE m.id > ? AND m.customer_id = ? AND admin_deleted = 0
         ORDER BY m.id ASC
     ");
     $stmt->bind_param("ii", $last_id, $customer_id);
@@ -40,7 +40,7 @@ if ($customer_id > 0) {
         SELECT m.*, c.name AS customer_name, c.profile_img
         FROM messages m 
         LEFT JOIN customers c ON m.customer_id = c.id 
-        WHERE m.id > ? 
+        WHERE m.id > ? AND admin_deleted = 0
         ORDER BY m.id ASC
     ");
     $stmt->bind_param("i", $last_id);

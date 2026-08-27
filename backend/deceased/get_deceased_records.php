@@ -47,8 +47,7 @@ try {
     if (empty($serviceRequestNo)) {
         echo json_encode([
             "success" => false,
-            "message" =>
-                "No service request is associated with this deceased record."
+            "message" => "No service request is associated with this deceased record."
         ]);
         exit;
     }

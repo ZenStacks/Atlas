@@ -13,10 +13,10 @@ header('Content-Type: application/json');
 
 try {
     require_once __DIR__ . '/../conn.php';
-    include '../audit_helper.php';
-    require '../../vendor/phpmailer/phpmailer/src/Exception.php';
-    require '../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
-    require '../../vendor/phpmailer/phpmailer/src/SMTP.php';
+    require_once __DIR__ . '/../audit_helper.php';
+    require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/Exception.php';
+    require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+    require_once __DIR__ . '/../../vendor/phpmailer/phpmailer/src/SMTP.php';
     
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $email = htmlspecialchars($_POST['email'] ?? '', ENT_QUOTES, 'UTF-8');
@@ -68,16 +68,16 @@ try {
                         $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
                         $dotenv->load();
                         $smtpPass = $_ENV['SMTP_PASS'];
-
+                        $smtpUser = $_ENV['SMTP_USER'];
                         $mail = new PHPMailer(true);
                         $mail->isSMTP();
                         $mail->Host = 'smtp.gmail.com';
                         $mail->SMTPAuth = true;
-                        $mail->Username = 'alfonsosomo@gmail.com';
+                        $mail->Username = $smtpUser;
                         $mail->Password  = $smtpPass; 
-                        $mail->SMTPSecure = 'tls';
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                         $mail->Port = 587;
-                        $mail->setFrom('alfonsosomo@gmail.com', 'Alfonso Somo Security');
+                        $mail->setFrom($smtpUser, 'Alfonso Somo Security');
                         $mail->addAddress($user['email']);
                         $mail->isHTML(true);
                         $mail->Subject = 'New Login Alert';

@@ -3,6 +3,12 @@
     padding: 0;
     font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
+html,
+body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
 .whole-page-container {
     display: flex;
     justify-content: center;
@@ -34,6 +40,9 @@
 .header .logo img {
     width: 70px;
     height: 70px;
+}
+img {
+    max-width: 100%;
 }
 .navbar {
     display: flex;
@@ -636,7 +645,7 @@ button:hover{
     top: 23%;
     right: 0;
     width: 90px;
-    height: 65%;
+    height: auto;
     background-color: white;
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
     z-index: 1000;
@@ -650,7 +659,7 @@ button:hover{
     justify-content: flex-start;
     gap: 20px;
     height: 100%;
-    margin-top: 20px;
+    padding: 10px;
     position: relative;
     cursor: pointer;
 }
@@ -690,4 +699,615 @@ html {
 }
 a{
     text-decoration: none;
+}
+/* tablet */
+@media (max-width: 1024px) {
+    body{
+        padding: 0;
+    }
+    .header {
+        height: 90px;
+        padding: 15px;
+    }
+    .header .logo {
+        padding: 10px 0 0 10px;
+    }
+    .header .logo img {
+        width: 60px;
+        height: 60px;
+    }
+    .content{
+        margin-top: 170px !important;
+    }
+    .sample-image-card {
+        width: 96% !important;
+    }
+    h1{
+        font-size: 40px;
+    }
+    .details p{
+        width: 70%;
+        text-align: center;
+    }
+    .pricing-table{
+        width: 60% !important;
+    }
+    .pricing-table p{
+        font-size: 17px !important;
+    }
+    .package-card{
+        border-radius: 0;
+    }
+    .package-card h2,
+    .package-card-premium h2{
+        font-size: 22px;
+    }
+    .price-guarantee{
+        width: 65%!important;
+    }
+    .review-section{
+        width: 70% !important;
+    }
+    .location-section{
+        width: 60% !important;
+    }
+    .ending-container{
+        width: 75% !important;
+    }
+    .navbar {
+        gap: 5px;
+        padding: 5px;
+    }
+    .navbar p {
+        font-size: 17px;
+    }
+    .navbar img {
+        width: 50px;
+        height: 50px;
+    }
+    .navbar a {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+    .sample-image-card {
+        width: 100%;
+        padding: 0 20px;
+        gap: 20px;
+    }
+    .first-sample-image,
+    .second-sample-image {
+        width: calc(50% - 10px);
+    }
+    .first-sample-image h2,
+    .second-sample-image h2 {
+        font-size: 32px;
+    }
+    .standard-container,
+    .premium-container {
+        padding-bottom: 10px;
+    }
+    .standard-container img,
+    .premium-container img {
+        height: 300px;
+        padding: 5px;
+    }
+    .details {
+        width: 90%;
+    }
+    .details p {
+        font-size: 17px;
+    }
+    .pricing-table {
+        width: 90%;
+        grid-template-columns: 1.2fr 1fr 1fr;
+        overflow-x: auto;
+    }
+    .features-column,
+    .package-card,
+    .package-card-premium {
+        min-width: 0;
+    }
+    .features-column {
+        padding: 20px;
+    }
+    .features-column p {
+        font-size: 16px;
+    }
+    .feature {
+        font-size: 24px;
+    }
+    .price {
+        font-size: 30px;
+    }
+    .price-guarantee {
+        width: 90%;
+        gap: 40px;
+    }
+    .guarantee-pic img {
+        width: 450px;
+    }
+    .guarantee-text h2 {
+        font-size: 26px;
+    }
+    .guarantee-text p {
+        font-size: 16px;
+    }
+    .review-section {
+        width: 90%;
+        height: 600px;
+    }
+    .review-container {
+        width: 92%;
+        height: 500px;
+        padding: 25px;
+    }
+    .location-section {
+        width: 90%;
+    }
+    .ending-container {
+        width: 90%;
+        gap: 40px;
+    }
+    .ending-details {
+        width: 300px;
+    }
+    .footer {
+        width: 90%;
+    }
+    .navigation {
+        width: 70px;
+    }
+    .navigation-icon i {
+        font-size: 28px;
+    }
+}
+
+/* tablet */
+@media (max-width: 768px) {
+    .header {
+        height: auto;
+        min-height: 75px;
+        position: fixed;
+        flex-direction: row;
+        align-items: center;
+        padding: 8px 12px;
+    }
+    .header .logo {
+        padding: 0;
+        gap: 6px;
+    }
+    .header .logo img {
+        width: 48px;
+        height: 48px;
+        margin-left: 10px;
+    }
+    .navbar {
+        padding: 0;
+        gap: 5px;
+    }
+    .navbar p {
+        font-size: 14px;
+        margin-top: 0;
+        margin-right: 20px;
+    }
+    .navbar img {
+        width: 42px;
+        height: 42px;
+    }
+    .navbar a {
+        display: none;
+    }
+    .content {
+        margin-top: 130px !important;
+        padding: 0 15px;
+        width: 100%;
+    }
+    h1 {
+        font-size: 34px;
+        line-height: 1.2;
+    }
+    .details-container{
+        width: 100% !important;
+    }
+    .pricing-table{
+        width: 80%!important;
+    }
+    .package-card h2,
+    .package-card-premium h2{
+        font-size: 16px;
+    }
+    .sample-image-card {
+        width: 100%;
+        padding: 0 15px;
+        flex-direction: column;
+        align-items: center;
+    }
+    .first-sample-image,
+    .second-sample-image {
+        width: 100%;
+        max-width: 600px;
+    }
+    .first-sample-image h2,
+    .second-sample-image h2 {
+        font-size: 28px;
+    }
+    .standard-container img,
+    .premium-container img {
+        width: 100%;
+        height: auto;
+        min-height: 220px;
+        max-height: 350px;
+        object-fit: cover;
+    }
+    .details-container {
+        margin-top: 30px;
+    }
+    .details {
+        width: 95%;
+        padding: 15px;
+    }
+    .details p {
+        font-size: 15px;
+        line-height: 1.6;
+    }
+    .price {
+        font-size: 30px;
+        padding: 12px;
+    }
+    .price-guarantee {
+        width: 90%;
+        flex-direction: column;
+        gap: 25px;
+        margin-top: 35px;
+    }
+    .guarantee-pic {
+        width: 100%;
+    }
+    .guarantee-pic img {
+        width: 100%;
+        height: auto;
+    }
+    .guarantee-text {
+        width: 100%;
+        text-align: center;
+    }
+    .guarantee-text h2 {
+        font-size: 24px;
+    }
+    .guarantee-text p {
+        font-size: 15px;
+        line-height: 1.6;
+    }
+    .review-section {
+        width: 95%;
+        height: auto;
+        min-height: 500px;
+        padding: 20px 0;
+        margin: 35px auto;
+    }
+    .review-container {
+        width: 92%;
+        height: auto;
+        min-height: 430px;
+        padding: 20px 15px;
+    }
+    .review-header {
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+    }
+    .review-title {
+        padding: 10px;
+    }
+    .vertical-line {
+        width: 80%;
+        height: 1px;
+        margin: 5px auto;
+    }
+    .review-button {
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+    .review-button button {
+        width: auto;
+        padding: 10px 20px;
+    }
+    .homepage-review-card {
+        width: 280px;
+        min-width: 280px;
+        height: 180px;
+        margin-top: 50px;
+    }
+    .location-section {
+        width: 90%;
+        margin-top: 35px;
+    }
+    .location-section h2 {
+        font-size: 25px;
+        text-align: center;
+    }
+    .location-container {
+        width: 100%;
+        max-width: 350px;
+        height: auto;
+        min-height: 280px;
+    }
+    .location-container img {
+        height: 220px;
+    }
+    .location-container p {
+        font-size: 16px;
+    }
+    .view-location {
+        font-size: 17px;
+    }
+    .ending-container {
+        width: 90%;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        margin-top: 35px;
+    }
+    .ending-container .logo-container {
+        align-items: center;
+        text-align: center;
+    }
+    .ending-details {
+        width: 100%;
+        align-items: center;
+        text-align: center;
+    }
+    .ending-button {
+        width: 100%;
+        max-width: 300px;
+    }
+    .availability {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .footer {
+        width: 95%;
+        margin-top: 35px;
+        border-radius: 15px;
+    }
+    .footer-content {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        padding: 20px;
+    }
+    .services,
+    .about-us,
+    .locations,
+    .legal,
+    .resources {
+        margin: 0;
+    }
+    .navigation {
+        position: fixed;
+        top: auto;
+        bottom: 15px;
+        left: 60%;
+        right: auto;
+        transform: translateX(-50%);
+        width: auto;
+        height: auto;
+        min-height: 25px;
+        background-color: white;
+        border-radius: 30px;
+        border: 1px solid rgb(44, 62, 80);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+        z-index: 1000;
+    }
+    .navigation-content {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 15px;
+        height: auto;
+        margin-top: 0;
+        padding: 8px 15px;
+        cursor: pointer;
+    }
+    .navigation-icon {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .navigation-icon i {
+        color: rgb(44, 62, 80);
+        font-size: 18px;
+        cursor: pointer;
+    }
+    .nav-label {
+        display: none;
+    }
+}
+
+/* small phones */
+@media (max-width: 480px) {
+    h1 {
+        font-size: 22px;
+    }
+    .content{
+        margin-top: 130px !important;
+    }
+    .header .logo img {
+        width: 38px;
+        height: 38px;
+        margin-left: 10px;
+    }
+    .logo h1{
+        font-size: 18px !important;
+    }
+    .navbar{
+        width: 20% !important;
+        margin-right: 10px;
+    }
+    .navbar p {
+        font-size: 14px;
+    }
+    .navbar img {
+        width: 34px;
+        height: 34px;
+    }
+    .first-sample-image h2,
+    .second-sample-image h2 {
+        font-size: 20px;
+    }
+    .feature {
+        font-size: 12px;
+    }
+    .details{
+        width: 90% !important;
+    }
+    .pricing-table{
+        width: 90% !important;
+        overflow: hidden;
+    }
+    .features-column p{
+        font-size: 12px !important;
+    }
+    .package-card h2,
+    .package-card-premium h2{
+        font-size: 12px !important;
+    }
+    .price-guarantee{
+        width: 90%!important;
+    }
+    #premium-btn,
+    #standard-btn{
+        font-size: 12px;
+        padding: 5px;
+    }
+    .review-section{
+        width: 90% !important;
+        height: 20% !important;
+    }
+    .homepage-review-card {
+        margin-top: 40px !important;
+        height: 190px !important;
+    }
+    .location-section{
+        width: 90% !important;
+    }
+    .footer{
+        margin-bottom: 60px !important;
+    }
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    .services,
+    .about-us,
+    .locations,
+    .legal,
+    .resources {
+        align-items: center;
+    }
+    .services p,
+    .about-us p,
+    .locations p,
+    .legal p,
+    .resources p{
+        font-size: 14px
+    }
+    .navigation{
+        width: 63%;
+    }
+}
+/* small phones */
+@media (max-width: 360px) {
+    h1 {
+        font-size: 20px;
+    }
+    .content{
+        margin-top: 100px !important;
+    }
+    .header .logo img {
+        width: 28px;
+        height: 28px;
+        margin-left: 10px;
+    }
+    .logo h1{
+        font-size: 16px !important;
+    }
+    .navbar{
+        width: 20% !important;
+        margin-right: 10px;
+    }
+    .navbar p {
+        font-size: 12px;
+        margin: 0 !important;
+    }
+    .navbar img {
+        width: 34px;
+        height: 34px;
+    }
+    .first-sample-image h2,
+    .second-sample-image h2 {
+        font-size: 20px;
+    }
+    .feature {
+        font-size: 17px;
+    }
+    .details{
+        width: 90% !important;
+    }
+    .pricing-table{
+        width: 90% !important;
+    }
+    .package-card,
+    .package-card-premium{
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+    }
+    .price-guarantee{
+        width: 90%!important;
+    }
+    .review-section{
+        width: 90% !important;
+        height: 20% !important;
+    }
+    .homepage-review-card {
+        margin-top: 40px !important;
+        height: 190px !important;
+    }
+    .location-section{
+        width: 90% !important;
+    }
+    .footer{
+        margin-bottom: 60px !important;
+    }
+    .footer-content {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    .services,
+    .about-us,
+    .locations,
+    .legal,
+    .resources {
+        align-items: center;
+    }
+    .services p,
+    .about-us p,
+    .locations p,
+    .legal p,
+    .resources p {
+        font-size: 12px !important;
+    }
+    .navigation{
+        width: 70% !important;
+    }
+    .navigation-icon i{
+        font-size: 20px;
+    }
+    h3{
+        font-size: 14px !important;
+    }
 }
