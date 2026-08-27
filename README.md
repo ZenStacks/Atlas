@@ -90,9 +90,7 @@ Completed
 - Google Maps Integration
 - Customer Preferences
 - Employer / Staff Dashboard
-
-In progress
-- Schedule - fetching pending data to assign schedule
+- Schedules
 
 CONTRIBUTORS
 - Developed as part of a Funeral Management System project.
