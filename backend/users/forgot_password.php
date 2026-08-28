@@ -1,9 +1,6 @@
 <?php
-
 ob_start();
-
 session_start();
-
 header("Content-Type: application/json; charset=utf-8");
 
 ini_set("display_errors", "0");
@@ -17,127 +14,43 @@ require_once __DIR__ . "/../../vendor/autoload.php";
 require_once __DIR__ . "/../conn.php";
 
 
-function jsonResponse($status, $message, $extra = [])
-{
+function jsonResponse($status, $message, $extra = []){
     ob_clean();
-
-    echo json_encode(
-        array_merge(
-            [
-                "status" => $status,
-                "message" => $message
-            ],
-            $extra
-        )
-    );
-
+    echo json_encode(array_merge(["status" => $status, "message" => $message],$extra));
     exit;
 }
-
-
 set_exception_handler(function ($e) {
-
-    error_log(
-        "FORGOT PASSWORD EXCEPTION: " .
-        $e->getMessage() .
-        " in " .
-        $e->getFile() .
-        ":" .
-        $e->getLine()
-    );
+    error_log("FORGOT PASSWORD EXCEPTION: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine());
 
     jsonResponse(
         "error",
         "A server error occurred while processing your request."
     );
 });
-
-
-// ==========================================
-// GET EMAIL
-// ==========================================
-
 $email = trim($_POST["email"] ?? "");
-
-if (
-    empty($email) ||
-    !filter_var($email, FILTER_VALIDATE_EMAIL)
-) {
-    jsonResponse(
-        "error",
-        "Please enter a valid email address."
-    );
+if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    jsonResponse("error", "Please enter a valid email address.");
 }
-
-
-// ==========================================
-// FIND CUSTOMER
-// ==========================================
-
-$stmt = $conn->prepare(
-    "SELECT id, email, name
-     FROM customers
-     WHERE email = ?
-     LIMIT 1"
-);
+$stmt = $conn->prepare("SELECT id, email, name FROM customers WHERE email = ? LIMIT 1");
 
 if (!$stmt) {
-    throw new Exception(
-        "Customer query failed: " . $conn->error
-    );
+    throw new Exception("Customer query failed: " . $conn->error);
 }
-
 $stmt->bind_param("s", $email);
-
 if (!$stmt->execute()) {
-
     $error = $stmt->error;
-
     $stmt->close();
-
-    throw new Exception(
-        "Unable to retrieve customer account: " . $error
-    );
+    throw new Exception("Unable to retrieve customer account: " . $error);
 }
-
-$customer = $stmt
-    ->get_result()
-    ->fetch_assoc();
-
+$customer = $stmt->get_result()->fetch_assoc();
 $stmt->close();
-
-
 if (!$customer) {
-
-    jsonResponse(
-        "error",
-        "No account was found with that email address."
-    );
+    jsonResponse("error", "No account was found with that email address.");
 }
-
-
 $customerId = (int)$customer["id"];
-
-
-// ==========================================
-// CHECK EMAIL
-// ==========================================
-
-$registeredEmail = trim(
-    $customer["email"] ?? ""
-);
-
-if (
-    empty($registeredEmail) ||
-    !filter_var(
-        $registeredEmail,
-        FILTER_VALIDATE_EMAIL
-    )
-) {
-    jsonResponse(
-        "error",
-        "There is no valid email address registered to this account."
-    );
+$registeredEmail = trim($customer["email"] ?? "");
+if (empty($registeredEmail) || !filter_var($registeredEmail,FILTER_VALIDATE_EMAIL)) {
+    jsonResponse("error", "There is no valid email address registered to this account.");
 }
 $otp = str_pad((string)random_int(0, 999999),6,"0",STR_PAD_LEFT);
 
