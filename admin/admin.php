@@ -7389,7 +7389,7 @@ $username = $_SESSION['username'] ?? '';
     function updateUserActivity() {
         fetch("../backend/security/update_activity.php", {
             method: "POST",
-            credentials: "same-origin"
+            credentials: "same-origin-allow-popups"
         })
         .then(async response => {
 
@@ -7433,7 +7433,7 @@ $username = $_SESSION['username'] ?? '';
         lastActivitySent = now;
         fetch("../backend/security/update_activity.php", {
             method: "POST",
-            credentials: "same-origin"
+            credentials: "same-origin-allow-popups"
         })
         .then(response => response.json())
         .then(data => {
@@ -7453,7 +7453,7 @@ $username = $_SESSION['username'] ?? '';
     function checkAutoLogout() {
         fetch("../backend/security/check_session.php", {
             method: "GET",
-            credentials: "same-origin"
+            credentials: "same-origin-allow-popups"
         })
         .then(response => response.json())
         .then(data => {
@@ -12373,226 +12373,96 @@ async function loadPaymentMethodChart() {
 }
 // funeral transaction 
 async function loadReportsRecentTransactions() {
-    const tbody =
-    document.getElementById("reportRecentTransactionsBody");
-
-const printTbody =
-    document.getElementById("printTransactionsBody");
-
-if (tbody) {
-    tbody.innerHTML = "";
-}
-
-if (printTbody) {
-    printTbody.innerHTML = "";
-}
-
-if (!result.transactions || result.transactions.length === 0) {
-
+    const tbody = document.getElementById("reportRecentTransactionsBody");
+    const printTbody = document.getElementById("printTransactionsBody");
     if (tbody) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="5" style="text-align:center;">
-                    No transactions found.
-                </td>
-            </tr>
-        `;
+        tbody.innerHTML = "";
     }
-
     if (printTbody) {
-
-        printTbody.innerHTML = `
-            <tr>
-                <td colspan="11" style="text-align:center;">
-                    No transactions found.
-                </td>
-            </tr>
-        `;
+        printTbody.innerHTML = "";
     }
-
-} else {
-
-    result.transactions.forEach(transaction => {
-
-        const serviceNo =
-            transaction.service_no || "-";
-
-        const customer =
-            transaction.customer || "-";
-
-        const deceased =
-            transaction.deceased_name || "-";
-
-        const service =
-            transaction.service_type ||
-            transaction.service ||
-            "-";
-
-        const packageName =
-            transaction.package ||
-            transaction.package_name ||
-            "-";
-
-        const serviceDate =
-            transaction.service_date ||
-            "-";
-
-        const status =
-            transaction.status ||
-            "Pending";
-
-        const totalAmount =
-            Number(
-                transaction.total_amount ??
-                transaction.amount ??
-                0
-            );
-
-        const amountPaid =
-            Number(
-                transaction.amount_paid ??
-                transaction.paid ??
-                0
-            );
-
-        const balance =
-            Number(
-                transaction.balance ??
-                (totalAmount - amountPaid)
-            );
-
-        const paymentStatus =
-            transaction.payment_status ||
-            "-";
-
-
-        /* =====================================
-           NORMAL DASHBOARD TABLE
-        ===================================== */
-
+    if (!result.transactions || result.transactions.length === 0) {
         if (tbody) {
-
-            const row =
-                document.createElement("tr");
-
-            const statusClass =
-                status
-                    .toLowerCase()
-                    .replace(/\s+/g, "-");
-
-            row.innerHTML = `
-                <td>
-                    ${escapeHtml(serviceNo)}
-                </td>
-
-                <td>
-                    ${escapeHtml(customer)}
-                </td>
-
-                <td>
-                    ${escapeHtml(service)}
-                </td>
-
-                <td>
-                    ₱${totalAmount.toLocaleString(
-                        "en-PH",
-                        {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }
-                    )}
-                </td>
-
-                <td>
-                    <span class="status ${statusClass}">
-                        ${escapeHtml(status)}
-                    </span>
-                </td>
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center;">
+                        No transactions found.
+                    </td>
+                </tr>
             `;
-
-            tbody.appendChild(row);
         }
-
-
-        /* =====================================
-           PRINT TABLE
-        ===================================== */
-
         if (printTbody) {
-
-            const row =
-                document.createElement("tr");
-
-            row.innerHTML = `
-                <td>
-                    ${escapeHtml(serviceNo)}
-                </td>
-
-                <td>
-                    ${escapeHtml(customer)}
-                </td>
-
-                <td>
-                    ${escapeHtml(deceased)}
-                </td>
-
-                <td>
-                    ${escapeHtml(service)}
-                </td>
-
-                <td>
-                    ${escapeHtml(packageName)}
-                </td>
-
-                <td>
-                    ${escapeHtml(serviceDate)}
-                </td>
-
-                <td>
-                    ${escapeHtml(status)}
-                </td>
-
-                <td>
-                    ₱${totalAmount.toLocaleString(
-                        "en-PH",
-                        {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }
-                    )}
-                </td>
-
-                <td>
-                    ₱${amountPaid.toLocaleString(
-                        "en-PH",
-                        {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }
-                    )}
-                </td>
-
-                <td>
-                    ₱${balance.toLocaleString(
-                        "en-PH",
-                        {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2
-                        }
-                    )}
-                </td>
-
-                <td>
-                    ${escapeHtml(paymentStatus)}
-                </td>
+            printTbody.innerHTML = `
+                <tr>
+                    <td colspan="11" style="text-align:center;">
+                        No transactions found.
+                    </td>
+                </tr>
             `;
-
-            printTbody.appendChild(row);
         }
+    } else {
+        result.transactions.forEach(transaction => {
+            const serviceNo = transaction.service_no || "-";
+            const customer = transaction.customer || "-";
+            const deceased = transaction.deceased_name || "-";
+            const service = transaction.service_type || transaction.service || "-";
+            const packageName = transaction.package || transaction.package_name || "-";
+            const serviceDate = transaction.service_date || "-";
+            const status = transaction.status || "Pending";
+            const totalAmount = Number(transaction.total_amount ?? transaction.amount ?? 0);
+            const amountPaid = Number(transaction.amount_paid ?? transaction.paid ?? 0);
+            const balance = Number(transaction.balance ?? (totalAmount - amountPaid));
+            const paymentStatus = transaction.payment_status || "-";
+            if (tbody) {
+                const row = document.createElement("tr");
+                const statusClass = status.toLowerCase().replace(/\s+/g, "-");
 
-    });
-}
+                row.innerHTML = `
+                    <td>
+                        ${escapeHtml(serviceNo)}
+                    </td>
+                    <td>
+                        ${escapeHtml(customer)}
+                    </td>
+                    <td>
+                        ${escapeHtml(service)}
+                    </td>
+                    <td>
+                        ₱${totalAmount.toLocaleString(
+                            "en-PH",
+                            {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            }
+                        )}
+                    </td>
+                    <td>
+                        <span class="status ${statusClass}">
+                            ${escapeHtml(status)}
+                        </span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            }
+            if (printTbody) {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${escapeHtml(serviceNo)}</td>
+                    <td>${escapeHtml(customer)}</td>
+                    <td>${escapeHtml(deceased)}</td>
+                    <td>${escapeHtml(service)}</td>
+                    <td>${escapeHtml(packageName)}</td>
+                    <td>${escapeHtml(serviceDate)}</td>
+                    <td>${escapeHtml(status)}</td>
+                    <td>₱${totalAmount.toLocaleString("en-PH",{minimumFractionDigits: 2,maximumFractionDigits: 2})}</td>
+                    <td>₱${amountPaid.toLocaleString("en-PH",{minimumFractionDigits: 2,maximumFractionDigits: 2})}</td>
+                    <td>₱${balance.toLocaleString("en-PH",{minimumFractionDigits: 2,maximumFractionDigits: 2})}</td>
+                    <td>${escapeHtml(paymentStatus)}</td>
+                `;
+                printTbody.appendChild(row);
+            }
+        });
+    }
 }
 function escapeHtml(value) {
     if (value === null || value === undefined) {
@@ -12636,66 +12506,24 @@ async function loadFuneralReport() {
             params.append("status", reportStatus.value);
         }
 
-        const response = await fetch(
-            `../backend/reports/get_funeral_reports.php?${params.toString()}`,
-            {
-                method: "GET",
-                cache: "no-store"
-            }
-        );
-
+        const response = await fetch(`../backend/reports/get_funeral_reports.php?${params.toString()}`,{method: "GET",cache: "no-store"});
         if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status}`);
         }
-
         const result = await response.json();
-
         if (!result.success) {
-            throw new Error(
-                result.message || "Failed to load report."
-            );
+            throw new Error(result.message || "Failed to load report.");
         }
-
-        // ==============================
-        // SUMMARY
-        // ==============================
-
-        document.getElementById("totalFuneralServices").textContent =
-            result.summary.total_services ?? 0;
-
-        document.getElementById("completedServices").textContent =
-            result.summary.completed ?? 0;
-
-        document.getElementById("pendingServices").textContent =
-            result.summary.pending ?? 0;
-
-        document.getElementById("cancelledServices").textContent =
-            result.summary.cancelled ?? 0;
-
-        document.getElementById("totalRevenue").textContent =
-            "₱" +
-            Number(result.summary.total_revenue ?? 0)
-                .toLocaleString("en-PH", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-
-        document.getElementById("paymentsReceived").textContent =
-            "₱" +
-            Number(result.summary.payments_received ?? 0)
-                .toLocaleString("en-PH", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
-                });
-        const tbody = document.getElementById(
-            "reportRecentTransactionsBody"
-        );
+        document.getElementById("totalFuneralServices").textContent = result.summary.total_services ?? 0;
+        document.getElementById("completedServices").textContent = result.summary.completed ?? 0;
+        document.getElementById("pendingServices").textContent = result.summary.pending ?? 0;
+        document.getElementById("cancelledServices").textContent = result.summary.cancelled ?? 0;
+        document.getElementById("totalRevenue").textContent = "₱" + Number(result.summary.total_revenue ?? 0).toLocaleString("en-PH", {minimumFractionDigits: 2,maximumFractionDigits: 2});
+        document.getElementById("paymentsReceived").textContent = "₱" + Number(result.summary.payments_received ?? 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2});
+        const tbody = document.getElementById("reportRecentTransactionsBody");
         if (tbody) {
             tbody.innerHTML = "";
-            if (
-                !result.transactions ||
-                result.transactions.length === 0
-            ) {
+            if (!result.transactions || result.transactions.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" style="text-align:center;">
@@ -12708,36 +12536,12 @@ async function loadFuneralReport() {
                     const row = document.createElement("tr");
                     const status = transaction.status || "Pending";
                     const statusClass = status.toLowerCase().replace(/\s+/g, "-");
-
                     row.innerHTML = `
-                        <td>
-                            ${escapeHtml(
-                                transaction.service_no || "-"
-                            )}
-                        </td>
-                        <td>
-                            ${escapeHtml(
-                                transaction.customer || "-"
-                            )}
-                        </td>
-                        <td>
-                            ${escapeHtml(
-                                transaction.service || "-"
-                            )}
-                        </td>
-                        <td>
-                            ₱${Number(
-                                transaction.amount || 0
-                            ).toLocaleString("en-PH", {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            })}
-                        </td>
-                        <td>
-                            <span class="status ${statusClass}">
-                                ${escapeHtml(status)}
-                            </span>
-                        </td>
+                        <td>${escapeHtml(transaction.service_no || "-")}</td>
+                        <td>${escapeHtml(transaction.customer || "-")}</td>
+                        <td>${escapeHtml(transaction.service || "-")}</td>
+                        <td>₱${Number(transaction.amount || 0).toLocaleString("en-PH", {minimumFractionDigits: 2,maximumFractionDigits: 2})}</td>
+                        <td><span class="status ${statusClass}">${escapeHtml(status)}</span></td>
                     `;
                     tbody.appendChild(row);
                 });
@@ -12783,60 +12587,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 function preparePrintReport() {
-
-    /* =========================================
-       REPORT PERIOD
-    ========================================= */
-
     const fromDate = document.getElementById("fromDate");
     const toDate = document.getElementById("toDate");
-
     const printPeriod = document.getElementById("printReportPeriod");
-
     if (printPeriod) {
-
         if (fromDate?.value && toDate?.value) {
-
             const from = new Date(fromDate.value);
             const to = new Date(toDate.value);
-
             const options = {
                 month: "long",
                 day: "numeric",
                 year: "numeric"
             };
-
-            printPeriod.textContent =
-                `${from.toLocaleDateString("en-US", options)} - ` +
-                `${to.toLocaleDateString("en-US", options)}`;
-
+            printPeriod.textContent = `${from.toLocaleDateString("en-US", options)} - ` + `${to.toLocaleDateString("en-US", options)}`;
         } else if (fromDate?.value) {
-
             const from = new Date(fromDate.value);
-
             printPeriod.textContent =
                 from.toLocaleDateString("en-US", {
                     month: "long",
                     day: "numeric",
                     year: "numeric"
                 });
-
         } else {
-
             printPeriod.textContent = "All Dates";
         }
     }
-
-
-    /* =========================================
-       GENERATED DATE
-    ========================================= */
-
-    const generatedDate =
-        document.getElementById("printGeneratedDate");
-
+    const generatedDate = document.getElementById("printGeneratedDate");
     if (generatedDate) {
-
         generatedDate.textContent =
             new Date().toLocaleString("en-US", {
                 month: "long",
@@ -12846,128 +12623,47 @@ function preparePrintReport() {
                 minute: "2-digit"
             });
     }
-
-
-    /* =========================================
-       SUMMARY CARDS
-    ========================================= */
-
     const copyValue = (sourceId, targetId) => {
-
         const source = document.getElementById(sourceId);
         const target = document.getElementById(targetId);
-
         if (source && target) {
             target.textContent = source.textContent;
         }
     };
-
-    copyValue(
-        "totalFuneralServices",
-        "printTotalServices"
-    );
-
-    copyValue(
-        "completedServices",
-        "printCompleted"
-    );
-
-    copyValue(
-        "pendingServices",
-        "printPending"
-    );
-
-    copyValue(
-        "cancelledServices",
-        "printCancelled"
-    );
-
-    copyValue(
-        "totalRevenue",
-        "printRevenue"
-    );
-
-    copyValue(
-        "paymentsReceived",
-        "printPayments"
-    );
-
-
-    /* =========================================
-       COPY CHARTS TO PRINT
-    ========================================= */
-
-    copyChartToPrint(
-        "serviceChart",
-        "printServiceChart"
-    );
-
-    copyChartToPrint(
-        "paymentMethodChart",
-        "printPaymentChart"
-    );
-
-
-    /* =========================================
-       TRANSACTIONS
-    ========================================= */
-
+    copyValue("totalFuneralServices","printTotalServices");
+    copyValue("completedServices","printCompleted");
+    copyValue("pendingServices","printPending");
+    copyValue("cancelledServices","printCancelled");
+    copyValue("totalRevenue","printRevenue");
+    copyValue("paymentsReceived","printPayments");
+    copyChartToPrint("serviceChart","printServiceChart");
+    copyChartToPrint("paymentMethodChart","printPaymentChart");
     copyTransactionsToPrint();
-
-
-    /* =========================================
-       WAIT FOR IMAGES THEN PRINT
-    ========================================= */
-
     setTimeout(() => {
-
         window.print();
-
     }, 500);
 }
 function copyChartToPrint(canvasId, imageId) {
-
     const canvas = document.getElementById(canvasId);
     const image = document.getElementById(imageId);
-
     if (!canvas || !image) {
         return;
     }
-
     try {
-
         image.src = canvas.toDataURL("image/png");
-
     } catch (error) {
-
-        console.error(
-            `Unable to copy chart ${canvasId}:`,
-            error
-        );
+        console.error(`Unable to copy chart ${canvasId}:`, error);
     }
 }
 function copyTransactionsToPrint() {
-
-    const sourceBody =
-        document.getElementById(
-            "reportRecentTransactionsBody"
-        );
-
-    const printBody =
-        document.getElementById(
-            "printTransactionsBody"
-        );
-
+    const sourceBody = document.getElementById("reportRecentTransactionsBody");
+    const printBody = document.getElementById("printTransactionsBody");
     if (!sourceBody || !printBody) {
         return;
     }
-
     printBody.innerHTML = "";
-
     const rows = sourceBody.querySelectorAll("tr");
-
     if (!rows.length) {
-
         printBody.innerHTML = `
             <tr>
                 <td colspan="11">
@@ -12975,32 +12671,18 @@ function copyTransactionsToPrint() {
                 </td>
             </tr>
         `;
-
         return;
     }
-
     rows.forEach(row => {
-
         const cells = row.querySelectorAll("td");
-
         if (cells.length < 5) {
             return;
         }
-
-        const serviceNo =
-            cells[0]?.textContent.trim() || "-";
-
-        const customer =
-            cells[1]?.textContent.trim() || "-";
-
-        const service =
-            cells[2]?.textContent.trim() || "-";
-
-        const amount =
-            cells[3]?.textContent.trim() || "₱0.00";
-
-        const status =
-            cells[4]?.textContent.trim() || "-";
+        const serviceNo = cells[0]?.textContent.trim() || "-";
+        const customer = cells[1]?.textContent.trim() || "-";
+        const service = cells[2]?.textContent.trim() || "-";
+        const amount = cells[3]?.textContent.trim() || "₱0.00";
+        const status = cells[4]?.textContent.trim() || "-";
 
         printBody.insertAdjacentHTML(
             "beforeend",

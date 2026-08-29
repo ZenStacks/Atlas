@@ -38,7 +38,7 @@ if (isset($_SESSION['customer_id'])) {
             <div class="navbar">
                 <p><?php echo htmlspecialchars($name); ?></p>
                 <a href="users/profile.php">
-                    <img src="<?php echo $image; ?>" alt="Profile">
+                    <img src="<?php echo htmlspecialchars($image ?: 'assets/img/profile.png'); ?>" alt="Profile">
                 </a>
             </div>
         </div>
@@ -59,7 +59,7 @@ if (isset($_SESSION['customer_id'])) {
         </div>
         <div class="details-container">
             <h1>Two Affordable, Fixed-Price Options</h1>
-            <div class="details">
+            <div class="details">   
                 <p>We understand that every family has different needs and budgets. That's why Alfonso Somo Funeral Homes offers two affordable 
                     funeral service options to provide a dignified and meaningful farewell for for your loved one.
                 </p>

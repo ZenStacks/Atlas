@@ -61,17 +61,18 @@
                     <div class="divider"><span>OR</span></div>
                     <div class="social-icons">
                         <div id="g_id_onload"
-                             data-client_id="415782306788-lgodseosmgiuop798cocnnd5al7g247n.apps.googleusercontent.com"
-                             data-callback="handleCredentialResponse"
-                             data-auto_prompt="false">
+                            data-client_id="246993699812-643868o1dcbj3qukj8pkqhu2gos10p2o.apps.googleusercontent.com"
+                            data-callback="handleCredentialResponse"
+                            data-auto_prompt="false">
                         </div>
+
                         <div class="g_id_signin"
-                             data-type="icon"
-                             data-size="large"
-                             data-theme="outline"
-                             data-text="outline"
-                             data-shape="circle"
-                             data-logo_alignment="center">
+                            data-type="icon"
+                            data-size="large"
+                            data-theme="outline"
+                            data-text="signin_with"
+                            data-shape="circle"
+                            data-logo_alignment="center">
                         </div>
                     </div>
                 </form>
@@ -192,6 +193,55 @@
     </div>
 </div>
 <script>
+    // google login
+window.handleCredentialResponse = function (response) {
+    if (!response || !response.credential) {
+        Swal.fire({
+            icon: "error",
+            title: "Google Login Failed",
+            text: "Google did not return a valid credential."
+        });
+        return;
+    }
+    fetch("backend/users/google_login.php",{
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({credential: response.credential})
+    })
+    .then(async response => {
+        if (!response.ok) {
+            throw new Error("Server returned HTTP " + response.status);
+        }
+        return await response.json();
+    })
+    .then(data => {
+        if (data.status === "success") {
+            Swal.fire({
+                icon: "success",
+                title: "Login Successful",
+                text: data.message || "Welcome back!",
+                timer: 1500,
+                showConfirmButton: false
+            });
+            setTimeout(function () {
+                window.location.href = "index.php";
+            }, 1500);
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Login Failed",
+                text: data.message || "Google login failed."
+            });
+        }
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: "error",
+            title: "Server Error",
+            text: "Unable to connect to the server."
+        });
+    });
+};
 document.addEventListener("DOMContentLoaded", function () {
     const loginContainer = document.querySelector(".login-content");
     const registerContainer = document.querySelector(".registration-content");
@@ -485,50 +535,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
-    // google login
-    window.handleCredentialResponse = function (response) {
-        if (!response || !response.credential) {
-            Swal.fire({
-                icon: "error",
-                title: "Google Login Failed",
-                text: "Google did not return a valid credential."
-            });
-            return;
-        }
-        fetch("backend/users/google_login.php",{
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({credential: response.credential})
-        })
-        .then(async response => {})
-        .then(data => {
-            if (data.status === "success") {
-                Swal.fire({
-                    icon: "success",
-                    title: "Login Successful",
-                    text: data.message || "Welcome back!",
-                    timer: 1500,
-                    showConfirmButton: false
-                });
-                setTimeout(function () {
-                    window.location.href = "index.php";
-                }, 1500);
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Login Failed",
-                    text: data.message || "Google login failed."
-                });
-            }
-        })
-        .catch(error => {
-            Swal.fire({
-                icon: "error",
-                title: "Server Error",
-                text: "Unable to connect to the server."
-            });
-        });
-    };
     // otp input
     const resetOtp = document.getElementById("resetOtp");
     if (resetOtp) {

@@ -1117,55 +1117,6 @@ input:checked + .slider:before{
     font-size: 14px;
     line-height: 1.7;
 }
-@media (max-width: 700px) {
-
-    .preferences-list {
-        height: auto;
-        max-height: 600px;
-        padding-right: 3px;
-    }
-
-    .preference-card {
-        padding: 18px;
-        border-radius: 13px;
-    }
-
-    .card-top {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .card-top h3 {
-        font-size: 17px;
-    }
-
-    .info-row {
-        align-items: flex-start;
-        flex-direction: column;
-        gap: 4px;
-        padding: 11px 0;
-    }
-
-    .info-row > span:last-child {
-        text-align: left;
-    }
-
-    .info-row:has(.button) {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .info-row .button {
-        width: 100%;
-        flex-direction: column;
-    }
-
-    .info-row .button button {
-        width: 100%;
-    }
-
-}
 .status {
     display: inline-flex;
     align-items: center;
@@ -1213,236 +1164,140 @@ input:checked + .slider:before{
     position: fixed;
     z-index: 99999;
     inset: 0;
-
     background: rgba(15, 23, 42, 0.6);
     backdrop-filter: blur(4px);
-
     align-items: center;
     justify-content: center;
 }
-
 .tfa-modal.show {
     display: flex;
 }
-
 .tfa-modal-content {
     position: relative;
-
     width: 92%;
     max-width: 480px;
-
     background: #ffffff;
-
     padding: 32px;
-
     border-radius: 14px;
-
-    box-shadow:
-        0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    box-shadow: 
+        0 20px 25px -5px rgba(0, 0, 0, 0.1), 
         0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
-
-
 /* CLOSE */
-
 .tfa-close-btn {
     position: absolute;
     top: 16px;
     right: 18px;
-
     width: 34px;
     height: 34px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     border: none;
     background: transparent;
-
     color: #94a3b8;
-
     font-size: 18px;
-
     cursor: pointer;
-
     border-radius: 6px;
-
     transition: 0.2s ease;
 }
-
 .tfa-close-btn:hover {
     background: #f1f5f9;
     color: #334155;
 }
-
-
 /* PANELS */
-
 .tfa-panel {
     display: none;
 }
-
 .tfa-panel.active {
     display: block;
 }
-
-
 /* ICON */
-
 .tfa-panel-icon {
     width: 52px;
     height: 52px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     margin-bottom: 18px;
-
     border-radius: 12px;
-
     background: #eff6ff;
     color: #3b82f6;
-
     font-size: 23px;
 }
-
-
 /* HEADER */
-
 .email-verification-wrapper h2 {
     margin: 0;
-
     padding: 0;
-
     border: none !important;
-
     color: #1e293b;
-
     font-size: 23px;
-
     font-weight: 700;
-
     line-height: 1.25;
-
     text-align: left;
-
     text-transform: none !important;
-
     letter-spacing: -0.3px;
 }
-
-
 .tfa-panel-description {
     margin: 8px 0 22px;
-
     color: #64748b;
-
     font-size: 14px;
-
     line-height: 1.6;
 }
-
-
 /* LABEL */
-
 .email-verification-wrapper label {
     display: block;
-
     margin-bottom: 7px;
-
     color: #334155;
-
     font-size: 14px;
-
     font-weight: 600;
 }
-
-
 /* EMAIL */
-
 .email-verification-wrapper input[type="email"] {
     width: 100%;
     height: 50px;
-
     padding: 0 15px;
-
     box-sizing: border-box;
-
     border: 1.5px solid #cbd5e1;
-
     border-radius: 9px;
-
     background: #ffffff;
-
     color: #1e293b;
-
     font-size: 15px;
-
     outline: none;
-
     transition: 0.2s ease;
 }
-
 .email-verification-wrapper input[type="email"]:focus {
     border-color: #3b82f6;
-
-    box-shadow:
-        0 0 0 3px rgba(59, 130, 246, 0.12);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
 }
-
 .email-verification-wrapper
 input[type="email"]::placeholder {
     color: #94a3b8;
 }
-
-
 /* ERROR */
-
 .tfa-error {
     display: block;
-
     min-height: 18px;
-
     margin-top: 6px;
-
     color: #dc2626;
-
     font-size: 13px;
 }
-
-
 /* BUTTON */
-
 .tfa-btn-primary {
     width: 100%;
-
     height: 48px;
-
     display: flex;
-
     align-items: center;
     justify-content: center;
-
     gap: 8px;
-
     margin-top: 8px;
-
     background: #3b82f6;
-
     color: #ffffff;
-
     border: none;
-
     border-radius: 8px;
-
     font-size: 15px;
-
     font-weight: 600;
-
     cursor: pointer;
-
     transition: 0.2s ease;
 }
 
@@ -1452,53 +1307,566 @@ input[type="email"]::placeholder {
 
 .tfa-btn-primary:disabled {
     background: #94a3b8;
-
     cursor: not-allowed;
 }
 .otp-input-wrap {
     display: flex;
-
     justify-content: center;
-
     gap: 9px;
-
     margin-top: 15px;
 }
 .otp-cell {
     width: 48px;
     height: 54px;
-
     box-sizing: border-box;
-
     text-align: center;
-
     font-size: 23px;
-
     font-weight: 700;
-
     color: #1e293b;
-
     background: #ffffff;
-
     border: 2px solid #cbd5e1;
-
     border-radius: 8px;
-
     outline: none;
-
     transition: 0.15s ease;
 }
-
 .otp-cell:focus {
     border-color: #3b82f6;
-
-    box-shadow:
-        0 0 0 3px rgba(59, 130, 246, 0.15);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
-
 .otp-cell:invalid {
     border-color: #ef4444;
 }
 .swal2-container {
     z-index: 999999 !important;
+}
+@media (max-width: 700px) {
+    body {
+        width: 100%;
+        overflow-x: hidden;
+    }
+    .whole-page-container {
+        width: 100%;
+        min-height: 100vh;
+    }
+    .main-container {
+        width: 100%;
+        box-sizing: border-box;
+        margin-top: 70px;
+        padding: 15px;
+        display: block;
+    }
+    .navigation-container {
+        height: auto;
+        min-height: 65px;
+        padding: 0;
+        flex-wrap: wrap;
+    }
+    .home-navigation {
+        min-height: 65px;
+    }
+    .home-navigation i {
+        margin-left: 15px;
+        margin-right: 6px;
+        font-size: 21px;
+    }
+    .home-navigation a {
+        font-size: 16px;
+    }
+    .navigation {
+        width: 100%;
+        margin-right: 0;
+        padding: 0 10px 10px;
+        display: block;
+    }
+    .navigation ul {
+        width: 100%;
+        display: flex;
+        gap: 5px;
+        overflow-x: auto;
+        padding: 5px 0;
+        margin: 0;
+        scrollbar-width: none;
+    }
+    .navigation ul::-webkit-scrollbar {
+        display: none;
+    }
+    .navigation ul li {
+        flex-shrink: 0;
+    }
+    .navigation ul a {
+        display: block;
+        padding: 8px 10px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    .nav-item {
+        padding-bottom: 4px;
+    }
+    .logout,
+    .login {
+        gap: 5px;
+        font-size: 13px;
+        margin-right: 10px;
+    }
+    .tab-content{
+        margin-top: 100px !important;
+    }
+    #profile-information-section {
+        margin-top: 80px;
+        width: 100%;
+    }
+    .profile-info {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        box-sizing: border-box;
+    }
+    .info-group {
+        width: 100%;
+        max-width: none;
+        padding: 20px;
+        box-sizing: border-box;
+        border-radius: 13px;
+    }
+    .info-profile {
+        margin-bottom: 20px;
+    }
+    .info-profile img {
+        width: 100px;
+        height: 100px;
+    }
+    .info-profile h2 {
+        font-size: 21px;
+    }
+    .profile-role {
+        font-size: 13px;
+    }
+    .detail-item {
+        padding: 10px 0;
+    }
+    .detail-item strong {
+        font-size: 14px;
+    }
+    .detail-item p {
+        font-size: 13px;
+        word-break: break-word;
+    }
+    .profile-input {
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        border-radius: 13px;
+    }
+    .profile-input h2 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    .profile-input input {
+        width: 100%;
+        font-size: 14px;
+        padding: 11px 12px;
+    }
+    .address-wrapper input {
+        padding-right: 40px;
+    }
+    .save-btn,
+    .save-password-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 14px;
+    }
+    #account-settings {
+        margin-top: 80px;
+        width: 100%;
+    }
+    .account-settings-choices {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    .setting-choice {
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        border-radius: 13px;
+    }
+    .setting-choice h2 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    .setting-item {
+        padding: 13px;
+        margin-bottom: 10px;
+    }
+    .setting-info {
+        gap: 10px;
+        min-width: 0;
+    }
+    .setting-info i {
+        font-size: 19px;
+        flex-shrink: 0;
+    }
+    .setting-info h3 {
+        font-size: 14px;
+    }
+    .setting-info p {
+        font-size: 12px;
+    }
+    .setting-item .bi-chevron-right {
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+    .settings-container {
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        border-radius: 13px;
+    }
+    .change-password-form {
+        gap: 15px;
+    }
+    .input-group {
+        width: 100%;
+    }
+    .input-group label {
+        font-size: 13px;
+    }
+    .password-wrapper input {
+        font-size: 14px;
+        padding: 11px 40px 11px 12px;
+    }
+    .password-requirements {
+        padding: 12px;
+    }
+    .password-requirements p {
+        font-size: 14px;
+    }
+    .password-requirements ul {
+        font-size: 12px;
+        padding-left: 18px;
+    }
+    .notification-setting {
+        gap: 15px;
+        padding: 14px 0;
+    }
+    .notification-info {
+        min-width: 0;
+        flex: 1;
+    }
+    .notification-info h3 {
+        font-size: 14px;
+    }
+    .notification-info p {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+    .save-notification-btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 25px !important;
+    }
+    #privacy-security {
+        width: 100%;
+        padding-top: 5px;
+    }
+    .privacy-setting {
+        gap: 15px;
+        padding: 15px 0;
+    }
+    .privacy-info {
+        max-width: none;
+        flex: 1;
+        min-width: 0;
+    }
+    .privacy-info h3 {
+        font-size: 14px;
+    }
+    .privacy-info p {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+    .save-privacy-btn {
+        width: 100%;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    .switch {
+        width: 48px;
+        height: 26px;
+        flex-shrink: 0;
+    }
+    .slider:before {
+        width: 18px;
+        height: 18px;
+        left: 4px;
+        bottom: 4px;
+    }
+    input:checked + .slider:before {
+        transform: translateX(22px);
+    }
+    #notifications {
+        margin-top: 80px;
+        width: 100%;
+    }
+    .notifications-container {
+        width: 100%;
+        height: auto;
+        min-height: 400px;
+        padding: 18px;
+        box-sizing: border-box;
+        border-radius: 13px;
+    }
+    .notifications-header {
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+    .notifications-title {
+        width: 100%;
+    }
+    .notifications-header h2 {
+        font-size: 20px;
+    }
+    .mark-all-read,
+    .delete-notif {
+        margin-right: 0;
+        padding: 9px 12px;
+        font-size: 11px;
+    }
+    .notification-scroll {
+        height: 400px;
+        padding-right: 2px;
+    }
+    .notification-card {
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px;
+    }
+    .notification-icon {
+        font-size: 19px;
+        flex-shrink: 0;
+    }
+    .notification-content {
+        min-width: 0;
+    }
+    .notification-content h3 {
+        font-size: 13px;
+    }
+    .notification-content p {
+        font-size: 12px;
+        line-height: 1.4;
+        word-break: break-word;
+    }
+    .notification-content .time {
+        font-size: 11px;
+    }
+    .notification-status {
+        flex-shrink: 0;
+    }
+    #service-preferences,
+    #my-preferences {
+        margin-top: 40px;
+        width: 100%;
+    }
+    .user-preferences {
+        width: 100%;
+        padding: 15px 0;
+        box-sizing: border-box;
+    }
+    .service-header h2 {
+        font-size: 21px;
+        line-height: 1.3;
+    }
+    .service-header p {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+    .receipt-container {
+        width: 100%;
+        padding: 15px;
+        box-sizing: border-box;
+        border-radius: 12px;
+    }
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .receipt-table {
+        min-width: 550px;
+    }
+    .receipt-table th,
+    .receipt-table td {
+        padding: 10px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+    .receipt-footer {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    .receipt-total {
+        padding: 14px;
+    }
+    .total-row {
+        font-size: 13px;
+        gap: 10px;
+    }
+    .total-row h4 {
+        font-size: 14px;
+    }
+    .total-row.grand-total h3 {
+        font-size: 18px;
+    }
+    #confirm-services,
+    #delete-services {
+        width: 100%;
+        padding: 11px;
+        font-size: 13px;
+    }
+    .preferences-list {
+        height: auto;
+        max-height: 600px;
+        padding: 5px 2px 15px;
+    }
+    .preference-card {
+        padding: 16px;
+        border-radius: 13px;
+    }
+    .card-top {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .card-top h3 {
+        font-size: 16px;
+    }
+    .status {
+        font-size: 10px;
+        padding: 5px 10px;
+    }
+    .info-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+        padding: 10px 0;
+    }
+    .info-row > span:first-child {
+        font-size: 12px;
+    }
+    .info-row > span:last-child {
+        font-size: 13px;
+        text-align: left;
+        width: 100%;
+    }
+    .info-row:has(.button) {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .info-row .button {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+    }
+    .info-row .button button {
+        width: 100%;
+        min-width: 0;
+    }
+    .preferences-empty {
+        min-height: 300px;
+        padding: 30px 18px;
+    }
+    .preferences-empty .empty-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 23px;
+    }
+    .preferences-empty h3 {
+        font-size: 17px;
+    }
+    .preferences-empty p {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+    .tfa-modal-content {
+        width: calc(100% - 30px);
+        max-width: none;
+        padding: 24px 18px;
+        box-sizing: border-box;
+        border-radius: 12px;
+    }
+    .tfa-panel-icon {
+        width: 46px;
+        height: 46px;
+        font-size: 20px;
+    }
+    .email-verification-wrapper h2 {
+        font-size: 20px;
+    }
+    .tfa-panel-description {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+    .email-verification-wrapper input[type="email"] {
+        height: 46px;
+        font-size: 14px;
+    }
+    .tfa-btn-primary {
+        height: 46px;
+        font-size: 14px;
+    }
+    .otp-input-wrap {
+        gap: 6px;
+    }
+    .otp-cell {
+        width: 42px;
+        height: 48px;
+        font-size: 20px;
+    }
+    .tab-content {
+        margin-left: auto;
+        margin-right: auto;
+        width: 95% !important;
+    }
+    .button-arrangement button{
+        margin-top: 6px !important;
+    }
+}
+@media (max-width: 400px) {
+    .main-container {
+        padding: 10px;
+    }
+    .home-navigation a {
+        font-size: 14px;
+    }
+    .home-navigation i {
+        margin-left: 10px;
+        font-size: 19px;
+    }
+    .navigation ul a {
+        padding: 7px 8px;
+        font-size: 11px;
+    }
+    .info-group,
+    .profile-input,
+    .setting-choice,
+    .settings-container,
+    .notifications-container,
+    .receipt-container {
+        padding: 15px;
+    }
+    .service-header h2 {
+        font-size: 19px;
+    }
+    .otp-input-wrap {
+        gap: 4px;
+    }
+    .otp-cell {
+        width: 38px;
+        height: 44px;
+        font-size: 18px;
+    }
 }
