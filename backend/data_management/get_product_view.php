@@ -47,7 +47,6 @@ try {
             color,
             details,
             image,
-            tax AS tax_type,
             cost AS cost_price,
             retail_price,
             current_stock AS stock,

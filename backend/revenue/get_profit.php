@@ -3,403 +3,260 @@ require_once __DIR__ . '/../conn.php';
 header("Content-Type: application/json; charset=UTF-8");
 
 try {
-
-    $currentAtNeedRevenueStmt = $conn->query("
+    $currentAtNeedPaymentStmt = $conn->query("
         SELECT
-            COALESCE(
-                SUM(
-                    COALESCE(a.service_price, 0)
-                    -
-                    COALESCE(a.discount, 0)
-                ),
-                0
-            ) AS lost_revenue
-
-        FROM service_requests sr
-
-        INNER JOIN approved_orders a
-            ON a.service_request_no = sr.service_request_no
-
-        WHERE LOWER(TRIM(sr.status)) = 'cancelled'
-
-        AND LOWER(TRIM(a.status)) = 'cancelled'
-
-        AND sr.created_at >=
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            COALESCE(SUM(pp.amount), 0) AS total_paid
+        FROM payment_proofs pp
+        INNER JOIN approved_orders ao
+            ON ao.id = pp.order_id
+        WHERE LOWER(TRIM(pp.status)) = 'approved'
+        AND pp.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        AND pp.created_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
     ");
-
-    if (!$currentAtNeedRevenueStmt) {
-        throw new Exception(
-            "Current At-Need revenue query failed: " .
-            $conn->error
-        );
+    if (!$currentAtNeedPaymentStmt) {
+        throw new Exception("Current At-Need payment query failed: " . $conn->error);
     }
 
-    $currentAtNeedRevenue =
-        (float)(
-            $currentAtNeedRevenueStmt
-                ->fetch_assoc()['lost_revenue'] ?? 0
-        );
-
-    $currentAtNeedCountStmt = $conn->query("
+    $currentAtNeedRevenue = (float) ($currentAtNeedPaymentStmt->fetch_assoc()['total_paid'] ?? 0);
+    $currentLifeplanPaymentStmt = $conn->query("
         SELECT
-            COUNT(DISTINCT sr.service_request_no) AS cancelled_count
-
-        FROM service_requests sr
-
-        INNER JOIN approved_orders a
-            ON a.service_request_no = sr.service_request_no
-
-        WHERE LOWER(TRIM(sr.status)) = 'Cancelled'
-
-        AND LOWER(TRIM(a.status)) = 'Cancelled'
-
-        AND sr.created_at >=
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-    ");
-
-    if (!$currentAtNeedCountStmt) {
-        throw new Exception(
-            "Current At-Need count query failed: " .
-            $conn->error
-        );
-    }
-
-    $currentAtNeedCount =
-        (int)(
-            $currentAtNeedCountStmt
-                ->fetch_assoc()['cancelled_count'] ?? 0
-        );
-
-    $currentLifeplanCountStmt = $conn->query("
-        SELECT
-            COUNT(*) AS cancelled_count
-
-        FROM lifeplan_request
-
-        WHERE LOWER(TRIM(status)) = 'cancelled'
-
-        AND created_at >=
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-    ");
-
-    if (!$currentLifeplanCountStmt) {
-        throw new Exception(
-            "Current Lifeplan count query failed: " .
-            $conn->error
-        );
-    }
-
-    $currentLifeplanCount =
-        (int)(
-            $currentLifeplanCountStmt
-                ->fetch_assoc()['cancelled_count'] ?? 0
-        );
-
-    $currentLifeplanRevenueStmt = $conn->query("
-        SELECT
-            COALESCE(
-                SUM(
-                    COALESCE(al.total_payable, 0)
-                    -
-                    COALESCE(al.discount, 0)
-                ),
-                0
-            ) AS lost_revenue
-
-        FROM lifeplan_request lr
-
+            COALESCE(SUM(lp.amount), 0) AS total_paid
+        FROM lifeplan_payments lp
         INNER JOIN approved_lifeplans al
-            ON lr.id = al.lifeplan_request_id
-
-        WHERE LOWER(TRIM(lr.status)) = 'cancelled'
-
-        AND lr.created_at >=
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            ON al.id = lp.approved_lifeplan_id
+        WHERE LOWER(TRIM(lp.status)) = 'approved'
+        AND lp.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        AND lp.created_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
     ");
-
-    if (!$currentLifeplanRevenueStmt) {
-        throw new Exception(
-            "Current Lifeplan revenue query failed: " .
-            $conn->error
-        );
+    if (!$currentLifeplanPaymentStmt) {
+        throw new Exception("Current LifePlan payment query failed: " . $conn->error);
     }
-
-    $currentLifeplanRevenue =
-        (float)(
-            $currentLifeplanRevenueStmt
-                ->fetch_assoc()['lost_revenue'] ?? 0
-        );
-    $currentLostRevenue =
-        $currentAtNeedRevenue +
-        $currentLifeplanRevenue;
-
-    $currentTotalCost = 0;
-
-    $currentLostProfit =
-        $currentLostRevenue -
-        $currentTotalCost;
-
-    $previousAtNeedRevenueStmt = $conn->query("
+    $currentLifeplanRevenue = (float)($currentLifeplanPaymentStmt->fetch_assoc()['total_paid'] ?? 0);
+    $currentRevenue = $currentAtNeedRevenue + $currentLifeplanRevenue;
+    $currentAtNeedCostStmt = $conn->query("
         SELECT
             COALESCE(
                 SUM(
-                    COALESCE(a.service_price, 0)
-                    -
-                    COALESCE(a.discount, 0)
+                    (
+                        CASE
+                            WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
+                            THEN COALESCE(c.cost_price, 0)
+                            WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
+                            THEN COALESCE(ic.cost, 0)
+                            ELSE 0
+                        END
+                        * COALESCE(ao.quantity, 1)
+                    )
+                    +
+                    CASE
+                        WHEN LOWER(TRIM(
+                            CASE
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
+                                THEN c.coffin_type
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
+                                THEN ic.coffin_type
+                                ELSE ''
+                            END
+                        )) = 'standard'
+                        THEN COALESCE(
+                            (
+                                SELECT SUM(f.cost)
+                                FROM flowers f
+                                WHERE LOWER(TRIM(f.flower_type)) = 'standard'
+                            ),
+                            0
+                        )
+                        WHEN LOWER(TRIM(
+                            CASE
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
+                                THEN c.coffin_type
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
+                                THEN ic.coffin_type
+                                ELSE ''
+                            END
+                        )) = 'premium'
+                        THEN COALESCE(
+                            (
+                                SELECT SUM(f.cost)
+                                FROM flowers f
+                                WHERE LOWER(TRIM(f.flower_type)) = 'premium'
+                            ),
+                            0
+                        )
+                        ELSE 0
+                    END
                 ),
                 0
-            ) AS lost_revenue
-
-        FROM service_requests sr
-
-        INNER JOIN approved_orders a
-            ON a.service_request_no = sr.service_request_no
-
-        WHERE LOWER(TRIM(sr.status)) = 'cancelled'
-
-        AND LOWER(TRIM(a.status)) = 'cancelled'
-
-        AND sr.created_at >=
-            DATE_SUB(CURDATE(), INTERVAL 60 DAY)
-
-        AND sr.created_at <
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            ) AS total_cost
+        FROM approved_orders ao
+        LEFT JOIN coffins c
+            ON LOWER(TRIM(ao.coffin_source)) = 'local'
+            AND c.id = ao.coffin_id
+        LEFT JOIN imported_coffins ic
+            ON LOWER(TRIM(ao.coffin_source)) = 'imported'
+            AND ic.id = ao.coffin_id
+        WHERE ao.approved_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        AND ao.approved_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        AND LOWER(TRIM(ao.status))
+            IN ('approved', 'completed', 'confirmed')
     ");
 
-    if (!$previousAtNeedRevenueStmt) {
-        throw new Exception(
-            "Previous At-Need revenue query failed: " .
-            $conn->error
-        );
+    if (!$currentAtNeedCostStmt) {
+        throw new Exception("Current At-Need cost query failed: " . $conn->error);
     }
 
-    $previousAtNeedRevenue =
-        (float)(
-            $previousAtNeedRevenueStmt
-                ->fetch_assoc()['lost_revenue'] ?? 0
-        );
+    $currentAtNeedCost = (float)($currentAtNeedCostStmt->fetch_assoc()['total_cost'] ?? 0);
 
-    $previousAtNeedCountStmt = $conn->query("
+    $currentLifeplanCost = 0;
+    $currentTotalCost = $currentAtNeedCost + $currentLifeplanCost;
+    $currentProfit = $currentRevenue - $currentTotalCost;
+
+    $previousAtNeedPaymentStmt = $conn->query("
         SELECT
-            COUNT(DISTINCT sr.service_request_no) AS cancelled_count
-
-        FROM service_requests sr
-
-        INNER JOIN approved_orders a
-            ON a.service_request_no = sr.service_request_no
-
-        WHERE LOWER(TRIM(sr.status)) = 'cancelled'
-
-        AND LOWER(TRIM(a.status)) = 'cancelled'
-
-        AND sr.created_at >=
-            DATE_SUB(CURDATE(), INTERVAL 60 DAY)
-
-        AND sr.created_at <
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            COALESCE(SUM(pp.amount), 0) AS total_paid
+        FROM payment_proofs pp
+        INNER JOIN approved_orders ao
+            ON ao.id = pp.order_id
+        WHERE LOWER(TRIM(pp.status)) = 'approved'
+        AND pp.created_at >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+        AND pp.created_at < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
     ");
-
-    if (!$previousAtNeedCountStmt) {
-        throw new Exception(
-            "Previous At-Need count query failed: " .
-            $conn->error
-        );
+    if (!$previousAtNeedPaymentStmt) {
+        throw new Exception("Previous At-Need payment query failed: " . $conn->error);
     }
-
-    $previousAtNeedCount =
-        (int)(
-            $previousAtNeedCountStmt
-                ->fetch_assoc()['cancelled_count'] ?? 0
-        );
-    $previousLifeplanCountStmt = $conn->query("
+    $previousAtNeedRevenue = (float)($previousAtNeedPaymentStmt->fetch_assoc()['total_paid'] ?? 0);
+    $previousLifeplanPaymentStmt = $conn->query("
         SELECT
-            COUNT(*) AS cancelled_count
-
-        FROM lifeplan_request
-
-        WHERE LOWER(TRIM(status)) = 'cancelled'
-
-        AND created_at >=
-            DATE_SUB(CURDATE(), INTERVAL 60 DAY)
-
-        AND created_at <
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-    ");
-
-    if (!$previousLifeplanCountStmt) {
-        throw new Exception(
-            "Previous Lifeplan count query failed: " .
-            $conn->error
-        );
-    }
-
-    $previousLifeplanCount =
-        (int)(
-            $previousLifeplanCountStmt
-                ->fetch_assoc()['cancelled_count'] ?? 0
-        );
-
-    $previousLifeplanRevenueStmt = $conn->query("
-        SELECT
-            COALESCE(
-                SUM(
-                    COALESCE(al.total_payable, 0)
-                    -
-                    COALESCE(al.discount, 0)
-                ),
-                0
-            ) AS lost_revenue
-
-        FROM lifeplan_request lr
-
+            COALESCE(SUM(lp.amount), 0) AS total_paid
+        FROM lifeplan_payments lp
         INNER JOIN approved_lifeplans al
-            ON lr.id = al.lifeplan_request_id
-
-        WHERE LOWER(TRIM(lr.status)) = 'cancelled'
-
-        AND lr.created_at >=
-            DATE_SUB(CURDATE(), INTERVAL 60 DAY)
-
-        AND lr.created_at <
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            ON al.id = lp.approved_lifeplan_id
+        WHERE LOWER(TRIM(lp.status)) = 'approved'
+        AND lp.created_at >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+        AND lp.created_at < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
     ");
-
-    if (!$previousLifeplanRevenueStmt) {
-        throw new Exception(
-            "Previous Lifeplan revenue query failed: " .
-            $conn->error
-        );
+    if (!$previousLifeplanPaymentStmt) {
+        throw new Exception("Previous LifePlan payment query failed: " . $conn->error);
     }
+    $previousLifeplanRevenue = (float)($previousLifeplanPaymentStmt->fetch_assoc()['total_paid'] ?? 0);
 
-    $previousLifeplanRevenue =
-        (float)(
-            $previousLifeplanRevenueStmt
-                ->fetch_assoc()['lost_revenue'] ?? 0
-        );
+    $previousRevenue = $previousAtNeedRevenue + $previousLifeplanRevenue;
+    $previousAtNeedCostStmt = $conn->query("
+        SELECT
+            COALESCE(
+                SUM(
+                    (
+                        CASE
+                            WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
+                            THEN COALESCE(c.cost_price, 0)
+                            WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
+                            THEN COALESCE(ic.cost, 0)
+                            ELSE 0
+                        END
+                        * COALESCE(ao.quantity, 1)
+                    )
+                    +
+                    CASE
+                        WHEN LOWER(TRIM(
+                            CASE
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
+                                THEN c.coffin_type
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
+                                THEN ic.coffin_type
+                                ELSE ''
+                            END
+                        )) = 'standard'
+                        THEN COALESCE(
+                            (
+                                SELECT SUM(f.cost)
+                                FROM flowers f
+                                WHERE LOWER(TRIM(f.flower_type)) = 'standard'
+                            ),
+                            0
+                        )
+                        WHEN LOWER(TRIM(
+                            CASE
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
+                                THEN c.coffin_type
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
+                                THEN ic.coffin_type
 
-    $previousLostRevenue =
-        $previousAtNeedRevenue +
-        $previousLifeplanRevenue;
-
-    $previousTotalCost = 0;
-
-    $previousLostProfit =
-        $previousLostRevenue -
-        $previousTotalCost;
-
-    $difference =
-        $currentLostProfit -
-        $previousLostProfit;
-
+                                ELSE ''
+                            END
+                        )) = 'premium'
+                        THEN COALESCE(
+                            (
+                                SELECT SUM(f.cost)
+                                FROM flowers f
+                                WHERE LOWER(TRIM(f.flower_type)) = 'premium'
+                            ),
+                            0
+                        )
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS total_cost
+        FROM approved_orders ao
+        LEFT JOIN coffins c
+            ON LOWER(TRIM(ao.coffin_source)) = 'local'
+            AND c.id = ao.coffin_id
+        LEFT JOIN imported_coffins ic
+            ON LOWER(TRIM(ao.coffin_source)) = 'imported'
+            AND ic.id = ao.coffin_id
+        WHERE ao.approved_at >= DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+        AND ao.approved_at < DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+        AND LOWER(TRIM(ao.status))
+            IN ('approved', 'completed', 'confirmed')
+    ");
+    if (!$previousAtNeedCostStmt) {
+        throw new Exception("Previous At-Need cost query failed: " . $conn->error);
+    }
+    $previousAtNeedCost = (float)($previousAtNeedCostStmt->fetch_assoc()['total_cost'] ?? 0);
+    $previousLifeplanCost = 0;
+    $previousTotalCost = $previousAtNeedCost + $previousLifeplanCost;
+    $previousProfit = $previousRevenue - $previousTotalCost;
+    $difference = $currentProfit - $previousProfit;
     $changePercentage = 0;
-
-    if ($previousLostProfit > 0) {
-
-        $changePercentage =
-            (
-                $difference /
-                $previousLostProfit
-            ) * 100;
-
-    } elseif ($currentLostProfit > 0) {
-
+    if ($previousProfit != 0) {
+        $changePercentage = ($difference / abs($previousProfit)) * 100;
+    } elseif ($currentProfit != 0) {
         $changePercentage = 100;
     }
-
     $direction = "same";
-
     if ($difference > 0) {
-
         $direction = "up";
-
     } elseif ($difference < 0) {
-
         $direction = "down";
     }
-
-    $currentCancelledCount =
-        $currentAtNeedCount +
-        $currentLifeplanCount;
-
-    $previousCancelledCount =
-        $previousAtNeedCount +
-        $previousLifeplanCount; 
-
     echo json_encode([
-
         "success" => true,
-
-        "lost_profit" =>
-            round($currentLostProfit, 2),
-
-        "previous_lost_profit" =>
-            round($previousLostProfit, 2),
-
-        "difference" =>
-            round($difference, 2),
-
-        "change" =>
-            round($changePercentage, 2),
-
-        "direction" =>
-            $direction,
-
-        "current_lost_revenue" =>
-            round($currentLostRevenue, 2),
-
-        "previous_lost_revenue" =>
-            round($previousLostRevenue, 2),
-
-        "current_atneed_lost_revenue" =>
-            round($currentAtNeedRevenue, 2),
-
-        "previous_atneed_lost_revenue" =>
-            round($previousAtNeedRevenue, 2),
-
-        "current_lifeplan_lost_revenue" =>
-            round($currentLifeplanRevenue, 2),
-
-        "previous_lifeplan_lost_revenue" =>
-            round($previousLifeplanRevenue, 2),
-
-        "current_atneed_cancelled" =>
-            $currentAtNeedCount,
-
-        "previous_atneed_cancelled" =>
-            $previousAtNeedCount,
-
-        "current_lifeplan_cancelled" =>
-            $currentLifeplanCount,
-
-        "previous_lifeplan_cancelled" =>
-            $previousLifeplanCount,
-
-        "current_cancelled_count" =>
-            $currentCancelledCount,
-
-        "previous_cancelled_count" =>
-            $previousCancelledCount,
-
-        "current_cost" =>
-            round($currentTotalCost, 2),
-
-        "previous_cost" =>
-            round($previousTotalCost, 2)
+        "profit" => round($currentProfit, 2),
+        "previous_profit" => round($previousProfit, 2),
+        "difference" => round($difference, 2),
+        "change" => round($changePercentage, 2),
+        "direction" => $direction,
+        "current_revenue" => round($currentRevenue, 2),
+        "previous_revenue" => round($previousRevenue, 2),
+        "current_atneed_revenue" => round($currentAtNeedRevenue, 2),
+        "previous_atneed_revenue" => round($previousAtNeedRevenue, 2),
+        "current_lifeplan_revenue" => round($currentLifeplanRevenue, 2),
+        "previous_lifeplan_revenue" => round($previousLifeplanRevenue, 2),
+        "current_cost" => round($currentTotalCost, 2),
+        "previous_cost" => round($previousTotalCost, 2),
+        "current_atneed_cost" => round($currentAtNeedCost, 2),
+        "previous_atneed_cost" => round($previousAtNeedCost, 2),
+        "current_lifeplan_cost" => round($currentLifeplanCost, 2),
+        "previous_lifeplan_cost" => round($previousLifeplanCost, 2)
     ]);
-
 
 } catch (Exception $e) {
 
     http_response_code(500);
 
     echo json_encode([
-
         "success" => false,
-
-        "message" =>
-            $e->getMessage()
+        "message" => $e->getMessage()
     ]);
 }
-
 ?>

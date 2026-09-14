@@ -16,7 +16,6 @@ $type = trim($_POST["coffin_type"] ?? "");
 $size = trim($_POST["size"] ?? "");
 $color = trim($_POST["color"] ?? "");
 $origin = trim($_POST["origin"] ?? "");
-$taxType = trim($_POST["tax_type"] ?? "");
 $costPrice = isset($_POST["cost_price"]) ? (float) $_POST["cost_price"] : 0;
 $retailPrice = isset($_POST["retail_price"]) ? (float) $_POST["retail_price"] : 0;
 $stock = isset($_POST["stock"]) ? (int) $_POST["stock"] : 0;
@@ -89,10 +88,7 @@ try {
     $oldImage = $product["image"];
     $imagePath = $oldImage;
 
-    if (
-        isset($_FILES["image"]) &&
-        $_FILES["image"]["error"] === UPLOAD_ERR_OK
-    ) {
+    if (isset($_FILES["image"]) && $_FILES["image"]["error"] === UPLOAD_ERR_OK) {
         if (strtolower($origin) === "local") {
             $uploadFolder = "coffins";
         } elseif (strtolower($origin) === "imported") {
@@ -146,15 +142,14 @@ try {
         }
     }
     if ($table === "coffins") {
-        $stmt = $conn->prepare(" UPDATE coffins SET item_name = ?, coffin_type = ?, size = ?, color = ?, stock = ?, tax_type = ?, cost_price = ?, retail_price = ?, image = ?, details = ?, status = ?, updated_at = NOW() WHERE id = ? ");
+        $stmt = $conn->prepare(" UPDATE coffins SET item_name = ?, coffin_type = ?, size = ?, color = ?, stock = ?, cost_price = ?, retail_price = ?, image = ?, details = ?, status = ?, updated_at = NOW() WHERE id = ? ");
         $stmt->bind_param(
-            "ssssisdssssi",
+            "ssssidssssi",
             $name,
             $type,
             $size,
             $color,
             $stock,
-            $taxType,
             $costPrice,
             $retailPrice,
             $imagePath,
@@ -164,9 +159,9 @@ try {
         );
     }
     else {
-        $stmt = $conn->prepare(" UPDATE imported_coffins SET item_name = ?, color = ?, size = ?, current_stock = ?, cost = ?, retail_price = ?, coffin_type = ?, tax = ?, details = ?, image = ?, status = ?, updated_at = NOW() WHERE id = ?");
+        $stmt = $conn->prepare(" UPDATE imported_coffins SET item_name = ?, color = ?, size = ?, current_stock = ?, cost = ?, retail_price = ?, coffin_type = ?, details = ?, image = ?, status = ?, updated_at = NOW() WHERE id = ?");
         $stmt->bind_param(
-            "sssiddsssssi",
+            "sssiddssssi",
             $name,
             $color,
             $size,
@@ -174,7 +169,6 @@ try {
             $costPrice,
             $retailPrice,
             $type,
-            $taxType,
             $details,
             $imagePath,
             $status,
@@ -208,9 +202,7 @@ try {
         }
     }
     $action = "Update Coffin";
-    $auditDetails =
-        "Updated {$origin} coffin: " .
-        "{$name} (ID: {$id})";
+    $auditDetails = "Updated {$origin} coffin: " . "{$name} (ID: {$id})";
 
     addAuditLog(
         $conn,
@@ -224,10 +216,7 @@ try {
         "message" => "Coffin updated successfully."
     ]);
 } catch (mysqli_sql_exception $e) {
-    error_log(
-        "Update coffin error: " .
-        $e->getMessage()
-    );
+    error_log("Update coffin error: " . $e->getMessage());
     echo json_encode([
         "success" => false,
         "message" => "Database error.",

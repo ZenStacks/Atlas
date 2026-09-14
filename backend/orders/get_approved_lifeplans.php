@@ -1,23 +1,15 @@
 <?php
-
 session_start();
-
 header("Content-Type: application/json; charset=utf-8");
-
 require_once __DIR__ . "/../conn.php";
 require_once __DIR__ . "/../encryption.php";
 
-function decryptIfEncrypted($value)
-{
+function decryptIfEncrypted($value){
     if ($value === null || $value === '') {
         return '';
     }
-
     $decrypted = @decryptData($value);
-
-    return ($decrypted !== false && $decrypted !== null)
-        ? $decrypted
-        : $value;
+    return ($decrypted !== false && $decrypted !== null) ? $decrypted : $value;
 }
 
 try {
@@ -31,7 +23,6 @@ try {
             al.service_price,
             al.retail_price,
             al.discount,
-            al.tax,
             al.total_payable,
             al.partial_payment,
             al.remaining_balance,
@@ -113,30 +104,21 @@ try {
     ";
 
     $result = $conn->query($sql);
-
     if (!$result) {
         throw new Exception($conn->error);
     }
-
     $data = [];
-
     while ($row = $result->fetch_assoc()) {
 
         // Decrypt applicant name
-        $row["name"] = decryptIfEncrypted(
-            $row["name"] ?? ''
-        );
+        $row["name"] = decryptIfEncrypted($row["name"] ?? '');
 
         if ($row["name"] === '') {
             $row["name"] = "Unknown Applicant";
         }
-        if (
-            empty($row["profile_img"]) ||
-            $row["profile_img"] === null
-        ) {
+        if (empty($row["profile_img"]) || $row["profile_img"] === null) {
             $row["profile_img"] = "profile.png";
         }
-
         $data[] = $row;
     }
 
@@ -146,14 +128,11 @@ try {
     ], JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {
-
     http_response_code(500);
-
     echo json_encode([
         "success" => false,
         "message" => $e->getMessage()
     ]);
 }
-
 $conn->close();
 ?>

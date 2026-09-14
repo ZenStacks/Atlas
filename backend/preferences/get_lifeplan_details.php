@@ -1,7 +1,5 @@
 <?php
-
 header('Content-Type: application/json');
-
 require_once __DIR__ . '/../conn.php';
 require_once __DIR__ . '/../encryption.php';
 
@@ -46,11 +44,7 @@ try {
                 WHEN lp.coffin_source = 'imported' THEN ic.retail_price
             END AS retail_price,
 
-            CASE
-                WHEN lp.coffin_source = 'local' THEN lc.tax_type
-                WHEN lp.coffin_source = 'imported' THEN ic.tax
-            END AS tax_type,
-
+            f.flower_type AS flower_type,
             COALESCE(f.cost, 0) AS flower_cost,
 
             (
@@ -121,9 +115,7 @@ try {
     }
 
     $stmt->bind_param("is", $orderId, $lifeplanNo);
-
     $stmt->execute();
-
     $result = $stmt->get_result();
 
     if ($result->num_rows === 0) {
@@ -132,66 +124,33 @@ try {
 
     $data = $result->fetch_assoc();
 
-    $data["name"] =
-        decryptData($data["name"]);
-
-    $data["phone_no"] =
-        decryptData($data["phone_no"]);
-
-    $data["email"] =
-        decryptData($data["email"]);
+    $data["name"] = decryptData($data["name"]);
+    $data["phone_no"] = decryptData($data["phone_no"]);
+    $data["email"] = decryptData($data["email"]);
 
     if ($data["performed_by"] === "admin") {
-        $data["selected_address"] =
-            decryptData($data["selected_address"]);
+        $data["selected_address"] = decryptData($data["selected_address"]);
     }
 
-    $data["applicant_name"] =
-        decryptData($data["applicant_name"]);
-
-    $data["applicant_contact_no"] =
-        decryptData($data["applicant_contact_no"]);
-
-    $data["applicant_email"] =
-        decryptData($data["applicant_email"]);
-
-    $data["planholder_lastname"] =
-        decryptData($data["planholder_lastname"]);
-
-    $data["planholder_firstname"] =
-        decryptData($data["planholder_firstname"]);
-
-    $data["planholder_middlename"] =
-        decryptData($data["planholder_middlename"]);
-
-    $data["contact_number"] =
-        decryptData($data["contact_number"]);
-
-    $data["email_address"] =
-        decryptData($data["email_address"]);
-
-    $data["residential_address"] =
-        decryptData($data["residential_address"]);
-
-    $data["retail_price"] =
-        (float) $data["retail_price"];
-
-    $data["flower_cost"] =
-        (float) $data["flower_cost"];
-
-    $data["selling_price"] =
-        (float) $data["selling_price"];
-
-    $data["downpayment"] =
-        (float) $data["downpayment"];
+    $data["applicant_name"] = decryptData($data["applicant_name"]);
+    $data["applicant_contact_no"] = decryptData($data["applicant_contact_no"]);
+    $data["applicant_email"] = decryptData($data["applicant_email"]);
+    $data["planholder_lastname"] = decryptData($data["planholder_lastname"]);
+    $data["planholder_firstname"] = decryptData($data["planholder_firstname"]);
+    $data["planholder_middlename"] = decryptData($data["planholder_middlename"]);
+    $data["contact_number"] = decryptData($data["contact_number"]);
+    $data["email_address"] = decryptData($data["email_address"]);
+    $data["residential_address"] = decryptData($data["residential_address"]);
+    $data["retail_price"] = (float) $data["retail_price"];
+    $data["flower_cost"] = (float) $data["flower_cost"];
+    $data["selling_price"] = (float) $data["selling_price"];
+    $data["downpayment"] = (float) $data["downpayment"];
 
     echo json_encode([
         "success" => true,
         "data" => $data
     ]);
-
 } catch (Exception $e) {
-
     echo json_encode([
         "success" => false,
         "message" => $e->getMessage()

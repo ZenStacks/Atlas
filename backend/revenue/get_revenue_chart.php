@@ -1,125 +1,167 @@
 <?php
 require_once __DIR__ . '/../conn.php';
 header("Content-Type: application/json; charset=UTF-8");
+
 try {
-    $atNeedQuery = "
+    $atNeedPaymentQuery = "
         SELECT
-            DATE(a.approved_at) AS revenue_date,
-            SUM(
-                COALESCE(a.downpayment, 0)
-                +
-                COALESCE(a.partial_payment, 0)
-            ) AS revenue
-        FROM approved_orders a
-        WHERE a.approved_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-          AND LOWER(a.status) IN ('approved', 'in progress', 'completed')
-        GROUP BY DATE(a.approved_at)
+            DATE(pp.created_at) AS payment_date,
+            COALESCE(SUM(pp.amount), 0) AS revenue
+        FROM payment_proofs pp
+        INNER JOIN approved_orders ao
+            ON ao.id = pp.order_id
+        WHERE LOWER(TRIM(pp.status)) = 'approved'
+        AND pp.created_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+        AND pp.created_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        GROUP BY DATE(pp.created_at)
     ";
-
-    $atNeedResult = $conn->query($atNeedQuery);
-
-    if (!$atNeedResult) {
-        throw new Exception(
-            "At-need revenue query failed: " . $conn->error
-        );
+    $atNeedPaymentResult = $conn->query($atNeedPaymentQuery);
+    if (!$atNeedPaymentResult) {
+        throw new Exception("At-Need payment query failed: " . $conn->error);
     }
-    $lifeplanQuery = "
+    $lifeplanPaymentQuery = "
         SELECT
-            DATE(lp.created_at) AS revenue_date,
-            SUM(COALESCE(lp.amount, 0)) AS revenue
+            DATE(lp.created_at) AS payment_date,
+            COALESCE(SUM(lp.amount), 0) AS revenue
         FROM lifeplan_payments lp
-        WHERE lp.created_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-          AND LOWER(lp.status) = 'approved'
+        INNER JOIN approved_lifeplans al
+            ON al.id = lp.approved_lifeplan_id
+        WHERE LOWER(TRIM(lp.status)) = 'approved'
+        AND lp.created_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+        AND lp.created_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
         GROUP BY DATE(lp.created_at)
     ";
-    $lifeplanResult = $conn->query($lifeplanQuery);
-    if (!$lifeplanResult) {
-        throw new Exception(
-            "Lifeplan revenue query failed: " . $conn->error
-        );
+    $lifeplanPaymentResult = $conn->query($lifeplanPaymentQuery);
+    if (!$lifeplanPaymentResult) {
+        throw new Exception("LifePlan payment query failed: " . $conn->error);
     }
     $dailyRevenue = [];
-    while ($row = $atNeedResult->fetch_assoc()) {
-        $date = $row['revenue_date'];
+    while ($row = $atNeedPaymentResult->fetch_assoc()) {
+        $date = $row['payment_date'];
         if (!isset($dailyRevenue[$date])) {
             $dailyRevenue[$date] = 0;
         }
         $dailyRevenue[$date] += (float) $row['revenue'];
     }
-    while ($row = $lifeplanResult->fetch_assoc()) {
-        $date = $row['revenue_date'];
+    while ($row = $lifeplanPaymentResult->fetch_assoc()) {
+        $date = $row['payment_date'];
         if (!isset($dailyRevenue[$date])) {
             $dailyRevenue[$date] = 0;
         }
         $dailyRevenue[$date] += (float) $row['revenue'];
     }
-    $costQuery = "
+    $coffinCostQuery = "
         SELECT
-            DATE(a.approved_at) AS cost_date,
-
-            SUM(
-                CASE
-
-                    WHEN a.coffin_source = 'local'
+            DATE(ao.approved_at) AS cost_date,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
                         THEN
                             COALESCE(c.cost_price, 0)
-                            * COALESCE(a.quantity, 1)
-
-                    WHEN a.coffin_source = 'imported'
+                            * COALESCE(ao.quantity, 1)
+                        WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
                         THEN
                             COALESCE(ic.cost, 0)
-                            * COALESCE(a.quantity, 1)
+                            * COALESCE(ao.quantity, 1)
 
-                    ELSE 0
-
-                END
-            ) AS coffin_cost,
-            SUM(
-                COALESCE(f.cost, 0)
-            ) AS flower_cost
-        FROM approved_orders a
-        LEFT JOIN service_requests sr
-            ON a.service_request_no = sr.service_request_no
-        LEFT JOIN flowers f
-            ON (
-                (
-                    sr.floral_setup = 'standard'
-                    AND f.flower_type = 'standard-setup'
-                )
-                OR
-                (
-                    sr.floral_setup = 'premium'
-                    AND f.flower_type = 'premium-setup'
-                )
-            )
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS coffin_cost
+        FROM approved_orders ao
         LEFT JOIN coffins c
-            ON a.coffin_id = c.id
-            AND a.coffin_source = 'local'
-
+            ON c.id = ao.coffin_id
+            AND LOWER(TRIM(ao.coffin_source)) = 'local'
         LEFT JOIN imported_coffins ic
-            ON a.coffin_id = ic.id
-            AND a.coffin_source = 'imported'
-
-        WHERE a.approved_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-
-        GROUP BY DATE(a.approved_at)
+            ON ic.id = ao.coffin_id
+            AND LOWER(TRIM(ao.coffin_source)) = 'imported'
+        WHERE ao.approved_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+        AND ao.approved_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        AND LOWER(TRIM(ao.status))
+            IN ('approved', 'completed', 'confirmed')
+        GROUP BY DATE(ao.approved_at)
     ";
-
-    $costResult = $conn->query($costQuery);
-    if (!$costResult) {
-        throw new Exception(
-            "Cost query failed: " . $conn->error
-        );
+    $coffinCostResult = $conn->query($coffinCostQuery);
+    if (!$coffinCostResult) {
+        throw new Exception("Coffin cost query failed: " . $conn->error);
     }
-    $dailyCosts = [];
-    while ($row = $costResult->fetch_assoc()) {
+    $dailyCoffinCosts = [];
+    while ($row = $coffinCostResult->fetch_assoc()) {
         $date = $row['cost_date'];
-        $dailyCosts[$date] = [
-            'coffin_cost' => (float) $row['coffin_cost'],
-            'flower_cost' => (float) $row['flower_cost']
-        ];
+        $dailyCoffinCosts[$date] = (float) $row['coffin_cost'];
     }
-    $allDates = array_unique(array_merge(array_keys($dailyRevenue),array_keys($dailyCosts)));
+
+    $flowerCostQuery = "
+        SELECT
+            DATE(ao.approved_at) AS cost_date,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN LOWER(TRIM(
+                            CASE
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
+                                THEN c.coffin_type
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
+                                THEN ic.coffin_type
+                                ELSE ''
+                            END
+                        )) = 'standard'
+                        THEN COALESCE(
+                            (
+                                SELECT SUM(f.cost)
+                                FROM flowers f
+                                WHERE LOWER(TRIM(f.flower_type)) = 'standard'
+                            ),
+                            0
+                        )
+                        WHEN LOWER(TRIM(
+                            CASE
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
+                                THEN c.coffin_type
+                                WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
+                                THEN ic.coffin_type
+                                ELSE ''
+                            END
+                        )) = 'premium'
+                        THEN COALESCE(
+                            (
+                                SELECT SUM(f.cost)
+                                FROM flowers f
+                                WHERE LOWER(TRIM(f.flower_type)) = 'premium'
+                            ),
+                            0
+                        )
+                        ELSE 0
+
+                    END
+                ),
+                0
+            ) AS flower_cost
+        FROM approved_orders ao
+        LEFT JOIN coffins c
+            ON c.id = ao.coffin_id
+            AND LOWER(TRIM(ao.coffin_source)) = 'local'
+        LEFT JOIN imported_coffins ic
+            ON ic.id = ao.coffin_id
+            AND LOWER(TRIM(ao.coffin_source)) = 'imported'
+        WHERE ao.approved_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+        AND ao.approved_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        AND LOWER(TRIM(ao.status))
+            IN ('approved', 'completed', 'confirmed')
+        GROUP BY DATE(ao.approved_at)
+    ";
+    $flowerCostResult = $conn->query($flowerCostQuery);
+    if (!$flowerCostResult) {
+        throw new Exception("Flower cost query failed: " . $conn->error);
+    }
+    $dailyFlowerCosts = [];
+    while ($row = $flowerCostResult->fetch_assoc()) {
+        $date = $row['cost_date'];
+        $dailyFlowerCosts[$date] = (float) $row['flower_cost'];
+    }
+    $allDates = array_unique(array_merge(array_keys($dailyRevenue),array_keys($dailyCoffinCosts),array_keys($dailyFlowerCosts)));
     sort($allDates);
     $labels = [];
     $revenues = [];
@@ -127,15 +169,14 @@ try {
     $profits = [];
     foreach ($allDates as $date) {
         $revenue = $dailyRevenue[$date] ?? 0;
-        $coffinCost = $dailyCosts[$date]['coffin_cost'] ?? 0;
-        $flowerCost = $dailyCosts[$date]['flower_cost'] ?? 0;
+        $coffinCost = $dailyCoffinCosts[$date] ?? 0;
+        $flowerCost = $dailyFlowerCosts[$date] ?? 0;
         $totalCost = $coffinCost + $flowerCost;
         $profit = $revenue - $totalCost;
-
-        $labels[] = date("M d",strtotime($date));
-        $revenues[] = round($revenue,2);
-        $costs[] = round($totalCost,2);
-        $profits[] = round($profit,2);
+        $labels[] = date("M d", strtotime($date));
+        $revenues[] = round($revenue, 2);
+        $costs[] = round($totalCost, 2);
+        $profits[] = round($profit, 2);
     }
     echo json_encode([
         "success" => true,
@@ -144,12 +185,11 @@ try {
         "costs" => $costs,
         "profits" => $profits
     ]);
-
 } catch (Exception $e) {
-
+    http_response_code(500);
     echo json_encode([
         "success" => false,
         "message" => $e->getMessage()
     ]);
 }
-
+?>

@@ -16,7 +16,7 @@ $username = $_SESSION['username'] ?? '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../assets/style/admin.css">
+    <link rel="stylesheet" href="../assets/style/admin.css?v=1">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -250,7 +250,7 @@ $username = $_SESSION['username'] ?? '';
                         </div>
                     </div>
                 </div>
-                <!-- REPORTS tago ka sakin --> 
+                <!-- REPORTS under review --> 
                 <div class="reports-container hidden" id="reports-container">
                     <h2>Funeral Service Report</h2>
                     <div class="report-toolbar">
@@ -2237,7 +2237,6 @@ $username = $_SESSION['username'] ?? '';
                                                 <th>Item</th>
                                                 <th>Qty</th>
                                                 <th>Type</th>
-                                                <th>Tax</th>
                                                 <th>Deposit</th>
                                             </tr>
                                         </thead>
@@ -2272,7 +2271,6 @@ $username = $_SESSION['username'] ?? '';
                                                 <th>Item</th>
                                                 <th>Qty</th>
                                                 <th>Type</th>
-                                                <th>Tax</th>
                                             </tr>
                                         </thead>
                                         <tbody id="preneed-service-details-body"></tbody>
@@ -2411,16 +2409,11 @@ $username = $_SESSION['username'] ?? '';
                                             <label>Discount (%)</label>
                                             <input type="number" id="service-discount" value="0" min="0" max="100">
                                         </div>
-                                        <div class="form-group">
-                                            <label>Tax (%)</label>
-                                            <input type="text" id="service-tax" placeholder="0">
-                                        </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="modal-summary">
                                 <p>Total:<span id="modal-total">0</span></p>
-                                <p>Tax:<span id="tax-modal">0</span></p>
                                 <p>Discount:<span id="discount-modal">0</span></p>
                                 <p>Downpayment:<span id="downpayment-modal">0</span></p>
                                 <p style="color:red;">Remaining Balance:<span id="modal-balance">0</span></p>
@@ -2569,26 +2562,17 @@ $username = $_SESSION['username'] ?? '';
                                             <input type="number" id="planholder-service-discount" value="0" min="0" max="100">
                                         </div>
                                     </div>
-                                    <div class="prc-dtls2">
-                                        
-                                        <div class="form-group">
-                                            <label>Tax (%)</label>
-                                            <input type="text" id="planholder-service-tax" placeholder="0">
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
                             <div class="modal-summary">
                                 <p>Total:<span id="planholder-modal-total">0</span></p>
-                                <p>Tax:<span id="planholder-tax-modal">0</span></p>
                                 <p>Discount:<span id="planholder-discount-modal">0</span></p>
                                 <p style="color:red;">Remaining Balance:<span id="planholder-modal-balance">0</span></p>
-                                
                             </div>
-                            <div class="modal-buttons">
-                                <button id="preneed-modal-cancel">Cancel</button>
-                                <button id="preneed-modal-ok">OK</button>
-                            </div>
+                        </div>
+                        <div class="modal-buttons">
+                            <button id="preneed-modal-cancel">Cancel</button>
+                            <button id="preneed-modal-ok">OK</button>
                         </div>
                     </div>
                 </div>
@@ -2667,7 +2651,7 @@ $username = $_SESSION['username'] ?? '';
                         </div>
                     </div>
                 </div>
-                <!-- unfinished skip -->
+                <!-- under review -->
                 <div class="inventory-container" id="inventory-container">
                     <h2>Inventory &amp; Items</h2>
                     <div class="inventory-actions">
@@ -2796,12 +2780,6 @@ $username = $_SESSION['username'] ?? '';
                                             <label for="size">Size:</label>
                                             <select name="size" id="size">
                                                 <option value="" disabled selected>Select size</option>
-                                            </select>
-                                        </div>
-                                        <div class="input-row">
-                                            <label for="tax">Tax Category:</label>
-                                            <select name="tax" id="tax">
-                                                <option value="" disabled selected>Select tax type</option>
                                             </select>
                                         </div>
                                         <div class="input-row">
@@ -3050,12 +3028,6 @@ $username = $_SESSION['username'] ?? '';
                                             <label for="imported-coffin-type">Type:</label>
                                             <select name="imported-coffin-type" id="imported-coffin-type">
                                                 <option value="" disabled selected>Select coffin type</option>
-                                            </select>
-                                        </div>
-                                        <div class="input-row">
-                                            <label for="imported-tax">Tax:</label>
-                                            <select name="imported-tax" id="imported-tax">
-                                                <option value="" disabled selected>Select Tax</option>
                                             </select>
                                         </div>
                                         <div class="input-row">
@@ -4459,7 +4431,6 @@ $username = $_SESSION['username'] ?? '';
                     const defaultBadge = document.createElement("span");
                     defaultBadge.classList.add("default-account-badge");
                     defaultBadge.textContent = "Default Account";
-
                     details.appendChild(defaultBadge);
                 }
 
@@ -5092,7 +5063,7 @@ $username = $_SESSION['username'] ?? '';
                 const el = document.getElementById(id);
                 if (el) el.value = "";
             });
-            const selects = ["coffin-type", "size", "tax"];
+            const selects = ["coffin-type", "size"];
             selects.forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.selectedIndex = 0;
@@ -5119,10 +5090,8 @@ $username = $_SESSION['username'] ?? '';
                     coffinEnums = res.data;
                     populateSelect("coffin-type", coffinEnums.coffin_types);
                     populateSelect("size", coffinEnums.coffin_sizes);
-                    populateSelect("tax", coffinEnums.tax_types);
                     
                     populateSelect("imported-coffin-type", coffinEnums.coffin_types);
-                    populateSelect("imported-tax", coffinEnums.tax_types);
                 }
             })
             .catch(err => console.error("Error loading enums:", err));
@@ -5251,19 +5220,14 @@ $username = $_SESSION['username'] ?? '';
                     }
                 }
             });
-            const taxType = document.getElementById("tax")?.value;
             let finalCostValue = totalMaterialCost;
         
-            if (taxType === "inclusive") {
-                finalCostValue = totalMaterialCost * 1.12;
-            } 
             const costInput = document.getElementById("coffin-cost");
             if (costInput) {
                 costInput.value = `₱ ${finalCostValue.toFixed(2)}`;
             }
             return { totalMaterialCost, finalCostValue, errorsFoundCount };
         };
-        document.getElementById("tax")?.addEventListener("change", window.updateLiveTotal);
         function coffinPopulateDropdowns(materials) {
             materials.forEach(item => {
                 let containerId = "";
@@ -5336,6 +5300,7 @@ $username = $_SESSION['username'] ?? '';
                 }
             });
         }
+        // save new coffin
         saveNewCoffinBtn?.addEventListener("click", function (event) {
             event.preventDefault();
             const nameEl = document.getElementById("coffin-name");
@@ -5344,7 +5309,6 @@ $username = $_SESSION['username'] ?? '';
             const notesEl = document.getElementById("new-coffin-notes");
             const typeEl = document.getElementById("coffin-type");
             const sizeEl = document.getElementById("size");
-            const taxEl = document.getElementById("tax");
             const imageEl = document.getElementById("image");
             const priceEl = document.getElementById("coffin-price");
             const downpaymentEl = document.getElementById("coffin-downpayment");
@@ -5357,14 +5321,13 @@ $username = $_SESSION['username'] ?? '';
             const notes = notesEl?.value.trim() || "";
             const coffinType = typeEl?.value || "";
             const coffinSize = sizeEl?.value || "";
-            const taxType = taxEl?.value || "";
             const imageFile = imageEl?.files[0];
             const retailPrice = priceEl?.value.trim() || "";
             const downpayment = downpaymentEl?.value.trim() || "";
             const lifePlan = lifeplanEl?.value.trim() || "";
             const atNeed = atneedEl?.value.trim() || "";
 
-            if (!itemName || !itemColor || !stockQty || !retailPrice || !downpayment || !lifePlan || !atNeed || !coffinType || !coffinSize || !taxType || !imageFile) {
+            if (!itemName || !itemColor || !stockQty || !retailPrice || !downpayment || !lifePlan || !atNeed || !coffinType || !coffinSize || !imageFile) {
                 Swal.fire({
                     icon: "warning",
                     title: "Missing Fields",
@@ -5388,7 +5351,6 @@ $username = $_SESSION['username'] ?? '';
             formData.append("coffin_type", coffinType);
             formData.append("size", coffinSize);
             formData.append("color", itemColor);
-            formData.append("tax_type", taxType);
             formData.append("details", notes);
             formData.append("stock", stockQty);
             formData.append("retail_price", retailPrice);
@@ -5445,6 +5407,7 @@ $username = $_SESSION['username'] ?? '';
                             }).then(() => {
                                 newCoffinResetForm();
                                 loadInventoryLogs();
+                                loadProductsRecords();
                             });
                         } else if (data.status === "insufficient") {
                             Swal.fire({
@@ -5488,7 +5451,6 @@ $username = $_SESSION['username'] ?? '';
         const coffinIncreaseStock = document.getElementById("increase-coffin-add-stock");
         const coffinNotesArea = document.getElementById("increase-coffin-details");
         const importedTypeSelect = document.getElementById("imported-coffin-type");
-        const importedTaxSelect = document.getElementById("imported-tax");
 
         function validateNumberInput(input, warningId) {
             const warning = document.getElementById(warningId);
@@ -5515,13 +5477,6 @@ $username = $_SESSION['username'] ?? '';
                             importedTypeSelect.innerHTML = '<option value="" disabled selected>Select type</option>';
                             d.coffin_types.forEach(val => {
                                 importedTypeSelect.add(new Option(val.charAt(0).toUpperCase() + val.slice(1), val));
-                            });
-                        }
-
-                        if (importedTaxSelect) {
-                            importedTaxSelect.innerHTML = '<option value="" disabled selected>Select Tax</option>';
-                            d.tax_types.forEach(val => {
-                                importedTaxSelect.add(new Option(val.charAt(0).toUpperCase() + val.slice(1), val));
                             });
                         }
                     }
@@ -5685,7 +5640,6 @@ $username = $_SESSION['username'] ?? '';
                 "imported-selling",
                 "imported-downpayment",
                 "imported-coffin-type",
-                "imported-tax",
                 "importedImage",
                 "imported-supplier",
                 "imported-lifeplan-max-months",
@@ -5710,7 +5664,6 @@ $username = $_SESSION['username'] ?? '';
             const importedDown = parseFloat(importedDownpayment.value);
             const supplier = document.getElementById("imported-supplier").value.trim();
             const coffin_type = document.getElementById("imported-coffin-type")?.selectedOptions[0]?.text || "";
-            const tax = document.getElementById("imported-tax")?.selectedOptions[0]?.text || "";
             const importedLifePlan = parseInt(importedLifePlanInput.value, 10);
             const importedAtNeed = parseInt(importedAtNeedInput.value, 10);
             const details = document.getElementById("imported-coffin-details").value.trim();
@@ -5726,7 +5679,6 @@ $username = $_SESSION['username'] ?? '';
                 isNaN(importedAtNeed) ||
                 !supplier ||
                 !coffin_type ||
-                !tax ||
                 !details ||
                 !imageFile
             ) {
@@ -5748,7 +5700,6 @@ $username = $_SESSION['username'] ?? '';
             formData.append("atneed_max_months", importedAtNeed);
             formData.append("supplier", supplier);
             formData.append("coffin_type", document.getElementById("imported-coffin-type").value);
-            formData.append("tax", document.getElementById("imported-tax").value);
             formData.append("details", details);
             formData.append("image", imageFile);
             try {
@@ -5871,39 +5822,57 @@ $username = $_SESSION['username'] ?? '';
             formData.append("details", detailsNotes);
             formData.append("cost", parseFloat(cost.replace(/[₱,\s]/g, "")) || 0);
             try {
+                Swal.fire({
+                    title: "Saving Flower Setup...",
+                    text: "Please wait while the flower arrangement is being saved.",
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
                 const res = await fetch("../backend/flowers/flower_save.php", {
                     method: "POST",
                     body: formData
                 });
+
                 const data = await res.json();
+
                 Swal.fire({
                     icon: data.status === "success" ? "success" : "error",
                     title: data.status === "success" ? "Success" : "Error",
                     text: data.message || "No response message"
                 }).then(() => {
+
                     if (data.status === "success") {
+
                         document.getElementById("new-flower-type").value = "";
                         document.getElementById("new-flower-initial-stock").value = "";
                         document.getElementById("details").value = "";
                         document.getElementById("new-flower-cost").value = "";
+
                         document.querySelectorAll(
                             "#new-flower-materials-container .qty-control input"
                         ).forEach(input => {
                             input.value = "";
                         });
+
                         document.getElementById("confirmModal")?.classList.add("hidden");
+
                         if (typeof loadInventoryLogs === "function") {
                             loadInventoryLogs();
                         }
                     }
                 });
-
             } catch (err) {
                 Swal.fire({
                     icon: "error",
                     title: "Server Error",
                     text: err.message
                 });
+
             }
         });
         function newFLowerResetForm(){
@@ -5956,9 +5925,7 @@ $username = $_SESSION['username'] ?? '';
                         flowerTypeSelect.innerHTML = `<option value="" disabled selected>Error loading data</option>`;
                         return;
                     }
-
                     flowerTypeSelect.innerHTML = '<option value="" disabled selected>Select flower</option>';
-                    
                     data.forEach(item => {
                         const opt = document.createElement("option");
                         opt.value = item.id;
@@ -6094,7 +6061,7 @@ $username = $_SESSION['username'] ?? '';
                     .classList.add("hidden");
             }
         });
-        // new materials(superdone)
+        // new materials(done)
         const categorySelect = document.getElementById("new-material-category");
         const materialSelect = document.getElementById("all-materials");
         const newMaterialsInteriorFields = document.querySelectorAll(".interior-only");
@@ -6228,6 +6195,16 @@ $username = $_SESSION['username'] ?? '';
         if (newMaterialsSaveBtn) {
             newMaterialsSaveBtn.addEventListener("click", function (event) {
                 event.preventDefault();
+                Swal.fire({
+                    title: "Saving...",
+                    text: "Please wait while the material is being saved.",
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
                 const categoryVal = categorySelect?.value;
                 const categoryTxt = categorySelect?.options[categorySelect.selectedIndex]?.text || "N/A";
                 const materialTxt = materialSelect?.options[materialSelect.selectedIndex]?.text || "N/A";
@@ -6296,6 +6273,7 @@ $username = $_SESSION['username'] ?? '';
                 .then(res => res.json())
                 .then(result => {
                     if (result.exists) {
+                        Swal.close();
                         Swal.fire({
                             icon: "warning",
                             title: "Already Exists",
@@ -6326,6 +6304,7 @@ $username = $_SESSION['username'] ?? '';
                     .then(res => res.json())
                     .then(data => {
                         if (data.status === "success") {
+                            Swal.close();
                             Swal.fire({
                                 icon: "success",
                                 title: "Saved Successfully!",
@@ -6337,6 +6316,7 @@ $username = $_SESSION['username'] ?? '';
                                 loadInventoryLogs();
                             });
                         } else {
+                            Swal.close();
                             Swal.fire({
                                 icon: "error",
                                 title: "Error",
@@ -6346,6 +6326,7 @@ $username = $_SESSION['username'] ?? '';
                     })
                     .catch(err => {
                         console.error("Save Error:", err);
+                        Swal.close();
                         Swal.fire({
                             icon: "error",
                             title: "Server Error",
@@ -6355,7 +6336,12 @@ $username = $_SESSION['username'] ?? '';
                 })
                 .catch(err => {
                     console.error("Check Material Error:", err);
-                    Swal.fire({ icon: "error", title: "Server Error", text: "Unable to process validation record verification schemas safely." });
+                    Swal.close();
+                    Swal.fire({ 
+                        icon: "error", 
+                        title: "Server Error", 
+                        text: "Unable to process validation record verification schemas safely." 
+                    });
                 });
             });
         }
@@ -7389,18 +7375,15 @@ $username = $_SESSION['username'] ?? '';
     function updateUserActivity() {
         fetch("../backend/security/update_activity.php", {
             method: "POST",
-            credentials: "same-origin-allow-popups"
+            credentials: "same-origin"
         })
         .then(async response => {
-
             const raw = await response.text();
-
             if (!response.ok) {
                 throw new Error(
                     "HTTP " + response.status + ": " + raw
                 );
             }
-
             try {
                 return JSON.parse(raw);
             } catch (error) {
@@ -7433,7 +7416,7 @@ $username = $_SESSION['username'] ?? '';
         lastActivitySent = now;
         fetch("../backend/security/update_activity.php", {
             method: "POST",
-            credentials: "same-origin-allow-popups"
+            credentials: "same-origin"
         })
         .then(response => response.json())
         .then(data => {
@@ -7453,7 +7436,7 @@ $username = $_SESSION['username'] ?? '';
     function checkAutoLogout() {
         fetch("../backend/security/check_session.php", {
             method: "GET",
-            credentials: "same-origin-allow-popups"
+            credentials: "same-origin"
         })
         .then(response => response.json())
         .then(data => {
@@ -7942,7 +7925,6 @@ $username = $_SESSION['username'] ?? '';
             console.error("AI Error:", err);
         }
     }
-
     // net revenue
     async function loadNetRevenue() {
         try {
@@ -7951,9 +7933,7 @@ $username = $_SESSION['username'] ?? '';
             if (!data.success) return;
             document.getElementById("net-revenue-value").textContent = "₱" + Number(data.net_revenue).toLocaleString();
             const netEl = document.getElementById("net-revenue-change");
-            const icon = data.direction === "up"
-                ? "bi-arrow-up-short"
-                : "bi-arrow-down-short";
+            const icon = data.direction === "up" ? "bi-arrow-up-short" : "bi-arrow-down-short";
             const color = data.direction === "up" ? "green" : "red";
             netEl.innerHTML = `<i class="bi ${icon}"></i> ${Math.abs(data.growth)}%`;
             netEl.style.color = color;
@@ -7963,156 +7943,59 @@ $username = $_SESSION['username'] ?? '';
     }
     // loss revenue
     async function loadLossRevenue() {
-        const lossRevenueElement =
-            document.getElementById("loss-revenue");
-
-        const lossRevenueChangeElement =
-            document.getElementById("loss-revenue-change");
-        if (
-            !lossRevenueElement ||
-            !lossRevenueChangeElement
-        ) {
-            console.error(
-                "Loss revenue elements not found."
-            );
+        const lossRevenueElement = document.getElementById("loss-revenue");
+        const lossRevenueChangeElement = document.getElementById("loss-revenue-change");
+        if (!lossRevenueElement || !lossRevenueChangeElement) {
+            console.error("Loss revenue elements not found.");
             return;
         }
-
-
         try {
-
-            const response = await fetch(
-                "../backend/revenue/get_loss_revenue.php",
-                {
-                    method: "GET",
-                    cache: "no-cache"
-                }
-            );
-
-
+            const response = await fetch("../backend/revenue/get_loss_revenue.php",{
+                method: "GET",
+                cache: "no-cache"
+            });
             if (!response.ok) {
-
-                throw new Error(
-                    `HTTP error: ${response.status}`
-                );
+                throw new Error(`HTTP error: ${response.status}`);
             }
-
-
             const data = await response.json();
-
-
-            console.log(
-                "Loss Revenue API Response:",
-                data
-            );
-
-
+            console.log("Loss Revenue API Response:", data);
             if (!data.success) {
-
-                throw new Error(
-                    data.message ||
-                    "Failed to load lost revenue."
-                );
+                throw new Error(data.message || "Failed to load lost revenue.");
             }
-
-            const lostRevenue =
-                Number(data.lost_revenue) || 0;
-
-
-            lossRevenueElement.textContent =
-                "₱" +
-                lostRevenue.toLocaleString(
-                    "en-PH",
-                    {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    }
-                );
-            const change =
-                Number(data.change) || 0;
-
-            const direction =
-                data.direction || "same";
-
+            const lostRevenue = Number(data.lost_revenue) || 0;
+            lossRevenueElement.textContent ="₱" + lostRevenue.toLocaleString("en-PH",{minimumFractionDigits: 2, maximumFractionDigits: 2});
+            const change = Number(data.change) || 0;
+            const direction = data.direction || "same";
             if (direction === "up") {
-
                 lossRevenueChangeElement.innerHTML = `
                     <i class="bi bi-arrow-up"></i>
                     ${Math.abs(change).toFixed(2)}%
                 `;
-
-                lossRevenueChangeElement.classList.remove(
-                    "positive",
-                    "same"
-                );
-
-                lossRevenueChangeElement.classList.add(
-                    "negative"
-                );
-
-
+                lossRevenueChangeElement.classList.remove("positive", "same");
+                lossRevenueChangeElement.classList.add("negative");
             } else if (direction === "down") {
-
                 lossRevenueChangeElement.innerHTML = `
                     <i class="bi bi-arrow-down"></i>
                     ${Math.abs(change).toFixed(2)}%
                 `;
-
-                lossRevenueChangeElement.classList.remove(
-                    "negative",
-                    "same"
-                );
-
-                lossRevenueChangeElement.classList.add(
-                    "positive"
-                );
-
-
+                lossRevenueChangeElement.classList.remove("negative","same");
+                lossRevenueChangeElement.classList.add("positive");
             } else {
-
                 lossRevenueChangeElement.innerHTML = `
                     <i class="bi bi-dash"></i>
                     0%
                 `;
-
-                lossRevenueChangeElement.classList.remove(
-                    "negative",
-                    "positive"
-                );
-
-                lossRevenueChangeElement.classList.add(
-                    "same"
-                );
+                lossRevenueChangeElement.classList.remove("negative","positive");
+                lossRevenueChangeElement.classList.add("same");
             }
-
         } catch (error) {
-
-            console.error(
-                "Error loading lost revenue:",
-                error
-            );
-
-            lossRevenueElement.textContent =
-                "₱0.00";
-
-
-            lossRevenueChangeElement.innerHTML = `
-                <i class="bi bi-dash"></i>
-                0%
-            `;
-
-
-            lossRevenueChangeElement.classList.remove(
-                "negative",
-                "positive"
-            );
-
-            lossRevenueChangeElement.classList.add(
-                "same"
-            );
+            lossRevenueElement.textContent ="₱0.00";
+            lossRevenueChangeElement.innerHTML = `<i class="bi bi-dash"></i> 0%`;
+            lossRevenueChangeElement.classList.remove("negative", "positive");
+            lossRevenueChangeElement.classList.add("same");
         }
     }
-    //profit (not done)
+    //profit
     async function loadProfit() {
         const profitElement = document.getElementById("profit-value");
         const profitChangeElement = document.getElementById("profit-change");
@@ -8122,30 +8005,21 @@ $username = $_SESSION['username'] ?? '';
             return;
         }
         try {
-            const response = await fetch(
-                "../backend/revenue/get_profit.php",
-                {
-                    method: "GET",
-                    cache: "no-store"
-                }
-            );
+            const response = await fetch("../backend/revenue/get_profit.php",{
+                method: "GET",
+                cache: "no-store"
+            });
             console.log("Profit HTTP Status:", response.status);
             if (!response.ok) {
                 throw new Error(`HTTP error: ${response.status}`);
             }
             const responseText = await response.text();
-            console.log(
-                "Profit Raw Response:",
-                responseText
-            );
+            console.log("Profit Raw Response:",responseText);
             let data;
             try {
                 data = JSON.parse(responseText);
             } catch (error) {
-                console.error(
-                    "Invalid JSON from get_profit.php:",
-                    responseText
-                );
+                console.error("Invalid JSON from get_profit.php:",responseText);
                 throw new Error("Backend did not return valid JSON.");
             }
             console.log("Profit API Response:", data);
@@ -8173,60 +8047,23 @@ $username = $_SESSION['username'] ?? '';
                 profitChangeElement.classList.remove("positive","same");
                 profitChangeElement.classList.add("negative");
             } else {
-
-                profitChangeElement.innerHTML = `
-                    <i class="bi bi-dash"></i>
-                    0.00%
-                `;
+                profitChangeElement.innerHTML = `<i class="bi bi-dash"></i> 0.00%`;
                 profitChangeElement.classList.remove("negative","positive");
                 profitChangeElement.classList.add("same");
             }
-            console.log(
-                "Current Profit:",
-                data.profit
-            );
-            console.log(
-                "Previous Profit:",
-                data.previous_profit
-            );
-            console.log(
-                "Difference:",
-                data.difference
-            );
-            console.log(
-                "Change:",
-                data.change
-            );
-            console.log(
-                "Direction:",
-                data.direction
-            );
-            console.log(
-                "Current Revenue:",
-                data.current_revenue
-            )
-            console.log(
-                "Previous Revenue:",
-                data.previous_revenue
-            );
-            console.log(
-                "Current Cost:",
-                data.current_cost
-            );
-            console.log(
-                "Previous Cost:",
-                data.previous_cost
-            );
+            console.log("Current Profit:",data.profit);
+            console.log("Previous Profit:",data.previous_profit);
+            console.log("Difference:",data.difference);
+            console.log("Change:",data.change);
+            console.log("Direction:",data.direction);
+            console.log("Current Revenue:",data.current_revenue)
+            console.log("Previous Revenue:",data.previous_revenue);
+            console.log("Current Cost:",data.current_cost);
+            console.log("Previous Cost:",data.previous_cost);
         } catch (error) {
-            console.error(
-                "Error loading profit:",
-                error
-            );
+            console.error("Error loading profit:",error);
             profitElement.textContent = "₱0.00";
-            profitChangeElement.innerHTML = `
-                <i class="bi bi-dash"></i>
-                0.00%
-            `;
+            profitChangeElement.innerHTML = `<i class="bi bi-dash"></i> 0.00%`;
             profitChangeElement.classList.remove("negative","positive");
             profitChangeElement.classList.add("same");
         }
@@ -8563,7 +8400,7 @@ async function loadPendingOrders() {
                         <div class="customer-details">
                             <h3>${order.name ?? "Unknown Customer"}</h3>
                             <p class="item-name">
-                                ${order.quantity ?? 0} × ${order.item_name}
+                                ${order.quantity ?? 0} × ${(order.item_name ?? "Unknown Item").replace(/\b\w/g, char => char.toUpperCase())}
                             </p>
                             <p class="purchase-type">
                                 ${order.purchase_type ?? "Unknown"} Service
@@ -8674,10 +8511,10 @@ async function loadLifeplanOrders() {
                             <p class="item-name">
                                 ${order.quantity ?? 0}
                                 ×
-                                ${order.item_name ?? "Unknown Item"}
+                                ${(order.item_name ?? "Unknown Item").replace(/\b\w/g, char => char.toUpperCase())}
                             </p>
                             <p class="purchase-type">
-                                ${order.purchase_type ?? "Unknown"} Service
+                                ${(order.purchase_type ?? "Unknown").replace(/\b\w/g, char => char.toUpperCase())} Service
                             </p>
                             <p class="request-no">
                                 #${order.lifeplan_no ?? "N/A"}
@@ -8742,69 +8579,10 @@ document.addEventListener("click", e => {
         loadPreferenceLifeplan(orderId, requestNo);
     }
 });
-// at need pending orders
-let selectedOrder = null;
-async function loadPreferenceDetails(orderId, requestNo) {
-
-    try {
-        const response = await fetch(
-            `../backend/preferences/get_preference_details.php?id=${orderId}&service_request_no=${encodeURIComponent(requestNo)}`
-        );
-        const result = await response.json();
-        if (!result.success) return;
-        const order = result.data;
-        selectedOrder = order;
-        document.getElementById("customer-name").textContent = order.name;
-        document.getElementById("customer-contact").textContent = order.phone_no || "No contact";
-        document.getElementById("customer-email").textContent = order.email || "No email";
-        document.getElementById("customer-address").textContent = order.selected_address || "No address";
-        document.getElementById("downpayment").textContent = Number(order.downpayment).toLocaleString();
-        const tbody = document.getElementById("service-details-body");
-        tbody.innerHTML = `
-            <tr>
-                <td>${order.item_name}</td>
-                <td>${order.quantity}</td>
-                <td>${order.coffin_type}</td>
-                <td>${order.tax_type}</td>
-                <td>${Number(order.downpayment).toLocaleString()}</td>
-            </tr>
-        `;
-
-        document.getElementById("customer-avail").textContent = order.name || "N/A";
-        document.getElementById("customer-contacts").textContent = order.phone_no || "N/A";
-        document.getElementById("customer-emails").textContent = order.email || "N/A";
-        document.getElementById("customer-srn").textContent = order.service_request_no || "N/A";
-        document.getElementById("customer-rfn").textContent = order.reference_no || "N/A";
-        // Purchase Details
-        document.getElementById("service-item-package").textContent = order.item_name || "N/A";
-        document.getElementById("purchase-service-type").textContent = order.purchase_type + " Service" || "N/A";
-        document.getElementById("coffin-source").textContent = order.coffin_source || "N/A";
-        document.getElementById("view-floral-setup").textContent = order.floral_setup || "N/A";
-        document.getElementById("service-quantity").textContent = order.quantity || 0;
-        // Beneficiary Details
-        document.getElementById("bene-name").textContent = 
-                                                            order.beneficiary_firstname + " " +
-                                                            order.beneficiary_middlename + " " +
-                                                            order.beneficiary_lastname|| "N/A";
-        document.getElementById("bene-condition").textContent = order.condition || "N/A";
-        document.getElementById("bene-location").textContent = order.location || "N/A";
-        document.getElementById("bene-relation").textContent = order.relationship || "N/A";
-        // Date Details
-        document.getElementById("view-date-of-death").textContent = order.date_of_death || "N/A";
-        document.getElementById("view-interment-date").textContent = order.interment_date || "N/A";
-        // price details
-        document.getElementById("services-price").value = order.selling_price || 0;
-        document.getElementById("downpayment-price").value = order.downpayment || 0;
-    } catch (error) {
-        console.error(error);
-    }
-}
 //pre need pending orders section
 async function loadPreferenceLifeplan(orderId, requestNo) {
     try {
-        const response = await fetch(
-            `../backend/preferences/get_lifeplan_details.php?id=${orderId}&lifeplan_no=${encodeURIComponent(requestNo)}`
-        );
+        const response = await fetch(`../backend/preferences/get_lifeplan_details.php?id=${orderId}&lifeplan_no=${encodeURIComponent(requestNo)}`);
         const result = await response.json();
         console.log(result);
         if (!result.success) {
@@ -8819,10 +8597,9 @@ async function loadPreferenceLifeplan(orderId, requestNo) {
         document.getElementById("preneed-customer-address").textContent = order.selected_address ?? "N/A";
         document.getElementById("preneed-service-details-body").innerHTML = `
             <tr>
-                <td>${order.item_name ?? "N/A"}</td>
+                <td>${(order.item_name ?? "N/A").replace(/\b\w/g, char => char.toUpperCase())}</td>
                 <td>${order.quantity ?? 0}</td>
                 <td>${order.coffin_type ?? "N/A"}</td>
-                <td>${order.tax_type ?? "N/A"}</td>
             </tr>
         `;
         document.getElementById("preneed-customer-avail").textContent = order.name ?? "N/A";
@@ -8830,18 +8607,16 @@ async function loadPreferenceLifeplan(orderId, requestNo) {
         document.getElementById("preneed-customer-email").textContent = order.email ?? "N/A";
         document.getElementById("preneed-customer-lrn").textContent = order.lifeplan_no ?? "N/A";
 
-        document.getElementById("preneed-service-item-package").textContent = order.item_name ?? "N/A";
-        document.getElementById("preneed-purchase-service-type").textContent = `${order.purchase_type ?? ""} Service`;
-        document.getElementById("preneed-coffin-source").textContent = order.coffin_source ?? "N/A";
-        document.getElementById("preneed-floral-setup").textContent = order.funeral_service ?? "N/A";
+        document.getElementById("preneed-service-item-package").textContent = (order.item_name ?? "N/A").replace(/\b\w/g, char => char.toUpperCase());
+        document.getElementById("preneed-purchase-service-type").textContent = `${(order.purchase_type ?? "").replace(/\b\w/g, char => char.toUpperCase())} Service`;
+        document.getElementById("preneed-coffin-source").textContent = (order.coffin_source ?? "N/A").replace(/\b\w/g, char => char.toUpperCase());
+        document.getElementById("preneed-floral-setup").textContent = order.flower_type ? order.flower_type.replace(/-/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "N/A";
         document.getElementById("preneed-service-quantity").textContent = order.quantity ?? 0;
 
-        document.getElementById("planholder-name").textContent =
-            `${order.planholder_firstname ?? ""} ${order.planholder_middlename ?? ""} ${order.planholder_lastname ?? ""}`.trim();
-
+        document.getElementById("planholder-name").textContent = `${order.planholder_firstname ?? ""} ${order.planholder_middlename ?? ""} ${order.planholder_lastname ?? ""}`.trim();
         document.getElementById("planholder-age").textContent = order.age ?? "N/A";
         document.getElementById("planholder-dob").textContent = order.date_of_birth ?? "N/A";
-        document.getElementById("planholder-gender").textContent = order.gender ?? "N/A";
+        document.getElementById("planholder-gender").textContent = (order.gender ?? "N/A").replace(/\b\w/g, char => char.toUpperCase());
         document.getElementById("planholder-civil-status").textContent = order.civil_status ?? "N/A";
         document.getElementById("planholder-occupation").textContent = order.occupation ?? "N/A";
         document.getElementById("planholder-email").textContent = order.email_address ?? "N/A";
@@ -8852,10 +8627,7 @@ async function loadPreferenceLifeplan(orderId, requestNo) {
 
         document.getElementById("planholder-services-price").value = order.selling_price ?? 0;
 
-        console.log("Selected:", selectedOrder);
-
     } catch (err) {
-        console.error(err);
     }
 }
 // preneed viewing information in pending section
@@ -8870,25 +8642,16 @@ document.getElementById("preneed-view").addEventListener("click", async () => {
     }
     document.getElementById("preference-lifeplan-modal").classList.add("show");
     try {
-        const response = await fetch(
-            `../backend/preferences/get_receipts.php?order_id=${selectedOrder.id}`
-        );
+        const response = await fetch(`../backend/preferences/get_receipts.php?order_id=${selectedOrder.id}`);
         const result = await response.json();
-
-        console.log(result);
     } catch (error) {
-        console.error("Fetch error:", error);
     }
     document.getElementById("planholder-services-price").value = selectedOrder.selling_price || 0;
     document.getElementById("planholder-service-discount").value = 0;
-    const taxInput = document.getElementById("planholder-service-tax");
-    if (selectedOrder.tax_type === "inclusive") {
-        taxInput.value = "Included";
-        taxInput.disabled = true;
-    } else {
-        taxInput.disabled = false;
-        taxInput.value = 0;
-    }
+    document.getElementById("planholder-services-price").addEventListener("input", updateLifeplanModalTotal);
+    document.getElementById("planholder-service-discount").addEventListener("input", updateLifeplanModalTotal);
+    document.getElementById("planholder-downpayment")?.addEventListener("input", updateLifeplanModalTotal);
+    
     updateLifeplanModalTotal();
 });
 // preneed approving orders in pending section
@@ -8914,25 +8677,16 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
         });
         const price = Number(document.getElementById("planholder-services-price").value || 0);
         const discountPercent = Number(document.getElementById("planholder-service-discount").value || 0);
-        let taxPercent = 0;
-
-        if (selectedOrder.tax_type !== "inclusive") {
-            taxPercent = Number(document.getElementById("planholder-service-tax").value || 0);
-        }
-
-        const taxAmount = price * (taxPercent / 100);
         const discountAmount = price * (discountPercent / 100);
-        const remainingBal = price + taxAmount - discountAmount;
-        const balance = remainingBal;
+        const totalPayable = Math.max(price - discountAmount, 0);
+        const balance = totalPayable;
 
         const formData = new FormData();
-
         formData.append("order_id", selectedOrder.id);
         formData.append("service_price", price);
         formData.append("retail_price", price);
         formData.append("discount", discountAmount);
-        formData.append("tax", taxAmount);
-        formData.append("total_payable", remainingBal);
+        formData.append("total_payable", totalPayable);
         formData.append("remaining_balance", balance);
 
         const response = await fetch("../backend/preferences/approve_lifeplan.php",{
@@ -8954,9 +8708,6 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
             document.getElementById("preneed-customer-contact").textContent = "";
             document.getElementById("preneed-customer-email").textContent = "";
             document.getElementById("preneed-customer-address").textContent = "";
-            document.getElementById("planholder-services-price").value = "0";
-            document.getElementById("planholder-service-discount").value = "0";
-            document.getElementById("preneed-service-details-body").innerHTML = "";
 
             await loadLifeplanOrders();
             await loadPendingOrders();
@@ -9031,9 +8782,7 @@ document.getElementById("preneed-decline").addEventListener("click", async () =>
             document.getElementById("preneed-customer-emails").textContent = "-";
             document.getElementById("preneed-customer-address").textContent = "-";
             document.getElementById("preneed-service-details-body").innerHTML = "";
-
             await loadLifeplanOrders();
-
         } else {
             Swal.fire({
                 icon: "error",
@@ -9043,8 +8792,6 @@ document.getElementById("preneed-decline").addEventListener("click", async () =>
         }
 
     } catch (error) {
-        console.error(error);
-
         Swal.fire({
             icon: "error",
             title: "Error",
@@ -9052,17 +8799,14 @@ document.getElementById("preneed-decline").addEventListener("click", async () =>
         });
     }
 });
-
 // update pre need modal total
 function updateLifeplanModalTotal() {
 
     const priceEl = document.getElementById("planholder-services-price");
     const discountEl = document.getElementById("planholder-service-discount");
-    const taxEl = document.getElementById("planholder-service-tax");
     const downpaymentEl = document.getElementById("planholder-downpayment");
 
     const modalTotal = document.getElementById("planholder-modal-total");
-    const taxModal = document.getElementById("planholder-tax-modal");
     const discountModal = document.getElementById("planholder-discount-modal");
     const modalBalance = document.getElementById("planholder-modal-balance");
 
@@ -9070,26 +8814,12 @@ function updateLifeplanModalTotal() {
     const discountPercent = parseFloat(discountEl.value) || 0;
     const downpayment = downpaymentEl ? parseFloat(downpaymentEl.value) || 0 : 0;
 
-    let taxPercent = 0;
-    const taxType = selectedOrder?.tax_type ? String(selectedOrder.tax_type).trim().toLowerCase() : "";
-
-    if (taxType !== "inclusive" && taxType !== "included") {
-        taxPercent = parseFloat(taxEl.value) || 0;
-    }
-
     const discountAmount = price * (discountPercent / 100);
-    const taxAmount = price * (taxPercent / 100);
-    const total = price + taxAmount - discountAmount;
+    const total = Math.max(price - discountAmount, 0);
     const balance = Math.max(total - downpayment, 0);
 
     modalTotal.textContent =
         total.toLocaleString("en-PH", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-
-    taxModal.textContent =
-        taxAmount.toLocaleString("en-PH", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
@@ -9123,6 +8853,61 @@ document.addEventListener("click", e => {
         loadPreferenceLifeplan(orderId, requestNo);
     }
 });
+// at need pending orders
+let selectedOrder = null;
+async function loadPreferenceDetails(orderId, requestNo) {
+
+    try {
+        const response = await fetch(
+            `../backend/preferences/get_preference_details.php?id=${orderId}&service_request_no=${encodeURIComponent(requestNo)}`
+        );
+        const result = await response.json();
+        if (!result.success) return;
+        const order = result.data;
+        selectedOrder = order;
+        document.getElementById("customer-name").textContent = order.name;
+        document.getElementById("customer-contact").textContent = order.phone_no || "No contact";
+        document.getElementById("customer-email").textContent = order.email || "No email";
+        document.getElementById("customer-address").textContent = order.selected_address || "No address";
+        document.getElementById("downpayment").textContent = Number(order.downpayment).toLocaleString();
+        const tbody = document.getElementById("service-details-body");
+        tbody.innerHTML = `
+            <tr>
+                <td>${(order.item_name ?? "N/A").replace(/\b\w/g, char => char.toUpperCase())}</td>
+                <td>${order.quantity}</td>
+                <td>${(order.coffin_type ?? "N/A").replace(/\b\w/g, char => char.toUpperCase())}</td>
+                <td>${Number(order.downpayment).toLocaleString()}</td>
+            </tr>
+        `;
+
+        document.getElementById("customer-avail").textContent = order.name || "N/A";
+        document.getElementById("customer-contacts").textContent = order.phone_no || "N/A";
+        document.getElementById("customer-emails").textContent = order.email || "N/A";
+        document.getElementById("customer-srn").textContent = order.service_request_no || "N/A";
+        document.getElementById("customer-rfn").textContent = order.reference_no || "N/A";
+        // Purchase Details
+        document.getElementById("service-item-package").textContent = (order.item_name || "N/A").replace(/\b\w/g, char => char.toUpperCase());
+        document.getElementById("purchase-service-type").textContent = (order.purchase_type || "N/A").replace(/\b\w/g, char => char.toUpperCase()) + " Service";
+        document.getElementById("coffin-source").textContent = (order.coffin_source || "N/A").replace(/\b\w/g, char => char.toUpperCase());
+        document.getElementById("view-floral-setup").textContent = (order.floral_setup || "N/A").replace(/\b\w/g, char => char.toUpperCase());
+        document.getElementById("service-quantity").textContent = order.quantity || 0;
+        // Beneficiary Details
+        document.getElementById("bene-name").textContent = 
+                                                            order.beneficiary_firstname + " " +
+                                                            order.beneficiary_middlename + " " +
+                                                            order.beneficiary_lastname|| "N/A";
+        document.getElementById("bene-condition").textContent = order.condition || "N/A";
+        document.getElementById("bene-location").textContent = order.location || "N/A";
+        document.getElementById("bene-relation").textContent = order.relationship || "N/A";
+        // Date Details
+        document.getElementById("view-date-of-death").textContent = order.date_of_death || "N/A";
+        document.getElementById("view-interment-date").textContent = order.interment_date || "N/A";
+        // price details
+        document.getElementById("services-price").value = order.selling_price || 0;
+        document.getElementById("downpayment-price").value = order.downpayment || 0;
+    } catch (error) {
+    }
+}
 // at need
 document.getElementById("view").addEventListener("click", async () => {
     if (!selectedOrder) {
@@ -9133,34 +8918,17 @@ document.getElementById("view").addEventListener("click", async () => {
         });
         return;
     }
-
     document.getElementById("preference-modal").classList.add("show");
-
     try {
-        const response = await fetch(
-            `../backend/preferences/get_receipts.php?order_id=${selectedOrder.id}`
-        );
+        const response = await fetch(`../backend/preferences/get_receipts.php?order_id=${selectedOrder.id}`);
         const result = await response.json();
-
         console.log(result);
     } catch (error) {
-        console.error("Fetch error:", error);
     }
 
     document.getElementById("services-price").value = selectedOrder.selling_price || 0;
     document.getElementById("downpayment-price").value = selectedOrder.downpayment || 0;
     document.getElementById("service-discount").value = 0;
-
-    const taxInput = document.getElementById("service-tax");
-
-    if (selectedOrder.tax_type === "inclusive") {
-        taxInput.value = "Included";
-        taxInput.disabled = true;
-    } else {
-        taxInput.disabled = false;
-        taxInput.value = 0;
-    }
-
     updateModalTotal();
 });
 // atneed approve button done
@@ -9187,15 +8955,9 @@ document.getElementById("approve").addEventListener("click", async () => {
     try {
         const price = Number(document.getElementById("services-price").value || 0);
         const discountPercent = Number(document.getElementById("service-discount").value || 0);
-        const downpaymentInput = Number(document.getElementById("downpayment-price").value || 0);
-
-        let taxPercent = 0;
-        if (selectedOrder.tax_type !== "inclusive") {
-            taxPercent = Number(document.getElementById("service-tax").value || 0);
-        }
-        const taxAmount = price * (taxPercent / 100);
         const discountAmount = price * (discountPercent / 100);
-        const totalPayable = price + taxAmount - discountAmount;
+        const downpaymentInput = Number(document.getElementById("downpayment-price").value || 0);
+        const totalPayable = Math.max(price - discountAmount, 0);
         const remainingBalance = totalPayable - downpaymentInput;
 
         const formData = new FormData();
@@ -9204,7 +8966,6 @@ document.getElementById("approve").addEventListener("click", async () => {
         formData.append("retail_price",price);
         formData.append("downpayment",downpaymentInput);
         formData.append("discount",discountAmount);
-        formData.append("tax",taxAmount);
         formData.append("total_payable",totalPayable);
         formData.append("remaining_balance",remainingBalance);
         for (const [key, value] of formData.entries()) {
@@ -9260,6 +9021,7 @@ document.getElementById("approve").addEventListener("click", async () => {
         document.getElementById("customer-address").textContent = "-";
         document.getElementById("service-details-body").innerHTML = "";
         await loadPendingOrders();
+        await loadApproveOrders();
     } catch (error) {
         Swal.close();
         Swal.fire({
@@ -9330,13 +9092,12 @@ document.getElementById("decline").addEventListener("click", async () => {
 
             selectedOrder = null;
             document.getElementById("customer-name").textContent = "";
-            document.getElementById("customer-contact").textContent = "";
-            document.getElementById("customer-email").textContent = "";
+            document.getElementById("customer-contacts").textContent = "";
+            document.getElementById("customer-emails").textContent = "";
             document.getElementById("customer-address").textContent = "";
             document.getElementById("service-details-body").innerHTML = "";
             await loadPendingOrders();
-
-
+            await loadApproveOrders();
         } else {
             Swal.fire({
                 icon: "error",
@@ -9360,49 +9121,47 @@ modal.addEventListener("click", (e) => {
     }
 });
 function updateModalTotal() {
-    const price = Number(document.getElementById("services-price").value || 0);
-    const downpaymentPrice = Number(document.getElementById("downpayment-price").value || 0);
-    const discountPercent = Number(document.getElementById("service-discount").value || 0);
+    const priceEl = document.getElementById("services-price");
+    const discountEl = document.getElementById("service-discount");
+    const downpaymentEl = document.getElementById("downpayment-price");
 
-    let taxPercent = 0;
-    if (selectedOrder && selectedOrder.tax_type !== "inclusive") {
-        taxPercent = Number(document.getElementById("service-tax").value || 0);
-    }
-    const discountAmount = price * (discountPercent / 100);
-    const taxAmount = price * (taxPercent / 100);
-    const remainingBal = price + taxAmount - discountAmount;
-    const balance = remainingBal - downpaymentPrice;
     const modalTotal = document.getElementById("modal-total");
-    const taxModal = document.getElementById("tax-modal");
     const discountModal = document.getElementById("discount-modal");
     const downpaymentModal = document.getElementById("downpayment-modal");
-    const modalBalance = document.getElementById("modal-balance");
-    if (modalTotal) {
-        modalTotal.textContent = remainingBal.toLocaleString();
-    }
-    if (taxModal) {
-        taxModal.textContent = taxAmount.toLocaleString();
-    }
-    if (discountModal) {
-        discountModal.textContent = discountAmount.toLocaleString();
-    }
-    if (downpaymentModal) {
-        downpaymentModal.textContent = downpaymentPrice.toLocaleString();
-    }
-    if (modalBalance) {
-        modalBalance.textContent = balance.toLocaleString();
-    }
-}
+    const balanceModal = document.getElementById("modal-balance");
 
+    const price = parseFloat(priceEl.value) || 0;
+    const downpayment = parseFloat(downpaymentEl.value) || 0;
+    const discountPercent = parseFloat(discountEl.value) || 0;
+
+    const discountAmount = price * (discountPercent / 100);
+    const total = Math.max(price - discountAmount, 0);
+    const balance = Math.max(total - downpayment, 0);
+
+    modalTotal.textContent = total.toLocaleString("en-PH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+    discountModal.textContent = discountAmount.toLocaleString("en-PH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+    downpaymentModal.textContent = downpayment.toLocaleString("en-PH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+    balanceModal.textContent = balance.toLocaleString("en-PH", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+}
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("services-price").addEventListener("input", updateModalTotal);
     document.getElementById("service-discount").addEventListener("input", updateModalTotal);
-    document.getElementById("service-tax").addEventListener("input", updateModalTotal);
     document.getElementById("downpayment-price").addEventListener("input", updateModalTotal);
 
     document.getElementById("planholder-services-price").addEventListener("input", updateLifeplanModalTotal);
     document.getElementById("planholder-service-discount").addEventListener("input", updateLifeplanModalTotal);
-    document.getElementById("planholder-service-tax").addEventListener("input", updateLifeplanModalTotal);
 });
 // atneed cancel
 document.getElementById("modal-cancel").addEventListener("click", () => {
@@ -9430,11 +9189,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const price = Number(document.getElementById("services-price").value || 0);
         const discountPercent = Number(document.getElementById("service-discount").value || 0);
-        const taxPercent = Number(document.getElementById("service-tax").value || 0);
         const downpaymentPrice = Number(document.getElementById("downpayment-price").value || 0);
         const discountAmount = price * (discountPercent / 100);
-        const taxAmount = price * (taxPercent / 100);
-        const remainingBal = price + taxAmount - discountAmount;
+        const remainingBal = price - discountAmount;
         const balance = remainingBal - downpaymentPrice;
         document.getElementById("modal-total").textContent = remainingBal.toLocaleString();
         document.getElementById("modal-balance").textContent = balance.toLocaleString();
@@ -9458,21 +9215,14 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             return;
         }
-        let taxPercent = 0;
+
         const price = Number(document.getElementById("planholder-services-price").value || 0);
         const discountPercent = Number(document.getElementById("planholder-service-discount").value || 0);
         const discountAmount = price * (discountPercent / 100);
-        const taxAmount = price * (taxPercent / 100);
-        const remainingBal = price + taxAmount - discountAmount;
+        const remainingBal = price - discountAmount;
         const balance = remainingBal;
-
-        if (selectedOrder.tax_type !== "inclusive") {
-            taxPercent = Number(document.getElementById("planholder-service-tax").value) || 0;
-        }
         
         document.getElementById("planholder-discount-modal").textContent = discountAmount.toLocaleString();
-        document.getElementById("planholder-tax-modal").textContent = taxAmount.toLocaleString();
-
         document.getElementById("planholder-modal-total").textContent = remainingBal.toLocaleString();
         document.getElementById("planholder-modal-balance").textContent = balance.toLocaleString();
         document.getElementById("preference-lifeplan-modal").classList.remove("show")
@@ -9481,7 +9231,6 @@ document.addEventListener("DOMContentLoaded", () => {
 // 
 function resetPaymentUI() {
     document.getElementById("service-discount").value = 0;
-    document.getElementById("service-tax").value = 0;
     
     document.getElementById("subtotal").textContent = "0";
     document.getElementById("discount").textContent = "0";
@@ -9492,11 +9241,9 @@ function resetPaymentUI() {
     document.getElementById("modal-balance").textContent = "0";
     // pre need / lifeplan 
     document.getElementById("planholder-service-discount").value = 0;
-    document.getElementById("planholder-service-tax").value = 0;
 
     document.getElementById("planholder-modal-balance").textContent = "0";
     document.getElementById("planholder-discount-modal").textContent = "0";
-    document.getElementById("planholder-tax-modal").textContent = "0";
     document.getElementById("planholder-modal-total").textContent = "0";
     
 }
@@ -10491,12 +10238,17 @@ async function loadApproveOrders() {
     try {
         const response = await fetch("../backend/orders/get_approved_orders.php");
         const result = await response.json();
+        console.log("Approved At-Need data:", result.data);
+        console.log("Number of records:", result.data?.length);
         if (!result.success) {
             console.error(result.message);
             return;
         }
         const atneedApprove = document.querySelector("#approve-atneed-container .approve-atneed-order-container");
-        atneedApprove.innerHTML = `
+        atneedApprove.innerHTML = "";
+
+        if (!Array.isArray(result.data) || result.data.length === 0) {
+            atneedApprove.innerHTML = `
                 <div class="no-lifeplan-arrangement">
                     <i class="bi bi-wallet2"></i>
                     <h3>No At-Need Arrangement</h3>
@@ -10505,6 +10257,8 @@ async function loadApproveOrders() {
                     </p>
                 </div>
             `;
+            return;
+        }
         result.data.forEach(order => {
             const approveCard = `
                 <div class="approve-order-card">
@@ -10865,7 +10619,6 @@ async function loadApproveLifeplanOrders() {
                     </p>
                 </div>
             `;
-
             return;
         }
 
@@ -12381,26 +12134,42 @@ async function loadReportsRecentTransactions() {
     if (printTbody) {
         printTbody.innerHTML = "";
     }
-    if (!result.transactions || result.transactions.length === 0) {
-        if (tbody) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="5" style="text-align:center;">
-                        No transactions found.
-                    </td>
-                </tr>
-            `;
+    try {
+        const response = await fetch("../backend/reports/get_recent_transactions.php",{
+            method: "GET",
+            cache: "no-store"
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
         }
-        if (printTbody) {
-            printTbody.innerHTML = `
-                <tr>
-                    <td colspan="11" style="text-align:center;">
-                        No transactions found.
-                    </td>
-                </tr>
-            `;
+        const result = await response.json();
+        console.log("Reports API Response:", result);
+        if (!result.success) {
+            throw new Error(
+                result.message || "Failed to load transactions."
+            );
         }
-    } else {
+        if (!result.transactions || result.transactions.length === 0) {
+            if (tbody) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align:center;">
+                            No transactions found.
+                        </td>
+                    </tr>
+                `;
+            }
+            if (printTbody) {
+                printTbody.innerHTML = `
+                    <tr>
+                        <td colspan="11" style="text-align:center;">
+                            No transactions found.
+                        </td>
+                    </tr>
+                `;
+            }
+            return;
+        }
         result.transactions.forEach(transaction => {
             const serviceNo = transaction.service_no || "-";
             const customer = transaction.customer || "-";
@@ -12409,38 +12178,20 @@ async function loadReportsRecentTransactions() {
             const packageName = transaction.package || transaction.package_name || "-";
             const serviceDate = transaction.service_date || "-";
             const status = transaction.status || "Pending";
-            const totalAmount = Number(transaction.total_amount ?? transaction.amount ?? 0);
-            const amountPaid = Number(transaction.amount_paid ?? transaction.paid ?? 0);
+            const totalAmount = Number( transaction.total_amount ?? transaction.amount ?? 0);
+            const amountPaid = Number( transaction.amount_paid ?? transaction.paid ?? 0);
             const balance = Number(transaction.balance ?? (totalAmount - amountPaid));
             const paymentStatus = transaction.payment_status || "-";
+
             if (tbody) {
                 const row = document.createElement("tr");
                 const statusClass = status.toLowerCase().replace(/\s+/g, "-");
-
                 row.innerHTML = `
-                    <td>
-                        ${escapeHtml(serviceNo)}
-                    </td>
-                    <td>
-                        ${escapeHtml(customer)}
-                    </td>
-                    <td>
-                        ${escapeHtml(service)}
-                    </td>
-                    <td>
-                        ₱${totalAmount.toLocaleString(
-                            "en-PH",
-                            {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            }
-                        )}
-                    </td>
-                    <td>
-                        <span class="status ${statusClass}">
-                            ${escapeHtml(status)}
-                        </span>
-                    </td>
+                    <td>${escapeHtml(serviceNo)}</td>
+                    <td>${escapeHtml(customer)}</td>
+                    <td>${escapeHtml(service)}</td>
+                    <td>₱${totalAmount.toLocaleString("en-PH",{minimumFractionDigits: 2,maximumFractionDigits: 2})}</td>
+                    <td><span class="status ${statusClass}">${escapeHtml(status)}</span></td>
                 `;
                 tbody.appendChild(row);
             }
@@ -12462,6 +12213,25 @@ async function loadReportsRecentTransactions() {
                 printTbody.appendChild(row);
             }
         });
+    } catch (error) {
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center;">
+                        Failed to load transactions.
+                    </td>
+                </tr>
+            `;
+        }
+        if (printTbody) {
+            printTbody.innerHTML = `
+                <tr>
+                    <td colspan="11" style="text-align:center;">
+                        Failed to load transactions.
+                    </td>
+                </tr>
+            `;
+        }
     }
 }
 function escapeHtml(value) {

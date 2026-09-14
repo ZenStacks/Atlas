@@ -242,9 +242,7 @@ function sendApprovalEmail(
                 <p style=\"margin: 5px 0 0;\">
                     Please do not reply directly to this email.
                 </p>
-
             </div>
-
         </div>
 
         ";
@@ -322,7 +320,6 @@ try {
     $servicePrice = floatval($_POST["service_price"] ?? 0);
     $retailPrice = floatval($_POST["retail_price"] ?? 0);
     $discount = floatval($_POST["discount"] ?? 0);
-    $tax = floatval($_POST["tax"] ?? 0);
     $totalPayable = floatval($_POST["total_payable"] ?? 0);
     $remainingBalance = floatval($_POST["remaining_balance"] ?? 0);
     $approvedBy = $_SESSION["user_id"];
@@ -367,36 +364,41 @@ try {
     $customer = $customerResult->fetch_assoc();
     $customerStmt->close();
     $customerName = decryptIfEncrypted($customer["name"] ?? "");
-    $insert = $conn->prepare("INSERT INTO approved_lifeplans
-        (
-            lifeplan_request_id,
-            lifeplan_no,
-            customer_id,
-            service_price,
-            retail_price,
-            discount,
-            tax,
-            total_payable,
-            remaining_balance,
-            payment_status,
-            status,
-            approved_by,
-            due_date
-        )
-        VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, 'Unpaid', 'Approved', ?, ?)
+
+    // Check if this lifeplan has already been approved
+    $checkApproved = $conn->prepare("
+        SELECT id
+        FROM approved_lifeplans
+        WHERE lifeplan_request_id = ?
+        LIMIT 1
     ");
+
+    if (!$checkApproved) {
+        throw new Exception("Unable to prepare approval check: " . $conn->error);
+    }
+    $checkApproved->bind_param("i", $lifeplanRequestId);
+    if (!$checkApproved->execute()) {
+        throw new Exception("Failed to check existing approval: " . $checkApproved->error);
+    }
+    $approvedResult = $checkApproved->get_result();
+    if ($approvedResult->num_rows > 0) {
+        $checkApproved->close();
+        throw new Exception("This lifeplan has already been approved.");
+    }
+    $checkApproved->close();
+
+    $insert = $conn->prepare("INSERT INTO approved_lifeplans(lifeplan_request_id, lifeplan_no, customer_id, service_price, retail_price, discount, total_payable, remaining_balance, payment_status, status, approved_by, due_date)VALUES(?, ?, ?, ?, ?, ?, ?, ?, 'Unpaid', 'Approved', ?, ?)");
     if (!$insert) {
         throw new Exception("Unable to prepare approval query: " .$conn->error);
     }
     $insert->bind_param(
-        "isiddddddis",
+        "isidddddis",
         $lifeplan["id"],
         $lifeplan["lifeplan_no"],
         $customerId,
         $servicePrice,
         $retailPrice,
         $discount,
-        $tax,
         $totalPayable,
         $remainingBalance,
         $approvedBy,
@@ -437,5 +439,4 @@ try {
     ]);
 }
 $conn->close();
-
 ?>

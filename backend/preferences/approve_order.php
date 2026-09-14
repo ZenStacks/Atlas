@@ -91,6 +91,7 @@ function sendApprovalEmail($customerEmail,$customerName,$serviceRequestNo,$servi
         $formattedTerm = formatPaymentTerm($paymentTerm);
         $formattedNextDueDate = date("F d, Y",strtotime($nextDueDate));
         $formattedPaymentEndDate = date("F d, Y",strtotime($paymentEndDate));
+        $formattedStartMonth = date("F Y", strtotime($nextDueDate));
 
         $safeName = htmlspecialchars($customerName,ENT_QUOTES,"UTF-8");
         $safeRequestNo = htmlspecialchars($serviceRequestNo,ENT_QUOTES,"UTF-8");
@@ -271,7 +272,6 @@ try {
     $servicePrice = floatval($_POST["service_price"] ?? 0);
     $retailPrice = floatval($_POST["retail_price"] ?? 0);
     $discount = floatval($_POST["discount"] ?? 0);
-    $tax = floatval($_POST["tax"] ?? 0);
     $downpayment = floatval($_POST["downpayment"] ?? 0);
     $totalPayable = floatval($_POST["total_payable"] ?? 0);
     $remainingBalance = floatval($_POST["remaining_balance"] ?? 0);
@@ -325,14 +325,36 @@ try {
     if ($paymentEndDate === null) {
         throw new Exception("Unable to calculate payment end date.");
     }
-    $insert = $conn->prepare("INSERT INTO approved_orders (service_request_no, user_id, coffin_id, coffin_source, quantity, service_price, discount, tax, downpayment,
-        total_payable, remaining_balance, payment_status, status, approved_at, due_date)VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Unpaid', 'Approved', NOW(), ? )");
+    
+    // duplication checker
+    $checkApproved = $conn->prepare("
+        SELECT id
+        FROM approved_orders
+        WHERE service_request_no = ?
+        LIMIT 1
+    ");
+
+    if (!$checkApproved) {
+        throw new Exception("Unable to prepare approval check: " . $conn->error);
+    }
+    $checkApproved->bind_param("s", $request["service_request_no"]);
+    if (!$checkApproved->execute()) {
+        throw new Exception("Failed to check existing approval: " . $checkApproved->error);
+    }
+    $approvedResult = $checkApproved->get_result();
+    if ($approvedResult->num_rows > 0) {
+        $checkApproved->close();
+        throw new Exception("This service order has already been approved.");
+    }
+    $checkApproved->close();
+    $insert = $conn->prepare("INSERT INTO approved_orders (service_request_no, user_id, coffin_id, coffin_source, quantity, service_price, discount, downpayment,
+        total_payable, remaining_balance, payment_status, status, approved_at, due_date)VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Unpaid', 'Approved', NOW(), ? )");
     if (!$insert) {
         throw new Exception("Unable to prepare approval query: ". $conn->error);
     }
 
     $insert->bind_param(
-        "siisidddddds",
+        "siisiddddds",
         $request["service_request_no"],
         $request["user_id"],
         $request["coffin_id"],
@@ -340,7 +362,6 @@ try {
         $request["quantity"],
         $servicePrice,
         $discount,
-        $tax,
         $downpayment,
         $totalPayable,
         $remainingBalance,

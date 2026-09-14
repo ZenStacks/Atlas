@@ -1,13 +1,9 @@
 <?php
 ini_set('display_errors', 0); 
 error_reporting(E_ALL);
-
 ob_start();
-
 require_once __DIR__ . '/../conn.php';
-
 header('Content-Type: application/json; charset=utf-8');
-
 $origin = $_GET['origin'] ?? '';
 
 function getEnumValues($conn, $table, $column) {
@@ -44,8 +40,7 @@ try {
     } else {
         $response = [
             "coffin_types" => getEnumValues($conn, "coffins", "coffin_type"),
-            "coffin_sizes" => getEnumValues($conn, "coffins", "size"),
-            "tax_types"    => getEnumValues($conn, "coffins", "tax_type")
+            "coffin_sizes" => getEnumValues($conn, "coffins", "size")
         ];
         ob_clean();
         echo json_encode(["success" => true, "data" => $response]);

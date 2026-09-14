@@ -21,10 +21,9 @@ try {
     $atneed = $_POST["atneed_max_months"] ?? "";
     $supplier = htmlspecialchars(trim($_POST["supplier"] ?? ""), ENT_QUOTES, 'UTF-8');
     $coffin_type = htmlspecialchars(trim($_POST["coffin_type"] ?? ""), ENT_QUOTES, 'UTF-8');
-    $tax = htmlspecialchars(trim($_POST["tax"] ?? ""), ENT_QUOTES, 'UTF-8');
     $details = htmlspecialchars(trim($_POST["details"] ?? ""), ENT_QUOTES, 'UTF-8');
 
-    if ($item_name === "" || $color === "" || $supplier === "" || $downpayment === "" || $retail === "" || $lifeplan === "" || $atneed === "" || $coffin_type === "" || $tax === "" || $initial_stock === "" || $cost === "") {
+    if ($item_name === "" || $color === "" || $supplier === "" || $downpayment === "" || $retail === "" || $lifeplan === "" || $atneed === "" || $coffin_type === "" || $initial_stock === "" || $cost === "") {
         echo json_encode([
             "success" => false,
             "message" => "Please fill in all required fields"
@@ -84,7 +83,7 @@ try {
     }
 
     $sql = "INSERT INTO imported_coffins (item_name, color, size, initial_stock, current_stock,
-    cost, downpayment, retail_price, atneed_max_months, lifeplan_max_months, supplier, coffin_type, tax, details, origin, image, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Available', NOW())";
+    cost, downpayment, retail_price, atneed_max_months, lifeplan_max_months, supplier, coffin_type, details, origin, image, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Available', NOW())";
     
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
@@ -96,8 +95,8 @@ try {
     }
     
     $stmt->bind_param(
-        "sssiidddiissssss", $item_name, $color, $size, $initial_stock, $current_stock,
-        $cost, $downpayment, $retail, $atneed, $lifeplan, $supplier, $coffin_type, $tax, $details, $origin, $imagePath);
+        "sssiidddiisssss", $item_name, $color, $size, $initial_stock, $current_stock,
+        $cost, $downpayment, $retail, $atneed, $lifeplan, $supplier, $coffin_type, $details, $origin, $imagePath);
     if (!$stmt->execute()) {
         echo json_encode([
             "success" => false,
