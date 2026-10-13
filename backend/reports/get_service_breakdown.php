@@ -1,23 +1,40 @@
 <?php
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=UTF-8');
 require_once __DIR__ . '/../conn.php';
-
 try {
+
     $sql = "
-        SELECT service_name, COUNT(*) AS total
+        SELECT
+            service_name,
+            COUNT(*) AS total
         FROM (
-            SELECT funeral_service AS service_name
+
+            SELECT
+                TRIM(funeral_service) AS service_name
             FROM lifeplan_request
             WHERE funeral_service IS NOT NULL
-              AND funeral_service != ''
+              AND TRIM(funeral_service) != ''
+              AND LOWER(TRIM(status)) IN (
+                  'approved',
+                  'in progress',
+                  'completed'
+              )
 
             UNION ALL
 
-            SELECT service_type AS service_name
+            SELECT
+                TRIM(service_type) AS service_name
             FROM service_requests
             WHERE service_type IS NOT NULL
-              AND service_type != ''
+              AND TRIM(service_type) != ''
+              AND LOWER(TRIM(status)) IN (
+                  'approved',
+                  'in progress',
+                  'completed'
+              )
+
         ) AS combined_services
+
         GROUP BY service_name
         ORDER BY total DESC
     ";
@@ -35,14 +52,13 @@ try {
         $labels[] = $row['service_name'];
         $data[] = (int) $row['total'];
     }
-
     echo json_encode([
         'success' => true,
         'labels' => $labels,
         'data' => $data
     ]);
-
-} catch (Exception $e) {
+} catch (Throwable $e) {
+    http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => $e->getMessage()

@@ -49,6 +49,7 @@ try {
     $lp_special_instruction = trim($_POST["lp_special_instructions"] ?? "") ?: "-";
     $lp_signature_date = $_POST["lp_signature_date"] ?? null;
     $lp_gov_id_number = trim($_POST["lp_gov_id_number"] ?? "");
+    $lp_service_date = $_POST["lp_service_date"] ?? "";
     $lp_signature_file = "";
     if (isset($_FILES["lp_signature"]) && $_FILES["lp_signature"]["error"] === 0) {
         $file = $_FILES["lp_signature"];
@@ -137,14 +138,14 @@ try {
         relationship, applicant_name, applicant_contact_no, applicant_email, planholder_lastname, planholder_firstname, planholder_middlename, age, date_of_birth,
         gender, civil_status, occupation, contact_number, email_address, residential_address, plan_type, payment_option, 
         payment_term, retail_price, lifeplan_max_months, term_payment, funeral_service, prefered_cemetery, 
-        religious_affiliation, special_instruction, gov_id_number, gov_id, applicant_signature, date_signed, status, lastname_hash, firstname_hash, middlename_hash, 
+        religious_affiliation, special_instruction, gov_id_number, gov_id, applicant_signature, date_signed, status, service_date, lastname_hash, firstname_hash, middlename_hash, 
         gov_id_number_hash, applicant_name_hash, applicant_contact_no_hash, applicant_email_hash, contact_number_hash, email_address_hash, address_hash)
-        VALUES (?, ?, 'admin', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '-', ?, ?, 'Confirmed', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        VALUES (?, ?, 'admin', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '-', ?, ?, 'Confirmed', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     if (!$stmt) {
         throw new Exception("Prepare failed: " . $conn->error);
     }
     $stmt->bind_param(
-        "siisisssssssissssssssssdiisssssssssssssssss",
+        "siisisssssssissssssssssdiissssssssssssssssss",
         $lifeplanRequestNo,
         $user_id,
         $coffin_id,
@@ -178,6 +179,7 @@ try {
         $lp_gov_id_number,
         $lp_signature_file,
         $lp_signature_date,
+        $lp_service_date,
         $lastname_hash,
         $firstname_hash,
         $middlename_hash,
@@ -204,3 +206,4 @@ try {
         "message" => $e->getMessage()
     ]);
 }
+?>

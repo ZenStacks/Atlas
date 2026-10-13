@@ -1,12 +1,16 @@
 <?php
 ini_set('session.cookie_path', '/');
 ini_set('session.cookie_httponly', 1);
+
 session_start();
+
 require_once __DIR__ . '/../backend/conn.php';
+
 if (!isset($_SESSION['user_id'])) {
     header('Location: ../login.php');
     exit;
 }
+
 $userId = (int)$_SESSION['user_id'];
 $username = $_SESSION['username'] ?? '';
 ?>
@@ -52,10 +56,10 @@ $username = $_SESSION['username'] ?? '';
                             Analytics
                             <i class="bi bi-caret-right-fill caret-icon"></i>
                         </li>
-                        <li class="category-item disabled">
+                        <li class="category-item">
                             <i class="bi bi-bar-chart"></i>
                             <span>Reports</span>
-                            <span class="coming-soon">Coming Soon</span>
+                            <!-- <span class="coming-soon">Coming Soon</span> -->
                         </li>
                         <!-- settings -->
                         <li class="category-title">
@@ -153,7 +157,6 @@ $username = $_SESSION['username'] ?? '';
                         <h3>Total Orders</h3>
                         <div class="inside">
                             <p class="value" id="total-orders-count">0</p>
-
                             <p id="total-orders-trend">
                                 <i id="total-orders-arrow" class="bi"></i>
                                 <span id="total-orders-percentage">0%</span>
@@ -250,47 +253,26 @@ $username = $_SESSION['username'] ?? '';
                         </div>
                     </div>
                 </div>
-                <!-- REPORTS under review --> 
+                <!-- REPORTS (done)--> 
                 <div class="reports-container hidden" id="reports-container">
                     <h2>Funeral Service Report</h2>
                     <div class="report-toolbar">
-                        <div class="report-filter-date">
-                            <label>Date Range</label>
-                            <div class="date-range-box">
-                                <input type="date" id="fromDate">
-                                <span>–</span>
-                                <input type="date" id="toDate">
-                            </div>
-                        </div>
                         <div class="report-filter">
                             <label>Service Type</label>
                             <select id="report-serviceType">
                                 <option value="">All Services</option>
-                                <option value="Burial Service">Burial Service</option>
-                                <option value="Complete Funeral Service">Complete Funeral Service</option>
                             </select>
                         </div>
                         <div class="report-filter">
                             <label>Status</label>
                             <select id="report-status">
                                 <option value="">All Status</option>
-                                <option value="Approved">Approved</option>
-                                <option value="Pending">Pending</option>
-                                <option value="Cancelled">Cancelled</option>
                             </select>
                         </div>
                         <div class="report-actions">
                             <button type="button" class="print-btn" id="printReportBtn">
                                 <i class="bi bi-printer-fill"></i>
                                 Print
-                            </button>
-                            <button class="pdf-btn">
-                                <i class="bi bi-file-earmark-pdf-fill"></i>
-                                Export PDF
-                            </button>
-                            <button class="excel-btn">
-                                <i class="bi bi-file-earmark-excel-fill"></i>
-                                Export Excel
                             </button>
                         </div>
                     </div>
@@ -299,7 +281,6 @@ $username = $_SESSION['username'] ?? '';
                             <div class="report-icon blue">
                                 <i class="bi bi-people-fill"></i>
                             </div>
-
                             <div class="report-details">
                                 <p>Total Funeral Services</p>
                                 <h2 id="totalFuneralServices">0</h2>
@@ -327,7 +308,6 @@ $username = $_SESSION['username'] ?? '';
                             <div class="report-icon red">
                                 <i class="bi bi-x-circle-fill"></i>
                             </div>
-
                             <div class="report-details">
                                 <p>Cancelled Services</p>
                                 <h2 id="cancelledServices">0</h2>
@@ -365,6 +345,14 @@ $username = $_SESSION['username'] ?? '';
                                     <canvas id="paymentMethodChart"></canvas>
                                 </div>
                                 <div class="payment-legend" id="paymentLegend"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="between-report-grid">
+                        <div class="chart-card monthly-deaths">
+                            <h3>Monthly Deaths / Service Availed</h3>
+                            <div class="monthly-deaths-chart-container">
+                                <canvas id="monthlyDeathsChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -411,18 +399,9 @@ $username = $_SESSION['username'] ?? '';
                             </div>
                             <div class="report-info">
                                 <h2>SALES AND REVENUE REPORT</h2>
-                                <p>
-                                    <strong>Report Period:</strong>
-                                    <span id="printReportPeriod">All Dates</span>
-                                </p>
-                                <p>
-                                    <strong>Generated By:</strong>
-                                    Admin
-                                </p>
-                                <p>
-                                    <strong>Generated On:</strong>
-                                    <span id="printGeneratedDate"></span>
-                                </p>
+                                <p><strong>Report Period:</strong><span id="printReportPeriod">All Dates</span></p>
+                                <p><strong>Generated By:</strong>Admin</p>
+                                <p><strong>Generated On:</strong><span id="printGeneratedDate"></span></p>
                             </div>
                         </div>
                         <div class="print-summary">
@@ -481,20 +460,52 @@ $username = $_SESSION['username'] ?? '';
                                 </div>
                             </div>
                         </div>
+                        <div class="print-charts">
+                            <div class="print-chart-box">
+                                <h3>SERVICE TYPE BREAKDOWN</h3>
+                                <div class="print-chart-wrapper">
+                                    <img id="printServiceChart" alt="Service Breakdown">
+                                </div>
+                            </div>
+                            <div class="print-chart-box">
+                                <h3>MONTHLY DEATHS / SERVICES AVAILED</h3>
+                                <div class="print-chart-wrapper">
+                                    <img id="printMonthlyServicesChart" alt="Monthly Deaths and Funeral Services">
+                                </div>
+                            </div>
+                            <div class="print-chart-box">
+                                <h3>PAYMENT METHOD</h3>
+                                <div class="print-payment-layout">
+                                    <div class="print-payment-chart">
+                                        <img id="printPaymentChart" alt="Payment Method">
+                                    </div>
+                                    <div id="printPaymentLegend" class="print-payment-legend"></div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="print-section">
                             <div class="print-section-title">
                                 RECENT FUNERAL TRANSACTIONS
                             </div>
                             <table class="print-table">
+                                <colgroup>
+                                    <col class="col-service-no">
+                                    <col class="col-customer">
+                                    <col class="col-deceased">
+                                    <col class="col-service">
+                                    <col class="col-date">
+                                    <col class="col-total">
+                                    <col class="col-paid">
+                                    <col class="col-balance">
+                                    <col class="col-status">
+                                </colgroup>
                                 <thead>
                                     <tr>
                                         <th>SERVICE NO.</th>
                                         <th>CUSTOMER NAME</th>
                                         <th>DECEASED NAME</th>
-                                        <th>SERVICE TYPE</th>
-                                        <th>PACKAGE</th>
+                                        <th>SERVICE</th>
                                         <th>SERVICE DATE</th>
-                                        <th>STATUS</th>
                                         <th>TOTAL AMOUNT</th>
                                         <th>AMOUNT PAID</th>
                                         <th>BALANCE</th>
@@ -504,26 +515,7 @@ $username = $_SESSION['username'] ?? '';
                                 <tbody id="printTransactionsBody"></tbody>
                             </table>
                         </div>
-                        <div class="print-charts">
-                            <div class="print-chart-box">
-                                <h3>SERVICE TYPE BREAKDOWN</h3>
-                                <div class="print-chart-wrapper">
-                                    <img id="printServiceChart" alt="Service Breakdown">
-                                </div>
-                            </div>
-                            <div class="print-chart-box">
-                                <h3>MONTHLY REVENUE</h3>
-                                <div class="print-chart-wrapper">
-                                    <img id="printRevenueChart" alt="Monthly Revenue">
-                                </div>
-                            </div>
-                            <div class="print-chart-box">
-                                <h3>PAYMENT METHOD</h3>
-                                <div class="print-chart-wrapper">
-                                    <img id="printPaymentChart" alt="Payment Method">
-                                </div>
-                            </div>
-                        </div>
+                        
                         <div class="print-signatures">
                             <div>
                                 <p>Prepared By:</p>
@@ -1404,6 +1396,10 @@ $username = $_SESSION['username'] ?? '';
                                                     <label for="signature-date">Date Signed</label>
                                                     <input type="date" id="signature-date" name="signature_date">
                                                 </div>
+                                                <div class="onsite-row">
+                                                    <label for="service-date">Service Date</label>
+                                                    <input type="date" id="service-date" require>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="modal-actions">
@@ -1588,7 +1584,11 @@ $username = $_SESSION['username'] ?? '';
                                                 </div>
                                                 <div class="onsite-row">
                                                     <label for="lp-signature-date">Date Signed</label>
-                                                    <input type="date" id="lp-signature-date" name="lp_signature_date">
+                                                    <input type="date" id="lp-signature-date" name="lp_signature_date" required>
+                                                </div>
+                                                <div class="onsite-row">
+                                                    <label for="lp-service-date">Service Date</label>
+                                                    <input type="date" id="lp-service-date" required>
                                                 </div>
                                             </div>
                                         </div>
@@ -2595,8 +2595,10 @@ $username = $_SESSION['username'] ?? '';
                                     <th>Customer</th>
                                     <th>Deceased</th>
                                     <th>Service</th>
-                                    <th>Date</th>
+                                    <th>Start Service</th>
+                                    <th>Interment Date</th>
                                     <th>Time</th>
+                                    <th>Countdown</th>
                                     <th>Status</th>
                                 </tr>
                             </thead>
@@ -2615,7 +2617,8 @@ $username = $_SESSION['username'] ?? '';
                                     <th>Customer</th>
                                     <th>Deceased</th>
                                     <th>Service</th>
-                                    <th>Date</th>
+                                    <th>Start Service</th>
+                                    <th>Interment Date</th>
                                     <th>Time</th>
                                     <th>Status</th>
                                 </tr>
@@ -2639,8 +2642,8 @@ $username = $_SESSION['username'] ?? '';
                                 <p><strong>Customer:</strong> <span id="modalCustomer"></span></p>
                                 <p><strong>Deceased:</strong> <span id="modalDeceased"></span></p>
                                 <p><strong>Service:</strong> <span id="modalService"></span></p>
-                                <p><strong>Date:</strong> <span id="modalDate"></span></p>
-                                <p><strong>Time:</strong> <span id="modalTime"></span></p>
+                                <p><strong>Date:</strong> <input type="date" id="modalDate"></p>
+                                <p><strong>Time:</strong> <input type="time" id="modalTime"></p>
                                 <p><strong>Location:</strong> <span id="modalLocation"></span></p>
                             </div>
                         </div>
@@ -2788,11 +2791,14 @@ $username = $_SESSION['username'] ?? '';
                                         </div>
                                         <div class="input-row">
                                             <label for="cost">Estimated Cost:</label>
-                                            <input type="text" id="coffin-cost" placeholder="Calculated automatically" readonly>
+                                            <div class="input-field-wrapper">
+                                                <input type="text" id="coffin-cost" placeholder="Calculated Cost">
+                                                <small id="coffin-cost-warning" class="input-warning"></small>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="new-coffin-materials">
+                                <!-- <div class="new-coffin-materials">
                                     <h4>Materials & Components</h4>
                                     <div id="coffin-materials-container" class="coffin-materials-container">
                                         <div class="first-material-row">
@@ -2845,7 +2851,7 @@ $username = $_SESSION['username'] ?? '';
                                             </div>
                                         </div>
                                     </div>
-                                </div>
+                                </div> -->
                                 <div class="divided-last-row">
                                     <div class="input-row">
                                         <label for="notes">Description & Specifications:</label>
@@ -3082,8 +3088,6 @@ $username = $_SESSION['username'] ?? '';
                                                 <label for="increase-categories">Categories:</label>
                                                 <select name="increase-categories" id="increase-categories">
                                                     <option value="" disabled selected>Select category</option>
-                                                    <option value="increase-coffin-materials">Coffin materials</option>
-                                                    <option value="increase-interior">Interior (Lining)</option>
                                                     <option value="increase-equipment-furniture">Equipment/Furniture</option>
                                                 </select>
                                             </div>
@@ -3159,8 +3163,6 @@ $username = $_SESSION['username'] ?? '';
                                                     <label for="new-material-category">Category:</label>
                                                     <select name="new-material-category" id="new-material-category">
                                                         <option value="" disabled selected>Select category</option>
-                                                        <option value="new-coffin-materials">Coffin materials</option>
-                                                        <option value="new-interior-materials">Interior (Lining)</option>
                                                         <option value="new-equipment-materials">Equipment/Furniture</option>
                                                     </select>
                                                 </div>
@@ -5056,229 +5058,6 @@ $username = $_SESSION['username'] ?? '';
         // open modals new-coffin (done)
         const saveNewCoffinBtn = document.querySelector(".btn-save-new-coffin");
         let coffinEnums = {};
-        let allMaterials = [];
-        function newCoffinResetForm() {
-            const fields = ["coffin-name", "coffin-color", "stock", "new-coffin-notes", "image", "coffin-cost","coffin-price","coffin-downpayment"];
-            fields.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = "";
-            });
-            const selects = ["coffin-type", "size"];
-            selects.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.selectedIndex = 0;
-            });
-            const warnings = ["coffin-stock-warning"];
-            warnings.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = "";
-            });
-            allMaterials.forEach(item => {
-                const safeId = generateSafeId(item);
-                const inputMat = document.getElementById(safeId);
-                if (inputMat) {
-                    inputMat.value = "0";
-                    inputMat.classList.remove("stock-error", "input-error-highlight", "input-error");
-                    inputMat.removeAttribute("title");
-                }
-            });
-        }
-        fetch("../backend/coffins/get_coffins.php")
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    coffinEnums = res.data;
-                    populateSelect("coffin-type", coffinEnums.coffin_types);
-                    populateSelect("size", coffinEnums.coffin_sizes);
-                    
-                    populateSelect("imported-coffin-type", coffinEnums.coffin_types);
-                }
-            })
-            .catch(err => console.error("Error loading enums:", err));
-        function populateSelect(id, values) {
-            const select = document.getElementById(id);
-            if (!select || !values) return;
-
-            select.innerHTML = '<option value="" disabled selected>Select option</option>';
-            values.forEach(v => {
-                const option = document.createElement("option");
-                option.value = v;
-                option.textContent = v.charAt(0).toUpperCase() + v.slice(1);
-                select.appendChild(option);
-            });
-        }
-        const coffinStock = document.getElementById("stock");
-        const coffinPrice = document.getElementById("coffin-price");
-        const coffinDownpayment = document.getElementById("coffin-downpayment");
-        const coffinLifePlan = document.getElementById("lifeplan-max-months");
-        const coffinAtneed = document.getElementById("atneed-max-months");
-        function validateNumberInput(input, warningId) {
-            const warning = document.getElementById(warningId);
-            input.addEventListener("input", function () {
-                const value = this.value;
-                if (!/^\d*\.?\d*$/.test(value)) {
-                    this.classList.add("input-error");
-                    warning.textContent = "Please enter a valid input";
-                } else {
-                    this.classList.remove("input-error");
-                    warning.textContent = "";
-                }
-            });
-        }
-        validateNumberInput(coffinStock, "coffin-stock-warning");
-        validateNumberInput(coffinPrice, "coffin-retail-warning");
-        validateNumberInput(coffinDownpayment, "coffin-downpayment-warning");
-        validateNumberInput(coffinLifePlan, "lifeplan-warning");
-        validateNumberInput(coffinAtneed, "atneed-warning");
-        document.getElementById("coffin-materials-container")?.addEventListener("input", function(event) {
-            if (event.target && event.target.matches('.qty-control input')) {
-                const input = event.target;
-                const hasLettersOrSymbols = /\D/g.test(input.value);
-                if (hasLettersOrSymbols && input.value !== "") {
-                    input.classList.add("input-error-highlight");
-                    input.title = "Please enter a valid quantity!";
-                } else {
-                    input.classList.remove("input-error-highlight");
-                    input.removeAttribute("title");
-                }
-            }
-        });
-        fetch("../backend/materials/get_material_used.php")
-            .then(res => res.json())
-            .then(res => {
-                if (res.success) {
-                    allMaterials = res.data;
-                    coffinPopulateDropdowns(allMaterials);
-                }
-            })
-            .catch(err => console.error("Error fetching materials:", err));
-        window.changeQty = function(id, amount) {
-            const input = document.getElementById(id);
-            if (!input) return;
-            let currentVal = parseInt(input.value, 10) || 0;
-            let newVal = currentVal + amount;
-            if (newVal < 0) newVal = 0;
-            input.value = newVal;
-        };
-        function generateSafeId(item) {
-            const namePart = (item.name || "").toLowerCase().replace(/\s+/g, "-");
-            const colorPart = item.color ? `-${item.color.toLowerCase().replace(/\s+/g, "-")}` : "";
-            
-            const categoryMap = {
-                'coffin_materials': 'main_structure',
-                'main_structure': 'main_structure',
-                'interior_lining_materials': 'interior',
-                'lining': 'interior',
-                'interior': 'interior',
-                'assembly_material': 'assembly_material',
-                'accessories': 'accessories',
-                'finishing': 'finishing',
-                'equipment_materials': 'equipment-materials',
-                'flower_materials': 'flower-materials',
-                'imported_coffins': 'imported-coffins'
-            };
-
-            const reliableCategory = categoryMap[item.material_type] 
-                || categoryMap[item.category] 
-                || item.category 
-                || item.material_type 
-                || "unknown";
-
-            return `${reliableCategory}-${namePart}${colorPart}`;
-        }
-        window.updateLiveTotal = function() {
-            let totalMaterialCost = 0;
-            let errorsFoundCount = 0;
-            
-            allMaterials.forEach(item => {
-                const safeId = generateSafeId(item);
-                const input = document.getElementById(safeId);
-                
-                if (input) {
-                    const qty = parseInt(input.value, 10) || 0;
-                    const rawStock = item.available_stock !== undefined ? item.available_stock : 
-                                    (item.current_stock !== undefined ? item.current_stock : 
-                                    (item.stock !== undefined ? item.stock : undefined));
-                    
-                    const availableStock = parseInt(rawStock, 10);
-                    if (isNaN(availableStock)) {
-                        console.warn(`[STOCK MISSING] Material: "${item.name}" has no valid stock field! Found keys:`, Object.keys(item));
-                    }
-                    if (qty > 0 && (isNaN(availableStock) || qty > availableStock)) {
-                        input.classList.add("stock-error");
-                        input.title = isNaN(availableStock) 
-                            ? "Stock property missing from DB response!" 
-                            : `Exceeds available stock! Only ${availableStock} units left.`;
-                        errorsFoundCount++;
-                    } else {
-                        input.classList.remove("stock-error");
-                        input.removeAttribute("title");
-                    }
-                    if (qty > 0) {
-                        const costPerUnit = parseFloat(item.cost_per_unit) || 0;
-                        totalMaterialCost += (qty * costPerUnit);
-                    }
-                }
-            });
-            let finalCostValue = totalMaterialCost;
-        
-            const costInput = document.getElementById("coffin-cost");
-            if (costInput) {
-                costInput.value = `₱ ${finalCostValue.toFixed(2)}`;
-            }
-            return { totalMaterialCost, finalCostValue, errorsFoundCount };
-        };
-        function coffinPopulateDropdowns(materials) {
-            materials.forEach(item => {
-                let containerId = "";
-                
-                switch(item.material_type) {
-                    case 'main_structure': 
-                    case 'coffin_materials': 
-                        containerId = "main-structure-content"; 
-                        break;
-                    case 'assembly_material': 
-                        containerId = "assembly-materials-content"; 
-                        break;
-                    case 'accessories': 
-                        containerId = "accesoriesContent"; 
-                        break;
-                    case 'finishing': 
-                        containerId = "finishingContent"; 
-                        break;
-                    case 'interior': 
-                    case 'lining': 
-                    case 'interior_lining_materials': 
-                        containerId = "interiorContent"; 
-                        break;
-                }
-
-                if (containerId && containerId.trim() !== "") {
-                    const container = document.getElementById(containerId);
-                    
-                    if (container) {
-                        const safeId = generateSafeId(item);
-                        const itemHtml = `
-                            <div class="item">
-                                <span>${item.name} ${item.color ? `(${item.color})` : ''}</span>
-                                <div class="qty-control">
-                                    <button type="button" onclick="changeQty('${safeId}', -1); window.updateLiveTotal();">-</button>
-                                    <input type="text" 
-                                        id="${safeId}" 
-                                        name="materials[${item.id}]" 
-                                        value="0" 
-                                        min="0"
-                                        oninput="if(this.value < 0) this.value = 0; window.updateLiveTotal();"> 
-                                    <button type="button" onclick="changeQty('${safeId}', 1); window.updateLiveTotal();">+</button>
-                                </div>
-                            </div>`;
-                        container.insertAdjacentHTML('beforeend', itemHtml);
-                    }
-                } else {
-                    console.warn("Skipping item: Unknown or unhandled material_type:", item.material_type, item);
-                }
-            });
-        }
         function newCoffinResetForm() {
             const fields = [
                 "coffin-name",
@@ -5294,15 +5073,98 @@ $username = $_SESSION['username'] ?? '';
             ];
             fields.forEach(id => {
                 const el = document.getElementById(id);
-                console.log(id, el);
                 if (el) {
                     el.value = "";
                 }
             });
+            const selects = ["coffin-type", "size"];
+            selects.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.selectedIndex = 0;
+                }
+            });
+            const warnings = [
+                "coffin-stock-warning",
+                "coffin-retail-warning",
+                "coffin-downpayment-warning",
+                "lifeplan-warning",
+                "atneed-warning",
+                "coffin-cost-warning"
+            ];
+            warnings.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = "";
+                }
+            });
         }
+        fetch("../backend/coffins/get_coffins.php")
+            .then(res => res.json())
+            .then(res => {
+
+                if (res.success) {
+                    coffinEnums = res.data;
+                    populateSelect("coffin-type",coffinEnums.coffin_types);
+                    populateSelect("size",coffinEnums.coffin_sizes);
+                    populateSelect("imported-coffin-type",coffinEnums.coffin_types);
+                }
+            })
+            .catch(err =>console.error("Error loading enums:", err));
+
+        function populateSelect(id, values) {
+            const select = document.getElementById(id);
+
+            if (!select || !values) return;
+            select.innerHTML =
+                `<option value="" disabled selected>
+                    Select option
+                </option>`;
+            values.forEach(v => {
+                const option = document.createElement("option");
+                option.value = v;
+                option.textContent = v.charAt(0).toUpperCase() + v.slice(1);
+                select.appendChild(option);
+            });
+        }
+
+        const coffinStock = document.getElementById("stock");
+        const coffinPrice = document.getElementById("coffin-price");
+        const coffinDownpayment = document.getElementById("coffin-downpayment");
+        const coffinLifePlan = document.getElementById("lifeplan-max-months");
+        const coffinAtneed = document.getElementById("atneed-max-months");
+        const coffinCost = document.getElementById("coffin-cost");
+
+        function validateNumberInput(input, warningId) {
+            const warning = document.getElementById(warningId);
+            if (!input) return;
+            input.addEventListener("input", function () {
+                const value = this.value;
+                if (!/^\d*\.?\d*$/.test(value)) {
+                    this.classList.add("input-error");
+                    if (warning) {
+                        warning.textContent =
+                            "Please enter a valid input";
+                    }
+                } else {
+                    this.classList.remove("input-error");
+                    if (warning) {
+                        warning.textContent = "";
+                    }
+                }
+            });
+        }
+        validateNumberInput(coffinStock,"coffin-stock-warning");
+        validateNumberInput(coffinPrice,"coffin-retail-warning");
+        validateNumberInput(coffinDownpayment,"coffin-downpayment-warning");
+        validateNumberInput(coffinLifePlan,"lifeplan-warning");
+        validateNumberInput(coffinAtneed,"atneed-warning");
+        validateNumberInput(coffinCost,"coffin-cost-warning");
+
         // save new coffin
         saveNewCoffinBtn?.addEventListener("click", function (event) {
             event.preventDefault();
+
             const nameEl = document.getElementById("coffin-name");
             const colorEl = document.getElementById("coffin-color");
             const stockEl = document.getElementById("stock");
@@ -5322,12 +5184,24 @@ $username = $_SESSION['username'] ?? '';
             const coffinType = typeEl?.value || "";
             const coffinSize = sizeEl?.value || "";
             const imageFile = imageEl?.files[0];
+            const coffinCost = document.getElementById("coffin-cost")?.value.trim() || "";
             const retailPrice = priceEl?.value.trim() || "";
             const downpayment = downpaymentEl?.value.trim() || "";
             const lifePlan = lifeplanEl?.value.trim() || "";
             const atNeed = atneedEl?.value.trim() || "";
 
-            if (!itemName || !itemColor || !stockQty || !retailPrice || !downpayment || !lifePlan || !atNeed || !coffinType || !coffinSize || !imageFile) {
+            if (
+                !itemName ||
+                !itemColor ||
+                !stockQty ||
+                !retailPrice ||
+                !downpayment ||
+                !lifePlan ||
+                !atNeed ||
+                !coffinType ||
+                !coffinSize ||
+                !imageFile
+            ) {
                 Swal.fire({
                     icon: "warning",
                     title: "Missing Fields",
@@ -5336,17 +5210,8 @@ $username = $_SESSION['username'] ?? '';
                 return;
             }
 
-            const totals = window.updateLiveTotal();
-            if (totals.errorsFoundCount > 0) {
-                Swal.fire({
-                    icon: "error",
-                    title: "Stock Allocation Error",
-                    text: "One or more allocated materials exceed current inventory counts. Please correct highlighted items."
-                });
-                return;
-            }
-
             const formData = new FormData();
+
             formData.append("item_name", itemName);
             formData.append("coffin_type", coffinType);
             formData.append("size", coffinSize);
@@ -5358,36 +5223,28 @@ $username = $_SESSION['username'] ?? '';
             formData.append("atneed_max_months", atNeed);
             formData.append("lifeplan_max_months", lifePlan);
             formData.append("image", imageFile);
-        
-            const cleanCost = totals.finalCostValue || 0;
-            formData.append("cost_price", cleanCost);
-            formData.append("supplier", "Internal Production"); 
-            allMaterials.forEach(item => {
-                const safeId = generateSafeId(item);
-                const inputMat = document.getElementById(safeId);
-                if (inputMat) {
-                    const qty = parseInt(inputMat.value, 10) || 0;
-                    if (qty > 0) {
-                        formData.append(`materials[${item.id}]`, qty);
-                    }
-                }
-            });
+            formData.append("cost_price", coffinCost);
+            formData.append("supplier", "Internal Production");
+
             Swal.fire({
-                title: 'Confirm Coffin Manufacturing Submission',
-                text: `Are you sure you want to log production for ${itemName}? This will deduct materials immediately from stock.`,
-                icon: 'question',
+                title: "Confirm Coffin Manufacturing Submission",
+                text: `Are you sure you want to log production for ${itemName}?`,
+                icon: "question",
                 showCancelButton: true,
-                confirmButtonColor: '#3085d6',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'Yes, save manufacturing profile'
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, save manufacturing profile"
             }).then((result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
-                        title: 'Processing...',
-                        text: 'Updating inventories and registering assets.',
+                        title: "Processing...",
+                        text: "Registering coffin production.",
                         allowOutsideClick: false,
-                        didOpen: () => { Swal.showLoading(); }
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
                     });
+
                     fetch("../backend/coffins/coffin_save.php", {
                         method: "POST",
                         body: formData
@@ -5396,6 +5253,7 @@ $username = $_SESSION['username'] ?? '';
                         if (!response.ok) {
                             throw new Error("Network configuration failure occurred.");
                         }
+
                         return response.json();
                     })
                     .then(data => {
@@ -5409,12 +5267,6 @@ $username = $_SESSION['username'] ?? '';
                                 loadInventoryLogs();
                                 loadProductsRecords();
                             });
-                        } else if (data.status === "insufficient") {
-                            Swal.fire({
-                                icon: "error",
-                                title: "Production Blocked",
-                                text: `Insufficient quantities for raw component: ${data.material_name}. Available stock: ${data.available_stock} units.`
-                            });
                         } else {
                             Swal.fire({
                                 icon: "error",
@@ -5425,6 +5277,7 @@ $username = $_SESSION['username'] ?? '';
                     })
                     .catch(error => {
                         console.error("Transmission Fail:", error);
+
                         Swal.fire({
                             icon: "error",
                             title: "System Error",
@@ -6064,46 +5917,57 @@ $username = $_SESSION['username'] ?? '';
         // new materials(done)
         const categorySelect = document.getElementById("new-material-category");
         const materialSelect = document.getElementById("all-materials");
-        const newMaterialsInteriorFields = document.querySelectorAll(".interior-only");
         const newMaterialsSaveBtn = document.getElementById("new-materials-save");
         const newMaterialStock = document.getElementById("new-material-initial-stock");
         const newMaterialCost = document.getElementById("new-material-cost-per-unit");
+
         function validateNumberInput(input, warningId) {
             const warning = document.getElementById(warningId);
+            if (!input) return;
             input.addEventListener("input", function () {
                 const value = this.value;
                 if (!/^\d*\.?\d*$/.test(value)) {
                     this.classList.add("input-error");
-                    warning.textContent = "Please enter a valid input";
+                    if (warning) {
+                        warning.textContent = "Please enter a valid input";
+                    }
                 } else {
                     this.classList.remove("input-error");
-                    warning.textContent = "";
+                    if (warning) {
+                        warning.textContent = "";
+                    }
                 }
             });
         }
-        validateNumberInput(newMaterialStock, "new-material-stock-warning");
-        validateNumberInput(newMaterialCost, "new-material-cost-warning");
+
+        validateNumberInput(newMaterialStock,"new-material-stock-warning");
+        validateNumberInput(newMaterialCost,"new-material-cost-warning");
 
         function newMaterialsPopulateDropdown(id, dataArray) {
             const el = document.getElementById(id);
             if (!el) return;
             el.innerHTML = `<option disabled selected value="">Select option</option>`;
-            
-            if (dataArray && !Array.isArray(dataArray) && typeof dataArray === 'object') {
+
+            if (dataArray && !Array.isArray(dataArray) && typeof dataArray === "object") {
                 dataArray = Object.values(dataArray);
             }
-            
             if (!Array.isArray(dataArray)) return;
             dataArray.forEach(val => {
                 const opt = document.createElement("option");
                 if (typeof val === "object" && val !== null) {
                     opt.value = val.id || val.value || "";
-                    const text = val.material_name || val.item_name || val.name || val.value || "Unknown";
+
+                    const text =
+                        val.material_name ||
+                        val.item_name ||
+                        val.name ||
+                        val.value ||
+                        "Unknown";
+
                     opt.textContent = String(text)
                         .replace(/_/g, " ")
                         .replace(/\b\w/g, l => l.toUpperCase());
-                }
-                else {
+                } else {
                     opt.value = val;
                     opt.textContent = String(val)
                         .replace(/_/g, " ")
@@ -6112,86 +5976,82 @@ $username = $_SESSION['username'] ?? '';
                 el.appendChild(opt);
             });
         }
-
         if (categorySelect) {
             categorySelect.addEventListener("change", function () {
                 const selectedValue = this.value;
-                const isInterior = selectedValue === "new-interior-materials";
-                const isEquipment = selectedValue === "new-equipment-materials";
-                
                 const urlMap = {
-                    "new-coffin-materials": "../backend/materials/get_coffin_materials.php",
-                    "new-interior-materials": "../backend/materials/get_interior_lining.php",
-                    "new-equipment-materials": "../backend/materials/get_equipment.php"
+                    "new-equipment-materials":
+                        "../backend/materials/get_equipment.php"
                 };
-
                 const fetchUrl = urlMap[selectedValue];
-                newMaterialsInteriorFields.forEach(el => el.style.display = isInterior ? "flex" : "none");
+
                 const costContainer = document.getElementById("cost-per-unit-container");
                 const measurementContainer = document.getElementById("measurement-container");
                 const costInput = document.getElementById("new-material-cost-per-unit");
                 const measurementSelect = document.getElementById("new-material-measurement");
-                if (costContainer) costContainer.style.display = "flex";
-                if (measurementContainer) measurementContainer.style.display = "flex";
-                
-                if (costInput) costInput.required = true;
-                if (measurementSelect) measurementSelect.required = true;
 
-                if (fetchUrl) {
-                    materialSelect.innerHTML = '<option disabled selected>Loading...</option>';
-                    fetch(fetchUrl)
-                        .then(res => res.json())
-                        .then(data => {
-                            materialSelect.innerHTML = '<option disabled selected>Select classification</option>';
-                            if (isInterior) {
-                                newMaterialsPopulateDropdown("all-materials", data.interior_type);
-                                newMaterialsPopulateDropdown("new-material-measurement", data.unit_of_measurement);
-                                newMaterialsPopulateDropdown("new-material-pattern", data.pattern);
-                                newMaterialsPopulateDropdown("new-material-thickness", data.thickness);
-                                newMaterialsPopulateDropdown("new-material-softness", data.softness_level);
-                            } else if (data.equipment_type) {
-                                newMaterialsPopulateDropdown("all-materials", data.equipment_type);
-                                newMaterialsPopulateDropdown("new-material-measurement", data.unit_of_measurement);
-                            } else if (data.material_type) {
-                                newMaterialsPopulateDropdown("all-materials", data.material_type);
-                                newMaterialsPopulateDropdown("new-material-measurement", data.unit);
-                            } else {
-                                let list = Array.isArray(data) ? data : Object.values(data)[0];
-                                newMaterialsPopulateDropdown("all-materials", list);
-                            }
-                        })
-                        .catch(err => {
-                            console.error("Fetch Error:", err);
-                            materialSelect.innerHTML = '<option disabled selected>Error loading options</option>';
-                        });
+                if (costContainer) {
+                    costContainer.style.display = "flex";
                 }
+                if (measurementContainer) {
+                    measurementContainer.style.display = "flex";
+                }
+                if (costInput) {
+                    costInput.required = true;
+                }
+                if (measurementSelect) {
+                    measurementSelect.required = true;
+                }
+                if (!fetchUrl) return;
+                materialSelect.innerHTML = `<option disabled selected>Loading...</option>`;
+
+                fetch(fetchUrl)
+                    .then(res => res.json())
+                    .then(data => {
+
+                        materialSelect.innerHTML = `<option disabled selected>Select classification</option>`;
+
+                        if (data.equipment_type) {
+                            newMaterialsPopulateDropdown("all-materials", data.equipment_type);
+                        }
+                        if (data.unit_of_measurement) {
+                            newMaterialsPopulateDropdown("new-material-measurement", data.unit_of_measurement);
+                        }
+                    })
+                    .catch(err => {
+                        console.error("Fetch Error:", err);
+                        materialSelect.innerHTML =
+                            `<option disabled selected>
+                                Error loading options
+                            </option>`;
+                    });
             });
         }
+
         if (materialSelect) {
-            materialSelect.addEventListener("change", function() {
-                const valueString = this.value.toLowerCase().trim();
+            materialSelect.addEventListener("change", function () {
+
                 const costContainer = document.getElementById("costlabel");
                 const measurementContainer = document.getElementById("measurement-container");
-                
                 const costInput = document.getElementById("new-material-cost-per-unit");
                 const measurementSelect = document.getElementById("new-material-measurement");
-                if (valueString.includes("transport") || valueString.includes("vehicle")) {
-                    costContainer.style.display = "none";
-                    measurementContainer.style.display = "flex";
-                    costInput.style.display = "none";
-                    if (measurementSelect) { 
-                        measurementSelect.required = true; 
-                        newMaterialsPopulateDropdown("new-material-measurement", ["vehicle"]);
-                    }
-                    
-                } else {
+
+                if (costContainer) {
                     costContainer.style.display = "";
+                }
+                if (costInput) {
                     costInput.style.display = "";
                     costInput.required = true;
+                }
+                if (measurementContainer) {
+                    measurementContainer.style.display = "flex";
+                }
+                if (measurementSelect) {
                     measurementSelect.required = true;
                 }
             });
         }
+
         if (newMaterialsSaveBtn) {
             newMaterialsSaveBtn.addEventListener("click", function (event) {
                 event.preventDefault();
@@ -6205,73 +6065,81 @@ $username = $_SESSION['username'] ?? '';
                         Swal.showLoading();
                     }
                 });
+
                 const categoryVal = categorySelect?.value;
-                const categoryTxt = categorySelect?.options[categorySelect.selectedIndex]?.text || "N/A";
-                const materialTxt = materialSelect?.options[materialSelect.selectedIndex]?.text || "N/A";
-                const measurementSelect = document.getElementById("new-material-measurement");
-                if (!measurementSelect) return console.error("Missing unit select");
-                
+                const measurementSelect =
+                    document.getElementById("new-material-measurement");
+
+                if (!measurementSelect) {
+                    Swal.close();
+                    console.error("Missing unit select");
+                    return;
+                }
+
                 const itemNameEl = document.getElementById("new-item-name");
                 const stockEl = document.getElementById("new-material-initial-stock");
                 const costEl = document.getElementById("new-material-cost-per-unit");
                 const detailsEl = document.getElementById("new-material-details");
-                
-                const isTransportMode = materialSelect.value.toLowerCase().includes("transport") || materialSelect.value.toLowerCase().includes("vehicle");
-                const isEquipment = categoryVal === "new-equipment-materials";
-
                 const itemName = itemNameEl?.value?.trim() || "";
                 const initialStock = parseInt(stockEl?.value || 0);
                 const costPerUnit = costEl?.value || 0;
                 const details = detailsEl?.value || "";
-                
-                const measurementTxt = measurementSelect.options[measurementSelect.selectedIndex]?.text || "Unit";
-                const selectedUnit = measurementSelect.value || "Unit";
+                const selectedUnit = measurementSelect.value || "";
 
                 if (!categoryVal || !materialSelect.value || !itemName || isNaN(initialStock)) {
-                    Swal.fire({ icon: "warning", title: "Missing Fields", text: "Please complete all base input definitions." });
+                    Swal.close();
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Missing Fields",
+                        text: "Please complete all base input definitions."
+                    });
                     return;
                 }
-                
-                if (!isTransportMode) {
-                    if (!costPerUnit) {
-                        Swal.fire({ icon: "warning", title: "Missing Price", text: "Please supply a valid base cost per item unit." });
-                        return;
-                    }
-                    if (!selectedUnit || measurementSelect.selectedIndex === 0) {
-                        Swal.fire({ icon: "warning", title: "Missing Measurement", text: "Please declare a structural measurement type." });
-                        return;
-                    }
+                if (!costPerUnit) {
+                    Swal.close();
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Missing Price",
+                        text: "Please supply a valid base cost per item unit."
+                    });
+                    return;
                 }
-                
+
+                if (!selectedUnit || measurementSelect.selectedIndex === 0) {
+                    Swal.close();
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Missing Measurement",
+                        text: "Please declare a structural measurement type."
+                    });
+
+                    return;
+                }
+
                 let multiplier = 1;
                 const normalizedUnit = selectedUnit.toLowerCase().trim();
+
                 if (normalizedUnit === "dozen") {
                     multiplier = 12;
                 }
 
-                const convertedStock = initialStock * multiplier;
-                const tableMapping = {
-                    "new-coffin-materials": "coffin_materials",
-                    "new-equipment-materials": "equipment_materials",
-                    "new-interior-materials": "interior_lining_materials"
-                };
+                const tableMapping = {"new-equipment-materials": "equipment_materials"};
 
                 fetch("../backend/materials/check_materials.php", {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
                     body: JSON.stringify({
                         table: tableMapping[categoryVal],
                         item_name: itemName.toLowerCase(),
-                        material_type: materialSelect.value.toLowerCase(),
-                        color: (document.getElementById("new-material-color")?.value || "").trim().toLowerCase(),
-                        pattern: (document.getElementById("new-material-pattern")?.value || "").trim().toLowerCase(),
-                        thickness: (document.getElementById("new-material-thickness")?.value || "").trim().toLowerCase(),
-                        softness_level: (document.getElementById("new-material-softness")?.value || "").trim().toLowerCase(),
-                        isInterior: categoryVal === "new-interior-materials"
+                        material_type:
+                            materialSelect.value.toLowerCase()
                     })
                 })
                 .then(res => res.json())
                 .then(result => {
+
                     if (result.exists) {
                         Swal.close();
                         Swal.fire({
@@ -6281,28 +6149,33 @@ $username = $_SESSION['username'] ?? '';
                         });
                         return;
                     }
-                    const formData = new FormData();
-                    formData.append("category", categoryVal);
-                    formData.append("material_type", materialSelect.value);
-                    formData.append("item_name", itemName);
-                    formData.append("unit", selectedUnit);
-                    formData.append("stock", initialStock);
-                    formData.append("unit_multiplier", multiplier);
-                    formData.append("cost", costPerUnit);
-                    formData.append("notes", details);
 
-                    if (categoryVal === "new-interior-materials") {
-                        formData.append("pattern", document.getElementById("new-material-pattern").value);
-                        formData.append("thickness", document.getElementById("new-material-thickness").value);
-                        formData.append("softness", document.getElementById("new-material-softness").value);
-                        formData.append("color", document.getElementById("new-material-color").value);
-                    }
-                    fetch("../backend/materials/save_material.php", {
-                        method: "POST",
-                        body: formData
-                    })
+                    const formData = new FormData();
+
+                    formData.append("category", categoryVal);
+
+                    formData.append(
+                        "material_type",
+                        materialSelect.value
+                        );
+
+                    formData.append("item_name",itemName);
+                    formData.append("unit",selectedUnit);
+                    formData.append("stock",initialStock);
+                    formData.append("unit_multiplier",multiplier);
+                    formData.append("cost",costPerUnit);
+                    formData.append("notes",details);
+
+                    fetch(
+                        "../backend/materials/save_material.php",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    )
                     .then(res => res.json())
                     .then(data => {
+
                         if (data.status === "success") {
                             Swal.close();
                             Swal.fire({
@@ -6320,12 +6193,14 @@ $username = $_SESSION['username'] ?? '';
                             Swal.fire({
                                 icon: "error",
                                 title: "Error",
-                                text: data.message || "Something went wrong."
+                                text:
+                                    data.message ||
+                                    "Something went wrong."
                             });
                         }
                     })
                     .catch(err => {
-                        console.error("Save Error:", err);
+                        console.error("Save Error:",err);
                         Swal.close();
                         Swal.fire({
                             icon: "error",
@@ -6335,30 +6210,28 @@ $username = $_SESSION['username'] ?? '';
                     });
                 })
                 .catch(err => {
-                    console.error("Check Material Error:", err);
+                    console.error("Check Material Error:",err);
                     Swal.close();
-                    Swal.fire({ 
-                        icon: "error", 
-                        title: "Server Error", 
-                        text: "Unable to process validation record verification schemas safely." 
+                    Swal.fire({
+                        icon: "error",
+                        title: "Server Error",
+                        text: "Unable to process validation record verification schemas safely."
                     });
                 });
             });
         }
-        function newMaterialResetForm(){
+
+        function newMaterialResetForm() {
             const newMaterialFields = [
                 "new-material-category",
                 "all-materials",
                 "new-material-measurement",
-                "new-material-pattern",
-                "new-material-thickness",
-                "new-material-softness",
                 "new-item-name",
-                "new-material-color",
                 "new-material-initial-stock",
                 "new-material-cost-per-unit",
                 "new-material-details"
             ];
+
             newMaterialFields.forEach(id => {
                 const el = document.getElementById(id);
                 console.log(id, el);
@@ -6367,13 +6240,13 @@ $username = $_SESSION['username'] ?? '';
                 }
             });
         }
-        document.addEventListener("click", function(e) {
+        document.addEventListener("click", function (e) {
             if (e.target.matches("#new-materials-cancel")) {
                 newMaterialResetForm();
-                document.querySelector(".overall-categories-container")
-                    .classList.add("hidden");
+                document.querySelector(".overall-categories-container").classList.add("hidden");
             }
         });
+
         // increase materials (superdone)
         const increaseCategory = document.getElementById("increase-categories");
         const increaseMaterial = document.getElementById("increase-material-name");
@@ -6634,7 +6507,6 @@ $username = $_SESSION['username'] ?? '';
                 const activeUnit = increaseUnit ? increaseUnit.value : (increaseItem.options[increaseItem.selectedIndex]?.dataset.unit || "units");
 
                 const tableMapping = {
-                    "increase-coffin-materials": "coffin_materials",
                     "increase-equipment-furniture": "equipment_materials",
                     "increase-interior": "interior_lining_materials"
                 };
@@ -7712,78 +7584,101 @@ $username = $_SESSION['username'] ?? '';
                 arrow.className = 'bi bi-arrow-down-short';
             }
         } catch (error) {
-            console.error(error);
+            // console.error(error);
         }
     }
     document.addEventListener('DOMContentLoaded', loadPendingRequestCount);
     // total orders
     async function loadTotalOrders() {
         try {
-            const res = await fetch(
-                "../backend/orders/get_total_count.php"
-            );
+            const res = await fetch("../backend/orders/get_total_count.php");
             const data = await res.json();
+
             if (!data.success) {
                 return;
             }
-            document.getElementById(
-                "total-orders-count"
-            ).textContent = data.total;
-            const percentEl =
-                document.getElementById(
-                    "total-orders-percentage"
-                );
-            const arrowEl =
-                document.getElementById(
-                    "total-orders-arrow"
-                );
-            const parent =
-                document.getElementById(
-                    "total-orders-trend"
-                );
 
-            percentEl.textContent =
-                `${Math.abs(data.growth)}%`;
-            if (data.growth >= 0) {
+            document.getElementById("total-orders-count").textContent = data.total;
+            const percentEl = document.getElementById("total-orders-percentage");
+            const arrowEl = document.getElementById("total-orders-arrow");
+            const parent = document.getElementById("total-orders-trend");
+
+            const growth = Number(data.growth) || 0;
+            percentEl.textContent = `${parseFloat(Math.abs(growth).toFixed(2))}%`;
+
+            if (growth > 0) {
                 parent.style.color = "green";
-                arrowEl.className =
-                    "bi bi-arrow-up-short";
-            } else {
+                arrowEl.className = "bi bi-arrow-up-short";
+            } else if (growth < 0) {
                 parent.style.color = "red";
-                arrowEl.className =
-                    "bi bi-arrow-down-short";
+                arrowEl.className = "bi bi-arrow-down-short";
+            } else {
+                parent.style.color = "gray";
+                arrowEl.className = "bi bi-dash";
             }
         } catch (err) {
-            console.error(
-                "Error loading total orders:",
-                err
-            );
+            // console.error("Error loading total orders:", err);
         }
     }
     // revenue count
     async function loadRevenue() {
-        try {
-            const response = await fetch("../backend/revenue/get_revenue.php");
-            const result = await response.json();
-            if (!result.success) return;
-            document.getElementById("revenue-value").textContent = "₱" + Number(result.revenue).toLocaleString();
-            const changeEl = document.getElementById("revenue-change");
-            if (result.direction === "up") {
-                changeEl.innerHTML = `<i class="bi bi-arrow-up-short"></i> ${result.change}%`;
-                changeEl.style.color = "green";
-            }
-            else if (result.direction === "down") {
-                changeEl.innerHTML = `<i class="bi bi-arrow-down-short"></i> ${Math.abs(result.change)}%`;
-                changeEl.style.color = "red";
-            }
-            else {
+        const revenueElement = document.getElementById("revenue-value");
+        const changeEl = document.getElementById("revenue-change");
+
+        if (!revenueElement || !changeEl) return;
+
+        function setRevenueChange(direction = "same", change = 0) {
+            const percentage = Math.round(Math.abs(Number(change) || 0));
+
+            changeEl.classList.remove("positive", "negative", "same");
+
+            if (percentage === 0 || direction === "same") {
                 changeEl.innerHTML = `<i class="bi bi-dash"></i> 0%`;
-                changeEl.style.color = "gray";
+                changeEl.style.setProperty("color", "gray", "important");
+                changeEl.classList.add("same");
+                return;
             }
+
+            if (direction === "up") {
+                changeEl.innerHTML =
+                    `<i class="bi bi-arrow-up-short"></i> ${percentage}%`;
+
+                changeEl.style.setProperty("color", "green", "important");
+                changeEl.classList.add("positive");
+            } else if (direction === "down") {
+                changeEl.innerHTML =
+                    `<i class="bi bi-arrow-down-short"></i> ${percentage}%`;
+
+                changeEl.style.setProperty("color", "red", "important");
+                changeEl.classList.add("negative");
+            } else {
+                changeEl.innerHTML = `<i class="bi bi-dash"></i> 0%`;
+                changeEl.style.setProperty("color", "gray", "important");
+                changeEl.classList.add("same");
+            }
+        }
+
+        try {
+            const response = await fetch("../backend/revenue/get_revenue.php",{
+                method: "GET",
+                cache: "no-store"
+            });
+
+            const result = await response.json();
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || `HTTP error: ${response.status}`);
+            }
+
+            revenueElement.textContent = "₱" + Number(result.current_revenue).toLocaleString("en-PH");
+            setRevenueChange(result.direction, result.change);
+
         } catch (error) {
-            console.error(error);
+            // console.error("Error loading revenue:", error);
+            setRevenueChange("same", 0);
         }
     }
+    loadRevenue();
+    // chart color
     const Utils = {
         CHART_COLORS: {
             red: 'rgb(255, 99, 132)',
@@ -7945,51 +7840,66 @@ $username = $_SESSION['username'] ?? '';
     async function loadLossRevenue() {
         const lossRevenueElement = document.getElementById("loss-revenue");
         const lossRevenueChangeElement = document.getElementById("loss-revenue-change");
+
         if (!lossRevenueElement || !lossRevenueChangeElement) {
             console.error("Loss revenue elements not found.");
             return;
         }
+
         try {
-            const response = await fetch("../backend/revenue/get_loss_revenue.php",{
+            const response = await fetch("../backend/revenue/get_loss_revenue.php", {
                 method: "GET",
                 cache: "no-cache"
             });
+
             if (!response.ok) {
                 throw new Error(`HTTP error: ${response.status}`);
             }
+
             const data = await response.json();
-            console.log("Loss Revenue API Response:", data);
+            // console.log("Loss Revenue API Response:", data);
+
             if (!data.success) {
                 throw new Error(data.message || "Failed to load lost revenue.");
             }
+
             const lostRevenue = Number(data.lost_revenue) || 0;
-            lossRevenueElement.textContent ="₱" + lostRevenue.toLocaleString("en-PH",{minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            lossRevenueElement.textContent = "₱" + lostRevenue.toLocaleString("en-PH", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+
             const change = Number(data.change) || 0;
             const direction = data.direction || "same";
+
             if (direction === "up") {
                 lossRevenueChangeElement.innerHTML = `
-                    <i class="bi bi-arrow-up"></i>
-                    ${Math.abs(change).toFixed(2)}%
+                    <i class="bi bi-arrow-up-short"></i>
+                    ${Math.abs(change)}%
                 `;
                 lossRevenueChangeElement.classList.remove("positive", "same");
                 lossRevenueChangeElement.classList.add("negative");
+
             } else if (direction === "down") {
                 lossRevenueChangeElement.innerHTML = `
-                    <i class="bi bi-arrow-down"></i>
-                    ${Math.abs(change).toFixed(2)}%
+                    <i class="bi bi-arrow-down-short"></i>
+                    ${Math.abs(change)}%
                 `;
-                lossRevenueChangeElement.classList.remove("negative","same");
-                lossRevenueChangeElement.classList.add("positive");
+                lossRevenueChangeElement.style.color = "red";
+                lossRevenueChangeElement.classList.remove("negative", "positive", "same");
+
             } else {
                 lossRevenueChangeElement.innerHTML = `
                     <i class="bi bi-dash"></i>
                     0%
                 `;
-                lossRevenueChangeElement.classList.remove("negative","positive");
+                lossRevenueChangeElement.classList.remove("negative", "positive");
                 lossRevenueChangeElement.classList.add("same");
             }
+
         } catch (error) {
-            lossRevenueElement.textContent ="₱0.00";
+            lossRevenueElement.textContent = "₱0.00";
             lossRevenueChangeElement.innerHTML = `<i class="bi bi-dash"></i> 0%`;
             lossRevenueChangeElement.classList.remove("negative", "positive");
             lossRevenueChangeElement.classList.add("same");
@@ -8001,7 +7911,7 @@ $username = $_SESSION['username'] ?? '';
         const profitChangeElement = document.getElementById("profit-change");
 
         if (!profitElement || !profitChangeElement) {
-            console.error("Profit elements not found.");
+            // console.error("Profit elements not found.");
             return;
         }
         try {
@@ -8009,12 +7919,12 @@ $username = $_SESSION['username'] ?? '';
                 method: "GET",
                 cache: "no-store"
             });
-            console.log("Profit HTTP Status:", response.status);
+            // console.log("Profit HTTP Status:", response.status);
             if (!response.ok) {
                 throw new Error(`HTTP error: ${response.status}`);
             }
             const responseText = await response.text();
-            console.log("Profit Raw Response:",responseText);
+            // console.log("Profit Raw Response:",responseText);
             let data;
             try {
                 data = JSON.parse(responseText);
@@ -8022,7 +7932,7 @@ $username = $_SESSION['username'] ?? '';
                 console.error("Invalid JSON from get_profit.php:",responseText);
                 throw new Error("Backend did not return valid JSON.");
             }
-            console.log("Profit API Response:", data);
+            // console.log("Profit API Response:", data);
             if (!data.success) {
                 throw new Error(data.message || "Failed to load profit.");
             }
@@ -8033,35 +7943,42 @@ $username = $_SESSION['username'] ?? '';
 
             if (direction === "up") {
                 profitChangeElement.innerHTML = `
-                    <i class="bi bi-arrow-up"></i>
-                    ${Math.abs(change).toFixed(2)}%
+                    <i class="bi bi-arrow-up-short"></i>
+                    ${Math.abs(change)}%
                 `;
-                profitChangeElement.classList.remove("negative","same");
+                profitChangeElement.style.color = "green";
+                profitChangeElement.classList.remove("negative", "same");
                 profitChangeElement.classList.add("positive");
 
             } else if (direction === "down") {
                 profitChangeElement.innerHTML = `
-                    <i class="bi bi-arrow-down"></i>
-                    ${Math.abs(change).toFixed(2)}%
+                    <i class="bi bi-arrow-down-short"></i>
+                    ${Math.abs(change)}%
                 `;
-                profitChangeElement.classList.remove("positive","same");
+                profitChangeElement.style.color = "red";
+                profitChangeElement.classList.remove("positive", "same");
                 profitChangeElement.classList.add("negative");
+
             } else {
-                profitChangeElement.innerHTML = `<i class="bi bi-dash"></i> 0.00%`;
-                profitChangeElement.classList.remove("negative","positive");
+                profitChangeElement.innerHTML = `
+                    <i class="bi bi-dash"></i>
+                    0.00%
+                `;
+                profitChangeElement.style.color = "gray";
+                profitChangeElement.classList.remove("negative", "positive");
                 profitChangeElement.classList.add("same");
             }
-            console.log("Current Profit:",data.profit);
-            console.log("Previous Profit:",data.previous_profit);
-            console.log("Difference:",data.difference);
-            console.log("Change:",data.change);
-            console.log("Direction:",data.direction);
-            console.log("Current Revenue:",data.current_revenue)
-            console.log("Previous Revenue:",data.previous_revenue);
-            console.log("Current Cost:",data.current_cost);
-            console.log("Previous Cost:",data.previous_cost);
+            // console.log("Current Profit:",data.profit);
+            // console.log("Previous Profit:",data.previous_profit);
+            // console.log("Difference:",data.difference);
+            // console.log("Change:",data.change);
+            // console.log("Direction:",data.direction);
+            // console.log("Current Revenue:",data.current_revenue)
+            // console.log("Previous Revenue:",data.previous_revenue);
+            // console.log("Current Cost:",data.current_cost);
+            // console.log("Previous Cost:",data.previous_cost);
         } catch (error) {
-            console.error("Error loading profit:",error);
+            // console.error("Error loading profit:",error);
             profitElement.textContent = "₱0.00";
             profitChangeElement.innerHTML = `<i class="bi bi-dash"></i> 0.00%`;
             profitChangeElement.classList.remove("negative","positive");
@@ -8078,6 +7995,7 @@ $username = $_SESSION['username'] ?? '';
         loadRevenueChart();
         loadTotalOrders();
         loadRevenue();
+        
     });
     // most requested package
     async function loadInventoryUsage() {
@@ -8085,7 +8003,9 @@ $username = $_SESSION['username'] ?? '';
             const res = await fetch("../backend/most_requested_service/get_most_requested.php");
             const result = await res.json();
             if (!result.success) return;
-            const ctx = document.getElementById("requested-items").getContext("2d");
+            const canvas = document.getElementById("requested-items");
+            if (!canvas) return;
+            const ctx = canvas.getContext("2d");
             const colors = [
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(255, 159, 64, 0.2)',
@@ -8104,17 +8024,31 @@ $username = $_SESSION['username'] ?? '';
                 'rgb(153, 102, 255)',
                 'rgb(201, 203, 207)'
             ];
+            const months = Object.keys(result.months);
+            const items = result.items;
+            const datasets = items.map((item, index) => {
+                return {
+                    label: item,
+                    data: months.map(month => {
+                        return result.months[month][item] || 0;
+                    }),
+                    backgroundColor: colors[index % colors.length],
+                    borderColor: borderColors[index % borderColors.length],
+                    borderWidth: 1
+                };
+            });
             new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: result.labels,
-                    datasets: [{
-                        label: 'Most Used Items',
-                        data: result.data,
-                        backgroundColor: colors.slice(0, result.data.length),
-                        borderColor: borderColors.slice(0, result.data.length),
-                        borderWidth: 1
-                    }]
+                    labels: months.map(month => {
+                        const [year, monthNumber] = month.split("-");
+                        const date = new Date(year, monthNumber - 1);
+                        return date.toLocaleString('en-US', {
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                    }),
+                    datasets: datasets
                 },
                 options: {
                     responsive: true,
@@ -8126,13 +8060,16 @@ $username = $_SESSION['username'] ?? '';
                     },
                     scales: {
                         y: {
-                            beginAtZero: true
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
                         }
                     }
                 }
             });
         } catch (err) {
-            console.error(err);
+            console.error("Most requested items error:", err);
         }
     }
     // prediction of the most requested coffin or services
@@ -8157,7 +8094,7 @@ $username = $_SESSION['username'] ?? '';
     }
     // last container 
     async function loadRecentTransactions() {
-        const tbody =document.getElementById("recentTransactionsBody");
+        const tbody = document.getElementById("recentTransactionsBody");
         if (!tbody) {
             return;
         }
@@ -8190,35 +8127,13 @@ $username = $_SESSION['username'] ?? '';
                     const statusClass = status.toLowerCase().replace(/\s+/g, "-");
                     return `
                         <tr>
-                            <td>
-                                ${escapeHtml(
-                                    transaction.service_no
-                                )}
-                            </td>
-                            <td>
-                                ${escapeHtml(
-                                    transaction.customer
-                                )}
-                            </td>
-                            <td>
-                                ${escapeHtml(
-                                    transaction.beneficiary
-                                )}
-                            </td>
-                            <td>
-                                ${escapeHtml(
-                                    transaction.service
-                                )}
-                            </td>
-                            <td>
-                                ₱${amount}
-                            </td>
-                            <td>
-                                ₱${remainingBalance}
-                            </td>
-                            <td>
-                                <span class="status ${statusClass}">${escapeHtml(status)}</span>
-                            </td>
+                            <td>${escapeHtml(transaction.service_no)}</td>
+                            <td>${escapeHtml(transaction.customer)}</td>
+                            <td>${escapeHtml(transaction.beneficiary)}</td>
+                            <td>${escapeHtml(transaction.service)}</td>
+                            <td>₱${amount}</td>
+                            <td>₱${remainingBalance}</td>
+                            <td><span class="status ${statusClass}">${escapeHtml(status)}</span></td>
                         </tr>
                     `;
                 })
@@ -8645,6 +8560,7 @@ document.getElementById("preneed-view").addEventListener("click", async () => {
         const response = await fetch(`../backend/preferences/get_receipts.php?order_id=${selectedOrder.id}`);
         const result = await response.json();
     } catch (error) {
+        console.error("Error fetching receipt data:", error);
     }
     document.getElementById("planholder-services-price").value = selectedOrder.selling_price || 0;
     document.getElementById("planholder-service-discount").value = 0;
@@ -8664,6 +8580,7 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
         });
         return;
     }
+
     try {
         Swal.fire({
             title: "Approving Lifeplan...",
@@ -8675,8 +8592,15 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
                 Swal.showLoading();
             }
         });
-        const price = Number(document.getElementById("planholder-services-price").value || 0);
-        const discountPercent = Number(document.getElementById("planholder-service-discount").value || 0);
+
+        const price = Number(
+            document.getElementById("planholder-services-price").value || 0
+        );
+
+        const discountPercent = Number(
+            document.getElementById("planholder-service-discount").value || 0
+        );
+
         const discountAmount = price * (discountPercent / 100);
         const totalPayable = Math.max(price - discountAmount, 0);
         const balance = totalPayable;
@@ -8689,12 +8613,36 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
         formData.append("total_payable", totalPayable);
         formData.append("remaining_balance", balance);
 
-        const response = await fetch("../backend/preferences/approve_lifeplan.php",{
-            method: "POST",
-            body: formData
-        });
-        const result = await response.json();
+        const response = await fetch(
+            "../backend/preferences/approve_lifeplan.php",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const responseText = await response.text();
+
+        console.log("approve_lifeplan.php response:", responseText);
+        console.log("HTTP Status:", response.status);
+
         Swal.close();
+
+        let result;
+
+        try {
+            result = JSON.parse(responseText);
+        } catch (error) {
+            console.error("Invalid JSON response:", responseText);
+
+            Swal.fire({
+                icon: "error",
+                title: "Server Error",
+                text: `The server returned an invalid response. HTTP ${response.status}. Check the console for details.`
+            });
+
+            return;
+        }
 
         if (result.success) {
             Swal.fire({
@@ -8702,6 +8650,7 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
                 title: "Order Approved",
                 text: result.message
             });
+
             selectedOrder = null;
 
             document.getElementById("preneed-customer-name").textContent = "";
@@ -8718,15 +8667,19 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
             Swal.fire({
                 icon: "error",
                 title: "Approval Failed",
-                text: result.message
+                text: result.message || "Failed to approve lifeplan."
             });
         }
+
     } catch (error) {
+        console.error("Approve Lifeplan Error:", error);
+
         Swal.close();
+
         Swal.fire({
             icon: "error",
             title: "Error",
-            text: "Failed to approve order."
+            text: error.message || "Failed to approve order."
         });
     }
 });
@@ -9016,8 +8969,8 @@ document.getElementById("approve").addEventListener("click", async () => {
 
         selectedOrder = null;
         document.getElementById("customer-name").textContent = "-";
-        document.getElementById("customer-contact").textContent = "-";
-        document.getElementById("customer-email").textContent = "-";
+        document.getElementById("customer-contacts").textContent = "-";
+        document.getElementById("customer-emails").textContent = "-";
         document.getElementById("customer-address").textContent = "-";
         document.getElementById("service-details-body").innerHTML = "";
         await loadPendingOrders();
@@ -9091,13 +9044,15 @@ document.getElementById("decline").addEventListener("click", async () => {
             });
 
             selectedOrder = null;
-            document.getElementById("customer-name").textContent = "";
-            document.getElementById("customer-contacts").textContent = "";
-            document.getElementById("customer-emails").textContent = "";
-            document.getElementById("customer-address").textContent = "";
+            document.getElementById("customer-name").textContent = "-";
+            document.getElementById("customer-contacts").textContent = "-";
+            document.getElementById("customer-emails").textContent = "-";
+            document.getElementById("customer-address").textContent = "-";
             document.getElementById("service-details-body").innerHTML = "";
             await loadPendingOrders();
             await loadApproveOrders();
+            await loadCancelledServices();
+            await loadPendingServices();
         } else {
             Swal.fire({
                 icon: "error",
@@ -9341,9 +9296,7 @@ async function loadStandardCoffins() {
 document.addEventListener("click", (e) => {
     if (!e.target.classList.contains("buy-now-btn")) return;
     const clickedKey = e.target.dataset.id;
-    const item = coffinCache.find(
-        c => String(c.unique_key) === String(clickedKey)
-    );
+    const item = coffinCache.find(c => String(c.unique_key) === String(clickedKey));
     if (!item) return;
     selectedCoffin = item;
     document.getElementById("confirm-coffin-name").textContent = item.item_name;
@@ -9567,6 +9520,7 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     formData.append("gov_id_number", beneficiaryGovIdNumber);
     formData.append("signature", signatureFile);
     formData.append("signature_date", document.getElementById("signature-date").value);
+    formData.append("service_date", document.getElementById("service-date").value);
     try {
         Swal.fire({
             title: "Submitting Request...",
@@ -9594,6 +9548,7 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             return;
         }
         loadPendingOrders();
+        loadPendingServices();
         Swal.fire({
             icon: "success",
             title: "Request Submitted!",
@@ -9630,13 +9585,19 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             document.getElementById("relationship").value = "";
             document.getElementById("otherRelationship").value = "";
             document.getElementById("signature-date").value = "";
+            document.getElementById("service-date").value = "";
             selectedCoffin = null;
-            document.querySelector(".products-onsite-container").style.display = "none";
-            document.querySelector(".orders-approve-container").style.display="block";
-            productsBtn.classList.remove("active");
-            ordersBtn.classList.add("active");
-            loadApproveOrders();
-            loadApproveLifeplanOrders();
+
+            hideAllContainers();
+            removeActiveButtons();
+            pendingContainer.classList.remove("hidden");
+            pendingContainer.classList.add("active-container");
+            thirdPreferencesContainer.classList.remove("hidden");
+            thirdPreferencesContainer.classList.add("active");
+            pendingBtn.classList.add("active");
+            loadPendingOrders();
+            loadPendingServices();
+
         });
     } catch (error) {
         Swal.close();
@@ -9962,6 +9923,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const lpgovIdNumber = document.getElementById("lp-gov-id-number").value.trim();
         const lpapplicantSignature = document.getElementById("lp-applicant-signature").files[0];
         const lpsignatureDate = document.getElementById("lp-signature-date").value;
+        const lpServiceDate = document.getElementById("lp-service-date").value;
         if (!lprelationship || (lprelationship === "other" && !lpotherRelationship)) {
             Swal.fire({
                 icon: "warning",
@@ -10101,6 +10063,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("lp_signature", lpapplicantSignature);
         // Declaration
         formData.append("lp_signature_date", lpsignatureDate);
+        formData.append("lp_service_date", lpServiceDate);
         try{
             const response = await fetch("../backend/service/admin_lp_request.php", {
                 method: "POST",
@@ -10148,19 +10111,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("lp-applicant-signature").value = "";
                 document.getElementById("lp-file-signature-name").textContent = "No file selected";
                 document.getElementById("lp-signature-date").value = "";
+                document.getElementById("lp-service-date").value = "";
                 lpSelectedCoffin = null;
                 document.getElementById("walk-in-products-pre-need").classList.remove("active");
                 loadApproveOrders();
                 loadApproveLifeplanOrders();
-                setTimeout(() => {
-                    hideAllContainers();
+                loadPendingServices();
+                
+                hideAllContainers();
 
-                    pendingContainer.classList.remove("hidden");
-                    pendingContainer.classList.add("active-container");
+                pendingContainer.classList.remove("hidden");
+                pendingContainer.classList.add("active-container");
 
-                    removeActiveButtons();
-                    ordersBtn.classList.add("hidden");
-                }, 2000);
+                thirdPreferencesContainer.classList.remove("hidden");
+                thirdPreferencesContainer.classList.add("active");
+
+                removeActiveButtons();
+                pendingBtn.classList.add("active");
             } else {
                 Swal.fire({
                     icon: "error",
@@ -10290,7 +10257,7 @@ async function loadApproveOrders() {
                             </div>
                             <div class="approve-footer">
                                 <span class="approve-price">
-                                    ₱ ${order.remaining_balance === "0.00" ? "Paid" : order.remaining_balance}
+                                    ₱ ${order.remaining_balance === 0 ? "Paid" : order.remaining_balance}
                                 </span>
                                 <button
                                     class="view-details-btn"
@@ -10327,10 +10294,10 @@ async function loadApproveOrders() {
     });
 }
 loadApproveOrders();
-// at need approved order (done)
+// at need approved order / begin service (done)
 async function loadApprovedOrderDetails(serviceRequestNo) {
     if (!serviceRequestNo) {
-        console.error("No service request number was provided.");
+        // console.error("No service request number was provided.");
         return;
     }
     try {
@@ -10903,7 +10870,7 @@ document.querySelector(".begin-serving-btn").addEventListener("click", () => {
         return;
     }
     selectedArrangementType = "atneed";
-    arrangementModal.classList.add("hidden");
+    arrangementModal.classList.add("active");
     loadArrangementDetails(selectedServiceRequestNo);
     loadEquipment();
 });
@@ -11008,13 +10975,13 @@ async function loadArrangementDetails(serviceRequestNo) {
     if (!result.success) return;
     const order = result.data;
     document.getElementById("arrangementRequestNo").value = order.service_request_no;
-    document.getElementById("arrangementCustomer").value = order.name;
+    document.getElementById("arrangementCustomer").value = order.customer_name;
     document.getElementById("arrangementPackage").value = order.item_name;
     document.getElementById("arrangementDate").value = new Date().toISOString().split("T")[0];
 }
 function loadLifeplanArrangementDetails(order) {
     document.getElementById("arrangementRequestNo").value = order.lifeplan_no || "";
-    document.getElementById("arrangementCustomer").value = order.name || "";
+    document.getElementById("arrangementCustomer").value = order.customer_name || "";
     document.getElementById("arrangementPackage").value = order.item_name || "";
     document.getElementById("arrangementDate").value = new Date().toISOString().split("T")[0];
 }
@@ -11562,13 +11529,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 // schedule management (done)
+
 const schedulePendingBtn = document.getElementById("pendingScheduleBtn");
 const scheduleCompletedBtn = document.getElementById("completedScheduleBtn");
 const schedulePendingContainer = document.getElementById("pendingScheduleContainer");
 const scheduleCompletedContainer = document.getElementById("completedScheduleContainer");
+
 const modalSchedule = document.getElementById("scheduleModal");
 const closeScheduleModal = document.getElementById("closeScheduleModal");
 const markComplete = document.getElementById("markComplete");
+
 const modalScheduleNo = document.getElementById("modalScheduleNo");
 const modalCustomer = document.getElementById("modalCustomer");
 const modalDeceased = document.getElementById("modalDeceased");
@@ -11578,78 +11548,90 @@ const modalTime = document.getElementById("modalTime");
 const modalLocation = document.getElementById("modalLocation");
 
 let selectedSchedule = null;
-let scheduleClockInterval = null;
+let scheduleCountdownInterval = null;
+let isUpdatingSchedule = false;
+let isLoadingSchedules = false;
+
+let scheduleCache = [];
+const autoCompletingSchedules = new Set();
+
 schedulePendingBtn.onclick = () => {
     schedulePendingBtn.classList.add("active");
     scheduleCompletedBtn.classList.remove("active");
     schedulePendingContainer.classList.add("active");
     scheduleCompletedContainer.classList.remove("active");
 };
+
 scheduleCompletedBtn.onclick = () => {
     scheduleCompletedBtn.classList.add("active");
     schedulePendingBtn.classList.remove("active");
     scheduleCompletedContainer.classList.add("active");
     schedulePendingContainer.classList.remove("active");
 };
-function updateCurrentTime() {
-    const now = new Date();
-    modalTime.textContent =
-        now.toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-            hour12: true
-        });
-}
-function startScheduleClock() {
-    clearInterval(scheduleClockInterval);
-    updateCurrentTime();
-    scheduleClockInterval =
-        setInterval(() => {
-            if (modalSchedule.classList.contains("active")) {
-                updateCurrentTime();
-            }
-        }, 1000);
-}
-function stopScheduleClock() {
-    clearInterval(scheduleClockInterval);
-    scheduleClockInterval = null;
-}
-closeScheduleModal.onclick = () => {
+
+function closeScheduleDetails() {
     modalSchedule.classList.remove("active");
     modalSchedule.classList.add("hidden");
-    stopScheduleClock();
     selectedSchedule = null;
-};
+}
+
+closeScheduleModal.onclick = closeScheduleDetails;
+
 function updateCompleteButton(status) {
     const normalizedStatus = String(status || "").trim().toLowerCase();
+
+    markComplete.classList.remove("disabled");
+    markComplete.removeAttribute("aria-disabled");
+    markComplete.title = "";
+
     if (normalizedStatus === "pending") {
         markComplete.textContent = "▶ Start Schedule";
-        markComplete.disabled = false;
-        markComplete.classList.remove("disabled");
-        markComplete.removeAttribute("aria-disabled");
-        return;
-    }
 
-    if (normalizedStatus === "in progress") {
+        const hasDate = modalDate.value.trim() !== "";
+        const hasTime = modalTime.value.trim() !== "";
+
+        markComplete.disabled = !(hasDate && hasTime);
+
+        if (markComplete.disabled) {
+            markComplete.classList.add("disabled");
+            markComplete.setAttribute("aria-disabled", "true");
+            markComplete.title = "Enter the schedule date and time first.";
+        }
+    } else if (normalizedStatus === "in progress") {
         markComplete.textContent = "✔ Mark as Complete";
         markComplete.disabled = false;
-        markComplete.classList.remove("disabled");
-        markComplete.removeAttribute("aria-disabled");
-        return;
-    }
-    if (normalizedStatus === "completed") {
+    } else if (normalizedStatus === "completed") {
         markComplete.textContent = "Completed";
         markComplete.disabled = true;
         markComplete.classList.add("disabled");
         markComplete.setAttribute("aria-disabled", "true");
-        return;
+    } else {
+        markComplete.textContent = "Unavailable";
+        markComplete.disabled = true;
     }
-    markComplete.textContent = "▶ Start Schedule";
-    markComplete.disabled = false;
-    markComplete.classList.remove("disabled");
-    markComplete.removeAttribute("aria-disabled");
 }
+
+modalDate.addEventListener("input", () => {
+    if (selectedSchedule) {
+        updateCompleteButton(selectedSchedule.status);
+    }
+});
+modalTime.addEventListener("input", () => {
+    if (selectedSchedule) {
+        updateCompleteButton(selectedSchedule.status);
+    }
+});
+modalDate.addEventListener("change", () => {
+    if (selectedSchedule) {
+        updateCompleteButton(selectedSchedule.status);
+    }
+});
+modalTime.addEventListener("change", () => {
+    if (selectedSchedule) {
+        updateCompleteButton(selectedSchedule.status);
+    }
+});
+
 function openScheduleModal(schedule) {
     selectedSchedule = schedule;
     modalSchedule.classList.remove("hidden");
@@ -11658,197 +11640,449 @@ function openScheduleModal(schedule) {
     modalCustomer.textContent = schedule.customer_name || "-";
     modalDeceased.textContent = schedule.deceased_name || "-";
     modalService.textContent = schedule.purchase_type || "-";
-    modalDate.textContent = schedule.arrangement_date || "-";
+    modalDate.value = String(schedule.service_date || "").substring(0, 10);
+    modalTime.value = String(schedule.service_time || "").substring(0, 5);
     modalLocation.textContent = schedule.location || "-";
-
-    startScheduleClock();
     updateCompleteButton(schedule.status);
 }
+
+function getScheduleTimestamp(date, time) {
+    if (!date || !time) {
+        return NaN;
+    }
+
+    const datePart = String(date).trim().substring(0, 10);
+    const timePart = String(time).trim().substring(0, 8);
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) {
+        return NaN;
+    }
+    if (!/^\d{2}:\d{2}(:\d{2})?$/.test(timePart)) {
+        return NaN;
+    }
+
+    const timestamp = new Date(`${datePart}T${timePart.length === 5 ? timePart + ":00" : timePart}`).getTime();
+    return Number.isFinite(timestamp) ? timestamp : NaN;
+}
+
+function formatCountdown(remaining) {
+    const totalSeconds = Math.max(0, Math.floor(remaining / 1000));
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    const time = [
+        String(hours).padStart(2, "0"),
+        String(minutes).padStart(2, "0"),
+        String(seconds).padStart(2, "0")
+    ].join(":");
+    return days > 0 ? `${days}d ${time}` : time;
+}
+
+function hasValidScheduleDateTime(schedule) {
+    const date = String(schedule.service_date || "").trim();
+    const time = String(schedule.service_time || "").trim();
+    if (!date || !time) {
+        return false;
+    }
+    return Number.isFinite(getScheduleTimestamp(date, time));
+}
+function getScheduleKey(schedule) {
+    return `${schedule.schedule_type || ""}_${schedule.id}`;
+}
+
+function updateScheduleCountdowns() {
+    const now = Date.now();
+    document.querySelectorAll(".schedule-countdown").forEach(timer => {
+        const schedule = scheduleCache.find(item =>
+            String(item.id) === String(timer.dataset.id) &&
+            String(item.schedule_type || "") === String(timer.dataset.type || "")
+        );
+
+        if (!schedule) {
+            timer.textContent = "-";
+            return;
+        }
+
+        const status = String(schedule.status || "").trim().toLowerCase();
+
+        if (status === "completed") {
+            timer.textContent = "Completed";
+            return;
+        }
+        if (status !== "in progress") {
+            timer.textContent = "-";
+            return;
+        }
+        if (!hasValidScheduleDateTime(schedule)) {
+            timer.textContent = "Date/time not set";
+            return;
+        }
+
+        const target = getScheduleTimestamp(schedule.service_date, schedule.service_time);
+        const remaining = target - now;
+
+        if (remaining <= 0) {
+            timer.textContent = "00:00:00";
+            autoCompleteSchedule(schedule, timer);
+            return;
+        }
+        timer.textContent = formatCountdown(remaining);
+    });
+}
+
+async function updateScheduleStatus(schedule, nextStatus, date = "", time = "") {
+    if (nextStatus === "In Progress") {
+        date = String(date || modalDate.value).trim();
+        time = String(time || modalTime.value).trim();
+    } else {
+        date = date || schedule.service_date || "";
+        time = time || schedule.service_time || "";
+    }
+
+    const payload = new URLSearchParams({
+        id: String(schedule.id),
+        status: nextStatus,
+        schedule_type: schedule.schedule_type || "",
+        service_date: date,
+        service_time: time
+    });
+
+    // console.log("Schedule update request:", {
+    //     id: schedule.id,
+    //     status: nextStatus,
+    //     schedule_type: schedule.schedule_type,
+    //     service_date: date,
+    //     service_time: time
+    // });
+
+    const response = await fetch("../backend/schedule/update_schedule_status.php",{
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+        },
+        body: payload.toString()
+    });
+
+    const responseText = await response.text();
+    let result;
+
+    try {
+        result = JSON.parse(responseText);
+    } catch (error) {
+        // console.error("Raw server response:", responseText);
+        throw new Error(`Invalid server response. HTTP ${response.status}`);
+    }
+
+    if (!response.ok || !result.success) {
+        throw new Error(result.message || `Failed to update schedule. HTTP ${response.status}`);
+    }
+    return result;
+}
+
+async function autoCompleteSchedule(schedule, timerElement) {
+    const scheduleKey = getScheduleKey(schedule);
+    if (autoCompletingSchedules.has(scheduleKey)) {
+        return;
+    }
+    if (String(schedule.status || "").trim().toLowerCase() !== "in progress") {
+        return;
+    }
+    autoCompletingSchedules.add(scheduleKey);
+    if (timerElement) {
+        timerElement.textContent = "Completing...";
+    }
+    try {
+        await updateScheduleStatus(schedule, "Completed");
+        schedule.status = "Completed";
+        const cachedSchedule = scheduleCache.find(item =>
+            String(item.id) === String(schedule.id) &&
+            String(item.schedule_type || "") === String(schedule.schedule_type || "")
+        );
+
+        if (cachedSchedule) {
+            cachedSchedule.status = "Completed";
+        }
+
+        if (selectedSchedule && String(selectedSchedule.id) === String(schedule.id) && String(selectedSchedule.schedule_type || "") === String(schedule.schedule_type || "")) {
+            selectedSchedule.status = "Completed";
+            updateCompleteButton("Completed");
+        }
+        await loadSchedules();
+    } catch (error) {
+        // console.error("Automatic schedule completion failed:", error);
+        if (timerElement) {
+            timerElement.textContent = "Completion failed";
+        }
+        Swal.fire({
+            icon: "error",
+            title: "Automatic Completion Failed",
+            text: error.message || "Unable to complete the schedule automatically.",
+            confirmButtonText: "OK"
+        });
+    } finally {
+        autoCompletingSchedules.delete(scheduleKey);
+    }
+}
 async function loadSchedules() {
+    if (isLoadingSchedules) {
+        return;
+    }
+    isLoadingSchedules = true;
     try {
         const response = await fetch("../backend/schedule/get_schedule.php",{
             method: "GET",
             cache: "no-store"
         });
+
+        const responseText = await response.text();
+        let result;
+
+        try {
+            result = JSON.parse(responseText);
+        } catch (error) {
+            // console.error("Raw schedule response:", responseText);
+            throw new Error("Server returned invalid JSON.");
+        }
+
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-        const responseText = await response.text();
-        let result;
-        try {
-            result = JSON.parse(responseText);
-        } catch (jsonError) {
-            throw new Error("Server returned invalid JSON.");
-        }
+
         if (!result.success) {
             throw new Error(result.message || "Failed to load schedules.");
         }
+
+        if (!Array.isArray(result.data)) {
+            throw new Error("Invalid schedule data returned by server.");
+        }
+
+        scheduleCache = result.data;
+
         const pendingList = document.getElementById("pendingScheduleList");
         const completedList = document.getElementById("completedScheduleList");
+
         pendingList.innerHTML = "";
         completedList.innerHTML = "";
-        if (!Array.isArray(result.data)) {
-            return;
-        }
-        result.data.forEach(schedule => {
+
+        scheduleCache.forEach(schedule => {
             const row = document.createElement("tr");
             row.className = "schedule-row";
+
             const status = String(schedule.status || "").trim();
             const normalizedStatus = status.toLowerCase();
-            let statusClass;
-            if (normalizedStatus === "pending") {
-                statusClass = "pending-badge";
-            } else if (normalizedStatus === "in progress") {
+
+            let statusClass = "pending-badge";
+
+            if (normalizedStatus === "in progress") {
                 statusClass = "in-progress-badge";
             } else if (normalizedStatus === "completed") {
                 statusClass = "completed-badge";
-            } else {
-                statusClass = "completed-badge";
             }
-            row.onclick = () => {
-                openScheduleModal(schedule);
-            };
-            row.innerHTML = `
-                <td>${schedule.arrangement_no || "-"}</td>
-                <td>${schedule.customer_name || "-"}</td>
-                <td>${schedule.deceased_name || "-"}</td>
-                <td>${schedule.purchase_type || "-"}</td>
-                <td>${schedule.arrangement_date || "-"}</td>
-                <td>${new Date().toLocaleDateString()}</td>
-                <td>
-                    <span class="${statusClass}">${status || "-"}</span>
-                </td>
 
-            `;
+            const cells = [
+                schedule.arrangement_no || "-",
+                schedule.customer_name || "-",
+                schedule.deceased_name || "-",
+                schedule.purchase_type || "-",
+                formatScheduleDate(schedule.started_at),
+                formatScheduleDate(schedule.until_when),
+                schedule.service_time || "-"
+            ];
+
+            cells.forEach(value => {
+                const td = document.createElement("td");
+                td.textContent = value;
+                row.appendChild(td);
+            });
+
+            if (normalizedStatus !== "completed") {
+                const countdownCell = document.createElement("td");
+                const countdown = document.createElement("span");
+
+                countdown.className = "schedule-countdown";
+                countdown.dataset.id = schedule.id;
+                countdown.dataset.type = schedule.schedule_type || "";
+
+                if (normalizedStatus === "in progress") {
+                    countdown.textContent = "Loading...";
+                } else {
+                    countdown.textContent = "-";
+                }
+
+                countdownCell.appendChild(countdown);
+                row.appendChild(countdownCell);
+            }
+
+            const statusCell = document.createElement("td");
+            const badge = document.createElement("span");
+
+            badge.className = statusClass;
+            badge.textContent = status || "-";
+
+            statusCell.appendChild(badge);
+            row.appendChild(statusCell);
+
+            row.addEventListener("click", () => {
+                openScheduleModal(schedule);
+            });
+
             if (normalizedStatus === "completed") {
                 completedList.appendChild(row);
             } else {
                 pendingList.appendChild(row);
             }
         });
+        updateScheduleCountdowns();
     } catch (error) {
+        // console.error("Unable to load schedules:", error);
         Swal.fire({
             icon: "error",
             title: "Unable to Load Schedules",
             text: error.message || "Something went wrong while loading schedules.",
             confirmButtonText: "OK"
         });
+    } finally {
+        isLoadingSchedules = false;
     }
 }
-
+function formatScheduleDate(date) {
+    if (!date) return "-";
+    const parsedDate = new Date(String(date).replace(" ", "T"));
+    if (isNaN(parsedDate.getTime())) return "-";
+    return parsedDate.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
+}
 markComplete.onclick = async () => {
-    if (!selectedSchedule) {
+    if (!selectedSchedule || isUpdatingSchedule) {
         return;
     }
     const currentStatus = String(selectedSchedule.status || "").trim().toLowerCase();
-
-    let nextStatus = "";
+    let nextStatus;
     if (currentStatus === "pending") {
         nextStatus = "In Progress";
     } else if (currentStatus === "in progress") {
         nextStatus = "Completed";
-    } else if (currentStatus === "completed") {
-        return;
     } else {
         return;
     }
-    let confirmationTitle = "";
-    let confirmationText = "";
-    let confirmButtonText = "";
 
-    if (nextStatus === "In Progress") {
-        confirmationTitle = "Start Schedule?";
-        confirmationText = "Are you sure you want to start this schedule?";
-        confirmButtonText = "Yes, Start Schedule";
-    } else {
-        confirmationTitle = "Complete Schedule?";
-        confirmationText = "Are you sure you want to mark this schedule as completed?";
-        confirmButtonText = "Yes, Complete";
+    const isStarting = nextStatus === "In Progress";
+    let date = "";
+    let time = "";
+
+    if (isStarting) {
+        date = modalDate.value.trim();
+        time = modalTime.value.trim();
+
+        if (!date || !time) {
+            Swal.fire({
+                icon: "warning",
+                title: "Schedule Required",
+                text: "Please enter the schedule date and time first.",
+                confirmButtonText: "OK"
+            });
+            return;
+        }
+
+        const timestamp = getScheduleTimestamp(date, time);
+        if (!Number.isFinite(timestamp) || timestamp <= Date.now()) {
+            Swal.fire({
+                icon: "warning",
+                title: "Invalid Schedule",
+                text: "Please enter a valid future date and time.",
+                confirmButtonText: "OK"
+            });
+            return;
+        }
     }
+
     const confirmation = await Swal.fire({
         icon: "question",
-        title: confirmationTitle,
-        text: confirmationText,
+        title: isStarting ? "Start Schedule?" : "Complete Schedule?",
+        text: isStarting ? "Are you sure you want to start this schedule?" : "Are you sure you want to mark this schedule as completed?",
         showCancelButton: true,
-        confirmButtonText: confirmButtonText,
+        confirmButtonText: isStarting ? "Yes, Start Schedule" : "Yes, Complete",
         cancelButtonText: "Cancel",
         reverseButtons: true
     });
+
     if (!confirmation.isConfirmed) {
         return;
     }
+
+    isUpdatingSchedule = true;
     markComplete.disabled = true;
-    markComplete.textContent = nextStatus === "In Progress" ? "Starting..." : "Completing...";
+    markComplete.textContent = isStarting ? "Starting..." : "Completing...";
+
     try {
-        const response = await fetch("../backend/schedule/update_schedule_status.php",{
-            method: "POST",
-            headers: {
-                "Content-Type":
-                    "application/x-www-form-urlencoded; charset=UTF-8"
-            },
-            body: new URLSearchParams({
-                id: selectedSchedule.id,
-                status: nextStatus,
-                schedule_type: selectedSchedule.schedule_type,
-                arrangement_no: selectedSchedule.arrangement_no,
-                request_no: selectedSchedule.request_no
-            })
-        });
-
-        const responseText = await response.text();
-        let result;
-        try {
-            result = JSON.parse(responseText);
-        } catch (jsonError) {
-            throw new Error(`Server returned invalid JSON. HTTP ${response.status}`);
-        }
-        if (!response.ok || !result.success) {
-            throw new Error(result.message || `HTTP ${response.status}: Failed to update schedule.`);
-        }
+        await updateScheduleStatus(selectedSchedule, nextStatus, date, time);
         selectedSchedule.status = nextStatus;
-        if (nextStatus === "In Progress") {
-            await Swal.fire({
-                icon: "success",
-                title: "Schedule Started",
-                text: "The schedule is now in progress.",
-                confirmButtonText: "OK",
-                timer: 1500,
-                timerProgressBar: true
-            });
-        } else {
-            await Swal.fire({
-                icon: "success",
-                title: "Schedule Completed",
-                text: "The schedule has been successfully completed.",
-                confirmButtonText: "OK",
-                timer: 2000,
-                timerProgressBar: true
-            });
-        }
-        await loadSchedules();
-        modalSchedule.classList.remove("active");
-        modalSchedule.classList.add("hidden");
 
-        stopScheduleClock();
-        selectedSchedule = null;
+        if (isStarting) {
+            selectedSchedule.service_date = date;
+            selectedSchedule.service_time = time;
+        }
+
+        const cachedSchedule = scheduleCache.find(item =>
+            String(item.id) === String(selectedSchedule.id) &&
+            String(item.schedule_type || "") ===
+            String(selectedSchedule.schedule_type || "")
+        );
+
+        if (cachedSchedule) {
+            cachedSchedule.status = nextStatus;
+            if (isStarting) {
+                cachedSchedule.service_date = date;
+                cachedSchedule.service_time = time;
+            }
+        }
+
+        closeScheduleDetails();
+        await loadSchedules();
+
         if (nextStatus === "Completed") {
             scheduleCompletedBtn.click();
         } else {
             schedulePendingBtn.click();
         }
+
+        await Swal.fire({
+            icon: "success",
+            title: isStarting ? "Schedule Started" : "Schedule Completed",
+            text: isStarting ? "The countdown has started and the schedule is now in progress." : "The schedule has been successfully completed.",
+            confirmButtonText: "OK",
+            timer: 1800,
+            timerProgressBar: true
+        });
     } catch (error) {
-        if (selectedSchedule) {
-            updateCompleteButton(selectedSchedule.status);
-        }
+        // console.error("Unable to update schedule:", error);
         Swal.fire({
             icon: "error",
             title: "Unable to Update Schedule",
             text: error.message || "Failed to update schedule status.",
             confirmButtonText: "OK"
         });
+    } finally {
+        isUpdatingSchedule = false;
+        if (selectedSchedule) {
+            updateCompleteButton(selectedSchedule.status);
+        }
     }
 };
+
+if (scheduleCountdownInterval !== null) {
+    clearInterval(scheduleCountdownInterval);
+}
+
 loadSchedules();
+scheduleCountdownInterval = setInterval(() => {
+    updateScheduleCountdowns();
+}, 1000);
+
 // search function in each container of the preferences (done)
 // pending orders
 const search = document.getElementById("preferenceSearch");
@@ -11890,141 +12124,248 @@ function enableSearch(inputId, cardSelector) {
         });
     });
 }
-document.addEventListener("DOMContentLoaded", () => {
-    loadFuneralReport();
+// REPORTS
 
-    const fromDate = document.getElementById("fromDate");
-    const toDate = document.getElementById("toDate");
-    const serviceType = document.getElementById("report-serviceType");
-    const reportStatus = document.getElementById("report-status");
-
-    if (fromDate && toDate && serviceType && reportStatus) {
-
-        fromDate.addEventListener("change", loadFuneralReport);
-        toDate.addEventListener("change", loadFuneralReport);
-        serviceType.addEventListener("change", loadFuneralReport);
-        reportStatus.addEventListener("change", loadFuneralReport);
-
+function getReportParams() {
+    const params = new URLSearchParams();
+    const serviceType = document.getElementById("report-serviceType")?.value;
+    const reportStatus = document.getElementById("report-status")?.value;
+    if (serviceType && serviceType.toLowerCase() !== "all") {
+        params.set("service_type", serviceType);
     }
+    if (reportStatus && reportStatus.toLowerCase() !== "all") {
+        params.set("status", reportStatus);
+    }
+    return params;
+}
+
+function getReportUrl(endpoint) {
+    const query = getReportParams().toString();
+    return `../backend/reports/${endpoint}${query ? `?${query}` : ""}`;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("report-serviceType") ?.addEventListener("change", loadAllReports);
+    document.getElementById("report-status") ?.addEventListener("change", loadAllReports);
+    document.getElementById("printReportBtn") ?.addEventListener("click", preparePrintReport);
+    loadAllReports();
 });
-// funeral service count (done)
+
+async function loadAllReports() {
+    await Promise.all([
+        loadFuneralReport(),
+        loadTotalFuneralServices(),
+        loadCompletedServices(),
+        loadPendingServices(),
+        loadCancelledServices(),
+        loadMonthlyDeathsChart()
+    ]);
+}
+
+// Total funeral services
 async function loadTotalFuneralServices() {
     try {
-        const response = await fetch("../backend/reports/get_total_funeral_services.php");
+        const response = await fetch(getReportUrl("get_total_funeral_services.php"),{
+            method: "GET",
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
         const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message || "Failed to load total funeral services.");
+        }
+
         const element = document.getElementById("totalFuneralServices");
         if (element) {
-            element.textContent = result.total;
+            element.textContent = result.total_active ?? 0;
         }
     } catch (error) {
+        // console.error("Total Funeral Services Error:", error);
     }
 }
-// completed funeral service (done)
+
+// Completed funeral services
 async function loadCompletedServices() {
     try {
-        const response = await fetch("../backend/reports/get_completed_services.php");
-        const result = await response.json();
-        const element = document.querySelector("#completedServices");
-        element.innerText = result.total;
+        const response = await fetch(getReportUrl("get_completed_services.php"),{
+            method: "GET",
+            cache: "no-store"
+        });
+
+        const rawResponse = await response.text();
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
+        const result = JSON.parse(rawResponse);
+        if (!result.success) {
+            throw new Error(result.message || "Failed to load completed services.");
+        }
+
+        const element = document.getElementById("completedServices");
+        if (element) {
+            element.textContent = result.total ?? 0;
+        }
     } catch (error) {
+        // console.error("Completed Services Error:", error);
     }
 }
-// pending funeral service count
+
+// Pending funeral services
 async function loadPendingServices() {
     try {
-        const response = await fetch("../backend/reports/get_pending_services.php");
-        const result = await response.json();
-        const element = document.getElementById("pendingServices");
-        element.textContent = result.total;
+        const response = await fetch(getReportUrl("get_pending_services.php"),{
+            method: "GET",
+            cache: "no-store"
+        });
 
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message || "Failed to load pending services.");
+        }
+
+        const element = document.getElementById("pendingServices");
+        if (element) {
+            element.textContent = result.total ?? 0;
+        }
     } catch (error) {
+        // console.error("Pending Services Error:", error);
+        const element = document.getElementById("pendingServices");
+        if (element) {
+            element.textContent = "0";
+        }
     }
 }
-// cancelled funeral service count (done)
+
+// Cancelled funeral services
 async function loadCancelledServices() {
     try {
-        const response = await fetch("../backend/reports/get_cancelled_services.php");
+        const response = await fetch(getReportUrl("get_cancelled_services.php"),{
+            method: "GET",
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
         const result = await response.json();
+        if (result.success === false) {
+            throw new Error(result.message || "Failed to load cancelled services.");
+        }
+
         const element = document.getElementById("cancelledServices");
-        element.textContent = result.total;
+        if (element) {
+            element.textContent = result.total ?? 0;
+        }
     } catch (error) {
+        // console.error("Cancelled Services Error:", error);
     }
 }
-// reports revenue count (done)
+
+// Total revenue
 async function loadTotalRevenue() {
     try {
-        const response = await fetch("../backend/revenue/get_revenue.php");
+        const response = await fetch("../backend/revenue/get_revenue.php",{
+            method: "GET",
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
         const result = await response.json();
         const element = document.getElementById("totalRevenue");
-        const revenue = Number(result.revenue) || 0;
-        element.textContent = revenue.toLocaleString(
-            "en-PH",
-            {
+
+        if (element) {
+            const revenue = Number(result.revenue) || 0;
+
+            element.textContent = revenue.toLocaleString("en-PH", {
                 style: "currency",
                 currency: "PHP",
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
-            }
-        );
+            });
+        }
     } catch (error) {
+        // console.error("Total Revenue Error:", error);
     }
 }
-// reports count received payment (done)
+
+// Payments received
 async function loadPaymentsReceived() {
     try {
-        const response = await fetch("../backend/reports/get_payments_received.php");
+        const response = await fetch(getReportUrl("get_payments_received.php"),{
+            method: "GET",
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
         const result = await response.json();
         const element = document.getElementById("paymentsReceived");
-        const total = Number(result.total) || 0;
-        element.textContent = total.toLocaleString(
-            "en-PH",
-            {
+
+        if (element) {
+            const total = Number(result.total) || 0;
+            element.textContent = total.toLocaleString("en-PH", {
                 style: "currency",
                 currency: "PHP",
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
-            }
-        );
+            });
+        }
     } catch (error) {
+        // console.error("Payments Received Error:", error);
     }
 }
-// done
-document.addEventListener("DOMContentLoaded", () => {
-    const serviceCanvas = document.getElementById("serviceChart");
-    const paymentCanvas = document.getElementById("paymentMethodChart");
-    if (serviceCanvas) {
-        loadServiceBreakdown();
-    }
-    if (paymentCanvas) {
-        loadPaymentMethodChart();
-    }
-});
-// reports service chart (done)
+
+// Service breakdown chart
 let serviceChartInstance = null;
 async function loadServiceBreakdown() {
     try {
         const canvas = document.getElementById("serviceChart");
+
         if (!canvas) {
             return;
         }
-        const response = await fetch(
-            "../backend/reports/get_service_breakdown.php"
-        );
-        const result = await response.json();
-        if (!result.success) {
-            console.error(result.message);
-            return;
+
+        const response = await fetch(getReportUrl("get_service_breakdown.php"),{
+            method: "GET",
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
         }
+
+        const result = await response.json();
+
+        if (!result.success) {
+            throw new Error(result.message || "Failed to load service breakdown.");
+        }
+
         if (serviceChartInstance) {
             serviceChartInstance.destroy();
         }
+
         serviceChartInstance = new Chart(canvas, {
             type: "bar",
             data: {
-                labels: result.labels,
+                labels: result.labels || [],
                 datasets: [{
                     label: "Number of Requests",
-                    data: result.data,
+                    data: result.data || [],
                     borderWidth: 1
                 }]
             },
@@ -12042,19 +12383,45 @@ async function loadServiceBreakdown() {
             }
         });
     } catch (error) {
+        // console.error("Service Breakdown Chart Error:", error);
     }
 }
-// reports payment chart (done)
+
+// Payment method chart
 let paymentMethodChartInstance = null;
 async function loadPaymentMethodChart() {
     try {
         const canvas = document.getElementById("paymentMethodChart");
-        const response = await fetch(
-            "../backend/reports/get_payment_method.php"
-        );
-        const result = await response.json();
-        if (!result.labels || result.labels.length === 0) {
-            const legend = document.getElementById("paymentLegend");
+
+        if (!canvas) {
+            return;
+        }
+
+        const response = await fetch(getReportUrl("get_payment_method.php"),{
+            method: "GET",
+            cache: "no-store"
+        });
+
+        const rawResponse = await response.text();
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
+        const result = JSON.parse(rawResponse);
+        if (!result.success) {
+            throw new Error(result.message || "Failed to load payment methods.");
+        }
+
+        const legend = document.getElementById("paymentLegend");
+        const labels = result.labels || [];
+        const data = result.data || [];
+
+        if (paymentMethodChartInstance) {
+            paymentMethodChartInstance.destroy();
+            paymentMethodChartInstance = null;
+        }
+
+        if (!Array.isArray(labels) || labels.length === 0 || !Array.isArray(data) || data.length === 0) {
             if (legend) {
                 legend.innerHTML = `
                     <div class="legend-item">
@@ -12062,11 +12429,10 @@ async function loadPaymentMethodChart() {
                     </div>
                 `;
             }
+
             return;
         }
-        if (paymentMethodChartInstance) {
-            paymentMethodChartInstance.destroy();
-        }
+
         const colors = [
             "#2f80ed",
             "#27ae60",
@@ -12076,13 +12442,14 @@ async function loadPaymentMethodChart() {
             "#56ccf2",
             "#f2c94c"
         ];
+
         paymentMethodChartInstance = new Chart(canvas, {
             type: "pie",
             data: {
-                labels: result.labels,
+                labels,
                 datasets: [{
-                    data: result.data,
-                    backgroundColor: result.labels.map(
+                    data,
+                    backgroundColor: labels.map(
                         (_, index) => colors[index % colors.length]
                     ),
                     borderWidth: 0
@@ -12098,58 +12465,171 @@ async function loadPaymentMethodChart() {
                 }
             }
         });
-        const legend = document.getElementById("paymentLegend");
+
         if (legend) {
-            const total = result.data.reduce((sum, value) => sum + Number(value),0);
+            const total = data.reduce((sum, value) => sum + Number(value || 0), 0);
+
             legend.innerHTML = "";
-            result.labels.forEach((label, index) => {
-                const value = Number(result.data[index]);
-                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+            labels.forEach((label, index) => {
+                const value = Number(data[index] || 0);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
+
                 const item = document.createElement("div");
                 item.className = "legend-item";
-                item.innerHTML = `
-                    <span 
-                        class="legend-color"
-                        style="background-color: ${colors[index % colors.length]}">
-                    </span>
-                    <span>${label}</span>
-                    <span>-</span>
-                    <strong>
-                        ${value} (${percentage}%)
-                    </strong>
-                `;
+
+                const colorSpan = document.createElement("span");
+                colorSpan.className = "legend-color";
+                colorSpan.style.backgroundColor = colors[index % colors.length];
+
+                const labelSpan = document.createElement("span");
+                labelSpan.textContent = label;
+
+                const separator = document.createElement("span");
+                separator.textContent = "-";
+
+                const valueStrong = document.createElement("strong");
+                valueStrong.textContent = `${value} (${percentage}%)`;
+
+                item.append(colorSpan, labelSpan, separator, valueStrong);
                 legend.appendChild(item);
             });
         }
     } catch (error) {
+        // console.error("Payment Method Chart Error:", error);
     }
 }
-// funeral transaction 
-async function loadReportsRecentTransactions() {
-    const tbody = document.getElementById("reportRecentTransactionsBody");
-    const printTbody = document.getElementById("printTransactionsBody");
-    if (tbody) {
-        tbody.innerHTML = "";
-    }
-    if (printTbody) {
-        printTbody.innerHTML = "";
-    }
+
+// Monthly deaths / services chart
+let monthlyDeathsChartInstance = null;
+async function loadMonthlyDeathsChart() {
     try {
-        const response = await fetch("../backend/reports/get_recent_transactions.php",{
+        const canvas = document.getElementById("monthlyDeathsChart");
+
+        if (!canvas) {
+            return;
+        }
+
+        const response = await fetch(getReportUrl("monthly_deaths.php"),{
             method: "GET",
             cache: "no-store"
         });
+
+        const rawResponse = await response.text();
         if (!response.ok) {
-            throw new Error(`HTTP error: ${response.status}`);
+            throw new Error(`HTTP Error: ${response.status}`);
         }
-        const result = await response.json();
-        console.log("Reports API Response:", result);
+
+        const result = JSON.parse(rawResponse);
         if (!result.success) {
-            throw new Error(
-                result.message || "Failed to load transactions."
-            );
+            throw new Error(result.message || "Failed to load monthly services.");
         }
-        if (!result.transactions || result.transactions.length === 0) {
+        if (monthlyDeathsChartInstance) {
+            monthlyDeathsChartInstance.destroy();
+        }
+
+        monthlyDeathsChartInstance = new Chart(canvas, {
+            type: "bar",
+            data: {
+                labels: result.labels || [],
+                datasets: [{
+                    label: "Funeral Services Deaths / Availed",
+                    data: result.data || [],
+                    backgroundColor: "#2f80ed",
+                    hoverBackgroundColor: "#1c64c7",
+                    borderRadius: 5,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: "top"
+                    },
+                    title: {
+                        display: true,
+                        text: `Monthly Death / Services Availed (${result.year})`
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return "Services Availed: " +
+                                    Number(context.raw || 0).toLocaleString();
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: "Month"
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        },
+                        title: {
+                            display: true,
+                            text: "Number of Services"
+                        }
+                    }
+                }
+            }
+        });
+    } catch (error) {
+        // console.error("Monthly Services Chart Error:", error);
+    }
+}
+
+// Escape HTML output
+function escapeHtml(value) {
+    if (value === null || value === undefined) {
+        return "";
+    }
+
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Recent transactions
+async function loadReportsRecentTransactions() {
+    const tbody = document.getElementById("reportRecentTransactionsBody");
+    const printTbody = document.getElementById("printTransactionsBody");
+
+    if (tbody) {
+        tbody.innerHTML = "";
+    }
+
+    if (printTbody) {
+        printTbody.innerHTML = "";
+    }
+
+    try {
+        const response = await fetch(getReportUrl("get_recent_transactions.php"),{
+            method: "GET",
+            cache: "no-store"
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP Error: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.message || "Failed to load transactions.");
+        }
+
+        const transactions = result.data || [];
+        if (transactions.length === 0) {
             if (tbody) {
                 tbody.innerHTML = `
                     <tr>
@@ -12159,61 +12639,83 @@ async function loadReportsRecentTransactions() {
                     </tr>
                 `;
             }
+
             if (printTbody) {
                 printTbody.innerHTML = `
                     <tr>
-                        <td colspan="11" style="text-align:center;">
+                        <td colspan="9" style="text-align:center;">
                             No transactions found.
                         </td>
                     </tr>
                 `;
             }
+
             return;
         }
-        result.transactions.forEach(transaction => {
+
+        transactions.forEach(transaction => {
             const serviceNo = transaction.service_no || "-";
             const customer = transaction.customer || "-";
-            const deceased = transaction.deceased_name || "-";
-            const service = transaction.service_type || transaction.service || "-";
-            const packageName = transaction.package || transaction.package_name || "-";
+            const deceased = transaction.beneficiary || "-";
+            const service = transaction.service || "-";
             const serviceDate = transaction.service_date || "-";
             const status = transaction.status || "Pending";
-            const totalAmount = Number( transaction.total_amount ?? transaction.amount ?? 0);
-            const amountPaid = Number( transaction.amount_paid ?? transaction.paid ?? 0);
-            const balance = Number(transaction.balance ?? (totalAmount - amountPaid));
-            const paymentStatus = transaction.payment_status || "-";
+            const amount = Number(transaction.amount ?? 0);
+            const balance = Number(transaction.remaining_balance ?? 0);
+            const amountPaid = status.toLowerCase().trim() === "paid" ? amount : Math.max(0, amount - balance);
 
             if (tbody) {
                 const row = document.createElement("tr");
                 const statusClass = status.toLowerCase().replace(/\s+/g, "-");
+
                 row.innerHTML = `
                     <td>${escapeHtml(serviceNo)}</td>
                     <td>${escapeHtml(customer)}</td>
                     <td>${escapeHtml(service)}</td>
-                    <td>₱${totalAmount.toLocaleString("en-PH",{minimumFractionDigits: 2,maximumFractionDigits: 2})}</td>
-                    <td><span class="status ${statusClass}">${escapeHtml(status)}</span></td>
+                    <td>₱${amount.toLocaleString("en-PH", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })}</td>
+                    <td>
+                        <span class="status ${statusClass}">
+                            ${escapeHtml(status)}
+                        </span>
+                    </td>
                 `;
+
                 tbody.appendChild(row);
             }
+
             if (printTbody) {
                 const row = document.createElement("tr");
+
                 row.innerHTML = `
                     <td>${escapeHtml(serviceNo)}</td>
                     <td>${escapeHtml(customer)}</td>
                     <td>${escapeHtml(deceased)}</td>
                     <td>${escapeHtml(service)}</td>
-                    <td>${escapeHtml(packageName)}</td>
                     <td>${escapeHtml(serviceDate)}</td>
+                    <td>₱${amount.toLocaleString("en-PH", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })}</td>
+                    <td>₱${amountPaid.toLocaleString("en-PH", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })}</td>
+                    <td>₱${balance.toLocaleString("en-PH", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    })}</td>
                     <td>${escapeHtml(status)}</td>
-                    <td>₱${totalAmount.toLocaleString("en-PH",{minimumFractionDigits: 2,maximumFractionDigits: 2})}</td>
-                    <td>₱${amountPaid.toLocaleString("en-PH",{minimumFractionDigits: 2,maximumFractionDigits: 2})}</td>
-                    <td>₱${balance.toLocaleString("en-PH",{minimumFractionDigits: 2,maximumFractionDigits: 2})}</td>
-                    <td>${escapeHtml(paymentStatus)}</td>
                 `;
+
                 printTbody.appendChild(row);
             }
         });
     } catch (error) {
+        // console.error("Recent Transactions Error:", error);
+
         if (tbody) {
             tbody.innerHTML = `
                 <tr>
@@ -12223,10 +12725,11 @@ async function loadReportsRecentTransactions() {
                 </tr>
             `;
         }
+
         if (printTbody) {
             printTbody.innerHTML = `
                 <tr>
-                    <td colspan="11" style="text-align:center;">
+                    <td colspan="9" style="text-align:center;">
                         Failed to load transactions.
                     </td>
                 </tr>
@@ -12234,66 +12737,54 @@ async function loadReportsRecentTransactions() {
         }
     }
 }
-function escapeHtml(value) {
-    if (value === null || value === undefined) {
-        return "";
-    }
-    return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-document.addEventListener("DOMContentLoaded",function () {
-    loadReportsRecentTransactions();
-});
-// funeral reports 
+
+// Funeral reports
 async function loadFuneralReport() {
-
     try {
+        const response = await fetch(
+            getReportUrl("get_funeral_reports.php"),
+            {
+                method: "GET",
+                cache: "no-store"
+            }
+        );
 
-        const fromDate = document.getElementById("fromDate");
-        const toDate = document.getElementById("toDate");
-        const serviceType = document.getElementById("report-serviceType");
-        const reportStatus = document.getElementById("report-status");
-
-        const params = new URLSearchParams();
-
-        if (fromDate?.value) {
-            params.append("from_date", fromDate.value);
-        }
-
-        if (toDate?.value) {
-            params.append("to_date", toDate.value);
-        }
-
-        if (serviceType?.value) {
-            params.append("service_type", serviceType.value);
-        }
-
-        if (reportStatus?.value) {
-            params.append("status", reportStatus.value);
-        }
-
-        const response = await fetch(`../backend/reports/get_funeral_reports.php?${params.toString()}`,{method: "GET",cache: "no-store"});
+        const rawResponse = await response.text();
+        // console.log("Funeral Report Raw Response:", rawResponse);
         if (!response.ok) {
             throw new Error(`HTTP Error: ${response.status}`);
         }
-        const result = await response.json();
+
+        const result = JSON.parse(rawResponse);
         if (!result.success) {
             throw new Error(result.message || "Failed to load report.");
         }
-        document.getElementById("totalFuneralServices").textContent = result.summary.total_services ?? 0;
-        document.getElementById("completedServices").textContent = result.summary.completed ?? 0;
-        document.getElementById("pendingServices").textContent = result.summary.pending ?? 0;
-        document.getElementById("cancelledServices").textContent = result.summary.cancelled ?? 0;
-        document.getElementById("totalRevenue").textContent = "₱" + Number(result.summary.total_revenue ?? 0).toLocaleString("en-PH", {minimumFractionDigits: 2,maximumFractionDigits: 2});
-        document.getElementById("paymentsReceived").textContent = "₱" + Number(result.summary.payments_received ?? 0).toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+        const formatPHP = value => "₱" + Number(value ?? 0).toLocaleString("en-PH", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        const summary = result.summary || {};
+        const totalRevenue = document.getElementById("totalRevenue");
+        const paymentsReceived = document.getElementById("paymentsReceived");
+
+        if (totalRevenue) {
+            totalRevenue.textContent = formatPHP(summary.total_revenue);
+        }
+
+        if (paymentsReceived) {
+            paymentsReceived.textContent = formatPHP(summary.payments_received);
+        }
+
         const tbody = document.getElementById("reportRecentTransactionsBody");
+        const printTbody = document.getElementById("printTransactionsBody");
+        const transactions = result.transactions || [];
+
         if (tbody) {
             tbody.innerHTML = "";
-            if (!result.transactions || result.transactions.length === 0) {
+
+            if (transactions.length === 0) {
                 tbody.innerHTML = `
                     <tr>
                         <td colspan="5" style="text-align:center;">
@@ -12302,97 +12793,94 @@ async function loadFuneralReport() {
                     </tr>
                 `;
             } else {
-                result.transactions.forEach(transaction => {
+                transactions.forEach(transaction => {
                     const row = document.createElement("tr");
                     const status = transaction.status || "Pending";
                     const statusClass = status.toLowerCase().replace(/\s+/g, "-");
+
                     row.innerHTML = `
                         <td>${escapeHtml(transaction.service_no || "-")}</td>
                         <td>${escapeHtml(transaction.customer || "-")}</td>
                         <td>${escapeHtml(transaction.service || "-")}</td>
-                        <td>₱${Number(transaction.amount || 0).toLocaleString("en-PH", {minimumFractionDigits: 2,maximumFractionDigits: 2})}</td>
-                        <td><span class="status ${statusClass}">${escapeHtml(status)}</span></td>
+                        <td>${formatPHP(transaction.amount)}</td>
+                        <td>
+                            <span class="status ${statusClass}">
+                                ${escapeHtml(status)}
+                            </span>
+                        </td>
                     `;
+
                     tbody.appendChild(row);
                 });
             }
         }
-        await loadServiceBreakdown();
-        await loadPaymentMethodChart();
 
-    } catch (error) {
-        console.error("Report error:", error);
-        Swal.fire({
-            icon: "error",
-            title: "Report Error",
-            text: error.message ||
-                "Unable to load funeral report."
-        });
-    }
-}
-document.addEventListener("DOMContentLoaded", () => {
+        if (printTbody) {
+            printTbody.innerHTML = "";
 
-    const fromDate = document.getElementById("fromDate");
-    const toDate = document.getElementById("toDate");
-    const serviceType = document.getElementById("report-serviceType");
-    const reportStatus = document.getElementById("report-status");
+            if (transactions.length === 0) {
+                printTbody.innerHTML = `
+                    <tr>
+                        <td colspan="9" style="text-align:center;">
+                            No transactions found.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                transactions.forEach(transaction => {
+                    const row = document.createElement("tr");
+                    const amount = Number(transaction.amount ?? 0);
+                    const balance = Number(transaction.remaining_balance ?? 0);
+                    const status = transaction.status || "Pending";
+                    const amountPaid = status.toLowerCase().trim() === "paid" ? amount : Math.max(0, amount - balance);
 
-    loadFuneralReport();
+                    row.innerHTML = `
+                        <td>${escapeHtml(transaction.service_no || "-")}</td>
+                        <td>${escapeHtml(transaction.customer || "-")}</td>
+                        <td>${escapeHtml(transaction.beneficiary || "-")}</td>
+                        <td>${escapeHtml(transaction.service || "-")}</td>
+                        <td>${escapeHtml(transaction.service_date || "-")}</td>
+                        <td>${formatPHP(amount)}</td>
+                        <td>${formatPHP(amountPaid)}</td>
+                        <td>${formatPHP(balance)}</td>
+                        <td>${escapeHtml(status)}</td>
+                    `;
 
-    fromDate?.addEventListener("change", loadFuneralReport);
-    toDate?.addEventListener("change", loadFuneralReport);
-    serviceType?.addEventListener("change", loadFuneralReport);
-    reportStatus?.addEventListener("change", loadFuneralReport);
-
-});
-document.addEventListener("DOMContentLoaded", () => {
-
-    const printButton = document.getElementById("printReportBtn");
-
-    if (printButton) {
-        printButton.addEventListener("click", () => {
-            preparePrintReport();
-        });
-    }
-
-});
-function preparePrintReport() {
-    const fromDate = document.getElementById("fromDate");
-    const toDate = document.getElementById("toDate");
-    const printPeriod = document.getElementById("printReportPeriod");
-    if (printPeriod) {
-        if (fromDate?.value && toDate?.value) {
-            const from = new Date(fromDate.value);
-            const to = new Date(toDate.value);
-            const options = {
-                month: "long",
-                day: "numeric",
-                year: "numeric"
-            };
-            printPeriod.textContent = `${from.toLocaleDateString("en-US", options)} - ` + `${to.toLocaleDateString("en-US", options)}`;
-        } else if (fromDate?.value) {
-            const from = new Date(fromDate.value);
-            printPeriod.textContent =
-                from.toLocaleDateString("en-US", {
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric"
+                    printTbody.appendChild(row);
                 });
-        } else {
-            printPeriod.textContent = "All Dates";
+            }
+        }
+
+        await Promise.all([
+            loadServiceBreakdown(),
+            loadPaymentMethodChart()
+        ]);
+    } catch (error) {
+        // console.error("Report Error:", error);
+        if (typeof Swal !== "undefined") {
+            Swal.fire({
+                icon: "error",
+                title: "Report Error",
+                text: error.message || "Unable to load funeral report."
+            });
         }
     }
+}
+
+// Prepare print report
+function preparePrintReport() {
     const generatedDate = document.getElementById("printGeneratedDate");
+
     if (generatedDate) {
-        generatedDate.textContent =
-            new Date().toLocaleString("en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-                hour: "numeric",
-                minute: "2-digit"
-            });
+        generatedDate.textContent = new Date().toLocaleString("en-US", {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit"
+        });
     }
+
     const copyValue = (sourceId, targetId) => {
         const source = document.getElementById(sourceId);
         const target = document.getElementById(targetId);
@@ -12400,15 +12888,24 @@ function preparePrintReport() {
             target.textContent = source.textContent;
         }
     };
-    copyValue("totalFuneralServices","printTotalServices");
-    copyValue("completedServices","printCompleted");
-    copyValue("pendingServices","printPending");
-    copyValue("cancelledServices","printCancelled");
-    copyValue("totalRevenue","printRevenue");
-    copyValue("paymentsReceived","printPayments");
-    copyChartToPrint("serviceChart","printServiceChart");
-    copyChartToPrint("paymentMethodChart","printPaymentChart");
-    copyTransactionsToPrint();
+
+    copyValue("totalFuneralServices", "printTotalServices");
+    copyValue("completedServices", "printCompleted");
+    copyValue("pendingServices", "printPending");
+    copyValue("cancelledServices", "printCancelled");
+    copyValue("totalRevenue", "printRevenue");
+    copyValue("paymentsReceived", "printPayments");
+
+    copyChartToPrint("serviceChart", "printServiceChart");
+    copyChartToPrint("monthlyDeathsChart", "printMonthlyServicesChart");
+    copyChartToPrint("paymentMethodChart", "printPaymentChart");
+
+    const paymentLegend = document.getElementById("paymentLegend");
+    const printPaymentLegend = document.getElementById("printPaymentLegend");
+
+    if (paymentLegend && printPaymentLegend) {
+        printPaymentLegend.replaceChildren(...Array.from(paymentLegend.childNodes,node => node.cloneNode(true)));
+    }
     setTimeout(() => {
         window.print();
     }, 500);
@@ -12422,58 +12919,10 @@ function copyChartToPrint(canvasId, imageId) {
     try {
         image.src = canvas.toDataURL("image/png");
     } catch (error) {
-        console.error(`Unable to copy chart ${canvasId}:`, error);
+        // console.error(`Unable to copy chart ${canvasId}:`, error);
     }
 }
-function copyTransactionsToPrint() {
-    const sourceBody = document.getElementById("reportRecentTransactionsBody");
-    const printBody = document.getElementById("printTransactionsBody");
-    if (!sourceBody || !printBody) {
-        return;
-    }
-    printBody.innerHTML = "";
-    const rows = sourceBody.querySelectorAll("tr");
-    if (!rows.length) {
-        printBody.innerHTML = `
-            <tr>
-                <td colspan="11">
-                    No transactions found.
-                </td>
-            </tr>
-        `;
-        return;
-    }
-    rows.forEach(row => {
-        const cells = row.querySelectorAll("td");
-        if (cells.length < 5) {
-            return;
-        }
-        const serviceNo = cells[0]?.textContent.trim() || "-";
-        const customer = cells[1]?.textContent.trim() || "-";
-        const service = cells[2]?.textContent.trim() || "-";
-        const amount = cells[3]?.textContent.trim() || "₱0.00";
-        const status = cells[4]?.textContent.trim() || "-";
 
-        printBody.insertAdjacentHTML(
-            "beforeend",
-            `
-            <tr>
-                <td>${escapeHtml(serviceNo)}</td>
-                <td>${escapeHtml(customer)}</td>
-                <td>-</td>
-                <td>${escapeHtml(service)}</td>
-                <td>-</td>
-                <td>-</td>
-                <td>${escapeHtml(status)}</td>
-                <td>${escapeHtml(amount)}</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-            </tr>
-            `
-        );
-    });
-}
 // data management done
 document.addEventListener("DOMContentLoaded", function () {
     const dataTabs = document.querySelectorAll(".data-tab");
@@ -13534,6 +13983,12 @@ document.getElementById("adminLogout").addEventListener("click", function (e) {
     setTimeout(() => {
         window.location.href = logoutUrl;
     }, 500);
+});
+// mobile back
+history.pushState(null, '', location.href);
+
+window.addEventListener('popstate', function () {
+    window.location.href = 'admin.php'; 
 });
 </script>
 </html>

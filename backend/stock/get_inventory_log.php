@@ -8,16 +8,8 @@ $result = mysqli_query($conn, $query);
 while ($row = mysqli_fetch_assoc($result)) {
     $itemName = "Unknown Item";
     switch ($row['material_category']) {
-        case 'coffin_materials':
-            $table = 'coffin_materials';
-            $nameColumn = 'material_name';
-            break;
         case 'equipment_materials':
             $table = 'equipment_materials';
-            $nameColumn = 'item_name';
-            break;
-        case 'interior_lining_materials':
-            $table = 'interior_lining_materials';
             $nameColumn = 'item_name';
             break;
         case 'coffins':

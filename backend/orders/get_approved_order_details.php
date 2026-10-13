@@ -2,38 +2,26 @@
 
 require_once __DIR__ . "/../conn.php";
 require_once __DIR__ . "/../encryption.php";
-
 header("Content-Type: application/json; charset=utf-8");
-
 ini_set("display_errors", "0");
 error_reporting(E_ALL);
 
-function decryptIfEncrypted($value)
-{
+function decryptIfEncrypted($value){
     if ($value === null || $value === '') {
         return '';
     }
-
     $decrypted = @decryptData($value);
-
     if ($decrypted !== false && $decrypted !== null) {
         return $decrypted;
     }
-
     return $value;
 }
-
 try {
 
-    if (
-        !isset($_GET["service_request_no"]) ||
-        trim($_GET["service_request_no"]) === ""
-    ) {
+    if (!isset($_GET["service_request_no"]) || trim($_GET["service_request_no"]) === "") {
         throw new Exception("Service Request Number is required.");
     }
-
     $serviceRequestNo = trim($_GET["service_request_no"]);
-
     $sql = "
         SELECT
 
@@ -114,38 +102,22 @@ try {
     ";
 
     $stmt = $conn->prepare($sql);
-
     if (!$stmt) {
-        throw new Exception(
-            "Prepare failed: " . $conn->error
-        );
+        throw new Exception("Prepare failed: " . $conn->error);
     }
 
-    $stmt->bind_param(
-        "s",
-        $serviceRequestNo
-    );
-
+    $stmt->bind_param("s",$serviceRequestNo);
     if (!$stmt->execute()) {
-        throw new Exception(
-            "Execute failed: " . $stmt->error
-        );
+        throw new Exception("Execute failed: " . $stmt->error);
     }
-
     $result = $stmt->get_result();
 
     if (!$result) {
-        throw new Exception(
-            "Unable to retrieve order details."
-        );
+        throw new Exception("Unable to retrieve order details.");
     }
-
     if ($result->num_rows === 0) {
-        throw new Exception(
-            "Order not found."
-        );
+        throw new Exception("Order not found.");
     }
-
     $data = $result->fetch_assoc();
 
     $fieldsToDecrypt = [
@@ -159,32 +131,13 @@ try {
     ];
 
     foreach ($fieldsToDecrypt as $field) {
-
-        $data[$field] = decryptIfEncrypted(
-            $data[$field] ?? null
-        );
+        $data[$field] = decryptIfEncrypted($data[$field] ?? null);
     }
-
-    echo json_encode(
-        [
-            "success" => true,
-            "data" => $data
-        ],
-        JSON_UNESCAPED_UNICODE
-    );
+    echo json_encode(["success" => true,"data" => $data],JSON_UNESCAPED_UNICODE);
 
     $stmt->close();
-
 } catch (Throwable $e) {
-
     http_response_code(500);
-
-    echo json_encode(
-        [
-            "success" => false,
-            "message" => $e->getMessage()
-        ],
-        JSON_UNESCAPED_UNICODE
-    );
+    echo json_encode(["success" => false, "message" => $e->getMessage()], JSON_UNESCAPED_UNICODE);
 }
 ?>

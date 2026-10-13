@@ -4,6 +4,7 @@ header("Content-Type: application/json; charset=utf-8");
 require_once __DIR__ . "/../conn.php";
 require_once __DIR__ . "/../encryption.php";
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
 function decryptIfEncrypted($value){
     if ($value === null || $value === '') {
         return '';
@@ -37,6 +38,7 @@ try {
             sr.beneficiary_lastname,
             sr.purchase_type,
             sr.retail_price,
+            sr.service_date,
             ao.remaining_balance,
             ao.payment_status,
             ao.status,
@@ -44,6 +46,11 @@ try {
         FROM service_requests sr
         INNER JOIN approved_orders ao
             ON ao.service_request_no = sr.service_request_no
+        WHERE LOWER(TRIM(ao.status)) IN (
+            'approved',
+            'completed',
+            'in progress'
+        )
         ORDER BY ao.approved_at DESC
     ";
 
@@ -53,20 +60,23 @@ try {
         $beneficiaryFirst = decryptIfEncrypted($row["beneficiary_firstname"] ?? "");
         $beneficiaryLast = decryptIfEncrypted($row["beneficiary_lastname"] ?? "");
         $beneficiary = formatBeneficiary($beneficiaryFirst,$beneficiaryLast);
-        $status = $row["payment_status"]?? $row["status"]?? "Pending";
+        $status = $row["payment_status"] ?? $row["status"] ?? "Pending";
 
         $serviceTransactions[] = [
             "service_no" => $row["service_request_no"],
-            "customer" => $customer !== "" ? $customer : "N/A",
+            "customer" => $customer !== ""? $customer: "N/A",
             "beneficiary" => $beneficiary,
-            "service" => $row["purchase_type"] ?? "Funeral Service",
-            "amount" => (float)( $row["retail_price"] ?? 0 ),
-            "remaining_balance" => (float)( $row["remaining_balance"] ?? 0 ),
+            "service" => $row["purchase_type"]?? "Funeral Service",
+            "amount" => (float) ($row["retail_price"] ?? 0),
+            "remaining_balance" => (float) ($row["remaining_balance"] ?? 0),
             "status" => $status,
-            "approved_at" => $row["approved_at"] ?? null
+            "approved_at" => $row["approved_at"]?? null,
+            "service_date" => $row["service_date"]?? null
         ];
     }
+
     $lifeplanTransactions = [];
+
     $lifeplanSql = "
         SELECT
             lr.id,
@@ -76,6 +86,7 @@ try {
             lr.planholder_lastname,
             lr.purchase_type,
             lr.retail_price,
+            lr.service_date,
             al.remaining_balance,
             al.payment_status,
             al.status,
@@ -83,32 +94,38 @@ try {
         FROM lifeplan_request lr
         INNER JOIN approved_lifeplans al
             ON al.lifeplan_request_id = lr.id
+        WHERE LOWER(TRIM(al.status)) IN (
+            'approved',
+            'completed',
+            'in progress'
+        )
         ORDER BY al.approved_at DESC
     ";
 
     $lifeplanResult = $conn->query($lifeplanSql);
-
     while ($row = $lifeplanResult->fetch_assoc()) {
         $customer = decryptIfEncrypted($row["applicant_name"] ?? "");
         $beneficiaryFirst = decryptIfEncrypted($row["planholder_firstname"] ?? "");
         $beneficiaryLast = decryptIfEncrypted($row["planholder_lastname"] ?? "");
-        $beneficiary = formatBeneficiary($beneficiaryFirst,$beneficiaryLast);
-        $status = $row["payment_status"]?? $row["status"]?? "Pending";
+        $beneficiary = formatBeneficiary($beneficiaryFirst, $beneficiaryLast);
+        $status = $row["payment_status"] ?? $row["status"] ?? "Pending";
+
         $lifeplanTransactions[] = [
             "service_no" => $row["lifeplan_no"],
-            "customer" => $customer !== ""? $customer: "N/A",
-            "beneficiary"=>$beneficiary,
-            "service" => $row["purchase_type"]?? "Lifeplan",
-            "amount" => (float)($row["retail_price"]?? 0),
-            "remaining_balance" => (float)($row["remaining_balance"]?? 0),
+            "customer" => $customer !== "" ? $customer : "N/A",
+            "beneficiary" => $beneficiary,
+            "service" => $row["purchase_type"] ?? "Lifeplan",
+            "amount" => (float) ($row["retail_price"] ?? 0),
+            "remaining_balance" => (float) ($row["remaining_balance"] ?? 0),
             "status" => $status,
-            "approved_at" => $row["approved_at"]?? null
+            "approved_at" => $row["approved_at"] ?? null,
+            "service_date" => $row["service_date"] ?? null
         ];
     }
     $transactions = array_merge($serviceTransactions,$lifeplanTransactions);
-    usort($transactions,function ($a, $b) {
-        $dateA = strtotime($a["approved_at"]?? "");
-        $dateB = strtotime($b["approved_at"]?? "");
+    usort($transactions, function ($a, $b) {
+        $dateA = strtotime($a["approved_at"] ?? "");
+        $dateB = strtotime($b["approved_at"] ?? "");
         return $dateB <=> $dateA;
     });
     echo json_encode([
@@ -116,12 +133,11 @@ try {
         "data" => $transactions
     ]);
 } catch (Throwable $e) {
-    error_log("Recent Transactions Error: " .$e->getMessage());
+    error_log("Recent Transactions Error: " . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         "success" => false,
-        "message" =>
-            $e->getMessage()
+        "message" => $e->getMessage()
     ]);
 }
 if (isset($conn) && $conn) {

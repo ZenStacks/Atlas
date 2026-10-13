@@ -250,6 +250,12 @@ if (!isset($_SESSION["user_id"])) {
             color: #808692;
             font-size: 13px;
         }
+        .helps-footer {
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+            padding: 25px 0;
+        }
         @media (max-width: 900px) {
             .support-grid {
                 grid-template-columns: 1fr;
@@ -326,7 +332,7 @@ if (!isset($_SESSION["user_id"])) {
     <div class="section-card" id="faqSection" >
         <div class="section-title">
             <h4>Frequently Asked Questions</h4>
-            <span>Common questions/span>
+            <span>Common questions</span>
         </div>
         <div id="faqList">
             <div class="faq-item">
@@ -512,6 +518,15 @@ if (!isset($_SESSION["user_id"])) {
             </div>
         </div>
     </div>
+</div>
+<div class="helps-footer">
+    <p class="mb-1">
+        © <?php echo date("Y"); ?>
+        Alfonso Somo Funeral Services
+    </p>
+    <p class="mb-0">
+        Help & Support
+    </p>
 </div>
 <script>
     document.querySelectorAll(".faq-question").forEach(button => {

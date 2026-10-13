@@ -1,162 +1,112 @@
 <?php
 require_once __DIR__ . '/../conn.php';
 header("Content-Type: application/json; charset=UTF-8");
+
 try {
-    $currentAtNeedStmt = $conn->query("
-        SELECT
-            COALESCE(
-                SUM(
-                    (
-                        COALESCE(a.downpayment, 0)
-                        +
-                        COALESCE(a.partial_payment, 0)
-                    )
-                    -
-                    COALESCE(a.discount, 0)
-                ),
-                0
-            ) AS revenue
+    $taxRate = 0.12;
+    function getAtNeedRevenue($conn, $dateCondition){
+        $sql = "
+            SELECT
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN LOWER(TRIM(ao.payment_status)) = 'paid'
+                                THEN COALESCE(ao.total_payable, 0)
 
-        FROM approved_orders a
+                            WHEN LOWER(TRIM(ao.payment_status)) = 'unpaid'
+                                THEN COALESCE(ao.downpayment, 0)
+                                   + COALESCE(ao.partial_payment, 0)
 
-        WHERE a.approved_at >=
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS revenue
+            FROM approved_orders ao
+            INNER JOIN service_requests sr
+                ON sr.service_request_no = ao.service_request_no
+            WHERE $dateCondition
+                AND LOWER(TRIM(ao.status)) IN (
+                    'approved',
+                    'in progress',
+                    'completed'
+                )
+        ";
 
-        AND LOWER(a.status) IN (
-            'approved',
-            'in progress',
-            'completed'
-        )
-
-        AND (
-            COALESCE(a.downpayment, 0) > 0
-            OR
-            COALESCE(a.partial_payment, 0) > 0
-        )
-    ");
-    if (!$currentAtNeedStmt) {
-        throw new Exception(
-            "Current At-Need query failed: " .
-            $conn->error
-        );
+        $result = $conn->query($sql);
+        if (!$result) {
+            throw new Exception("At-Need revenue query failed: " . $conn->error);
+        }
+        return (float) ($result->fetch_assoc()['revenue'] ?? 0);
     }
-    $currentAtNeed = (float) $currentAtNeedStmt ->fetch_assoc()['revenue'];
-    $currentLifeplanStmt = $conn->query("
-        SELECT
-            COALESCE(
-                SUM(
-                    COALESCE(lp.amount, 0)
-                    -
-                    COALESCE(al.discount, 0)
-                ),
-                0
-            ) AS revenue
 
-        FROM lifeplan_payments lp
+    function getLifeplanRevenue($conn, $dateCondition){
+        $sql = "
+            SELECT
+                COALESCE(
+                    SUM(
+                        CASE
+                            WHEN LOWER(TRIM(al.payment_status)) = 'paid'
+                                THEN COALESCE(al.total_payable, 0)
 
-        LEFT JOIN approved_lifeplans al
-            ON lp.approved_lifeplan_id = al.id
+                            WHEN LOWER(TRIM(al.payment_status)) = 'unpaid'
+                                THEN COALESCE(al.partial_payment, 0)
 
-        WHERE lp.created_at >=
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+                            ELSE 0
+                        END
+                    ),
+                    0
+                ) AS revenue
+            FROM approved_lifeplans al
+            INNER JOIN lifeplan_request lr
+                ON al.lifeplan_request_id = lr.id
+            WHERE $dateCondition
+                AND LOWER(TRIM(al.status)) IN (
+                    'approved',
+                    'in progress',
+                    'completed'
+                )
+        ";
 
-        AND LOWER(lp.status) = 'approved'
+        $result = $conn->query($sql);
 
-        AND COALESCE(lp.amount, 0) > 0
-    ");
+        if (!$result) {
+            throw new Exception("Lifeplan revenue query failed: " . $conn->error);
+        }
 
-    if (!$currentLifeplanStmt) {
-        throw new Exception(
-            "Current Lifeplan query failed: " .
-            $conn->error
-        );
+        return (float) ($result->fetch_assoc()['revenue'] ?? 0);
     }
-    $currentLifeplan = (float) $currentLifeplanStmt ->fetch_assoc()['revenue'];
-    $current = $currentAtNeed + $currentLifeplan;
-    $previousAtNeedStmt = $conn->query("
-        SELECT
-            COALESCE(
-                SUM(
-                    (
-                        COALESCE(a.downpayment, 0)
-                        +
-                        COALESCE(a.partial_payment, 0)
-                    )
-                    -
-                    COALESCE(a.discount, 0)
-                ),
-                0
-            ) AS revenue
 
-        FROM approved_orders a
+    $currentDateConditionAtNeed = "sr.service_date >= DATE_SUB(CURDATE(), INTERVAL 29 DAY) AND sr.service_date < DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
+    $currentDateConditionLifeplan = "lr.service_date >= DATE_SUB(CURDATE(), INTERVAL 29 DAY) AND lr.service_date < DATE_ADD(CURDATE(), INTERVAL 1 DAY)";
 
-        WHERE a.approved_at >=
-            DATE_SUB(CURDATE(), INTERVAL 60 DAY)
+    $currentAtNeedGross = getAtNeedRevenue($conn,$currentDateConditionAtNeed);
+    $currentLifeplanGross = getLifeplanRevenue($conn,$currentDateConditionLifeplan);
+    $currentGross = $currentAtNeedGross + $currentLifeplanGross;
+    $currentTax = $currentGross * $taxRate;
+    $current = $currentGross - $currentTax;
 
-        AND a.approved_at <
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+    $previousDateConditionAtNeed = "sr.service_date >= DATE_SUB(CURDATE(), INTERVAL 59 DAY) AND sr.service_date < DATE_SUB(CURDATE(), INTERVAL 29 DAY)";
+    $previousDateConditionLifeplan = "lr.service_date >= DATE_SUB(CURDATE(), INTERVAL 59 DAY) AND lr.service_date < DATE_SUB(CURDATE(), INTERVAL 29 DAY)";
 
-        AND LOWER(a.status) IN (
-            'approved',
-            'in progress',
-            'completed'
-        )
+    $previousAtNeedGross = getAtNeedRevenue($conn,$previousDateConditionAtNeed);
+    $previousLifeplanGross = getLifeplanRevenue($conn,$previousDateConditionLifeplan);
 
-        AND (
-            COALESCE(a.downpayment, 0) > 0
-            OR
-            COALESCE(a.partial_payment, 0) > 0
-        )
-    ");
-    if (!$previousAtNeedStmt) {
-        throw new Exception(
-            "Previous At-Need query failed: " .
-            $conn->error
-        );
-    }
-    $previousAtNeed = (float) $previousAtNeedStmt ->fetch_assoc()['revenue'];
-    $previousLifeplanStmt = $conn->query("
-        SELECT
-            COALESCE(
-                SUM(
-                    COALESCE(lp.amount, 0)
-                    -
-                    COALESCE(al.discount, 0)
-                ),
-                0
-            ) AS revenue
-
-        FROM lifeplan_payments lp
-
-        LEFT JOIN approved_lifeplans al
-            ON lp.approved_lifeplan_id = al.id
-
-        WHERE lp.created_at >=
-            DATE_SUB(CURDATE(), INTERVAL 60 DAY)
-
-        AND lp.created_at <
-            DATE_SUB(CURDATE(), INTERVAL 30 DAY)
-
-        AND LOWER(lp.status) = 'approved'
-
-        AND COALESCE(lp.amount, 0) > 0
-    ");
-    if (!$previousLifeplanStmt) {
-        throw new Exception(
-            "Previous Lifeplan query failed: " .
-            $conn->error
-        );
-    }
-    $previousLifeplan = (float) $previousLifeplanStmt ->fetch_assoc()['revenue'];
-    $previous = $previousAtNeed + $previousLifeplan;
+    $previousGross = $previousAtNeedGross + $previousLifeplanGross;
+    $previousTax = $previousGross * $taxRate;
+    $previous = $previousGross - $previousTax;
     $netRevenue = $current - $previous;
+
     $growth = 0;
+
     if ($previous > 0) {
-        $growth =(($current - $previous)/$previous) * 100;
+        $growth = (($current - $previous) / $previous) * 100;
     } elseif ($current > 0) {
         $growth = 100;
     }
+
     $direction = "same";
+
     if ($netRevenue > 0) {
         $direction = "up";
     } elseif ($netRevenue < 0) {
@@ -164,23 +114,22 @@ try {
     }
     echo json_encode([
         "success" => true,
+        "tax_rate" => $taxRate * 100,
         "current_revenue" => round($current, 2),
         "previous_revenue" => round($previous, 2),
         "net_revenue" => round($netRevenue, 2),
         "growth" => round($growth, 2),
         "direction" => $direction,
-        "current_atneed" => round($currentAtNeed, 2),
-        "current_lifeplan" => round($currentLifeplan, 2),
-        "previous_atneed" => round($previousAtNeed, 2),
-        "previous_lifeplan" => round($previousLifeplan, 2)
+        "current_atneed" => round($currentAtNeedGross * (1 - $taxRate),2),
+        "current_lifeplan" => round($currentLifeplanGross * (1 - $taxRate),2),
+        "previous_atneed" => round($previousAtNeedGross * (1 - $taxRate),2),
+        "previous_lifeplan" => round($previousLifeplanGross * (1 - $taxRate),2)
     ]);
-
-} catch (Exception $e) {
+} catch (Throwable $e) {
+    http_response_code(500);
     echo json_encode([
         "success" => false,
-        "message" =>
-            $e->getMessage()
+        "message" => $e->getMessage()
     ]);
 }
 ?>
-

@@ -65,7 +65,7 @@ function formatPaymentTerm($paymentTerm){
     }
     return $months . " months";
 }
-function sendApprovalEmail($customerEmail,$customerName,$serviceRequestNo,$servicePrice,$downpayment,$totalPayable,$remainingBalance,$paymentTerm,$termPayment,$nextDueDate,$paymentEndDate) {
+function sendApprovalEmail($customerEmail,$customerName,$serviceRequestNo,$servicePrice,$downpayment,$totalPayable,$remainingBalance,$paymentOption,$paymentTerm,$termPayment,$nextDueDate,$paymentEndDate) {
     if (empty($customerEmail) || !filter_var($customerEmail, FILTER_VALIDATE_EMAIL)) {
         return false;
     }
@@ -83,21 +83,93 @@ function sendApprovalEmail($customerEmail,$customerName,$serviceRequestNo,$servi
         $mail->setFrom($smtp_user,"Alfonso Somo Funeral Services");
         $mail->addAddress($customerEmail, $customerName);
 
-        $formattedServicePrice = number_format((float)$servicePrice,2);
-        $formattedDownpayment = number_format((float)$downpayment,2);
-        $formattedTotal = number_format((float)$totalPayable,2);
-        $formattedBalance = number_format((float)$remainingBalance,2);
-        $formattedTermPayment = number_format((float)$termPayment,2);
-        $formattedTerm = formatPaymentTerm($paymentTerm);
-        $formattedNextDueDate = date("F d, Y",strtotime($nextDueDate));
-        $formattedPaymentEndDate = date("F d, Y",strtotime($paymentEndDate));
-        $formattedStartMonth = date("F Y", strtotime($nextDueDate));
+        $formattedServicePrice = number_format((float)$servicePrice, 2);
+        $formattedDownpayment = number_format((float)$downpayment, 2);
+        $formattedTotal = number_format((float)$totalPayable, 2);
+        $formattedBalance = number_format((float)$remainingBalance, 2);
+        $formattedTermPayment = number_format((float)$termPayment, 2);
+
+        $isInstallment = strtolower(trim($paymentOption)) === "installment";
+
+        $formattedTerm = $isInstallment
+            ? formatPaymentTerm($paymentTerm)
+            : "";
+
+        $formattedNextDueDate = $isInstallment && $nextDueDate
+            ? date("F d, Y", strtotime($nextDueDate))
+            : "";
+
+        $formattedPaymentEndDate = $isInstallment && $paymentEndDate
+            ? date("F d, Y", strtotime($paymentEndDate))
+            : "";
+
+        $formattedStartMonth = $isInstallment && $nextDueDate
+            ? date("F Y", strtotime($nextDueDate))
+            : "";
 
         $safeName = htmlspecialchars($customerName,ENT_QUOTES,"UTF-8");
         $safeRequestNo = htmlspecialchars($serviceRequestNo,ENT_QUOTES,"UTF-8");
         $safeTerm = htmlspecialchars($formattedTerm,ENT_QUOTES,"UTF-8");
         $safeNextDueDate = htmlspecialchars($formattedNextDueDate,ENT_QUOTES,"UTF-8");
         $safePaymentEndDate = htmlspecialchars($formattedPaymentEndDate,ENT_QUOTES,"UTF-8");
+        if ($isInstallment) {
+            $paymentDetailsHtml = "
+                <p>
+                    Your selected payment term is
+                    <strong>{$safeTerm}</strong>. This means that you will make your payment
+                    <strong>monthly</strong> until the selected payment term has been completed.
+                </p>
+                <p>
+                    Your monthly payment amount is
+                    <strong>₱{$formattedTermPayment}</strong>.
+                    You are expected to continue making this monthly payment until the entire
+                    {$safeTerm} payment period has been completed.
+                </p>
+                <p>
+                    Your next monthly payment is due on
+                    <strong>{$safeNextDueDate}</strong>.
+                    If payments are made according to the selected payment term, the payment
+                    period is expected to end on or around
+                    <strong>{$safePaymentEndDate}</strong>.
+                </p>
+                <p>
+                    Your current payment status is
+                    <strong>Approved - Unpaid</strong>.
+                    Please ensure that your monthly payment is settled on or before the
+                    scheduled payment due date to keep your payment arrangement up to date.
+                </p>
+            ";
+
+            $paymentDetailsAlt = 
+                "Your selected payment term is {$formattedTerm}.\n\n" .
+                "Your monthly payment amount is PHP {$formattedTermPayment}.\n\n" .
+                "Your next monthly payment is due on {$formattedNextDueDate}.\n" .
+                "The payment period is expected to end on or around {$formattedPaymentEndDate}.\n\n" .
+                "Your current payment status is Approved - Unpaid.";
+
+        } else {
+            $paymentDetailsHtml = "
+                <p>
+                    Your payment arrangement for this service is
+                    <strong>Spot Cash</strong>.
+                    No monthly payment term or installment schedule applies to this order.
+                </p>
+                <p>
+                    Your current payment status is
+                    <strong>Paid</strong>.
+                </p>
+                <p>
+                    Your remaining balance is
+                    <strong>₱0.00</strong>.
+                </p>
+            ";
+
+            $paymentDetailsAlt =
+                "Your payment arrangement for this service is Spot Cash. " .
+                "No monthly payment term or installment schedule applies to this order.\n\n" .
+                "Your current payment status is Paid.\n\n" .
+                "Your remaining balance is PHP 0.00.";
+        }
 
         $mail->isHTML(true);
         $mail->Subject = "Funeral Service Order Approval Confirmation - " . $serviceRequestNo;
@@ -159,37 +231,7 @@ function sendApprovalEmail($customerEmail,$customerName,$serviceRequestNo,$servi
                     remaining balance is
                     <strong>₱{$formattedBalance}</strong>.
                 </p>
-                <p>
-                    Your selected payment term is
-                    <strong>{$safeTerm}</strong>. This means
-                    that you will make your payment
-                    <strong>monthly</strong> until the selected
-                    payment term has been completed.
-                </p>
-                <p>
-                    Your monthly payment amount is
-                    <strong>₱{$formattedTermPayment}</strong>.
-                    You are expected to continue making this
-                    monthly payment until the entire
-                    {$safeTerm} payment period has been
-                    completed.
-                </p>
-                <p>
-                    Your next monthly payment is due on
-                    <strong>{$safeNextDueDate}</strong>.
-                    If payments are made according to the
-                    selected payment term, the payment period
-                    is expected to end on or around
-                    <strong>{$safePaymentEndDate}</strong>.
-                </p>
-                <p>
-                    Your current payment status is
-                    <strong>Approved - Unpaid</strong>.
-                    Please ensure that your monthly payment
-                    is settled on or before the scheduled
-                    payment due date to keep your payment
-                    arrangement up to date.
-                </p>
+                {$paymentDetailsHtml}
                 <p>
                     You may log in to your account to review
                     your approved service order, remaining
@@ -235,14 +277,16 @@ function sendApprovalEmail($customerEmail,$customerName,$serviceRequestNo,$servi
             "with service request number {$serviceRequestNo} has been successfully " .
             "APPROVED by Alfonso Somo Funeral Services.\n\n" .
 
-            "The total amount of your approved funeral service is " .
-            "PHP {$formattedServicePrice}. A downpayment of PHP 10,000.00 " .
-            "has been deducted, leaving a remaining balance of " .
-            "PHP {$formattedBalance}.\n\n" .
+            "The approved service has a service price of " .
+            "PHP {$formattedServicePrice}. Your downpayment is " .
+            "PHP {$formattedDownpayment}, resulting in a total payable amount of " .
+            "PHP {$formattedTotal}. After deducting the downpayment, your " .
+            "remaining balance is PHP {$formattedBalance}.\n\n" .
 
-            "Remember to start paying your monthly payment of " .
-            "PHP {$formattedTermPayment}, starting in {$formattedStartMonth}, " .
-            "and every month thereafter.\n\n" .
+            $paymentDetailsAlt . "\n\n" .
+
+            "You may log in to your account to review your approved service order, " .
+            "remaining balance, and payment information.\n\n" .
 
             "Should you have any questions regarding your Funeral Service Package, " .
             "please feel free to contact us at +63 919 273 4055, email us at " .
@@ -287,6 +331,7 @@ try {
             user_id,
             customer_name,
             email,
+            payment_option,
             payment_term,
             term_payment,
             coffin_id,
@@ -312,18 +357,27 @@ try {
     $stmt->close();
     $customerName = decryptIfEncrypted($request["customer_name"] ?? "");
     $customerEmail = decryptIfEncrypted($request["email"] ?? "");
+    $paymentOption = trim((string)($request["payment_option"] ?? ""));
     $paymentTerm = trim((string)($request["payment_term"] ?? ""));
     $termPayment = floatval($request["term_payment"] ?? 0);
-    $paymentTermMonths = getPaymentTermMonths($paymentTerm);
 
-    if ($paymentTermMonths === null) {
-        throw new Exception("Invalid payment term. Payment term must be " . "the number of months, such as 6, 12, 18, " . "or 24.");
-    }
-    $nextDueDate = calculateNextPaymentDueDate();
-    $paymentEndDate = calculatePaymentEndDate($paymentTerm);
+    if ($paymentOption === "Installment") {
+        $paymentTermMonths = getPaymentTermMonths($paymentTerm);
 
-    if ($paymentEndDate === null) {
-        throw new Exception("Unable to calculate payment end date.");
+        if ($paymentTermMonths === null) {
+            throw new Exception("Invalid payment term. Payment term must be the number of months, such as 6, 12, 18, or 24.");
+        }
+
+        $nextDueDate = calculateNextPaymentDueDate();
+        $paymentEndDate = calculatePaymentEndDate($paymentTerm);
+
+        if ($paymentEndDate === null) {
+            throw new Exception("Unable to calculate payment end date.");
+        }
+    } else {
+        $paymentTermMonths = 0;
+        $nextDueDate = null;
+        $paymentEndDate = null;
     }
     
     // duplication checker
@@ -346,15 +400,22 @@ try {
         $checkApproved->close();
         throw new Exception("This service order has already been approved.");
     }
+    $paymentStatus = $paymentOption === "Spot Cash" ? "Paid" : "Unpaid";
+    $orderStatus = "Approved";
+
+    if ($paymentOption === "Spot Cash") {
+        $remainingBalance = 0;
+    }
     $checkApproved->close();
-    $insert = $conn->prepare("INSERT INTO approved_orders (service_request_no, user_id, coffin_id, coffin_source, quantity, service_price, discount, downpayment,
-        total_payable, remaining_balance, payment_status, status, approved_at, due_date)VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Unpaid', 'Approved', NOW(), ? )");
+    $insert = $conn->prepare("INSERT INTO approved_orders (service_request_no, user_id, coffin_id, coffin_source, quantity, 
+    service_price, discount, downpayment, total_payable, remaining_balance, payment_status, status, approved_at, due_date) 
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?)");
     if (!$insert) {
         throw new Exception("Unable to prepare approval query: ". $conn->error);
     }
 
     $insert->bind_param(
-        "siisiddddds",
+        "siisidddddsss",
         $request["service_request_no"],
         $request["user_id"],
         $request["coffin_id"],
@@ -365,6 +426,8 @@ try {
         $downpayment,
         $totalPayable,
         $remainingBalance,
+        $paymentStatus,
+        $orderStatus,
         $nextDueDate
     );
     if (!$insert->execute()) {
@@ -394,6 +457,7 @@ try {
             $downpayment,
             $totalPayable,
             $remainingBalance,
+            $paymentOption,
             $paymentTerm,
             $termPayment,
             $nextDueDate,
@@ -402,15 +466,21 @@ try {
     echo json_encode([
         "success" => true,
         "message" => "Service order approved successfully.",
-        "payment_status" => "Unpaid",
-        "status" => "Approved",
+        "payment_status" => $paymentStatus,
+        "status" => $orderStatus,
         "payment_term" => $paymentTermMonths,
-        "payment_term_formatted" => formatPaymentTerm($paymentTerm),
+        "payment_term_formatted" => $paymentTermMonths > 0
+            ? formatPaymentTerm($paymentTerm)
+            : "-",
         "term_payment" => $termPayment,
         "next_due_date" => $nextDueDate,
-        "next_due_date_formatted" => date("F d, Y",strtotime($nextDueDate)),
+        "next_due_date_formatted" => $nextDueDate
+            ? date("F d, Y", strtotime($nextDueDate))
+            : "-",
         "payment_end_date" => $paymentEndDate,
-        "payment_end_date_formatted" => date("F d, Y",strtotime($paymentEndDate)),
+        "payment_end_date_formatted" => $paymentEndDate
+            ? date("F d, Y", strtotime($paymentEndDate))
+            : "-",
         "email_sent" => $emailSent
     ]);
 } catch (Throwable $e) {

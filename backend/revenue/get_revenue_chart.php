@@ -5,32 +5,57 @@ header("Content-Type: application/json; charset=UTF-8");
 try {
     $atNeedPaymentQuery = "
         SELECT
-            DATE(pp.created_at) AS payment_date,
-            COALESCE(SUM(pp.amount), 0) AS revenue
-        FROM payment_proofs pp
-        INNER JOIN approved_orders ao
-            ON ao.id = pp.order_id
-        WHERE LOWER(TRIM(pp.status)) = 'approved'
-        AND pp.created_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-        AND pp.created_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
-        GROUP BY DATE(pp.created_at)
+            DATE(sr.service_date) AS payment_date,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN LOWER(TRIM(ao.payment_status)) = 'paid'
+                        THEN COALESCE(ao.total_payable, 0)
+
+                        ELSE
+                            COALESCE(ao.downpayment, 0)
+                            + COALESCE(ao.partial_payment, 0)
+                    END
+                ),
+                0
+            ) AS revenue
+        FROM approved_orders ao
+        INNER JOIN service_requests sr
+            ON sr.service_request_no = ao.service_request_no
+        WHERE sr.service_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+        AND sr.service_date < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        AND LOWER(TRIM(ao.status)) != 'cancelled'
+        GROUP BY DATE(sr.service_date)
     ";
+
     $atNeedPaymentResult = $conn->query($atNeedPaymentQuery);
     if (!$atNeedPaymentResult) {
         throw new Exception("At-Need payment query failed: " . $conn->error);
     }
     $lifeplanPaymentQuery = "
         SELECT
-            DATE(lp.created_at) AS payment_date,
-            COALESCE(SUM(lp.amount), 0) AS revenue
-        FROM lifeplan_payments lp
-        INNER JOIN approved_lifeplans al
-            ON al.id = lp.approved_lifeplan_id
-        WHERE LOWER(TRIM(lp.status)) = 'approved'
-        AND lp.created_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-        AND lp.created_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
-        GROUP BY DATE(lp.created_at)
+            DATE(lr.service_date) AS payment_date,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN LOWER(TRIM(al.payment_status)) = 'paid'
+                        THEN COALESCE(al.total_payable, 0)
+
+                        ELSE
+                            COALESCE(al.partial_payment, 0)
+                    END
+                ),
+                0
+            ) AS revenue
+        FROM approved_lifeplans al
+        INNER JOIN lifeplan_request lr
+            ON lr.lifeplan_no = al.lifeplan_no
+        WHERE lr.service_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+        AND lr.service_date < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        AND LOWER(TRIM(al.status)) != 'cancelled'
+        GROUP BY DATE(lr.service_date)
     ";
+
     $lifeplanPaymentResult = $conn->query($lifeplanPaymentQuery);
     if (!$lifeplanPaymentResult) {
         throw new Exception("LifePlan payment query failed: " . $conn->error);
@@ -52,7 +77,7 @@ try {
     }
     $coffinCostQuery = "
         SELECT
-            DATE(ao.approved_at) AS cost_date,
+            DATE(sr.service_date) AS cost_date,
             COALESCE(
                 SUM(
                     CASE
@@ -64,50 +89,55 @@ try {
                         THEN
                             COALESCE(ic.cost, 0)
                             * COALESCE(ao.quantity, 1)
-
                         ELSE 0
                     END
                 ),
                 0
             ) AS coffin_cost
         FROM approved_orders ao
+        INNER JOIN service_requests sr
+            ON sr.service_request_no = ao.service_request_no
         LEFT JOIN coffins c
             ON c.id = ao.coffin_id
             AND LOWER(TRIM(ao.coffin_source)) = 'local'
         LEFT JOIN imported_coffins ic
             ON ic.id = ao.coffin_id
             AND LOWER(TRIM(ao.coffin_source)) = 'imported'
-        WHERE ao.approved_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-        AND ao.approved_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        WHERE sr.service_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+        AND sr.service_date < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
         AND LOWER(TRIM(ao.status))
             IN ('approved', 'completed', 'confirmed')
-        GROUP BY DATE(ao.approved_at)
+        GROUP BY DATE(sr.service_date)
     ";
+
     $coffinCostResult = $conn->query($coffinCostQuery);
     if (!$coffinCostResult) {
         throw new Exception("Coffin cost query failed: " . $conn->error);
     }
+
     $dailyCoffinCosts = [];
+
     while ($row = $coffinCostResult->fetch_assoc()) {
         $date = $row['cost_date'];
         $dailyCoffinCosts[$date] = (float) $row['coffin_cost'];
     }
-
     $flowerCostQuery = "
         SELECT
-            DATE(ao.approved_at) AS cost_date,
+            DATE(sr.service_date) AS cost_date,
             COALESCE(
                 SUM(
                     CASE
-                        WHEN LOWER(TRIM(
-                            CASE
-                                WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
-                                THEN c.coffin_type
-                                WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
-                                THEN ic.coffin_type
-                                ELSE ''
-                            END
-                        )) = 'standard'
+                        WHEN LOWER(
+                            TRIM(
+                                CASE
+                                    WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
+                                    THEN c.coffin_type
+                                    WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
+                                    THEN ic.coffin_type
+                                    ELSE ''
+                                END
+                            )
+                        ) = 'standard'
                         THEN COALESCE(
                             (
                                 SELECT SUM(f.cost)
@@ -116,15 +146,17 @@ try {
                             ),
                             0
                         )
-                        WHEN LOWER(TRIM(
-                            CASE
-                                WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
-                                THEN c.coffin_type
-                                WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
-                                THEN ic.coffin_type
-                                ELSE ''
-                            END
-                        )) = 'premium'
+                        WHEN LOWER(
+                            TRIM(
+                                CASE
+                                    WHEN LOWER(TRIM(ao.coffin_source)) = 'local'
+                                    THEN c.coffin_type
+                                    WHEN LOWER(TRIM(ao.coffin_source)) = 'imported'
+                                    THEN ic.coffin_type
+                                    ELSE ''
+                                END
+                            )
+                        ) = 'premium'
                         THEN COALESCE(
                             (
                                 SELECT SUM(f.cost)
@@ -134,49 +166,61 @@ try {
                             0
                         )
                         ELSE 0
-
                     END
                 ),
                 0
             ) AS flower_cost
         FROM approved_orders ao
+        INNER JOIN service_requests sr
+            ON sr.service_request_no = ao.service_request_no
         LEFT JOIN coffins c
             ON c.id = ao.coffin_id
             AND LOWER(TRIM(ao.coffin_source)) = 'local'
         LEFT JOIN imported_coffins ic
             ON ic.id = ao.coffin_id
             AND LOWER(TRIM(ao.coffin_source)) = 'imported'
-        WHERE ao.approved_at >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
-        AND ao.approved_at < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+        WHERE sr.service_date >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+        AND sr.service_date < DATE_ADD(CURDATE(), INTERVAL 1 DAY)
         AND LOWER(TRIM(ao.status))
             IN ('approved', 'completed', 'confirmed')
-        GROUP BY DATE(ao.approved_at)
+        GROUP BY DATE(sr.service_date)
     ";
     $flowerCostResult = $conn->query($flowerCostQuery);
     if (!$flowerCostResult) {
         throw new Exception("Flower cost query failed: " . $conn->error);
     }
+
     $dailyFlowerCosts = [];
+
     while ($row = $flowerCostResult->fetch_assoc()) {
         $date = $row['cost_date'];
         $dailyFlowerCosts[$date] = (float) $row['flower_cost'];
     }
-    $allDates = array_unique(array_merge(array_keys($dailyRevenue),array_keys($dailyCoffinCosts),array_keys($dailyFlowerCosts)));
+
+    $allDates = array_unique(
+        array_merge(
+            array_keys($dailyRevenue),
+            array_keys($dailyCoffinCosts),
+            array_keys($dailyFlowerCosts)
+        )
+    );
+
     sort($allDates);
     $labels = [];
     $revenues = [];
     $costs = [];
     $profits = [];
+
     foreach ($allDates as $date) {
         $revenue = $dailyRevenue[$date] ?? 0;
         $coffinCost = $dailyCoffinCosts[$date] ?? 0;
         $flowerCost = $dailyFlowerCosts[$date] ?? 0;
         $totalCost = $coffinCost + $flowerCost;
         $profit = $revenue - $totalCost;
-        $labels[] = date("M d", strtotime($date));
-        $revenues[] = round($revenue, 2);
-        $costs[] = round($totalCost, 2);
-        $profits[] = round($profit, 2);
+        $labels[] = date("M d",strtotime($date));
+        $revenues[] = round($revenue,2);
+        $costs[] = round($totalCost,2);
+        $profits[] = round($profit,2);
     }
     echo json_encode([
         "success" => true,

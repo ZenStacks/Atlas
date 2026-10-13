@@ -1,46 +1,75 @@
+
 <?php
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=UTF-8');
+
 require_once __DIR__ . '/../conn.php';
+
 try {
-    $paymentProofStmt = $conn->query("
-        SELECT COALESCE(SUM(amount), 0) AS total
-        FROM payment_proofs
-        WHERE LOWER(TRIM(status)) = 'approved'
-          AND COALESCE(amount, 0) > 0
+    $allowedStatuses = "'Approved', 'In Progress', 'Completed'";
+
+    $ordersStmt = $conn->query("
+        SELECT COALESCE(SUM(
+            CASE
+                WHEN LOWER(TRIM(payment_status)) = 'paid'
+                    THEN COALESCE(total_payable, 0)
+                WHEN LOWER(TRIM(payment_status)) = 'unpaid'
+                    THEN COALESCE(downpayment, 0)
+                       + COALESCE(partial_payment, 0)
+                ELSE 0
+            END
+        ), 0) AS total
+        FROM approved_orders
+        WHERE status IN ($allowedStatuses)
     ");
 
-    if (!$paymentProofStmt) {
+    if (!$ordersStmt) {
         throw new Exception(
-            "Payment proofs query failed: " . $conn->error
+            'Approved orders query failed: ' . $conn->error
         );
     }
 
-    $paymentProofs = (float) $paymentProofStmt->fetch_assoc()['total'];
+    $ordersTotal = (float) $ordersStmt->fetch_assoc()['total'];
+
     $lifeplanStmt = $conn->query("
-        SELECT COALESCE(SUM(amount), 0) AS total
-        FROM lifeplan_payments
-        WHERE LOWER(TRIM(status)) = 'approved'
-          AND COALESCE(amount, 0) > 0
+        SELECT COALESCE(SUM(
+            CASE
+                WHEN LOWER(TRIM(payment_status)) = 'paid'
+                    THEN COALESCE(total_payable, 0)
+                WHEN LOWER(TRIM(payment_status)) = 'unpaid'
+                    THEN COALESCE(downpayment, 0)
+                       + COALESCE(partial_payment, 0)
+                ELSE 0
+            END
+        ), 0) AS total
+        FROM approved_lifeplans
+        WHERE status IN ($allowedStatuses)
     ");
+
     if (!$lifeplanStmt) {
         throw new Exception(
-            "Lifeplan payments query failed: " . $conn->error
+            'Approved life plans query failed: ' . $conn->error
         );
     }
-    $lifeplanPayments = (float) $lifeplanStmt->fetch_assoc()['total'];
 
-    $totalPayments = $paymentProofs + $lifeplanPayments;
+    $lifeplanTotal = (float) $lifeplanStmt->fetch_assoc()['total'];
+
+    $totalPayments = $ordersTotal + $lifeplanTotal;
+
     echo json_encode([
-        "success" => true,
-        "total" => round($totalPayments, 2),
-        "atneed" => round($paymentProofs, 2),
-        "lifeplan" => round($lifeplanPayments, 2)
+        'success' => true,
+        'total' => round($totalPayments, 2),
+        'atneed' => round($ordersTotal, 2),
+        'lifeplan' => round($lifeplanTotal, 2)
     ]);
+
 } catch (Throwable $e) {
+    error_log('Payments Received Error: ' . $e->getMessage());
+
+    http_response_code(500);
+
     echo json_encode([
-        "success" => false,
-        "message" => $e->getMessage()
+        'success' => false,
+        'message' => 'Unable to calculate payments received.'
     ]);
 }
-
 ?>
