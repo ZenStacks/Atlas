@@ -1,64 +1,50 @@
+
 <?php
 require_once __DIR__ . "/../conn.php";
 
-$sql = "SELECT
-    id,
-    'Coffin' AS material_category,
-    material_type,
-    material_name,
-    unit,
-    current_stock,
-    cost_per_unit AS cost,
-    details
-FROM coffin_materials
+header("Content-Type: application/json; charset=UTF-8");
 
-UNION ALL
+$sql = "
+    SELECT
+        id,
+        'Equipment' AS material_category,
+        item_name AS material_name,
+        equipment_type AS material_type,
+        unit,
+        current_stock,
+        cost_per_unit AS cost,
+        details
+    FROM equipment_materials
 
-SELECT
-    id,
-    'Equipment' AS material_category,
-    equipment_type,
-    item_name,
-    unit,
-    current_stock,
-    cost_per_unit AS cost,
-    details
-FROM equipment_materials
+    UNION ALL
 
-UNION ALL
+    SELECT
+        id,
+        'Flowers' AS material_category,
+        flower_type AS material_name,
+        flower_type AS material_type,
+        '-' AS unit,
+        current_stock,
+        cost,
+        details
+    FROM flowers
 
-SELECT
-    id,
-    'Flowers' AS material_category,
-    'flowers' AS flower_name,
-    flower_type,
-    '-' AS unit,
-    current_stock,
-    cost,
-    details
-FROM flowers
-
-UNION ALL
-
-SELECT
-    id,
-    'Interior Lining' AS material_category,
-    interior_type,
-    item_name,
-    unit,
-    current_stock,
-    cost_per_unit AS cost,
-    details
-FROM interior_lining_materials
-
-ORDER BY material_category, material_name
+    ORDER BY material_category, material_name
 ";
 
 $result = $conn->query($sql);
 
+if (!$result) {
+    echo json_encode([
+        "success" => false,
+        "message" => $conn->error
+    ]);
+    exit;
+}
+
 $materials = [];
 
-while($row = $result->fetch_assoc()){
+while ($row = $result->fetch_assoc()) {
     $materials[] = $row;
 }
 
@@ -66,3 +52,4 @@ echo json_encode([
     "success" => true,
     "materials" => $materials
 ]);
+?>
