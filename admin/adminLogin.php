@@ -82,53 +82,81 @@
     const adminKeyInput = document.getElementById("admin-key");
     verifyBtn.addEventListener("click", async () => {
         const adminKey = adminKeyInput.value.trim();
-        if(adminKey === ""){
+
+        if (adminKey === "") {
             Swal.fire({
-                icon:"warning",
-                title:"Missing Access Key",
-                text:"Please enter the administrator access key."
+                icon: "warning",
+                title: "Missing Access Key",
+                text: "Please enter the administrator access key."
             });
             return;
         }
+
         loadingOverlay.classList.add("show");
-        try{
-            const formData = new FormData();
-            formData.append("admin_key", adminKey);
-            const response = await fetch("../backend/admin/verify_admin_key.php",{
-                method:"POST",
-                body:formData
+
+        try {
+            const response = await fetch("../backend/admin/verify_admin_key.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+                },
+                body: new URLSearchParams({
+                    admin_key: adminKey
+                }),
+                credentials: "same-origin"
             });
-            const result = await response.json();
-            loadingOverlay.classList.remove("show");
-            if(result.status === "success"){
+
+            const rawResponse = await response.text();
+
+            //console.log("Verification URL:", response.url);
+            //console.log("HTTP Status:", response.status);
+            //console.log("Content-Type:", response.headers.get("content-type"));
+            //console.log("Raw response:", rawResponse);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${rawResponse.slice(0, 300)}`);
+            }
+
+            let result;
+
+            try {
+                result = JSON.parse(rawResponse);
+            } catch {
+                throw new Error("The server did not return valid JSON.");
+            }
+
+            if (result.status === "success") {
                 Swal.fire({
-                    icon:"success",
-                    title:"Access Granted",
-                    text:result.message,
-                    timer:1200,
-                    showConfirmButton:false
+                    icon: "success",
+                    title: "Access Granted",
+                    text: result.message,
+                    timer: 1200,
+                    showConfirmButton: false
                 });
-                setTimeout(()=>{
+
+                setTimeout(() => {
                     securityBox.classList.add("hidden");
                     loginContent.classList.remove("hidden");
-                },1200);
-            }else{
+                }, 1200);
+            } else {
                 Swal.fire({
-                    icon:"error",
-                    title:"Access Denied",
-                    text:result.message
+                    icon: "error",
+                    title: "Access Denied",
+                    text: result.message
                 });
-                adminKeyInput.value="";
+
+                adminKeyInput.value = "";
                 adminKeyInput.focus();
             }
-        }catch(error){
-            loadingOverlay.classList.remove("show");
-            console.error(error);
+        } catch (error) {
+            //console.error("Verification error:", error);
             Swal.fire({
-                icon:"error",
-                title:"Server Error",
-                text:"Unable to verify the administrator access key."
+                icon: "error",
+                title: "Server Error",
+                text: "Unable to verify the administrator access key. Check the browser console for details."
             });
+        } finally {
+            loadingOverlay.classList.remove("show");
         }
     });
     cancelBtn.addEventListener("click",()=>{
@@ -166,24 +194,45 @@
         forgotPasswordModal.classList.remove('active');
         formContainer.style.display = 'block';
     });
-    //login
-    const loadingOverlay = document.getElementById('loading-overlay');
+    // login
+    const loadingOverlay = document.getElementById("loading-overlay");
 
-    loginForm.addEventListener("submit", function(e){
+    loginForm.addEventListener("submit", async function (e) {
         e.preventDefault();
-        loadingOverlay.classList.add('show');
+        loadingOverlay.classList.add("show");
 
-        const formData = new FormData(loginForm);
+        try {
+            const formData = new FormData(loginForm);
 
-        fetch("../backend/admin/adminLogin.php", {
-            method: "POST",
-            body: formData
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-            if(data.status === "success"){
-                loadingOverlay.classList.remove('show');
+            const response = await fetch("../backend/admin/adminLogin.php", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+                },
+                body: new URLSearchParams(formData),
+                credentials: "same-origin"
+            });
+
+            const rawResponse = await response.text();
+
+            //console.log("Login URL:", response.url);
+            //console.log("HTTP Status:", response.status);
+            //console.log("Content-Type:", response.headers.get("content-type"));
+            //console.log("Login response:", rawResponse);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${rawResponse.slice(0, 300)}`);
+            }
+
+            let data;
+
+            try {
+                data = JSON.parse(rawResponse);
+            } catch {
+                throw new Error("The server returned invalid JSON.");
+            }
+
+            if (data.status === "success") {
                 Swal.fire({
                     icon: "success",
                     title: "Login Successful",
@@ -191,30 +240,28 @@
                     showConfirmButton: false,
                     timer: 1500
                 });
-                setTimeout(()=>{
-                    loadingOverlay.classList.add('show');
+
+                setTimeout(() => {
                     window.location.href = "admin.php";
                 }, 1500);
-
             } else {
-                loadingOverlay.classList.remove('show');
                 Swal.fire({
                     icon: "error",
                     title: "Login Failed",
-                    text: data.message,
-                    showConfirmButton: false,
-                    timer: 2000
+                    text: data.message || "Unable to log in."
                 });
             }
-        })
-        .catch(err => {
-            loadingOverlay.classList.remove('show');
+        } catch (error) {
+            //console.error("Login error:", error);
+
             Swal.fire({
                 icon: "error",
                 title: "Server Error",
-                text: "Something went wrong. Try again."
+                text: "Unable to complete login. Check the browser console for details."
             });
-        });
+        } finally {
+            loadingOverlay.classList.remove("show");
+        }
     });
 </script>
 </body>

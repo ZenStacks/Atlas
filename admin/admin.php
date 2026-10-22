@@ -5638,11 +5638,13 @@ $username = $_SESSION['username'] ?? '';
         });
         saveNewFlowerBtn?.addEventListener("click", async function (event) {
             event.preventDefault();
+
             const flowerType = document.getElementById("new-flower-type")?.value.trim() || "";
             const initialStockInput = document.getElementById("new-flower-initial-stock");
             const initialStock = initialStockInput?.value.trim() || "";
             const detailsNotes = document.getElementById("details")?.value.trim() || "";
             const cost = document.getElementById("new-flower-cost")?.value.trim() || "0";
+
             if (!flowerType || !initialStock) {
                 Swal.fire({
                     icon: "warning",
@@ -5651,6 +5653,7 @@ $username = $_SESSION['username'] ?? '';
                 });
                 return;
             }
+
             if (!/^\d+$/.test(initialStock)) {
                 Swal.fire({
                     icon: "error",
@@ -5660,6 +5663,7 @@ $username = $_SESSION['username'] ?? '';
                 initialStockInput.focus();
                 return;
             }
+
             const confirm = await Swal.fire({
                 icon: "question",
                 title: "Save Flower Setup?",
@@ -5668,12 +5672,15 @@ $username = $_SESSION['username'] ?? '';
                 confirmButtonText: "Yes, Save",
                 cancelButtonText: "Cancel"
             });
+
             if (!confirm.isConfirmed) return;
-            const formData = new FormData();
-            formData.append("flower_type", flowerType);
-            formData.append("initial_stock", initialStock);
-            formData.append("details", detailsNotes);
-            formData.append("cost", parseFloat(cost.replace(/[₱,\s]/g, "")) || 0);
+
+            const params = new URLSearchParams();
+            params.append("flower_type", flowerType);
+            params.append("initial_stock", initialStock);
+            params.append("details", detailsNotes);
+            params.append("cost", parseFloat(cost.replace(/[₱,\\s]/g, "")) || 0);
+
             try {
                 Swal.fire({
                     title: "Saving Flower Setup...",
@@ -5688,44 +5695,56 @@ $username = $_SESSION['username'] ?? '';
 
                 const res = await fetch("../backend/flowers/flower_save.php", {
                     method: "POST",
-                    body: formData
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+                    },
+                    body: params,
+                    credentials: "same-origin"
                 });
 
-                const data = await res.json();
+                const rawResponse = await res.text();
+                let data;
 
-                Swal.fire({
+                try {
+                    data = JSON.parse(rawResponse);
+                } catch (error) {
+                    // console.error(
+                    //     "Invalid flower save response:",
+                    //     res.status,
+                    //     rawResponse.slice(0, 500)
+                    // );
+                    throw new Error(`The server returned an invalid response (HTTP ${res.status}). Check the browser console.`);
+                }
+                if (!res.ok) {
+                    // console.error("Flower save request failed:", res.status, data);
+                    throw new Error(data.message || `Request failed with HTTP ${res.status}.`);
+                }
+                await Swal.fire({
                     icon: data.status === "success" ? "success" : "error",
                     title: data.status === "success" ? "Success" : "Error",
                     text: data.message || "No response message"
-                }).then(() => {
-
-                    if (data.status === "success") {
-
-                        document.getElementById("new-flower-type").value = "";
-                        document.getElementById("new-flower-initial-stock").value = "";
-                        document.getElementById("details").value = "";
-                        document.getElementById("new-flower-cost").value = "";
-
-                        document.querySelectorAll(
-                            "#new-flower-materials-container .qty-control input"
-                        ).forEach(input => {
-                            input.value = "";
-                        });
-
-                        document.getElementById("confirmModal")?.classList.add("hidden");
-
-                        if (typeof loadInventoryLogs === "function") {
-                            loadInventoryLogs();
-                        }
-                    }
                 });
+
+                if (data.status === "success") {
+                    document.getElementById("new-flower-type").value = "";
+                    document.getElementById("new-flower-initial-stock").value = "";
+                    document.getElementById("details").value = "";
+                    document.getElementById("new-flower-cost").value = "";
+                    document.querySelectorAll("#new-flower-materials-container .qty-control input").forEach(input => {
+                        input.value = "";
+                    });
+                    document.getElementById("confirmModal")?.classList.add("hidden");
+                    if (typeof loadInventoryLogs === "function") {
+                        loadInventoryLogs();
+                    }
+                }
             } catch (err) {
+                // console.error("Flower save error:", err);
                 Swal.fire({
                     icon: "error",
                     title: "Server Error",
-                    text: err.message
+                    text: err.message || "Unable to save the flower setup."
                 });
-
             }
         });
         function newFLowerResetForm(){
@@ -7998,14 +8017,43 @@ $username = $_SESSION['username'] ?? '';
         
     });
     // most requested package
+
     async function loadInventoryUsage() {
         try {
-            const res = await fetch("../backend/most_requested_service/get_most_requested.php");
-            const result = await res.json();
-            if (!result.success) return;
+            const res = await fetch("../backend/most_requested_service/get_most_requested.php", {
+                credentials: "same-origin"
+            });
+
+            const rawResponse = await res.text();
+            let result;
+
+            try {
+                result = JSON.parse(rawResponse);
+            } catch (err) {
+                console.error("Invalid most requested items API response:", res.status, rawResponse.slice(0, 500));
+                return;
+            }
+
+            if (!res.ok || !result || !result.success) {
+                console.error("Most requested items API failed:", result);
+                return;
+            }
+
+            if (
+                !result.months ||
+                typeof result.months !== "object" ||
+                Array.isArray(result.months) ||
+                !Array.isArray(result.items)
+            ) {
+                console.error("Unexpected most requested items response:", result);
+                return;
+            }
+
             const canvas = document.getElementById("requested-items");
             if (!canvas) return;
+
             const ctx = canvas.getContext("2d");
+
             const colors = [
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(255, 159, 64, 0.2)',
@@ -8015,6 +8063,7 @@ $username = $_SESSION['username'] ?? '';
                 'rgba(153, 102, 255, 0.2)',
                 'rgba(201, 203, 207, 0.2)'
             ];
+
             const borderColors = [
                 'rgb(255, 99, 132)',
                 'rgb(255, 159, 64)',
@@ -8024,25 +8073,25 @@ $username = $_SESSION['username'] ?? '';
                 'rgb(153, 102, 255)',
                 'rgb(201, 203, 207)'
             ];
+
             const months = Object.keys(result.months);
             const items = result.items;
-            const datasets = items.map((item, index) => {
-                return {
-                    label: item,
-                    data: months.map(month => {
-                        return result.months[month][item] || 0;
-                    }),
-                    backgroundColor: colors[index % colors.length],
-                    borderColor: borderColors[index % borderColors.length],
-                    borderWidth: 1
-                };
-            });
+
+            const datasets = items.map((item, index) => ({
+                label: item,
+                data: months.map(month => result.months[month]?.[item] ?? 0),
+                backgroundColor: colors[index % colors.length],
+                borderColor: borderColors[index % borderColors.length],
+                borderWidth: 1
+            }));
+
             new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: months.map(month => {
                         const [year, monthNumber] = month.split("-");
-                        const date = new Date(year, monthNumber - 1);
+                        const date = new Date(Number(year), Number(monthNumber) - 1);
+
                         return date.toLocaleString('en-US', {
                             month: 'short',
                             year: 'numeric'
@@ -9223,6 +9272,24 @@ onsiteTabButtons.forEach(button => {
         }
     });
 });
+// helper path
+function getCoffinImagePath(image) {
+    if (!image) return "";
+
+    const normalizedPath = image.replace(/\\/g, "/");
+    const match = normalizedPath.match(/uploads\/(coffins|imported_coffins)\/(.+)$/i);
+
+    if (!match) return image;
+
+    const folder = match[1];
+    const filename = match[2];
+
+    return `../backend/uploads/${folder}/${filename
+        .split("/")
+        .map(encodeURIComponent)
+        .join("/")}`;
+}
+
 // onsite section under preferences
 let coffinCache = [];
 let selectedCoffin = null;
@@ -9247,7 +9314,7 @@ async function loadStandardCoffins() {
                 <div class="product-card">
                     <div class="product-card-details">
                         <div class="product-card-img">
-                            <img src="${coffin.image}" alt="${coffin.item_name}">
+                            <img src="${getCoffinImagePath(coffin.image)}" alt="${coffin.item_name}">
                         </div>
                         <div class="product-details">
                             <div class="product-header">
@@ -9681,7 +9748,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="product-card">
                     <div class="product-card-details">
                         <div class="product-card-img">
-                            <img src="${coffin.image}" alt="${coffin.item_name}">
+                            <img src="${getCoffinImagePath(coffin.image)}" alt="${coffin.item_name}">
                         </div>
                         <div class="product-details">
                             <div class="product-header">

@@ -26,7 +26,7 @@ function getAtNeedRevenue($conn, $dateCondition = ""){
     if ($dateCondition !== "") {
         $sql .= "INNER JOIN service_requests sr ON sr.service_request_no = ao.service_request_no";
     }
-    $sql .= "WHERE LOWER(TRIM(ao.status)) IN ( 'approved', 'in progress', 'completed' )";
+    $sql .= " WHERE LOWER(TRIM(ao.status)) IN ('approved', 'in progress', 'completed')";
     if ($dateCondition !== "") {
         $sql .= " AND ($dateCondition) ";
     }
@@ -60,7 +60,7 @@ function getLifeplanRevenue($conn, $dateCondition = ""){
     if ($dateCondition !== "") {
         $sql .= "INNER JOIN lifeplan_request lr ON al.lifeplan_request_id = lr.id";
     }
-    $sql .= "WHERE LOWER(TRIM(al.status)) IN ( 'approved', 'in progress', 'completed' )";
+    $sql .= " WHERE LOWER(TRIM(al.status)) IN ('approved', 'in progress', 'completed')";
     if ($dateCondition !== "") {
         $sql .= " AND ($dateCondition) ";
     }
