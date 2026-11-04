@@ -515,7 +515,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="product-card">
                     <div class="product-card-details">
                         <div class="product-card-img">
-                            <img src="${coffin.image}" alt="${coffin.item_name}">
+                            <img src="${coffin.image}" alt="${coffin.item_name}"onerror="console.error('Failed to load coffin image:', this.src)">
                         </div>
                         <div class="product-details">
                             <div class="product-header">
@@ -562,7 +562,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="product-card">
                     <div class="product-card-details">
                         <div class="product-card-img">
-                            <img src="${coffin.image}" alt="${coffin.item_name}">
+                            <img src="${coffin.image}" alt="${coffin.item_name}"onerror="console.error('Failed to load coffin image:', this.src)">
                         </div>
                         <div class="product-details">
                             <div class="product-header">

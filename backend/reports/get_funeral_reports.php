@@ -214,40 +214,29 @@ try {
         }
 
         $paymentKey = strtolower($paymentOption);
-
         if (!isset($paymentBreakdown[$paymentKey])) {
             $paymentBreakdown[$paymentKey] = [
                 "label" => $paymentOption,
                 "count" => 0
             ];
         }
-
         $paymentBreakdown[$paymentKey]["count"]++;
-
         $transactions[] = [
-
-            "service_no" =>
-                $row["service_request_no"],
-
-            "customer" =>
-                $customer,
-
-            "service" =>
-                $service,
-
-            "amount" =>
-                $totalPayable,
-
-            "remaining_balance" =>
-                (float)(
-                    $row["remaining_balance"] ?? 0
-                ),
-
-            "status" =>
-                $rowStatus,
-
-            "approved_at" =>
-                $row["approved_at"]
+            "service_no" => $row["service_request_no"],
+            "customer" => $customer,
+            "beneficiary_firstname" => decryptIfEncrypted(
+                $row["beneficiary_firstname"] ?? ""
+            ),
+            "beneficiary_lastname" => decryptIfEncrypted(
+                $row["beneficiary_lastname"] ?? ""
+            ),
+            "service" => $service,
+            "amount" => $totalPayable,
+            "remaining_balance" => (float)(
+                $row["remaining_balance"] ?? 0
+            ),
+            "status" => $rowStatus,
+            "approved_at" => $row["approved_at"]
         ];
     }
 

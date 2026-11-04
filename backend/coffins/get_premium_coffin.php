@@ -1,3 +1,4 @@
+
 <?php
 require_once "../conn.php";
 
@@ -39,6 +40,7 @@ try {
             ON f.flower_type = 'premium-setup'
 
         WHERE LOWER(TRIM(c.coffin_type)) = 'premium'
+          AND c.status = 'Available'
 
 
         UNION ALL
@@ -76,6 +78,7 @@ try {
             ON f.flower_type = 'premium-setup'
 
         WHERE LOWER(TRIM(ic.coffin_type)) = 'premium'
+          AND ic.status = 'Available'
 
 
         ORDER BY item_name ASC
@@ -91,16 +94,18 @@ try {
     $coffins = [];
 
     $basePaths = [
-        "local" => "/atlas/backend/uploads/coffins/",
-        "imported" => "/atlas/backend/uploads/imported_coffins/"
+        "local" => "/backend/uploads/coffins/",
+        "imported" => "/backend/uploads/imported_coffins/"
     ];
 
     while ($row = $result->fetch_assoc()) {
 
         $folder = $basePaths[$row["source"]] ?? "";
+        $imagePath = str_replace("\\", "/", trim($row["image"] ?? ""));
+        $filename = basename($imagePath);
 
-        $row["image"] = !empty($row["image"])
-            ? $folder . basename($row["image"])
+        $row["image"] = ($filename !== "" && $folder !== "")
+            ? $folder . rawurlencode($filename)
             : "";
 
         $row["cost"] = (float) $row["cost"];

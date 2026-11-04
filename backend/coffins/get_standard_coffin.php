@@ -1,12 +1,11 @@
+
 <?php
 require_once "../conn.php";
 
 header("Content-Type: application/json; charset=utf-8");
 
 try {
-
     $sql = "
-
         SELECT
             CONCAT('local_', c.id) AS unique_key,
             c.id,
@@ -23,26 +22,18 @@ try {
             c.details,
             c.image,
             'local' AS source,
-
             f.flower_type,
             COALESCE(f.cost, 0) AS flower_cost,
-
             (
-                COALESCE(c.retail_price, 0)
-                +
+                COALESCE(c.retail_price, 0) +
                 COALESCE(f.cost, 0)
             ) AS selling_price
-
         FROM coffins c
-
         LEFT JOIN flowers f
             ON f.flower_type = 'standard-setup'
-
         WHERE LOWER(TRIM(c.coffin_type)) = 'standard'
 
-
         UNION ALL
-
 
         SELECT
             CONCAT('imported_', ic.id) AS unique_key,
@@ -60,26 +51,18 @@ try {
             ic.details,
             ic.image,
             'imported' AS source,
-
             f.flower_type,
             COALESCE(f.cost, 0) AS flower_cost,
-
             (
-                COALESCE(ic.retail_price, 0)
-                +
+                COALESCE(ic.retail_price, 0) +
                 COALESCE(f.cost, 0)
             ) AS selling_price
-
         FROM imported_coffins ic
-
         LEFT JOIN flowers f
             ON f.flower_type = 'standard-setup'
-
         WHERE LOWER(TRIM(ic.coffin_type)) = 'standard'
 
-
         ORDER BY item_name ASC
-
     ";
 
     $result = $conn->query($sql);
@@ -91,24 +74,26 @@ try {
     $coffins = [];
 
     $basePaths = [
-        "local" => "/atlas/backend/uploads/coffins/",
-        "imported" => "/atlas/backend/uploads/imported_coffins/"
+        "local" => "/backend/uploads/coffins/",
+        "imported" => "/backend/uploads/imported_coffins/"
     ];
 
+    
     while ($row = $result->fetch_assoc()) {
+        $imagePath = trim($row["image"] ?? "");
+        $filename = basename(str_replace("\\", "/", $imagePath));
 
-        $folder = $basePaths[$row["source"]] ?? "";
+        $folder = ($row["source"] === "imported")
+            ? "/backend/uploads/imported_coffins/"
+            : "/backend/uploads/coffins/";
 
-        $row["image"] = !empty($row["image"])
-            ? $folder . basename($row["image"])
+        $row["image"] = $filename !== ""
+            ? $folder . rawurlencode($filename)
             : "";
-        $row["cost"] = (float) $row["cost"];
-        $row["retail_price"] = (float) $row["retail_price"];
-        $row["flower_cost"] = (float) $row["flower_cost"];
-        $row["selling_price"] = (float) $row["selling_price"];
 
         $coffins[] = $row;
     }
+
 
     echo json_encode([
         "success" => true,
@@ -116,7 +101,6 @@ try {
     ]);
 
 } catch (Throwable $e) {
-
     http_response_code(500);
 
     echo json_encode([

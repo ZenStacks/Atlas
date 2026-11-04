@@ -18,6 +18,7 @@ $color = trim($_POST["color"] ?? "");
 $origin = trim($_POST["origin"] ?? "");
 $costPrice = isset($_POST["cost_price"]) ? (float) $_POST["cost_price"] : 0;
 $retailPrice = isset($_POST["retail_price"]) ? (float) $_POST["retail_price"] : 0;
+$downpayment = isset($_POST["downpayment"]) ? (float) $_POST["downpayment"] : 0;
 $stock = isset($_POST["stock"]) ? (int) $_POST["stock"] : 0;
 $status = trim($_POST["status"] ?? "");
 $details = trim($_POST["details"] ?? "");
@@ -55,6 +56,9 @@ if ($costPrice < 0) {
 }
 if ($retailPrice < 0) {
     $retailPrice = 0;
+}
+if ($downpayment < 0) {
+    $downpayment = 0;
 }
 if ($stock < 0) {
     $stock = 0;
@@ -142,15 +146,16 @@ try {
         }
     }
     if ($table === "coffins") {
-        $stmt = $conn->prepare(" UPDATE coffins SET item_name = ?, coffin_type = ?, size = ?, color = ?, stock = ?, cost_price = ?, retail_price = ?, image = ?, details = ?, status = ?, updated_at = NOW() WHERE id = ? ");
+        $stmt = $conn->prepare(" UPDATE coffins SET item_name = ?, coffin_type = ?, size = ?, color = ?, stock = ?, cost_price = ?, downpayment = ?, retail_price = ?, image = ?, details = ?, status = ?, updated_at = NOW() WHERE id = ? ");
         $stmt->bind_param(
-            "ssssidssssi",
+            "ssssdddssssi",
             $name,
             $type,
             $size,
             $color,
             $stock,
             $costPrice,
+            $downpayment,
             $retailPrice,
             $imagePath,
             $details,
@@ -159,14 +164,15 @@ try {
         );
     }
     else {
-        $stmt = $conn->prepare(" UPDATE imported_coffins SET item_name = ?, color = ?, size = ?, current_stock = ?, cost = ?, retail_price = ?, coffin_type = ?, details = ?, image = ?, status = ?, updated_at = NOW() WHERE id = ?");
+        $stmt = $conn->prepare(" UPDATE imported_coffins SET item_name = ?, color = ?, size = ?, current_stock = ?, cost = ?, downpayment = ?, retail_price = ?, coffin_type = ?, details = ?, image = ?, status = ?, updated_at = NOW() WHERE id = ?");
         $stmt->bind_param(
-            "sssiddssssi",
+            "sssidddssssi",
             $name,
             $color,
             $size,
             $stock,
             $costPrice,
+            $downpayment,
             $retailPrice,
             $type,
             $details,

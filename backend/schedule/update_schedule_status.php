@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -15,22 +14,27 @@ function safeDecrypt($value){
     if ($value === null || trim((string) $value) === "") {
         return "";
     }
+
     try {
         $decrypted = decryptData($value);
+
         if ($decrypted !== false && $decrypted !== null) {
             return trim((string) $decrypted);
         }
     } catch (Throwable $e) {
         error_log("Decryption failed: " . $e->getMessage());
     }
+
     return trim((string) $value);
 }
 
 function prepareScheduleStatement($conn, $sql, $message){
     $stmt = $conn->prepare($sql);
+
     if (!$stmt) {
         throw new Exception($message . ": " . $conn->error);
     }
+
     return $stmt;
 }
 
@@ -45,24 +49,35 @@ function getUntilWhen(){
     $time = trim($_POST["service_time"] ?? "");
 
     if ($date === "" || $time === "") {
-        throw new Exception(
-            "Please enter both the schedule date and time."
-        );
+        throw new Exception("Please enter both the schedule date and time.");
     }
 
     $timezone = new DateTimeZone("Asia/Manila");
-    $untilWhen = DateTimeImmutable::createFromFormat("!Y-m-d H:i:s", $date . " " . $time, $timezone);
+
+    $untilWhen = DateTimeImmutable::createFromFormat(
+        "!Y-m-d H:i:s",
+        $date . " " . $time,
+        $timezone
+    );
 
     if (!$untilWhen) {
-        $untilWhen = DateTimeImmutable::createFromFormat("!Y-m-d H:i", $date . " " . $time, $timezone);
+        $untilWhen = DateTimeImmutable::createFromFormat(
+            "!Y-m-d H:i",
+            $date . " " . $time,
+            $timezone
+        );
     }
-    
+
     if (!$untilWhen) {
         throw new Exception("Invalid schedule date or time.");
     }
 
     $errors = DateTimeImmutable::getLastErrors();
-    if ($errors !== false && ($errors["warning_count"] > 0 || $errors["error_count"] > 0)) {
+
+    if (
+        $errors !== false &&
+        ($errors["warning_count"] > 0 || $errors["error_count"] > 0)
+    ) {
         throw new Exception("Invalid schedule date or time.");
     }
 
@@ -70,15 +85,14 @@ function getUntilWhen(){
         throw new Exception("Invalid schedule date.");
     }
 
-    $submittedTime = strlen($time) === 5 ? $untilWhen->format("H:i") : $untilWhen->format("H:i:s");
+    $submittedTime = strlen($time) === 5
+        ? $untilWhen->format("H:i")
+        : $untilWhen->format("H:i:s");
 
     if ($submittedTime !== $time) {
         throw new Exception("Invalid schedule time.");
     }
 
-    if ($untilWhen <= new DateTimeImmutable("now", $timezone)) {
-        throw new Exception("Please enter a future date and time.");
-    }
     return $untilWhen->format("Y-m-d H:i:s");
 }
 
@@ -102,13 +116,26 @@ function createDeceasedRecord(
     $userId,
     $remarks
 ) {
-    $checkSql = "SELECT id FROM deceased_records WHERE service_request_no = ? LIMIT 1";
-    $checkStmt = prepareScheduleStatement($conn, $checkSql, "Failed to prepare deceased record check");
+    $checkSql = "
+        SELECT id
+        FROM deceased_records
+        WHERE service_request_no = ?
+        LIMIT 1
+    ";
+
+    $checkStmt = prepareScheduleStatement(
+        $conn,
+        $checkSql,
+        "Failed to prepare deceased record check"
+    );
+
     $checkStmt->bind_param("s", $serviceRequestNo);
     executeScheduleStatement($checkStmt, "Failed to check deceased record");
+
     $checkResult = $checkStmt->get_result();
     $recordExists = $checkResult->num_rows > 0;
     $checkStmt->close();
+
     if ($recordExists) {
         return;
     }
@@ -147,10 +174,14 @@ function createDeceasedRecord(
         )
     ";
 
-    $insertStmt = prepareScheduleStatement($conn, $insertSql, "Failed to prepare deceased record insert");
+    $insertStmt = prepareScheduleStatement(
+        $conn,
+        $insertSql,
+        "Failed to prepare deceased record insert"
+    );
 
     $insertStmt->bind_param(
-        "ssssssissssssssssis",
+        "ssssssisssssssssis",
         $caseNo,
         $serviceRequestNo,
         $firstname,
@@ -213,14 +244,24 @@ try {
     $userId = (int) $_SESSION["user_id"];
 
     $employerSql = "SELECT id FROM employer WHERE id = ? LIMIT 1";
-    $employerStmt = prepareScheduleStatement($conn,$employerSql,"Failed to prepare employer lookup");
+
+    $employerStmt = prepareScheduleStatement(
+        $conn,
+        $employerSql,
+        "Failed to prepare employer lookup"
+    );
+
     $employerStmt->bind_param("i", $userId);
-    executeScheduleStatement($employerStmt,"Failed to retrieve employer");
+    executeScheduleStatement($employerStmt, "Failed to retrieve employer");
+
     $employerResult = $employerStmt->get_result();
 
     if ($employerResult->num_rows === 0) {
         $employerStmt->close();
-        throw new Exception("Employer account not found. Please verify your login session.");
+
+        throw new Exception(
+            "Employer account not found. Please verify your login session."
+        );
     }
 
     $employerRow = $employerResult->fetch_assoc();
@@ -230,11 +271,25 @@ try {
     $userId = $assignedBy;
 
     $conn->begin_transaction();
+
     if ($scheduleType === "At-Need") {
-        $sql = "SELECT id, service_request_no, status FROM service_arrangements WHERE id = ? LIMIT 1 FOR UPDATE";
-        $stmt = prepareScheduleStatement($conn,$sql,"Failed to prepare service arrangement lookup");
+        $sql = "
+            SELECT id, service_request_no, status
+            FROM service_arrangements
+            WHERE id = ?
+            LIMIT 1
+            FOR UPDATE
+        ";
+
+        $stmt = prepareScheduleStatement(
+            $conn,
+            $sql,
+            "Failed to prepare service arrangement lookup"
+        );
+
         $stmt->bind_param("i", $id);
-        executeScheduleStatement($stmt,"Failed to retrieve service arrangement");
+        executeScheduleStatement($stmt, "Failed to retrieve service arrangement");
+
         $result = $stmt->get_result();
 
         if ($result->num_rows === 0) {
@@ -265,10 +320,16 @@ try {
                 WHERE id = ?
             ";
 
-            $stmt = prepareScheduleStatement($conn,$sql,"Failed to prepare start schedule update");
-            $stmt->bind_param("ssii",$untilWhen,$status,$assignedBy,$id);
-            executeScheduleStatement($stmt,"Failed to start schedule");
+            $stmt = prepareScheduleStatement(
+                $conn,
+                $sql,
+                "Failed to prepare start schedule update"
+            );
+
+            $stmt->bind_param("ssii", $untilWhen, $status, $assignedBy, $id);
+            executeScheduleStatement($stmt, "Failed to start schedule");
             $stmt->close();
+
             $conn->commit();
 
             echo json_encode([
@@ -285,7 +346,9 @@ try {
 
         if ($status === "Completed") {
             if ($currentStatus !== "in progress") {
-                throw new Exception("Only schedules that are in progress can be completed.");
+                throw new Exception(
+                    "Only schedules that are in progress can be completed."
+                );
             }
 
             $sql = "
@@ -311,9 +374,15 @@ try {
                 LIMIT 1
             ";
 
-            $stmt = prepareScheduleStatement($conn,$sql,"Failed to prepare service request lookup");
+            $stmt = prepareScheduleStatement(
+                $conn,
+                $sql,
+                "Failed to prepare service request lookup"
+            );
+
             $stmt->bind_param("s", $serviceRequestNo);
-            executeScheduleStatement($stmt,"Failed to retrieve service request");
+            executeScheduleStatement($stmt, "Failed to retrieve service request");
+
             $result = $stmt->get_result();
 
             if ($result->num_rows === 0) {
@@ -331,10 +400,23 @@ try {
             $wakeLocation = safeDecrypt($request["wake_location"]);
             $cemetery = safeDecrypt($request["cemetery"]);
 
-            $sql = "UPDATE service_arrangements SET status = ?, completed_by = ?, completed_at = NOW() WHERE id = ?";
-            $stmt = prepareScheduleStatement($conn,$sql,"Failed to prepare service arrangement completion");
-            $stmt->bind_param("sii",$status,$userId,$id);
-            executeScheduleStatement($stmt,"Failed to complete service arrangement");
+            $sql = "
+                UPDATE service_arrangements
+                SET
+                    status = ?,
+                    completed_by = ?,
+                    completed_at = NOW()
+                WHERE id = ?
+            ";
+
+            $stmt = prepareScheduleStatement(
+                $conn,
+                $sql,
+                "Failed to prepare service arrangement completion"
+            );
+
+            $stmt->bind_param("sii", $status, $userId, $id);
+            executeScheduleStatement($stmt, "Failed to complete service arrangement");
             $stmt->close();
 
             createDeceasedRecord(
@@ -358,7 +440,7 @@ try {
                 $request["condition"] ?? ""
             );
         }
-    }else {
+    } else {
         $sql = "
             SELECT
                 la.id,
@@ -373,9 +455,15 @@ try {
             FOR UPDATE
         ";
 
-        $stmt = prepareScheduleStatement($conn,$sql,"Failed to prepare lifeplan arrangement lookup");
+        $stmt = prepareScheduleStatement(
+            $conn,
+            $sql,
+            "Failed to prepare lifeplan arrangement lookup"
+        );
+
         $stmt->bind_param("i", $id);
-        executeScheduleStatement($stmt,"Failed to retrieve lifeplan arrangement");
+        executeScheduleStatement($stmt, "Failed to retrieve lifeplan arrangement");
+
         $result = $stmt->get_result();
 
         if ($result->num_rows === 0) {
@@ -406,10 +494,16 @@ try {
                 WHERE id = ?
             ";
 
-            $stmt = prepareScheduleStatement($conn,$sql,"Failed to prepare lifeplan start update");
-            $stmt->bind_param("ssii",$untilWhen,$status,$assignedBy,$id);
-            executeScheduleStatement($stmt,"Failed to start lifeplan schedule");
+            $stmt = prepareScheduleStatement(
+                $conn,
+                $sql,
+                "Failed to prepare lifeplan start update"
+            );
+
+            $stmt->bind_param("ssii", $untilWhen, $status, $assignedBy, $id);
+            executeScheduleStatement($stmt, "Failed to start lifeplan schedule");
             $stmt->close();
+
             $conn->commit();
 
             echo json_encode([
@@ -426,7 +520,9 @@ try {
 
         if ($status === "Completed") {
             if ($currentStatus !== "in progress") {
-                throw new Exception("Only schedules that are in progress can be completed.");
+                throw new Exception(
+                    "Only schedules that are in progress can be completed."
+                );
             }
 
             $sql = "
@@ -452,9 +548,15 @@ try {
                 LIMIT 1
             ";
 
-            $stmt = prepareScheduleStatement($conn,$sql,"Failed to prepare lifeplan request lookup");
+            $stmt = prepareScheduleStatement(
+                $conn,
+                $sql,
+                "Failed to prepare lifeplan request lookup"
+            );
+
             $stmt->bind_param("i", $lifeplanRequestId);
-            executeScheduleStatement($stmt,"Failed to retrieve lifeplan request");
+            executeScheduleStatement($stmt, "Failed to retrieve lifeplan request");
+
             $result = $stmt->get_result();
 
             if ($result->num_rows === 0) {
@@ -481,10 +583,16 @@ try {
                 WHERE id = ?
             ";
 
-            $stmt = prepareScheduleStatement($conn,$sql,"Failed to prepare lifeplan completion update");
-            $stmt->bind_param("sii",$status,$userId,$id);
-            executeScheduleStatement($stmt,"Failed to complete lifeplan schedule");
+            $stmt = prepareScheduleStatement(
+                $conn,
+                $sql,
+                "Failed to prepare lifeplan completion update"
+            );
+
+            $stmt->bind_param("sii", $status, $userId, $id);
+            executeScheduleStatement($stmt, "Failed to complete lifeplan schedule");
             $stmt->close();
+
             $serviceRequestNo = $request["lifeplan_no"];
 
             createDeceasedRecord(
@@ -511,7 +619,10 @@ try {
     }
 
     $conn->commit();
-    $message = ($status === "In Progress") ? "Schedule started successfully." : "Schedule completed and deceased record saved.";
+
+    $message = ($status === "In Progress")
+        ? "Schedule started successfully."
+        : "Schedule completed and deceased record saved.";
 
     echo json_encode([
         "success" => true,
@@ -526,7 +637,9 @@ try {
         try {
             $conn->rollback();
         } catch (Throwable $rollbackError) {
-            error_log("Schedule rollback failed: " . $rollbackError->getMessage());
+            error_log(
+                "Schedule rollback failed: " . $rollbackError->getMessage()
+            );
         }
     }
 

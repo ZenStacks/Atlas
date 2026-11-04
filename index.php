@@ -48,11 +48,11 @@ if (isset($_SESSION['customer_id'])) {
                 <div class="sample-image-card">
                     <div class="first-sample-image">
                         <h2>Standard Setup</h2>
-                        <div class="standard-container"><img src="assets/img/standard.png" alt="Standard Setup"></div>
+                        <div class="standard-container"><img src="assets/img/standards.png" alt="Standard Setup"></div>
                     </div>
                     <div class="second-sample-image">
                         <h2>Premium Setup</h2>
-                        <div class="premium-container"><img src="assets/img/Premium-coffin.jpg" alt="Premium Setup"></div>
+                        <div class="premium-container"><img src="assets/img/premium.png" alt="Premium Setup"></div>
                     </div>
                 </div>
             </div>

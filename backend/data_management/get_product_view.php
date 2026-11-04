@@ -18,6 +18,7 @@ try {
             cost_price,
             retail_price,
             stock,
+            downpayment,
             status,
             updated_at,
             'Local' AS origin
@@ -49,6 +50,7 @@ try {
             image,
             cost AS cost_price,
             retail_price,
+            downpayment,
             current_stock AS stock,
             status,
             updated_at,

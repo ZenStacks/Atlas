@@ -659,22 +659,13 @@ $username = $_SESSION['username'] ?? '';
                                     <label for="tfaVerificationEmail">
                                         Registered Email Address
                                     </label>
-                                    <input
-                                        type="email"
-                                        id="tfaVerificationEmail"
-                                        placeholder="Enter your registered email"
-                                        autocomplete="email"
-                                    >
-                                    <button type="button" id="btnVerifyEmailForTfa">
-                                        Continue
-                                    </button>
+                                    <input type="email" id="tfaVerificationEmail" placeholder="Enter your registered email" autocomplete="email">
+                                    <button type="button" id="btnVerifyEmailForTfa">Continue</button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <button class="save-security" id="save-security">
-                        Save Changes
-                    </button>
+                    <button class="save-security" id="save-security">Save Changes</button>
                 </div>
                 <!-- Admin access key (done)-->
                 <div class="admin-access-key-container" id="admin-access-key-container">
@@ -815,12 +806,16 @@ $username = $_SESSION['username'] ?? '';
                                         <span id="viewProductRetail"></span>
                                     </div>
                                     <div class="detail-group">
-                                        <label>Status</label>
-                                        <span id="viewProductStatus"></span>
+                                        <label>Downpayment</label>
+                                        <span id="viewDownpayment"></span>
                                     </div>
                                     <div class="detail-group">
                                         <label>Color</label>
                                         <span id="viewProductColor"></span>
+                                    </div>
+                                    <div class="detail-group">
+                                        <label>Status</label>
+                                        <span id="viewProductStatus"></span>
                                     </div>
                                     <div class="detail-group full-width">
                                         <label>Description</label>
@@ -892,6 +887,10 @@ $username = $_SESSION['username'] ?? '';
                                             <div class="form-field">
                                                 <label>Stock</label>
                                                 <input type="number" id="editProductStock" readonly>
+                                            </div>
+                                            <div class="form-field">
+                                                <label>Downpayment</label>
+                                                <input type="number" id="editDownpayment">
                                             </div>
                                             <div class="form-field">
                                                 <label>Status</label>
@@ -1265,15 +1264,15 @@ $username = $_SESSION['username'] ?? '';
                                                         <input type="text"  id="beneficiary-last-name" name="beneficiary_last_name" placeholder="e.g., Dela Cruz" required>
                                                     </div>
                                                     <div class="onsite-row">
-                                                        <label> First Name of the Benificiary</label>
+                                                        <label> First Name of the Beneficiary</label>
                                                         <input type="text" id="beneficiary-first-name" name="beneficiary_first_name" placeholder="e.g., Juan" required>
                                                     </div>
                                                     <div class="onsite-row">
-                                                        <label>Middle Name of the Benificiary</label>
+                                                        <label>Middle Name of the Beneficiary</label>
                                                         <input type="text" id="beneficiary-middle-name" name="beneficiary_middle_name" placeholder="e.g., De Magiba" required>
                                                     </div>
                                                     <div class="onsite-row">
-                                                        <label>Gender of the Benificiary</label>
+                                                        <label>Gender of the Beneficiary</label>
                                                         <select id="beneficiary-gender" name="beneficiary_gender" required>
                                                             <option value="">Select Gender</option>
                                                             <option value="Male">Male</option>
@@ -1281,7 +1280,7 @@ $username = $_SESSION['username'] ?? '';
                                                         </select>
                                                     </div>
                                                     <div class="onsite-row">
-                                                        <label>Age of the Benificiary</label>
+                                                        <label>Age of the Beneficiary</label>
                                                         <input type="text" id="beneficiary-age" name="beneficiary_age" placeholder="e.g., 75" required>
                                                     </div>
                                                     <div class="onsite-row">
@@ -1290,7 +1289,7 @@ $username = $_SESSION['username'] ?? '';
                                                     </div>
                                                     <div class="onsite-row">
                                                         <label>Contact Number:</label>
-                                                        <input type="text" id="contact-number" maxlength="11" pattern="[0-9]{11}" placeholder="eg. 09123456789" required>
+                                                        <input type="text" id="contact-number" placeholder="eg. 09123456789" required>
                                                     </div>
                                                     <div class="onsite-row">
                                                         <label>Email Address:</label>
@@ -1383,10 +1382,6 @@ $username = $_SESSION['username'] ?? '';
                                                     </p>
                                                 </div>
                                                 <div class="onsite-row">
-                                                    <label>Beneficiary Government Id Number</label>
-                                                    <input type="text" id="gov-id-number" placeholder="e.g., 1234-5678-9012" required>
-                                                </div>
-                                                <div class="onsite-row">
                                                     <label for="applicant-signature">Applicant's Signature (Upload Image)</label>
                                                     <input type="file" id="applicant-signature" name="applicant_signature" accept="image/*" class="file-input">
                                                     <label for="applicant-signature" class="file-upload-btn">Choose Signature File</label>
@@ -1445,7 +1440,7 @@ $username = $_SESSION['username'] ?? '';
                                                     </div>
                                                     <div class="onsite-row">
                                                         <label>Contact Number</label>
-                                                        <input type="text" id="lp-applicant-contact-number" maxlength="11" pattern="[0-9]{11}" name="lp_applicant_contact_number" placeholder="e.g., 09123456789">
+                                                        <input type="text" id="lp-applicant-contact-number" name="lp_applicant_contact_number" placeholder="e.g., 09123456789">
                                                     </div>
                                                     <div class="onsite-row">
                                                         <label>Email Address</label>
@@ -1497,14 +1492,6 @@ $username = $_SESSION['username'] ?? '';
                                                     <div class="onsite-row">
                                                         <label>Occupation:</label>
                                                         <input type="text" id="lp-plan-holder-occupation" name="lp_plan_holder_occupation" placeholder="e.g., Teacher, Engineer, etc." required>
-                                                    </div>
-                                                    <div class="onsite-row">
-                                                        <label>Contact Number:</label>
-                                                        <input type="text" id="lp-plan-holder-contact-number" name="lp_plan_holder_contact_number" maxlength="11" pattern="[0-9]{11}" placeholder="e.g., 09123456789" required>
-                                                    </div>
-                                                    <div class="onsite-row">
-                                                        <label>Email Address:</label>
-                                                        <input type="text" id="lp-plan-holder-email" name="lp_plan_holder_email" placeholder="e.g., info@example.com" required>
                                                     </div>
                                                     <div class="onsite-row">
                                                         <label>Residential Address:</label>
@@ -1571,10 +1558,6 @@ $username = $_SESSION['username'] ?? '';
                                                         service requirements. I authorize the funeral service provider to contact
                                                         me regarding matters related to this application.
                                                     </p>
-                                                </div>
-                                                <div class="onsite-row">
-                                                    <label>Plan Holder Government Id Number</label>
-                                                    <input type="text" id="lp-gov-id-number" placeholder="e.g., 1234-5678-9012" required>
                                                 </div>
                                                 <div class="onsite-row">
                                                     <label for="lp-applicant-signature">Applicant's Signature (Upload Image)</label>
@@ -2518,10 +2501,6 @@ $username = $_SESSION['username'] ?? '';
                                                     <p id="planholder-occupation"></p>
                                                 </div>
                                                 <div class="form-details">
-                                                    <label>Email:</label>
-                                                    <p id="planholder-email"></p>
-                                                </div>
-                                                <div class="form-details">
                                                     <label>Address:</label>
                                                     <p id="planholder-address"></p>
                                                 </div>
@@ -3267,7 +3246,7 @@ $username = $_SESSION['username'] ?? '';
                                                 <option value="other">Other</option>
                                             </select>
                                             <label for="contact">Contact No.: </label>
-                                            <input type="tel" id="contact" name="contact" placeholder="Enter Contact No." pattern="[0-9]{11}" maxlength="11" inputmode="numeric"required>
+                                            <input type="tel" id="contact" name="contact" placeholder="Enter Contact No." required>
                                             <label for="username">Username: </label>
                                             <input type="text" id="username" name="username" placeholder="Enter Username" required>
                                             <label for="email">Email: </label>
@@ -5138,16 +5117,19 @@ $username = $_SESSION['username'] ?? '';
         function validateNumberInput(input, warningId) {
             const warning = document.getElementById(warningId);
             if (!input) return;
+
             input.addEventListener("input", function () {
-                const value = this.value;
-                if (!/^\d*\.?\d*$/.test(value)) {
+                const value = this.value.trim();
+
+                if (!/^\d+(\.\d+)?$/.test(value)) {
                     this.classList.add("input-error");
+
                     if (warning) {
-                        warning.textContent =
-                            "Please enter a valid input";
+                        warning.textContent = "Please enter a valid number";
                     }
                 } else {
                     this.classList.remove("input-error");
+
                     if (warning) {
                         warning.textContent = "";
                     }
@@ -5307,14 +5289,23 @@ $username = $_SESSION['username'] ?? '';
 
         function validateNumberInput(input, warningId) {
             const warning = document.getElementById(warningId);
+            if (!input) return;
+
             input.addEventListener("input", function () {
-                const value = this.value;
-                if (!/^\d*\.?\d*$/.test(value)) {
+                const value = this.value.trim();
+
+                if (!/^\d+(\.\d*)?$/.test(value)) {
                     this.classList.add("input-error");
-                    warning.textContent = "Please enter a valid input";
+
+                    if (warning) {
+                        warning.textContent = "Please enter a valid input";
+                    }
                 } else {
                     this.classList.remove("input-error");
-                    warning.textContent = "";
+
+                    if (warning) {
+                        warning.textContent = "";
+                    }
                 }
             });
         }
@@ -5467,14 +5458,21 @@ $username = $_SESSION['username'] ?? '';
         const importedDownpayment = document.getElementById("imported-downpayment");
         function validateNumberInput(input, warningId) {
             const warning = document.getElementById(warningId);
+            if (!input) return;
+
             input.addEventListener("input", function () {
                 const value = this.value;
-                if (!/^\d*\.?\d*$/.test(value)) {
+
+                if (!/^\d+(\.\d*)?$/.test(value)) {
                     this.classList.add("input-error");
-                    warning.textContent = "Please enter a valid input";
+                    if (warning) {
+                        warning.textContent = "Please enter a valid input";
+                    }
                 } else {
                     this.classList.remove("input-error");
-                    warning.textContent = "";
+                    if (warning) {
+                        warning.textContent = "";
+                    }
                 }
             });
         }
@@ -5611,14 +5609,21 @@ $username = $_SESSION['username'] ?? '';
         const newFlowerStockWarning = document.getElementById("new-flower-initial-stock");
         function validateNumberInput(input, warningId) {
             const warning = document.getElementById(warningId);
+            if (!input) return;
+
             input.addEventListener("input", function () {
                 const value = this.value;
-                if (!/^\d*\.?\d*$/.test(value)) {
+
+                if (!/^\d+(\.\d*)?$/.test(value)) {
                     this.classList.add("input-error");
-                    warning.textContent = "Please enter a valid input";
+                    if (warning) {
+                        warning.textContent = "Please enter a valid input";
+                    }
                 } else {
                     this.classList.remove("input-error");
-                    warning.textContent = "";
+                    if (warning) {
+                        warning.textContent = "";
+                    }
                 }
             });
         }
@@ -7262,92 +7267,6 @@ $username = $_SESSION['username'] ?? '';
             .catch(error => console.error("Network error updating auto-logout setting:", error));
         });
     }
-    let activityTimeout;
-    function updateUserActivity() {
-        fetch("../backend/security/update_activity.php", {
-            method: "POST",
-            credentials: "same-origin"
-        })
-        .then(async response => {
-            const raw = await response.text();
-            if (!response.ok) {
-                throw new Error(
-                    "HTTP " + response.status + ": " + raw
-                );
-            }
-            try {
-                return JSON.parse(raw);
-            } catch (error) {
-                console.error("INVALID JSON RECEIVED:", raw);
-                throw error;
-            }
-        })
-        .then(data => {
-
-            if (data.status === "logout") {
-                window.location.href = "../login.php";
-            }
-
-        })
-        .catch(error => {
-            console.error("Activity update failed:", error);
-        });
-    }
-    document.addEventListener("click", updateUserActivity);
-    document.addEventListener("keydown", updateUserActivity);
-    document.addEventListener("mousemove", updateUserActivity);
-    document.addEventListener("scroll", updateUserActivity);
-
-    let lastActivitySent = 0;
-    function registerActivity() {
-        const now = Date.now();
-        if (now - lastActivitySent < 5 * 60 * 1000) {
-            return;
-        }
-        lastActivitySent = now;
-        fetch("../backend/security/update_activity.php", {
-            method: "POST",
-            credentials: "same-origin"
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === "logout") {
-                window.location.href = "../login.php";
-            }
-        })
-        .catch(error => {
-            console.error("Activity update failed:", error);
-        });
-    }
-    document.addEventListener("click", registerActivity);
-    document.addEventListener("keydown", registerActivity);
-    document.addEventListener("scroll", registerActivity);
-    document.addEventListener("mousemove", registerActivity);
-
-    function checkAutoLogout() {
-        fetch("../backend/security/check_session.php", {
-            method: "GET",
-            credentials: "same-origin"
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === "logout") {
-                Swal.fire({
-                    icon: "warning",
-                    title: "Session Expired",
-                    text: data.message,
-                    confirmButtonText: "OK",
-                    allowOutsideClick: false
-                }).then(() => {
-                    window.location.href = "../login.php";
-                });
-            }
-        })
-        .catch(error => {
-            console.error("Session check failed:", error);
-        });
-    }
-    setInterval(checkAutoLogout, 60 * 1000);
     // contacts info
     document.addEventListener("DOMContentLoaded", () => {
         fetchStaffContacts();
@@ -8524,19 +8443,46 @@ async function checkPendingOrders() {
 document.addEventListener("DOMContentLoaded", async () => {
     await loadPendingOrders();
     await loadLifeplanOrders();
-    const response = await fetch("../backend/preferences/get_pending_orders.php");
-    const result = await response.json();
-    if (result.success) {
-        lastPendingCount = result.count;
+
+    try {
+        const response = await fetch("../backend/preferences/get_pending_orders.php", {
+            credentials: "same-origin",
+            cache: "no-store"
+        });
+
+        const raw = await response.text();
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status + ": " + raw);
+        }
+
+        let result;
+
+        try {
+            result = JSON.parse(raw);
+        } catch (error) {
+            console.error("INVALID JSON RECEIVED:", raw);
+            throw error;
+        }
+
+        if (result.success) {
+            lastPendingCount = result.count;
+        }
+    } catch (error) {
+        console.error("Failed to load pending order count:", error);
     }
+
     setInterval(checkPendingOrders, 5000);
 });
+
 document.addEventListener("click", e => {
     const row = e.target.closest(".customer-row-details");
     if (!row) return;
+
     const orderId = row.dataset.orderId;
     const requestNo = row.dataset.requestNo;
     const type = row.dataset.type;
+
     if (type === "atneed") {
         loadPreferenceDetails(orderId, requestNo);
     } else if (type === "preneed") {
@@ -8583,7 +8529,6 @@ async function loadPreferenceLifeplan(orderId, requestNo) {
         document.getElementById("planholder-gender").textContent = (order.gender ?? "N/A").replace(/\b\w/g, char => char.toUpperCase());
         document.getElementById("planholder-civil-status").textContent = order.civil_status ?? "N/A";
         document.getElementById("planholder-occupation").textContent = order.occupation ?? "N/A";
-        document.getElementById("planholder-email").textContent = order.email_address ?? "N/A";
         document.getElementById("planholder-address").textContent = order.residential_address ?? "N/A";
         document.getElementById("planholder-relation").textContent = order.relationship ?? "N/A";
         document.getElementById("planholder-payment-option").textContent = order.payment_option ?? "N/A";
@@ -8629,7 +8574,6 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
         });
         return;
     }
-
     try {
         Swal.fire({
             title: "Approving Lifeplan...",
@@ -8671,25 +8615,19 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
         );
 
         const responseText = await response.text();
-
-        console.log("approve_lifeplan.php response:", responseText);
-        console.log("HTTP Status:", response.status);
-
+        //console.log("approve_lifeplan.php response:", responseText);
+        // console.log("HTTP Status:", response.status);
         Swal.close();
-
         let result;
-
         try {
             result = JSON.parse(responseText);
         } catch (error) {
-            console.error("Invalid JSON response:", responseText);
-
+            // console.error("Invalid JSON response:", responseText);
             Swal.fire({
                 icon: "error",
                 title: "Server Error",
                 text: `The server returned an invalid response. HTTP ${response.status}. Check the console for details.`
             });
-
             return;
         }
 
@@ -8721,10 +8659,8 @@ document.getElementById("preneed-approve").addEventListener("click", async () =>
         }
 
     } catch (error) {
-        console.error("Approve Lifeplan Error:", error);
-
+        // console.error("Approve Lifeplan Error:", error);
         Swal.close();
-
         Swal.fire({
             icon: "error",
             title: "Error",
@@ -9454,7 +9390,6 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
     const beneficiaryBirthdate = document.getElementById("beneficiary-birthdate").value;
     const contactNumber = document.getElementById("contact-number").value.trim();
     const emailAddress = document.getElementById("email-address").value.trim();
-    const beneficiaryGovIdNumber = document.getElementById("gov-id-number").value.trim();
     const signatureFile = document.getElementById("applicant-signature").files[0];
     const relationshipSelect = document.getElementById("relationship").value;
     const anPaymentOption = document.getElementById("atneed-payment-option").value;
@@ -9501,32 +9436,11 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
         });
         return;
     }
-    if (!/^\d{11}$/.test(contactNumber)) {
-        Swal.fire({
-            icon: "warning",
-            title: "Incomplete Information",
-            text: "Contact number must contain exactly 11 digits.",
-            showConfirmButton: false,
-            timer: 2000
-        });
-        return;
-    }
     if (!emailAddress) {
         Swal.fire({
             icon: "warning",
             title: "Incomplete Information",
             text: "Please provide an email address.",
-            showConfirmButton: false,
-            timer: 2000
-        });
-        return;
-    }
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailPattern.test(emailAddress)) {
-        Swal.fire({
-            icon: "warning",
-            title: "Incomplete Information",
-            text: "Please enter a valid email address.",
             showConfirmButton: false,
             timer: 2000
         });
@@ -9584,7 +9498,6 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
         formData.append("term_payment", "0");
         formData.append("downpayment", "0");
     }
-    formData.append("gov_id_number", beneficiaryGovIdNumber);
     formData.append("signature", signatureFile);
     formData.append("signature_date", document.getElementById("signature-date").value);
     formData.append("service_date", document.getElementById("service-date").value);
@@ -9647,7 +9560,6 @@ document.getElementById("submitRequirements").addEventListener("click", async ()
             document.getElementById("onsite-floral-setup").value = "";
             document.getElementById("chapel").value = "";
             document.getElementById("atneed-payment-option").value = "";
-            document.getElementById("gov-id-number").value = "";
             document.getElementById("applicant-signature").value = "";
             document.getElementById("relationship").value = "";
             document.getElementById("otherRelationship").value = "";
@@ -9690,9 +9602,6 @@ document.addEventListener("DOMContentLoaded", () => {
             otherRelationship.required = false;
             otherRelationship.value = "";
         }
-    });
-    document.getElementById("contact-number").addEventListener("input", function () {
-        this.value = this.value.replace(/\D/g, "").slice(0, 12);
     });
     // file signature
     const signatureInput = document.getElementById("applicant-signature");
@@ -9976,8 +9885,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const lpplanHolderGender = document.getElementById("lp-plan-holder-gender").value;
         const lpplanHolderCivilStatus = document.getElementById("lp-plan-holder-civil-status").value;
         const lpplanHolderOccupation = document.getElementById("lp-plan-holder-occupation").value.trim();
-        const lpplanHolderContact = document.getElementById("lp-plan-holder-contact-number").value.trim();
-        const lpplanHolderEmail = document.getElementById("lp-plan-holder-email").value.trim();
         const lpplanHolderAddress = document.getElementById("lp-plan-holder-residential-address").value.trim();
         // Life Plan Details
         const lppaymentOption = document.getElementById("lp-payment-option").value;
@@ -9987,7 +9894,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const lpreligiousAffiliation = document.getElementById("lp-religious-affiliation").value.trim();
         const lpspecialInstructions = document.getElementById("lp-special-instructions").value.trim();
         // Declaration and signature
-        const lpgovIdNumber = document.getElementById("lp-gov-id-number").value.trim();
         const lpapplicantSignature = document.getElementById("lp-applicant-signature").files[0];
         const lpsignatureDate = document.getElementById("lp-signature-date").value;
         const lpServiceDate = document.getElementById("lp-service-date").value;
@@ -10031,7 +9937,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             return;
         }
-        if (!lpplanHolderFirstName || !lpplanHolderLastName || !lpplanHolderMiddleName || !lpplanHolderAge || !lpplanHolderDob || !lpplanHolderGender || !lpplanHolderCivilStatus || !lpplanHolderOccupation || !lpplanHolderContact || !lpplanHolderEmail || !lpplanHolderAddress) {
+        if (!lpplanHolderFirstName || !lpplanHolderLastName || !lpplanHolderMiddleName || !lpplanHolderAge || !lpplanHolderDob || !lpplanHolderGender || !lpplanHolderCivilStatus || !lpplanHolderOccupation || !lpplanHolderAddress) {
             Swal.fire({
                 icon: "warning",
                 title: "Incomplete Information",
@@ -10041,28 +9947,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             return;
         }
-        if (!/^\d{11}$/.test(lpplanHolderContact)) {
-            Swal.fire({
-                icon: "warning",
-                title: "Incomplete Information",
-                text: "Contact number must contain exactly 11 digits.",
-                showConfirmButton: false,
-                timer: 2000
-            });
-            return;
-        }
-        const lpemailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!lpemailPattern.test(lpapplicantEmail) || !lpemailPattern.test(lpplanHolderEmail)) {
-            Swal.fire({
-                icon: "warning",
-                title: "Incomplete Information",
-                text: "Please enter valid email addresses.",
-                showConfirmButton: false,
-                timer: 2000
-            });
-            return;
-        }
-        if (!lpgovIdNumber || !lpapplicantSignature || !lpsignatureDate) {
+        if (!lpapplicantSignature || !lpsignatureDate) {
             Swal.fire({
                 icon: "warning",
                 title: "Incomplete Information",
@@ -10099,8 +9984,6 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("lp_planholder_gender", lpplanHolderGender);
         formData.append("lp_planholder_civil_status", lpplanHolderCivilStatus);
         formData.append("lp_planholder_occupation", lpplanHolderOccupation);
-        formData.append("lp_planholder_number", lpplanHolderContact);
-        formData.append("lp_planholder_email", lpplanHolderEmail);
         formData.append("lp_planholder_address", lpplanHolderAddress);
         // Life Plan Details
         formData.append("lp_plan_type", lpSelectedCoffin.coffin_type);
@@ -10126,7 +10009,6 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("lp_religious_affiliation", lpreligiousAffiliation || "-");
         formData.append("lp_special_instructions", lpspecialInstructions || "-");
         // Uploads
-        formData.append("lp_gov_id_number", lpgovIdNumber);
         formData.append("lp_signature", lpapplicantSignature);
         // Declaration
         formData.append("lp_signature_date", lpsignatureDate);
@@ -10162,8 +10044,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("lp-plan-holder-gender").value = "";
                 document.getElementById("lp-plan-holder-civil-status").value = "";
                 document.getElementById("lp-plan-holder-occupation").value = "";
-                document.getElementById("lp-plan-holder-contact-number").value = "";
-                document.getElementById("lp-plan-holder-email").value = "";
                 document.getElementById("lp-plan-holder-residential-address").value = "";
 
                 document.getElementById("lp-payment-option").value = "";
@@ -10174,7 +10054,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById("lp-religious-affiliation").value = "";
                 document.getElementById("lp-special-instructions").value = "";
 
-                document.getElementById("lp-gov-id-number").value = "";
                 document.getElementById("lp-applicant-signature").value = "";
                 document.getElementById("lp-file-signature-name").textContent = "No file selected";
                 document.getElementById("lp-signature-date").value = "";
@@ -12056,11 +11935,11 @@ markComplete.onclick = async () => {
         }
 
         const timestamp = getScheduleTimestamp(date, time);
-        if (!Number.isFinite(timestamp) || timestamp <= Date.now()) {
+        if (!Number.isFinite(timestamp)) {
             Swal.fire({
                 icon: "warning",
                 title: "Invalid Schedule",
-                text: "Please enter a valid future date and time.",
+                text: "Please enter a valid date and time.",
                 confirmButtonText: "OK"
             });
             return;
@@ -12904,7 +12783,7 @@ async function loadFuneralReport() {
                     row.innerHTML = `
                         <td>${escapeHtml(transaction.service_no || "-")}</td>
                         <td>${escapeHtml(transaction.customer || "-")}</td>
-                        <td>${escapeHtml(transaction.beneficiary || "-")}</td>
+                        <td>${escapeHtml(transaction.beneficiary_firstname && transaction.beneficiary_lastname|| "-")}</td>
                         <td>${escapeHtml(transaction.service || "-")}</td>
                         <td>${escapeHtml(transaction.service_date || "-")}</td>
                         <td>${formatPHP(amount)}</td>
@@ -13088,7 +12967,7 @@ async function loadProductsRecords() {
                                 class="view-btn"
                                 id="products-view-button"
                                 data-id="${product.product_id}">
-                                <i class="bi bi-eye"></i> 
+                                <i class="bi bi-eye"></i>
                                 <span>View</span>
                             </button>
                             <button
@@ -13103,7 +12982,8 @@ async function loadProductsRecords() {
                                 class="delete-btn"
                                 id="products-delete-button"
                                 data-id="${product.product_id}"
-                                data-origin="${product.origin}">
+                                data-origin="${product.origin}"
+                                data-name="${product.item_name}">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </div>
@@ -13146,13 +13026,14 @@ document.addEventListener("click", async (e) => {
             return;
         }
         const p = result.data;
-        document.getElementById("viewProductName").textContent = p.item_name || "-";
+        document.getElementById("viewProductName").textContent = p.item_name ? p.item_name.toLowerCase().replace(/\b\w/g, char => char.toUpperCase()) : "-";
         document.getElementById("viewProductSize").textContent = p.size || "-";
         document.getElementById("viewProductOrigin").textContent = p.origin || "-";
         document.getElementById("viewProductCost").textContent = "₱" + Number(p.cost_price || 0).toLocaleString();
         document.getElementById("viewProductRetail").textContent = "₱" + Number(p.retail_price || 0).toLocaleString();
         document.getElementById("viewProductStatus").textContent = p.status || "-";
-        document.getElementById("viewProductColor").textContent = p.color || "-";
+        document.getElementById("viewProductColor").textContent = p.color ? p.color.toLowerCase().replace(/\b\w/g, char => char.toUpperCase()) : "-";
+        document.getElementById("viewDownpayment").textContent = p.downpayment || "-";
         document.getElementById("viewProductDescription").textContent = p.details || "-";
         document.getElementById("viewProductUpdated").textContent = p.updated_at || "-";
 
@@ -13232,6 +13113,7 @@ document.addEventListener("click", async (e) => {
         document.getElementById("editProductCost").value = p.cost_price ?? 0;
         document.getElementById("editProductRetail").value = p.retail_price ?? 0;
         document.getElementById("editProductStock").value = p.stock ?? 0;
+        document.getElementById("editDownpayment").value = p.downpayment ?? 0;
         document.getElementById("editProductStatus").value = p.status || "Available";
         document.getElementById("editProductDescription").value = p.details || "";
         const preview = document.getElementById("editProductPreview");
@@ -13274,6 +13156,7 @@ document.getElementById("editProductForm").addEventListener("submit", async func
     const costPrice = document.getElementById("editProductCost").value;
     const retailPrice = document.getElementById("editProductRetail").value;
     const stock = document.getElementById("editProductStock").value;
+    const downpayment = document.getElementById("editDownpayment").value;
     const status = document.getElementById("editProductStatus").value;
     const details = document.getElementById("editProductDescription").value.trim();
     const imageInput = document.getElementById("editProductImage");
@@ -13327,6 +13210,7 @@ document.getElementById("editProductForm").addEventListener("submit", async func
     formData.append("cost_price", costPrice);
     formData.append("retail_price", retailPrice);
     formData.append("stock", stock);
+    formData.append("downpayment", downpayment);
     formData.append("status", status);
     formData.append("details", details);
     if (imageInput.files.length > 0) {
@@ -13335,7 +13219,7 @@ document.getElementById("editProductForm").addEventListener("submit", async func
     for (const [key, value] of formData.entries()) {
     }
     try {
-            Swal.fire({
+        Swal.fire({
             title: "Saving...",
             text: "Please wait while the product is being updated.",
             allowOutsideClick: false,
@@ -13415,14 +13299,21 @@ document.addEventListener("keydown", function (e) {
     }
 });
 // delete products done
+
 document.addEventListener("click", function (e) {
     const deleteButton = e.target.closest("#products-delete-button");
     if (!deleteButton) {
         return;
     }
+
     const id = deleteButton.dataset.id;
     const origin = deleteButton.dataset.origin;
-    const name = deleteButton.dataset.name;
+    const name = deleteButton.dataset.name || "this coffin";
+
+    // console.log("Delete ID:", id);
+    // console.log("Delete Origin:", origin);
+    // console.log("Delete Name:", name);
+
     Swal.fire({
         title: "Delete Coffin?",
         text: `Are you sure you want to delete "${name}"?`,
@@ -13435,9 +13326,11 @@ document.addEventListener("click", function (e) {
         if (!result.isConfirmed) {
             return;
         }
+
         const formData = new FormData();
         formData.append("product_id", id);
         formData.append("origin", origin);
+
         try {
             const response = await fetch(
                 "../backend/materials/delete_products.php",
@@ -13446,8 +13339,10 @@ document.addEventListener("click", function (e) {
                     body: formData
                 }
             );
+
             const data = await response.json();
             console.log("Delete response:", data);
+
             if (data.success) {
                 Swal.fire({
                     icon: "success",
@@ -13455,7 +13350,6 @@ document.addEventListener("click", function (e) {
                     text: data.message,
                     confirmButtonText: "OK"
                 }).then(() => {
-
                     loadProductsRecords();
                 });
             } else {
@@ -13469,7 +13363,8 @@ document.addEventListener("click", function (e) {
                 });
             }
         } catch (error) {
-            console.error("Delete product error:", error);
+            // console.error("Delete product error:", error);
+
             Swal.fire({
                 icon: "error",
                 title: "Something Went Wrong",
@@ -13479,6 +13374,7 @@ document.addEventListener("click", function (e) {
         }
     });
 });
+
 // materials record done
 function loadMaterialRecords() {
     fetch("../backend/materials/get_materials.php")
@@ -13586,15 +13482,33 @@ editMaterialModal.addEventListener("click", function (e) {
         editMaterialModal.classList.remove("active");
     }
 });
+
 document.getElementById("editMaterialForm").addEventListener("submit", function (e) {
     e.preventDefault();
     const formData = new FormData(this);
+
+    Swal.fire({
+        title: "Updating Material...",
+        text: "Please wait while the material is being updated.",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
     fetch("../backend/materials/update_materials.php", {
         method: "POST",
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error("Server returned an error.");
+        }
+        return response.json();
+    })
     .then(data => {
+        Swal.close();
         if (data.success) {
             Swal.fire({
                 icon: "success",
@@ -13615,6 +13529,8 @@ document.getElementById("editMaterialForm").addEventListener("submit", function 
         }
     })
     .catch(error => {
+        console.error("Update material error:", error);
+        Swal.close();
         Swal.fire({
             icon: "error",
             title: "Something Went Wrong",
@@ -13623,14 +13539,18 @@ document.getElementById("editMaterialForm").addEventListener("submit", function 
         });
     });
 });
+// delete materials
+
 document.addEventListener("click", function (e) {
     const deleteButton = e.target.closest(".materials-delete-button");
     if (!deleteButton) {
         return;
     }
+
     const id = deleteButton.dataset.id;
     const category = deleteButton.dataset.category;
     const name = deleteButton.dataset.name;
+
     Swal.fire({
         title: "Delete Material?",
         text: `Are you sure you want to delete "${name}"?`,
@@ -13643,15 +13563,31 @@ document.addEventListener("click", function (e) {
         if (!result.isConfirmed) {
             return;
         }
+
         const formData = new FormData();
         formData.append("material_id", id);
         formData.append("material_category", category);
+        Swal.fire({
+            title: "Deleting Material...",
+            text: "Please wait while the material is being deleted.",
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
         fetch("../backend/materials/delete_materials.php", {
             method: "POST",
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Server returned an error.");
+            }
+            return response.json();
+        })
         .then(data => {
+            Swal.close();
             if (data.success) {
                 Swal.fire({
                     icon: "success",
@@ -13671,18 +13607,18 @@ document.addEventListener("click", function (e) {
             }
         })
         .catch(error => {
+            console.error("Delete material error:", error);
+            Swal.close();
             Swal.fire({
                 icon: "error",
                 title: "Something Went Wrong",
                 text: "Unable to delete the material.",
                 confirmButtonText: "OK"
             });
-
         });
-
     });
-
 });
+
 // deceased table done
 async function loadDeceasedRecords() {
     const tbody = document.getElementById("deceasedRecordsBody");

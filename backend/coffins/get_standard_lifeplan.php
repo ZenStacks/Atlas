@@ -1,3 +1,4 @@
+
 <?php
 require_once "../conn.php";
 header("Content-Type: application/json; charset=utf-8");
@@ -14,7 +15,6 @@ try {
         c.retail_price,
         c.downpayment,
         c.lifeplan_max_months,
-        c.lifeplan_max_months,
         c.coffin_type,
         c.details,
         c.image,
@@ -29,6 +29,7 @@ try {
     LEFT JOIN flowers f
         ON f.flower_type = 'standard-setup'
     WHERE c.coffin_type = 'Standard'
+      AND c.status = 'Available'
 
     UNION ALL
 
@@ -42,7 +43,6 @@ try {
         ic.cost,
         ic.retail_price,
         ic.downpayment,
-        ic.lifeplan_max_months,
         ic.lifeplan_max_months,
         ic.coffin_type,
         ic.details,
@@ -58,29 +58,44 @@ try {
     LEFT JOIN flowers f
         ON f.flower_type = 'standard-setup'
     WHERE ic.coffin_type = 'Standard'
+      AND ic.status = 'Available'
 
-    ORDER BY item_name ASC;
+    ORDER BY item_name ASC
     ";
 
     $result = $conn->query($sql);
-    if (!$result) throw new Exception($conn->error);
+    if (!$result) {
+        throw new Exception($conn->error);
+    }
 
     $coffins = [];
+
     $basePaths = [
-        'local' => '/atlas/backend/uploads/coffins/',
-        'imported' => '/atlas/backend/uploads/imported_coffins/'
+        'local' => '/backend/uploads/coffins/',
+        'imported' => '/backend/uploads/imported_coffins/'
     ];
 
     while ($row = $result->fetch_assoc()) {
+        $imagePath = str_replace("\\", "/", trim($row['image'] ?? ''));
+        $filename = basename($imagePath);
         $folder = $basePaths[$row['source']] ?? '';
-        $row['image'] = $folder . basename($row['image']);
+
+        $row['image'] = ($filename !== '' && $folder !== '')
+            ? $folder . rawurlencode($filename)
+            : '';
 
         $coffins[] = $row;
     }
 
-    echo json_encode(["success" => true, "data" => $coffins]);
+    echo json_encode([
+        "success" => true,
+        "data" => $coffins
+    ]);
 
 } catch (Exception $e) {
-    echo json_encode(["success" => false, "message" => $e->getMessage()]);
+    echo json_encode([
+        "success" => false,
+        "message" => $e->getMessage()
+    ]);
 }
 ?>
