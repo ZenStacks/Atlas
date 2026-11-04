@@ -154,7 +154,7 @@
                             </div>
                         </div>
                     </div>
-                    <h2>For special requests or personalized arrangements, please <strong style="color: rgb(44, 62, 80); cursor: pointer;">message</strong> our team and we will be happy to assist you.</h2>
+                    <h2 class="h2">For special requests or personalized arrangements, please <strong style="color: rgb(44, 62, 80); cursor: pointer;">message</strong> our team and we will be happy to assist you.</h2>
                 </div>
                 <div class="contact-page">
                     <div class="contact-details">

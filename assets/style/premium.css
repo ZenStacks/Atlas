@@ -1091,616 +1091,353 @@ hr{
 .swal2-container {
     z-index: 20000 !important;
 }
-@media (max-width: 360px){
-    .whole-page-container{
-        width: 100% !important;
-        overflow: hidden;
-    }
-    .content {
-        margin-top: 0 !important;
-        padding: 0 15px;
-        width: 100%;
+@media (max-width: 768px) and (max-width: 1024px) and (max-width: 480px) {
+    body{
+        padding: 0;
+        padding-bottom: 90px;
     }
     .header{
-        height: auto;
-        min-height: 45px;
-        position: fixed;
-        flex-direction: row;
-        align-items: center;
-        padding: 8px 12px;
+        height: 90px;
+        padding: 15px;
+    }
+    .header .logo {
+        padding: 10px 0 0 10px;
     }
     .header .logo img {
-        width: 30px !important;
-        height: 30px !important;
-    }
-    h1{
-        font-size: 18px;
+        width: 60px;
+        height: 60px;
     }
     .navigation {
         position: fixed;
         top: auto;
-        bottom: 15px;
-        left: 60%;
+        bottom: 16px;
+        left: 50%;
         right: auto;
         transform: translateX(-50%);
         width: auto;
+        max-width: 95%;
         height: auto;
-        min-height: 25px;
+        padding: 8px 12px;
         background-color: white;
-        border-radius: 30px;
         border: 1px solid rgb(44, 62, 80);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-        z-index: 1000;
+        border-radius: 40px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
     }
     .navigation-content {
         display: flex;
         flex-direction: row;
         align-items: center;
         justify-content: center;
-        gap: 15px;
+        gap: 18px;
         height: auto;
-        margin-top: 0;
-        padding: 8px 15px;
-        cursor: pointer;
-    }
-    .navigation-icon {
-        position: relative;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        margin: 0;
+        padding: 0;
     }
     .navigation-icon i {
+        font-size: 22px;
         color: rgb(44, 62, 80);
-        font-size: 18px;
-        cursor: pointer;
     }
     .nav-label {
         display: none;
     }
-    .content{
-        width: 100%;
-        margin-top: 10px !important;
+    h1{
+        font-size: 35px;
     }
     .premium-details{
         flex-direction: column;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        gap: 20px;
+        margin-top: 100px;
+    }
+    .premium-pic{
+        margin-top: 50px;
+        width: 90%;
+        padding: 0;
     }
     .premium-pic img{
-        width: 300px;
-        height: 300px;
-        margin: auto;
-    }
-    h2{
-        font-size: 24px !important;
+        width: 100%;
+        height: auto;
     }
     .premium-text{
         width: 90%;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
         text-align: center;
-        margin-top: 0;
+    }
+    .premium-text h2{
+        font-size: 30px;
     }
     .premium-text p{
         font-size: 16px;
+        line-height: 1.6;
     }
     .premium-button{
+        margin-top: 20px;
         display: flex;
-        flex-direction: row;
         justify-content: center;
-        align-items: center;
+        flex-direction: row;
     }
     .premium-button button{
-        font-size: 13px !important;
-        padding: 8px;
+        margin: 10px;
+        padding: 8px 16px;
+        font-size: 16px;
     }
     .premium-inclusions{
         width: 90%;
+        margin-top: 30px;
     }
     .inclusions{
         width: 90%;
     }
     .inclusions h2{
-        font-size: 12px !important;
+        font-size: 20px;
+        padding: 5px;
+    }
+    .first-inclusions p{
+        font-size: 14px;
+    }
+    .second-inclusions h3{
+        font-size: 18px;
+        padding: 10px;
+    }
+    .inclusions-details h3{
+        font-size: 14px;
+        padding: 10px;
+    }
+    .inclusions-details i{
+        font-size: 15px;
+        margin-right: 5px;
+    }
+    .inclusions-details p{
+        font-size: 14px;
+        padding: 10px;
+        margin-left: 20px;
+    }
+    .h2{
+        font-size: 14px !important;
         text-align: center;
-    }
-    .inclusions p{
-        font-size: 12px !important;
-    }
-    .inclusions h3{
-        font-size: 12px !important;
-    }
-    .inclusions i{
-        font-size: 12px !important;
-    }
-    .first-inclusions{
-        width: 20% !important;
-    }
-    .first-inclusions h2{
-        font-size: 16px !important;
-        padding: 0;
-    }
-    .second-inclusions{
-        width: 69% !important;
     }
     .contact-page{
-        display: none;
+        flex-direction: column;
+        gap: 20px;
     }
-    .shortcuts-detail h2{
-        font-size: 16px !important;
+    .contact-details{
+        flex-direction: row;
+        gap: 20px;
     }
-    .shortcuts-detail p{
-        font-size: 12px !important;
-        padding: 5px;
+    .contact-pic{
+        width: 90%;
+    }
+    .contact-pic img{
+        width: 165px;
+        height: auto;
+    }
+    .contact-button{
+        width: 100%;
         text-align: center;
     }
-    .shortcuts-detail i{
-        font-size: 12px !important;
-        padding: 8px;
-        margin-right: 0;
-    }
-    .premium-coffin{
-        width: 90% !important;
-    }
-    .coffin{
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        justify-items: center;
-        width: 100%;
-        margin-left: 0 !important;
-    }
-    .product-card{
-        width: 110px !important;
-    }
-    .product-card-img img{
-        width: 130px;
-        height: 90px;
-    }
-    .product-header{
-        width: 130px;
-        text-align: center;
-    }
-    .product-header h2{
-        font-size: 10px !important;
-    }
-    .product-badge{
-        font-size: 11px !important;
-    }
-    .product-pricing{
-        height: 30px !important;
-    }
-    .price-item{
-        gap: 8px !important;
-    }
-    .price-item .label,
-    .price-item h3{
-        font-size: 11px !important;
-    }
-    .buy-btn{
-        width: 100px !important;
-        font-size: 11px !important;
-    }
-    .buy-confirmation{
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        padding: 10px;
-        box-sizing: border-box;
-        display: none;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden;
-    }
-    .buy-confirmation.active{
-        display: flex;
-    }
-    .confirmation-box{
-        width: 100%;
-        max-width: 100%;
-        height: 95vh;
-        max-height: 95vh;
-        padding: 12px;
-        margin: 0;
-        border-radius: 15px;
-        box-sizing: border-box;
-        overflow: hidden;
-    }
-    .casket-nav{
-        gap: 6px;
-        margin-bottom: 10px;
-        flex-shrink: 0;
-    }
-
-    .casket-nav i{
+    .contact-button h2{
         font-size: 20px;
     }
-    .casket-nav span{
-        font-size: 13px;
+    .contact-button button{
+        margin-top: 20px;
+        font-size: 14px;
+        padding: 2px 5px;
+        width: 120px;
     }
-    .agreement-container{
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-        min-height: 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-        flex: 1;
+    .premium-shortcuts{
+        width: 90%;
+        height: auto;
+        margin-top: 30px;
     }
-    .agreement-details{
-        width: 100% !important;
-        height: auto !important;
-        min-height: 0;
-        max-height: none;
-        padding: 15px;
-        box-sizing: border-box;
-        overflow: visible;
-        flex-shrink: 0;
+    .shortcuts-detail{
+        width: 85%;
+        height: auto;
+        padding: 20px;
     }
-    .agreement-details h2{
-        font-size: 18px !important;
-        margin-bottom: 10px;
-    }
-    .benefits-list{
-        padding-left: 18px;
-        margin-bottom: 15px;
-    }
-    .benefits-list li{
-        font-size: 12px !important;
-        line-height: 1.4;
-        margin-bottom: 7px;
-    }
-    .terms-content p{
-        font-size: 12px !important;
-        line-height: 1.4;
-        margin-bottom: 10px;
-    }
-    .casket-details{
-        width: 100% !important;
-        height: auto !important;
-        min-height: 0;
-        max-height: none;
-        box-sizing: border-box;
-        flex-shrink: 0;
-        overflow: hidden;
-    }
-    .casket-image{
-        flex-direction: column-reverse;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        padding: 15px;
-        box-sizing: border-box;
-    }
-    .casket-text{
-        width: 100%;
+    .shortcuts-detail h2{
+        font-size: 25px;
         text-align: center;
     }
-    .casket-text h2{
-        font-size: 19px !important;
-        margin-bottom: 5px;
+    .details p{
+        font-size: 15px;
+        text-align: center;
     }
-    .casket-text p{
-        font-size: 17px;
+    .details i{
+        font-size: 20px;
+        margin-right: 10px;
     }
-    .casket-image img{
-        width: 160px;
-        height: 110px;
-        object-fit: cover;
-        margin: 0;
-        border-radius: 10px;
+    .premium-coffin{
+        width: 90%;
     }
-    .casket-contract{
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        padding: 12px;
+    .coffin{
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+        margin-left: 0;
+    }
+    .product-card{
         width: 100%;
-        box-sizing: border-box;
-        overflow-y: auto;
-        overflow-x: hidden;
+        max-width: 130px;
     }
-
-    .contract-details,
-    .contract-details:first-child,
-    .contract-details:nth-child(2){
-        width: 100%;
-        grid-column: auto;
-        margin-bottom: 5px;
+    .product-card-details{
+        padding: 10px;
+        gap: 15px;
     }
-    .contract-details h2{
-        font-size: 15px !important;
-        margin-bottom: 7px;
+    .product-card-img img{
+        width: 150px;
+        height: 100px;
     }
-    .contract-details label,
-    .contract-price-container label{
-        font-size: 12px;
-    }
-    .contract-details input,
-    .contract-details select{
-        width: 100%;
-        height: 38px;
-        padding: 8px;
-        font-size: 12px;
-        box-sizing: border-box;
-    }
-    .contract-price-container{
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-    .radio-button{
-        display: flex;
-        align-items: flex-start;
-        gap: 7px;
-        padding: 7px 5px;
-    }
-    .radio-button input{
-        width: 14px;
-        height: 14px;
-        flex-shrink: 0;
-    }
-    .radio-button label{
-        font-size: 11px;
-        line-height: 1.4;
-    }
-    .bottom-container{
-        flex-direction: column;
+    .product-details{
+        padding: 10px;
         gap: 5px;
-        width: 100%;
-        flex-shrink: 0;
-        padding-top: 8px;
     }
-    .notice{
-        width: 100%;
-        justify-content: center;
+    .product-badge{
+        font-size: 10px;
+        padding: 2px 6px;
+    }
+    .product-header h2{
+        font-size: 12px;
         text-align: center;
     }
-    .notice p{
-        font-size: 10px;
-        padding: 5px;
+    .product-pricing{
+        height: auto;
+        gap: 2px;
     }
-    .casket-button{
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        gap: 8px;
+    .price-item{
+        flex-direction: column;
+        gap: 2px;
+        height: auto;
     }
-    .casket-button button{
-        flex: 1;
-        padding: 9px 8px;
+    .price-item .label{
         font-size: 12px;
-        margin: 0;
-        border-radius: 8px;
     }
     .ending-container{
-        width: 90% !important;
         flex-direction: column;
+        gap: 10px;
+        margin-top: 50px;
     }
     .ending-details{
-        width: 90% !important;
-        margin: auto;
+        text-align: center;
+        width: 100%;
     }
-    .ending-button button{
-        font-size: 13px !important;
-        padding: 8px;
+    .ending-details p{
+        font-size: 12px;
+        padding: 15px;
     }
-    .footer{
-        width: 90% !important;
+    .footer {
+        width: 95%;
         height: auto;
-        margin-bottom: 70px !important;
+        margin-top: 35px;
+        margin-bottom: 10px;
+        border-radius: 15px;
+        box-sizing: border-box;
     }
-    .footer-content{
-        flex-direction: column;
+    .footer-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 20px;
+        text-align: center;
+    }
+    .services,
+    .about-us,
+    .locations,
+    .legal,
+    .resources {
+        margin: 0;
         display: flex;
         align-items: center;
-        text-align: center;
-        margin-bottom: 20px;
-    }
-        .requirements-modal {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-        align-items: center;
         justify-content: center;
-        overflow: hidden;
     }
-
-    /* MAIN MODAL */
-    .details-modal {
-        width: 100%;
-        max-width: 100%;
-        height: 96vh;
-        max-height: 96vh;
-        border-radius: 12px;
-        box-sizing: border-box;
-        overflow: hidden;
+    .services p,
+    .about-us p,
+    .locations p,
+    .legal p,
+    .resources p {
+        font-size: 12px !important;
     }
-
-    /* =====================================================
-       MODAL HEADER
-    ===================================================== */
-
-    .modal-header {
-        padding: 14px 15px;
-        flex-shrink: 0;
-    }
-
-    .modal-header h2 {
-        font-size: 18px !important;
-        line-height: 1.3;
-        margin: 0;
-    }
-
-    .modal-header p {
-        font-size: 11px;
-        line-height: 1.4;
-        margin-top: 5px;
-    }
-
-    /* =====================================================
-       MODAL BODY
-    ===================================================== */
-
-    .modal-body {
-        padding: 12px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        flex: 1;
-        min-height: 0;
-        box-sizing: border-box;
-    }
-
-    /* scrollbar */
-    .modal-body::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    .modal-body::-webkit-scrollbar-thumb {
-        background: #bdbdbd;
-        border-radius: 10px;
-    }
-
-    /* =====================================================
-       FORM SECTIONS
-    ===================================================== */
-
-    .form-section {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 12px;
-        border-radius: 10px;
-        box-sizing: border-box;
-    }
-
-    .form-section h3 {
-        font-size: 15px !important;
-        margin-bottom: 14px;
-        line-height: 1.3;
-    }
-
-    /* =====================================================
-       INPUT ROW
-    ===================================================== */
-
-    .input-row {
-        width: 100%;
-        margin-bottom: 12px;
-        box-sizing: border-box;
-    }
-
-    .input-row label {
-        display: block;
-        width: 100%;
-        font-size: 11px;
-        line-height: 1.35;
-        margin-bottom: 5px;
-        box-sizing: border-box;
-    }
-
-    /* INPUTS + SELECT */
-    .input-row input,
-    .input-row select,
-    .input-row textarea {
-        width: 100%;
-        max-width: 100%;
-        height: 40px;
-        padding: 0 10px;
-        font-size: 11px;
-        border-radius: 7px;
-        box-sizing: border-box;
-    }
-
-    .input-row textarea {
-        height: 80px;
+    .requirements-modal {
         padding: 10px;
     }
-
-    /* DATE INPUT */
-    .input-row input[type="date"] {
-        font-size: 10px;
+    .buy-confirmation {
+        padding: 10px;
+        overflow-y: auto;
+        align-items: flex-start;
     }
-
-    /* SELECT */
-    .input-row select {
-        background-color: white;
-    }
-
-    .input-row input::placeholder {
-        font-size: 10px;
-    }
-    .others-relation {
+    .confirmation-box {
         width: 100%;
-        margin-top: 6px;
+        max-width: 100%;
+        height: auto;
+        max-height: 95vh;
+        padding: 15px;
+        overflow-y: auto;
         box-sizing: border-box;
     }
-    .declaration-text {
-        font-size: 11px !important;
-        line-height: 1.5;
-        text-align: justify;
-        color: #444;
-    }
-    .file-upload-btn {
-        display: inline-flex;
-        justify-content: center;
-        align-items: center;
-        width: 100%;
-        min-height: 35px;
-        padding: 8px 10px;
-        box-sizing: border-box;
-        font-size: 11px;
-        text-align: center;
-        border-radius: 7px;
-        color: white;
-    }
-    #file-name,
-    #file-gov-id-name {
-        display: block;
-        width: 100%;
-        margin: 6px 0 0 0;
-        font-size: 10px;
-        color: #666;
-        word-break: break-word;
-    }
-    .modal-actions {
-        padding: 10px 12px;
-        flex-shrink: 0;
+    .agreement-container {
         display: flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 15px;
+        flex: none;
+        overflow: visible;
+    }
+    .agreement-details,
+    .casket-details {
+        width: 100%;
+        height: auto;
         box-sizing: border-box;
+    }
+    .agreement-details {
+        padding: 15px;
+        max-height: 350px;
+        overflow-y: auto;
+    }
+    .casket-details {
+        overflow: visible;
+    }
+    .casket-image {
+        height: auto;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 15px;
+    }
+    .casket-image img {
+        width: 100%;
+        max-width: 200px;
+        height: 150px;
+        object-fit: cover;
+    }
+    .casket-contract {
+        grid-template-columns: 1fr;
+        overflow: visible;
+    }
+    .contract-details:first-child,
+    .contract-details:nth-child(2) {
+        grid-column: auto;
+    }
+    .bottom-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .notice,
+    .casket-button {
+        width: 100%;
+    }
+    .casket-button {
+        justify-content: center;
+    }
+    .modal-actions {
+        flex-direction: column;
+        gap: 10px;
     }
     .modal-ps {
         width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
         text-align: center;
-    }
-    .modal-ps p {
-        font-size: 9px;
-        line-height: 1.3;
-        margin: 0;
     }
     .modal-button {
         width: 100%;
-        display: flex;
-        flex-direction: row;
         justify-content: center;
-        gap: 8px;
-    }
-    .cancel-btn,
-    .submit-btn {
-        flex: 1;
-        min-width: 0;
-        width: 50%;
-        height: 40px;
-        margin: 0;
-        padding: 5px 8px;
-        font-size: 12px;
-        border-radius: 7px;
     }
 }
